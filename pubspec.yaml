@@ -1,0 +1,59 @@
+name: bingo_pay
+description: "Bingo Pay — Multi-vendor marketplace app"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.7
+
+  # Navigation
+  go_router: ^14.6.3
+
+  # Dependency injection
+  get_it: ^8.0.3
+  injectable: ^2.5.0
+
+  # Network
+  dio: ^5.8.0+1
+  pretty_dio_logger: ^1.4.0
+
+  # Storage
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.5.3
+
+  # Functional error handling
+  fpdart: ^1.1.0
+
+  # Device
+  image_picker: ^1.1.2
+  permission_handler: ^11.4.0
+  connectivity_plus: ^6.1.4
+  share_plus: ^10.1.4
+
+  # Utilities
+  logger: ^2.5.0
+  intl: ^0.19.0
+  json_annotation: ^4.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  injectable_generator: ^2.7.0
+  json_serializable: ^6.9.5
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+  generate: true
