@@ -1,0 +1,117 @@
+<h2>Section 4 — State Management</h2>
+<p class="subtitle">BLoC for complex async flows · Cubit for simple state · shared base classes for consistency</p>
+
+<div class="split" style="gap:1.5rem;align-items:flex-start;">
+
+  <div style="min-width:0;">
+    <h3>Base state pattern</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">core/bloc/app_state.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;">sealed class</span> AppState&lt;T&gt; <span style="color:#6366f1;">extends</span> Equatable {
+  <span style="color:#10b981;">const</span> AppState();
+}
+
+<span style="color:#6366f1;">class</span> InitialState&lt;T&gt; <span style="color:#6366f1;">extends</span> AppState&lt;T&gt; {
+  <span style="color:#6366f1;">const</span> InitialState();
+  @override List get props => [];
+}
+
+<span style="color:#6366f1;">class</span> LoadingState&lt;T&gt; <span style="color:#6366f1;">extends</span> AppState&lt;T&gt; {
+  <span style="color:#6366f1;">const</span> LoadingState();
+  @override List get props => [];
+}
+
+<span style="color:#6366f1;">class</span> SuccessState&lt;T&gt; <span style="color:#6366f1;">extends</span> AppState&lt;T&gt; {
+  <span style="color:#6366f1;">const</span> SuccessState(this.data);
+  <span style="color:#f59e0b;">final</span> T data;
+  @override List get props => [data];
+}
+
+<span style="color:#6366f1;">class</span> ErrorState&lt;T&gt; <span style="color:#6366f1;">extends</span> AppState&lt;T&gt; {
+  <span style="color:#6366f1;">const</span> ErrorState(this.failure);
+  <span style="color:#f59e0b;">final</span> Failure failure;
+  @override List get props => [failure];
+}
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.25rem;">Auth BLoC (example)</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">auth_bloc.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;">class</span> AuthBloc <span style="color:#6366f1;">extends</span> Bloc&lt;AuthEvent, AuthState&gt; {
+  AuthBloc({
+    required LoginUseCase loginUseCase,
+    required RegisterUseCase registerUseCase,
+    required SubmitKycUseCase submitKycUseCase,
+  }) : super(<span style="color:#10b981;">const</span> AuthInitial()) {
+    on&lt;LoginRequested&gt;(_onLoginRequested);
+    on&lt;RegisterRequested&gt;(_onRegisterRequested);
+    on&lt;KycSubmitted&gt;(_onKycSubmitted);
+  }
+
+  Future&lt;void&gt; _onLoginRequested(
+    LoginRequested event,
+    Emitter&lt;AuthState&gt; emit,
+  ) async {
+    emit(<span style="color:#10b981;">const</span> AuthLoading());
+    <span style="color:#f59e0b;">final</span> result = await _loginUseCase(
+      LoginParams(email: event.email,
+                  password: event.password),
+    );
+    result.fold(
+      (failure) => emit(AuthError(failure)),
+      (user)    => emit(AuthSuccess(user)),
+    );
+  }
+}
+      </div>
+    </div>
+  </div>
+
+  <div style="min-width:0;">
+    <h3>BLoC vs Cubit decision</h3>
+    <table style="width:100%;font-size:0.8rem;border-collapse:collapse;margin-bottom:1rem;">
+      <tr style="background:var(--surface-2,#f5f5f5);">
+        <th style="padding:7px 10px;text-align:left;">Feature</th>
+        <th style="padding:7px 10px;text-align:left;">Type</th>
+        <th style="padding:7px 10px;text-align:left;">Why</th>
+      </tr>
+      <tr><td style="padding:5px 10px;">auth</td><td style="padding:5px 10px;color:#6366f1;font-weight:600;">BLoC</td><td style="padding:5px 10px;">Multiple events, KYC steps, side-effects</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">home</td><td style="padding:5px 10px;color:#10b981;font-weight:600;">Cubit</td><td style="padding:5px 10px;">Load dashboard data, no complex events</td></tr>
+      <tr><td style="padding:5px 10px;">product_management</td><td style="padding:5px 10px;color:#6366f1;font-weight:600;">BLoC</td><td style="padding:5px 10px;">CRUD events, pagination, image upload</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">transactions</td><td style="padding:5px 10px;color:#6366f1;font-weight:600;">BLoC</td><td style="padding:5px 10px;">Filters, pagination, date range events</td></tr>
+      <tr><td style="padding:5px 10px;">refer_and_earn</td><td style="padding:5px 10px;color:#10b981;font-weight:600;">Cubit</td><td style="padding:5px 10px;">Load referral code + stats, share action</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">invoices</td><td style="padding:5px 10px;color:#6366f1;font-weight:600;">BLoC</td><td style="padding:5px 10px;">List + filter + download events</td></tr>
+    </table>
+
+    <h3>AppBlocObserver</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">app/app_bloc_observer.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;">class</span> AppBlocObserver <span style="color:#6366f1;">extends</span> BlocObserver {
+  @override
+  void onError(BlocBase bloc, Object error,
+               StackTrace stackTrace) {
+    <span style="color:#f59e0b;">logger</span>.e(error, stackTrace: stackTrace);
+    <span style="color:#aaa;">// analytics.logError() in prod</span>
+    super.onError(bloc, error, stackTrace);
+  }
+
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    <span style="color:#f59e0b;">if</span> (FlavorConfig.instance.enableLogging)
+      <span style="color:#f59e0b;">logger</span>.d('${bloc.runtimeType}: $change');
+    super.onChange(bloc, change);
+  }
+}
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;padding:0.75rem 1rem;background:#f0fdf4;border-radius:6px;font-size:0.82rem;color:#166534;border-left:3px solid #22c55e;">
+      <strong>Global error catch:</strong> AppBlocObserver is set in <code>bootstrap()</code> via <code>Bloc.observer = AppBlocObserver()</code>. All unhandled BLoC errors flow here — logged in dev, sent to analytics in prod.
+    </div>
+  </div>
+
+</div>

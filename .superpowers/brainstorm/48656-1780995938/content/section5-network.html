@@ -1,0 +1,94 @@
+<h2>Section 5 — Network & Error Handling</h2>
+<p class="subtitle">Dio with 3 interceptors · Either&lt;Failure, T&gt; across all layers · typed failure hierarchy</p>
+
+<div class="split" style="gap:1.5rem;align-items:flex-start;">
+
+  <div style="min-width:0;">
+    <h3>Request lifecycle</h3>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+      <div style="background:#eff6ff;border-radius:6px;padding:0.55rem 0.9rem;font-size:0.81rem;border-left:3px solid #3b82f6;"><strong>1. LoggingInterceptor</strong> — logs method, URL, headers in dev only</div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.8rem;">↓ onRequest</div>
+      <div style="background:#f0fdf4;border-radius:6px;padding:0.55rem 0.9rem;font-size:0.81rem;border-left:3px solid #22c55e;"><strong>2. AuthInterceptor</strong> — reads JWT from SecureStorage, injects <code>Authorization: Bearer &lt;token&gt;</code></div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.8rem;">↓ onResponse / onError</div>
+      <div style="background:#fefce8;border-radius:6px;padding:0.55rem 0.9rem;font-size:0.81rem;border-left:3px solid #eab308;"><strong>3. ErrorInterceptor</strong> — maps HTTP status → typed Exception; on 401 attempts token refresh once, then triggers logout</div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.8rem;">↓</div>
+      <div style="background:#fdf4ff;border-radius:6px;padding:0.55rem 0.9rem;font-size:0.81rem;border-left:3px solid #a855f7;"><strong>DataSource</strong> — wraps Dio call in try/catch, throws typed <code>ServerException</code></div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.8rem;">↓</div>
+      <div style="background:#fff1f2;border-radius:6px;padding:0.55rem 0.9rem;font-size:0.81rem;border-left:3px solid #f43f5e;"><strong>Repository Impl</strong> — catches exceptions, returns <code>Left(Failure)</code> or <code>Right(Entity)</code></div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.8rem;">↓</div>
+      <div style="background:#eff6ff;border-radius:6px;padding:0.55rem 0.9rem;font-size:0.81rem;border-left:3px solid #3b82f6;"><strong>UseCase → BLoC</strong> — <code>result.fold(emitError, emitSuccess)</code></div>
+    </div>
+
+    <h3 style="margin-top:1.25rem;">Token refresh (401 flow)</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.7;">
+      <div class="mockup-header">auth_interceptor.dart (on 401)</div>
+      <div class="mockup-body" style="white-space:pre;">
+on 401 received:
+  → call POST /auth/refresh with refreshToken
+  → if success: store new tokens, retry original request
+  → if refresh also 401: clear storage,
+       fire SessionExpired event → router
+       redirects to /login
+      </div>
+    </div>
+  </div>
+
+  <div style="min-width:0;">
+    <h3>Failure hierarchy</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">core/error/failures.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;">sealed class</span> Failure <span style="color:#6366f1;">extends</span> Equatable {
+  <span style="color:#f59e0b;">final</span> String message;
+  <span style="color:#6366f1;">const</span> Failure(this.message);
+}
+
+<span style="color:#6366f1;">class</span> NetworkFailure   <span style="color:#6366f1;">extends</span> Failure { ... }
+<span style="color:#6366f1;">class</span> ServerFailure    <span style="color:#6366f1;">extends</span> Failure {
+  <span style="color:#f59e0b;">final</span> int? statusCode;
+  <span style="color:#f59e0b;">final</span> String? serverMessage;
+}
+<span style="color:#6366f1;">class</span> AuthFailure      <span style="color:#6366f1;">extends</span> Failure { ... }
+<span style="color:#6366f1;">class</span> CacheFailure     <span style="color:#6366f1;">extends</span> Failure { ... }
+<span style="color:#6366f1;">class</span> ValidationFailure <span style="color:#6366f1;">extends</span> Failure {
+  <span style="color:#f59e0b;">final</span> Map&lt;String, String&gt; fieldErrors;
+}
+<span style="color:#6366f1;">class</span> UnknownFailure   <span style="color:#6366f1;">extends</span> Failure { ... }
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.25rem;">API response contract</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">Expected JSON shape from your REST API</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#aaa;">// Success</span>
+{
+  "success": true,
+  "data": { ... },
+  "message": "Login successful"
+}
+
+<span style="color:#aaa;">// Validation error (422)</span>
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "email": "Already in use",
+    "password": "Too short"
+  }
+}
+
+<span style="color:#aaa;">// Server error (4xx / 5xx)</span>
+{
+  "success": false,
+  "message": "Something went wrong"
+}
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;padding:0.75rem 1rem;background:#fff7ed;border-radius:6px;font-size:0.82rem;color:#9a3412;border-left:3px solid #f97316;">
+      <strong>Contract-first benefit:</strong> Since your REST API isn't built yet, defining this response shape now means your Flutter data layer and backend can be built in parallel with zero integration surprises.
+    </div>
+  </div>
+
+</div>

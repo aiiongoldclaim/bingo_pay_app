@@ -1,0 +1,124 @@
+<h2>Section 6 — Routing & Dependency Injection</h2>
+<p class="subtitle">GoRouter with role-based guards · GetIt + Injectable for zero-boilerplate DI</p>
+
+<div class="split" style="gap:1.5rem;align-items:flex-start;">
+
+  <div style="min-width:0;">
+    <h3>Route map</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">core/router/app_routes.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#aaa;">// Public routes (no auth required)</span>
+/splash
+/login
+/register
+/forgot-password
+/register/kyc          <span style="color:#aaa;">(vendor only)</span>
+
+<span style="color:#aaa;">// Buyer shell</span>
+/buyer
+  /buyer/home
+  /buyer/transactions
+  /buyer/transactions/:id
+  /buyer/refer
+  /buyer/invoices
+  /buyer/invoices/:id
+
+<span style="color:#aaa;">// Vendor shell</span>
+/vendor
+  /vendor/home
+  /vendor/products
+  /vendor/products/create
+  /vendor/products/:id/edit
+  /vendor/transactions
+  /vendor/transactions/:id
+  /vendor/invoices
+  /vendor/invoices/:id
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.25rem;">Auth + role guard</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.7;">
+      <div class="mockup-header">route_guard.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+String? redirect(BuildContext ctx, GoRouterState state) {
+  <span style="color:#f59e0b;">final</span> auth = ctx.read&lt;AuthBloc&gt;().state;
+  <span style="color:#f59e0b;">final</span> isPublic = _publicRoutes
+      .contains(state.matchedLocation);
+
+  <span style="color:#6366f1;">if</span> (auth <span style="color:#6366f1;">is</span> AuthSuccess) {
+    <span style="color:#6366f1;">if</span> (isPublic) {
+      <span style="color:#aaa;">// already logged in → send home</span>
+      return auth.user.role == Role.vendor
+        ? '/vendor/home' : '/buyer/home';
+    }
+    <span style="color:#aaa;">// block buyer from /vendor/* and vice versa</span>
+    <span style="color:#6366f1;">if</span> (state.matchedLocation.startsWith('/vendor')
+        && auth.user.role != Role.vendor)
+      return '/buyer/home';
+    return null; <span style="color:#aaa;">// allow</span>
+  }
+  return isPublic ? null : '/login';
+}
+      </div>
+    </div>
+  </div>
+
+  <div style="min-width:0;">
+    <h3>DI registration pattern</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">core/di/injection.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+@InjectableInit()
+Future&lt;void&gt; configureDependencies(String env) async
+  => getIt.init(environment: env);
+
+<span style="color:#aaa;">// called from bootstrap.dart:</span>
+await configureDependencies(
+  FlavorConfig.instance.flavor.name,
+);
+      </div>
+    </div>
+
+    <div class="mockup" style="margin-top:0.75rem;font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">auth/bindings/auth_bindings.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;">@injectable</span>
+class AuthRemoteDataSource { ... }
+
+<span style="color:#6366f1;">@Injectable(as: AuthRepository)</span>
+class AuthRepositoryImpl
+    implements AuthRepository { ... }
+
+<span style="color:#6366f1;">@injectable</span>
+class LoginUseCase { ... }
+
+<span style="color:#aaa;">// BLoC registered as factory (new instance per route)</span>
+<span style="color:#6366f1;">@injectable</span>
+class AuthBloc extends Bloc&lt;AuthEvent, AuthState&gt; {
+  AuthBloc(
+    <span style="color:#6366f1;">@injectable</span> LoginUseCase loginUseCase,
+    ...
+  ) { ... }
+}
+      </div>
+    </div>
+
+    <h3 style="margin-top:1rem;">Lifecycle rules</h3>
+    <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
+      <tr style="background:var(--surface-2,#f5f5f5);">
+        <th style="padding:6px 10px;text-align:left;">Type</th>
+        <th style="padding:6px 10px;text-align:left;">Annotation</th>
+        <th style="padding:6px 10px;text-align:left;">Examples</th>
+      </tr>
+      <tr><td style="padding:5px 10px;">Singleton</td><td style="padding:5px 10px;font-family:monospace;font-size:0.78rem;">@singleton</td><td style="padding:5px 10px;">Dio, SecureStorage, FlavorConfig</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">Lazy Singleton</td><td style="padding:5px 10px;font-family:monospace;font-size:0.78rem;">@lazySingleton</td><td style="padding:5px 10px;">AppRouter, ConnectivityService</td></tr>
+      <tr><td style="padding:5px 10px;">Factory</td><td style="padding:5px 10px;font-family:monospace;font-size:0.78rem;">@injectable</td><td style="padding:5px 10px;">All BLoCs, UseCases, Repositories</td></tr>
+    </table>
+
+    <div style="margin-top:1rem;padding:0.75rem 1rem;background:#f0fdf4;border-radius:6px;font-size:0.82rem;color:#166534;border-left:3px solid #22c55e;">
+      <strong>No manual wiring.</strong> <code>build_runner</code> generates <code>injection.config.dart</code> — add a new class with <code>@injectable</code> and it's automatically registered. Run <code>flutter pub run build_runner build</code> after adding any new injectable.
+    </div>
+  </div>
+
+</div>

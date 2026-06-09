@@ -3,6 +3,8 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String registerKyc = '/register/kyc';
+  static const String kycDocument = '/register/kyc/document';
+  static const String kycSelfie = '/register/kyc/selfie';
   static const String forgotPassword = '/forgot-password';
 
   // Buyer shell
@@ -28,6 +30,8 @@ class AppRoutes {
     login,
     register,
     registerKyc,
+    kycDocument,
+    kycSelfie,
     forgotPassword,
   ];
 }

@@ -1,0 +1,123 @@
+<h2>Section 2 — Core Module Architecture</h2>
+<p class="subtitle">Every shared service lives here. Features depend on core, never on each other.</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem;">
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #6366f1;">
+    <div class="label">Network</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/api/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Dio singleton, base options, interceptors</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      api_client.dart<br>
+      api_endpoints.dart<br>
+      interceptors/<br>
+      &nbsp;├─ auth_interceptor.dart<br>
+      &nbsp;├─ logging_interceptor.dart<br>
+      &nbsp;└─ error_interceptor.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#6366f1;">JWT auto-attach • token refresh • request logging</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #10b981;">
+    <div class="label">Config</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/config/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Flavor-aware app configuration</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      flavor_config.dart<br>
+      app_config.dart<br>
+      app_constants.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#10b981;">API URLs • feature flags • timeouts • pagination sizes</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #f59e0b;">
+    <div class="label">DI</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/di/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">GetIt + Injectable auto-wiring</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      injection.dart<br>
+      injection.config.dart <span style="color:#aaa;">(generated)</span>
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#f59e0b;">Single service locator • env-aware registration</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #ec4899;">
+    <div class="label">Error Handling</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/error/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Typed failures propagated via Either</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      failures.dart<br>
+      exceptions.dart<br>
+      error_handler.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#ec4899;">NetworkFailure • ServerFailure • AuthFailure • CacheFailure</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #8b5cf6;">
+    <div class="label">Router</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/router/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">GoRouter with role-based guards</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      app_router.dart<br>
+      app_routes.dart<br>
+      route_guard.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#8b5cf6;">Auth guard • role guard (vendor vs buyer) • deep links</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #0ea5e9;">
+    <div class="label">Storage</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/storage/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Secure tokens + lightweight prefs</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      secure_storage_service.dart<br>
+      preferences_service.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#0ea5e9;">JWT in flutter_secure_storage • prefs in shared_preferences</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #14b8a6;">
+    <div class="label">Theme</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/theme/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Material 3 light + dark themes</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      app_theme.dart<br>
+      app_colors.dart<br>
+      app_text_styles.dart<br>
+      app_dimensions.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#14b8a6;">Token-based design system • responsive spacing</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #f97316;">
+    <div class="label">Network Monitor</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/network/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Connectivity stream for offline banner</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      network_info.dart<br>
+      connectivity_service.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#f97316;">connectivity_plus • exposes Stream&lt;bool&gt; isConnected</div>
+  </div>
+
+  <div style="background:var(--surface-2,#f8f9fa);border-radius:8px;padding:1rem;border-top:3px solid #64748b;">
+    <div class="label">Shared Widgets</div>
+    <h3 style="margin:0.4rem 0 0.3rem;font-size:1rem;">core/widgets/</h3>
+    <p style="font-size:0.82rem;color:var(--text-2,#555);margin:0 0 0.75rem;">Design system components</p>
+    <div style="font-family:monospace;font-size:0.76rem;line-height:1.8;color:var(--text-1,#333);">
+      app_button.dart<br>
+      app_text_field.dart<br>
+      app_loader.dart<br>
+      app_snackbar.dart<br>
+      app_error_widget.dart<br>
+      app_image_picker.dart
+    </div>
+    <div style="margin-top:0.75rem;font-size:0.78rem;color:#64748b;">No business logic — pure UI primitives</div>
+  </div>
+
+</div>
+
+<div style="margin-top:1.5rem;padding:1rem 1.25rem;background:#eff6ff;border-radius:8px;border-left:3px solid #3b82f6;">
+  <strong style="font-size:0.85rem;">Dependency Rule:</strong>
+  <span style="font-size:0.85rem;color:#1e40af;"> Features → Core. Core → nothing in features. Features never import each other.</span>
+</div>

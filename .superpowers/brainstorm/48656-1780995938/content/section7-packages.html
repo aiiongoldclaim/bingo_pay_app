@@ -1,0 +1,74 @@
+<h2>Section 7 — Package Stack & Testing Strategy</h2>
+<p class="subtitle">Every dependency justified · unit / widget / integration test layers</p>
+
+<div class="split" style="gap:1.5rem;align-items:flex-start;">
+
+  <div style="min-width:0;">
+    <h3>pubspec.yaml — dependencies</h3>
+    <table style="width:100%;font-size:0.79rem;border-collapse:collapse;">
+      <tr style="background:#6366f1;color:white;">
+        <th style="padding:6px 10px;text-align:left;border-radius:4px 0 0 0;">Package</th>
+        <th style="padding:6px 10px;text-align:left;">Purpose</th>
+      </tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#6366f1;font-size:0.75rem;letter-spacing:0.05em;">STATE</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">flutter_bloc ^8</td><td style="padding:4px 10px;">BLoC + Cubit + BlocProvider</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">equatable ^2</td><td style="padding:4px 10px;">Value equality for states/events</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#10b981;font-size:0.75rem;letter-spacing:0.05em;">NAVIGATION</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">go_router ^14</td><td style="padding:4px 10px;">Declarative routing, deep links, guards</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#f59e0b;font-size:0.75rem;letter-spacing:0.05em;">DI</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">get_it ^8</td><td style="padding:4px 10px;">Service locator</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">injectable ^2</td><td style="padding:4px 10px;">Annotation-based auto-registration</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#ec4899;font-size:0.75rem;letter-spacing:0.05em;">NETWORK</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">dio ^5</td><td style="padding:4px 10px;">HTTP client with interceptors</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">pretty_dio_logger ^1</td><td style="padding:4px 10px;">Dev-only request/response logging</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#8b5cf6;font-size:0.75rem;letter-spacing:0.05em;">STORAGE</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">flutter_secure_storage ^9</td><td style="padding:4px 10px;">JWT tokens (encrypted keychain/keystore)</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">shared_preferences ^2</td><td style="padding:4px 10px;">Lightweight user prefs</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#0ea5e9;font-size:0.75rem;letter-spacing:0.05em;">ERROR / FP</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">fpdart ^1</td><td style="padding:4px 10px;">Either&lt;Failure, T&gt; for result types</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#14b8a6;font-size:0.75rem;letter-spacing:0.05em;">DEVICE</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">image_picker ^1</td><td style="padding:4px 10px;">KYC doc/selfie + product images</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">permission_handler ^11</td><td style="padding:4px 10px;">Camera + storage permissions</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">connectivity_plus ^6</td><td style="padding:4px 10px;">Offline detection stream</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">share_plus ^9</td><td style="padding:4px 10px;">Refer & Earn share sheet</td></tr>
+      <tr style="background:var(--surface-2,#f8f9fa);"><td colspan="2" style="padding:5px 10px;font-weight:700;color:#f97316;font-size:0.75rem;letter-spacing:0.05em;">UTILS</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">logger ^2</td><td style="padding:4px 10px;">Structured console logging</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">intl ^0.19</td><td style="padding:4px 10px;">Date/currency formatting + l10n</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">json_annotation ^4</td><td style="padding:4px 10px;">JSON serialisation annotations</td></tr>
+    </table>
+  </div>
+
+  <div style="min-width:0;">
+    <h3>dev_dependencies</h3>
+    <table style="width:100%;font-size:0.79rem;border-collapse:collapse;margin-bottom:1.25rem;">
+      <tr style="background:#64748b;color:white;"><th style="padding:6px 10px;text-align:left;">Package</th><th style="padding:6px 10px;text-align:left;">Purpose</th></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">build_runner</td><td style="padding:4px 10px;">Code generation trigger</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">injectable_generator</td><td style="padding:4px 10px;">Generates injection.config.dart</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">json_serializable</td><td style="padding:4px 10px;">Generates fromJson/toJson</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">bloc_test ^9</td><td style="padding:4px 10px;">BLoC/Cubit unit test helpers</td></tr>
+      <tr><td style="padding:4px 10px;font-family:monospace;">mocktail ^2</td><td style="padding:4px 10px;">Mocking without codegen</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:4px 10px;font-family:monospace;">flutter_lints ^6</td><td style="padding:4px 10px;">Lint rules</td></tr>
+    </table>
+
+    <h3>Testing strategy</h3>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+      <div style="background:#eff6ff;border-radius:6px;padding:0.7rem 0.9rem;border-left:3px solid #3b82f6;">
+        <div class="label">Unit tests — test/unit/</div>
+        <p style="font-size:0.81rem;margin:0.3rem 0 0;">UseCase, Repository, Failure mapping. Mock datasources with mocktail. No Flutter dependency. Run in &lt;5s.</p>
+      </div>
+      <div style="background:#f0fdf4;border-radius:6px;padding:0.7rem 0.9rem;border-left:3px solid #22c55e;">
+        <div class="label">BLoC tests — test/bloc/</div>
+        <p style="font-size:0.81rem;margin:0.3rem 0 0;">Use <code>bloc_test</code> + <code>whenListen</code>. Verify state sequences: Loading → Success, Loading → Error. 100% BLoC coverage target.</p>
+      </div>
+      <div style="background:#fefce8;border-radius:6px;padding:0.7rem 0.9rem;border-left:3px solid #eab308;">
+        <div class="label">Widget tests — test/widget/</div>
+        <p style="font-size:0.81rem;margin:0.3rem 0 0;">Pump screens with mocked BLoC states. Verify UI renders correctly for Loading / Success / Error states. Test role-based widget visibility.</p>
+      </div>
+      <div style="background:#fdf4ff;border-radius:6px;padding:0.7rem 0.9rem;border-left:3px solid #a855f7;">
+        <div class="label">Integration tests — integration_test/</div>
+        <p style="font-size:0.81rem;margin:0.3rem 0 0;">Full login → home flow per flavor. KYC upload flow. Run on real device / emulator via <code>flutter test integration_test/</code>.</p>
+      </div>
+    </div>
+  </div>
+
+</div>

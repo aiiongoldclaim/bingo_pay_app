@@ -9,8 +9,7 @@ sealed class Failure extends Equatable {
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure([String message = 'No internet connection'])
-      : super(message);
+  const NetworkFailure([super.message = 'No internet connection']);
 }
 
 class ServerFailure extends Failure {
@@ -48,6 +47,5 @@ class ValidationFailure extends Failure {
 }
 
 class UnknownFailure extends Failure {
-  const UnknownFailure([String message = 'An unexpected error occurred'])
-      : super(message);
+  const UnknownFailure([super.message = 'An unexpected error occurred']);
 }

@@ -1,0 +1,78 @@
+<h2>Architecture Approach Options</h2>
+<p class="subtitle">Choose the structural foundation for Bingo Pay</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Feature-First Monolith <span style="font-size:0.75rem;background:#6366f1;color:white;padding:2px 8px;border-radius:999px;margin-left:6px;">Recommended</span></h3>
+      <p>Single Flutter project. <code>lib/</code> split into <code>core/</code> and <code>features/</code>. Clean Architecture within each feature. Feature isolation is logical (enforced by convention + barrel exports).</p>
+      <div class="pros-cons" style="margin-top:0.75rem;">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Standard, well-understood structure</li>
+          <li>Fastest to bootstrap</li>
+          <li>Easy cross-feature navigation</li>
+          <li>Single pubspec.yaml</li>
+          <li>Can graduate to packages later</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>Isolation is by convention only</li>
+          <li>Large teams can bleed feature boundaries</li>
+        </ul></div>
+      </div>
+      <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:#f0fdf4;border-radius:6px;font-size:0.82rem;color:#166534;">
+        Best for: greenfield project, API not yet built, team finding domain boundaries
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Federated Package Architecture (Melos)</h3>
+      <p>Each feature is a separate Dart package under <code>packages/features/</code>. Core is a shared package. Melos manages the monorepo. True compile-time isolation between features.</p>
+      <div class="pros-cons" style="margin-top:0.75rem;">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>True Dart-level feature isolation</li>
+          <li>Independent package versioning</li>
+          <li>Compile errors on cross-feature leaks</li>
+          <li>Scales to 20+ features / large teams</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>High setup + maintenance overhead</li>
+          <li>Refactoring across packages is painful</li>
+          <li>Premature for early-stage API discovery</li>
+          <li>pubspec.yaml per feature, path dependencies</li>
+        </ul></div>
+      </div>
+      <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:#fef9c3;border-radius:6px;font-size:0.82rem;color:#854d0e;">
+        Best for: 5+ engineers, stable domain, features owned by separate teams
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>DDD-Flavored Feature-First</h3>
+      <p>Single package like Option A, but with richer Domain-Driven Design concepts: Value Objects (Money, EmailAddress), Aggregates (Order, Vendor), and formal Bounded Contexts per feature.</p>
+      <div class="pros-cons" style="margin-top:0.75rem;">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Excellent for complex payment domain logic</li>
+          <li>Type-safe domain primitives (Money, TaxId)</li>
+          <li>Business rules live in domain layer</li>
+        </ul></div>
+        <div class="cons"><h4>Cons</h4><ul>
+          <li>More boilerplate than needed for CRUD</li>
+          <li>Steeper learning curve for new devs</li>
+          <li>Most marketplace features are CRUD-heavy</li>
+        </ul></div>
+      </div>
+      <div style="margin-top:0.75rem;padding:0.6rem 0.75rem;background:#fef2f2;border-radius:6px;font-size:0.82rem;color:#991b1b;">
+        Best for: fintech apps with complex business rules; overkill for standard marketplace CRUD
+      </div>
+    </div>
+  </div>
+
+</div>

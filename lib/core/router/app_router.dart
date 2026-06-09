@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/auth/presentation/screens/kyc/kyc_document_screen.dart';
+import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
+import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
+import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
@@ -19,37 +25,49 @@ class AppRouter {
       routes: [
         GoRoute(
           path: AppRoutes.splash,
-          builder: (_, __) => const _SplashPage(),
+          builder: (_, _) => const _SplashPage(),
         ),
         GoRoute(
           path: AppRoutes.login,
-          builder: (_, __) => const _PlaceholderPage('Login'),
+          builder: (_, _) => const LoginScreen(),
         ),
         GoRoute(
           path: AppRoutes.register,
-          builder: (_, __) => const _PlaceholderPage('Register'),
+          builder: (_, _) => const RegisterScreen(),
         ),
         GoRoute(
           path: AppRoutes.forgotPassword,
-          builder: (_, __) => const _PlaceholderPage('Forgot Password'),
+          builder: (_, _) => const ForgotPasswordScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.registerKyc,
+          builder: (_, _) => const KycScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.kycDocument,
+          builder: (_, _) => const KycDocumentScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.kycSelfie,
+          builder: (_, _) => const KycSelfieScreen(),
         ),
         GoRoute(
           path: '/buyer',
-          builder: (_, __) => const _PlaceholderPage('Buyer Shell'),
+          builder: (_, _) => const _PlaceholderPage('Buyer Shell'),
           routes: [
             GoRoute(
               path: 'home',
-              builder: (_, __) => const _PlaceholderPage('Buyer Home'),
+              builder: (_, _) => const _PlaceholderPage('Buyer Home'),
             ),
           ],
         ),
         GoRoute(
           path: '/vendor',
-          builder: (_, __) => const _PlaceholderPage('Vendor Shell'),
+          builder: (_, _) => const _PlaceholderPage('Vendor Shell'),
           routes: [
             GoRoute(
               path: 'home',
-              builder: (_, __) => const _PlaceholderPage('Vendor Home'),
+              builder: (_, _) => const _PlaceholderPage('Vendor Home'),
             ),
           ],
         ),

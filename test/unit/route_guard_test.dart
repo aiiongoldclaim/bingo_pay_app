@@ -52,5 +52,27 @@ void main() {
       );
       expect(result, AppRoutes.buyerHome);
     });
+
+    test('vendor with pending KYC is redirected to /register/kyc', () {
+      const state = RouteAuthState.authenticated(
+        role: UserRole.vendor,
+        isKycPending: true,
+      );
+      expect(
+        RouteGuard.redirect(location: '/vendor/home', authState: state),
+        AppRoutes.registerKyc,
+      );
+    });
+
+    test('vendor with pending KYC already at /register/kyc is not redirected', () {
+      const state = RouteAuthState.authenticated(
+        role: UserRole.vendor,
+        isKycPending: true,
+      );
+      expect(
+        RouteGuard.redirect(location: AppRoutes.registerKyc, authState: state),
+        isNull,
+      );
+    });
   });
 }

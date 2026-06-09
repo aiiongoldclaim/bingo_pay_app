@@ -1,0 +1,102 @@
+<h2>Section 3 — Feature Structure</h2>
+<p class="subtitle">Using <strong>auth</strong> as the reference implementation — all 7 features follow this exact pattern</p>
+
+<div class="split" style="gap:1.5rem;align-items:flex-start;">
+
+  <div style="min-width:0;">
+    <h3>auth/ folder tree</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.76rem;line-height:1.8;">
+      <div class="mockup-header">lib/features/auth/</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;font-weight:600;">data/</span>
+│  ├─ datasources/
+│  │   ├─ auth_remote_datasource.dart
+│  │   └─ auth_local_datasource.dart
+│  ├─ models/
+│  │   ├─ user_model.dart
+│  │   ├─ auth_response_model.dart
+│  │   └─ kyc_model.dart
+│  └─ repositories/
+│      └─ auth_repository_impl.dart
+│
+<span style="color:#10b981;font-weight:600;">domain/</span>
+│  ├─ entities/
+│  │   ├─ user_entity.dart
+│  │   └─ kyc_entity.dart
+│  ├─ repositories/
+│  │   └─ auth_repository.dart  <span style="color:#aaa;">(abstract)</span>
+│  └─ usecases/
+│      ├─ login_usecase.dart
+│      ├─ register_usecase.dart
+│      ├─ forgot_password_usecase.dart
+│      ├─ logout_usecase.dart
+│      └─ submit_kyc_usecase.dart
+│
+<span style="color:#f59e0b;font-weight:600;">presentation/</span>
+│  ├─ bloc/
+│  │   ├─ auth_bloc.dart
+│  │   ├─ auth_event.dart
+│  │   └─ auth_state.dart
+│  ├─ screens/
+│  │   ├─ login_screen.dart
+│  │   ├─ register_screen.dart
+│  │   ├─ forgot_password_screen.dart
+│  │   └─ kyc/
+│  │       ├─ kyc_screen.dart
+│  │       ├─ kyc_document_screen.dart
+│  │       └─ kyc_selfie_screen.dart
+│  └─ widgets/
+│      ├─ auth_text_field.dart
+│      └─ kyc_step_indicator.dart
+│
+<span style="color:#ec4899;font-weight:600;">bindings/</span>
+   └─ auth_bindings.dart
+      </div>
+    </div>
+  </div>
+
+  <div style="min-width:0;">
+    <h3>Data flow (login example)</h3>
+    <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.25rem;">
+      <div style="background:#eff6ff;border-radius:6px;padding:0.6rem 0.9rem;font-size:0.82rem;border-left:3px solid #3b82f6;">
+        <strong>1. Screen</strong> — user taps Login → dispatches <code>LoginRequested</code> event to AuthBloc
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.85rem;">↓</div>
+      <div style="background:#f0fdf4;border-radius:6px;padding:0.6rem 0.9rem;font-size:0.82rem;border-left:3px solid #22c55e;">
+        <strong>2. BLoC</strong> — calls <code>LoginUseCase(email, password)</code>
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.85rem;">↓</div>
+      <div style="background:#fefce8;border-radius:6px;padding:0.6rem 0.9rem;font-size:0.82rem;border-left:3px solid #eab308;">
+        <strong>3. UseCase</strong> — calls <code>AuthRepository.login()</code>, returns <code>Either&lt;Failure, UserEntity&gt;</code>
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.85rem;">↓</div>
+      <div style="background:#fdf4ff;border-radius:6px;padding:0.6rem 0.9rem;font-size:0.82rem;border-left:3px solid #a855f7;">
+        <strong>4. Repository Impl</strong> — calls <code>AuthRemoteDataSource.login()</code> → maps <code>UserModel</code> → <code>UserEntity</code>
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.85rem;">↓</div>
+      <div style="background:#fff1f2;border-radius:6px;padding:0.6rem 0.9rem;font-size:0.82rem;border-left:3px solid #f43f5e;">
+        <strong>5. Remote DS</strong> — Dio POST <code>/auth/login</code> → returns <code>AuthResponseModel</code>, saves JWT to SecureStorage
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:0.85rem;">↓</div>
+      <div style="background:#eff6ff;border-radius:6px;padding:0.6rem 0.9rem;font-size:0.82rem;border-left:3px solid #3b82f6;">
+        <strong>6. BLoC emits</strong> <code>AuthSuccess(user)</code> → GoRouter redirects based on <code>user.role</code>
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.25rem;">All 7 features</h3>
+    <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
+      <tr style="background:var(--surface-2,#f5f5f5);">
+        <th style="padding:6px 10px;text-align:left;">Feature</th>
+        <th style="padding:6px 10px;text-align:left;">State mgmt</th>
+        <th style="padding:6px 10px;text-align:left;">Roles</th>
+      </tr>
+      <tr><td style="padding:5px 10px;">auth</td><td style="padding:5px 10px;">BLoC</td><td style="padding:5px 10px;">All</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">home</td><td style="padding:5px 10px;">Cubit</td><td style="padding:5px 10px;">Buyer + Vendor (different dashboards)</td></tr>
+      <tr><td style="padding:5px 10px;">product_management</td><td style="padding:5px 10px;">BLoC</td><td style="padding:5px 10px;">Vendor only</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">transactions</td><td style="padding:5px 10px;">BLoC</td><td style="padding:5px 10px;">All</td></tr>
+      <tr><td style="padding:5px 10px;">refer_and_earn</td><td style="padding:5px 10px;">Cubit</td><td style="padding:5px 10px;">All</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">invoices</td><td style="padding:5px 10px;">BLoC</td><td style="padding:5px 10px;">All</td></tr>
+    </table>
+  </div>
+
+</div>

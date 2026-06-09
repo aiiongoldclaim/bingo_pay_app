@@ -6,6 +6,8 @@ class ApiEndpoints {
   static const String kycDocument = '/kyc/document';
   static const String kycSelfie = '/kyc/selfie';
   static const String kycStatus = '/kyc/status';
+  static const String kycPersonalDetails = '/kyc/personal-details';
+  static const String me = '/auth/me';
   static const String products = '/products';
   static const String transactions = '/transactions';
   static const String invoices = '/invoices';

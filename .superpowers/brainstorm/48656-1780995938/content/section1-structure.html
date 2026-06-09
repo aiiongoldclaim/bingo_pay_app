@@ -1,0 +1,92 @@
+<h2>Section 1 — Project Structure & Flavors</h2>
+<p class="subtitle">Full folder layout with three flavors: dev, staging, prod</p>
+
+<div class="split" style="gap:1.5rem;align-items:flex-start;">
+
+  <div>
+    <h3>lib/ layout</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.78rem;line-height:1.7;">
+      <div class="mockup-header">lib/</div>
+      <div class="mockup-body" style="white-space:pre;">
+<span style="color:#6366f1;font-weight:600;">main_dev.dart</span>
+<span style="color:#6366f1;font-weight:600;">main_staging.dart</span>
+<span style="color:#6366f1;font-weight:600;">main_prod.dart</span>
+│
+<span style="color:#10b981;font-weight:600;">app/</span>
+│  ├── app.dart
+│  ├── app_bloc_observer.dart
+│  └── bootstrap.dart
+│
+<span style="color:#f59e0b;font-weight:600;">core/</span>
+│  ├── api/              ← Dio client + interceptors
+│  ├── config/           ← FlavorConfig, AppConfig
+│  ├── di/               ← GetIt + Injectable
+│  ├── error/            ← Failures, Exceptions
+│  ├── network/          ← Connectivity monitor
+│  ├── router/           ← GoRouter + guards
+│  ├── storage/          ← SecureStorage, SharedPrefs
+│  ├── theme/            ← Colors, TextStyles, Dimensions
+│  ├── l10n/             ← ARB files, generated locs
+│  ├── utils/            ← Extensions, Validators
+│  └── widgets/          ← Shared UI components
+│
+<span style="color:#ec4899;font-weight:600;">features/</span>
+   ├── auth/
+   ├── home/
+   ├── product_management/
+   ├── transactions/
+   ├── refer_and_earn/
+   └── invoices/
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3>Flavor entry points</h3>
+    <div class="mockup" style="font-family:monospace;font-size:0.78rem;line-height:1.7;">
+      <div class="mockup-header">main_dev.dart</div>
+      <div class="mockup-body" style="white-space:pre;">
+void main() async {
+  FlavorConfig.instance = FlavorConfig(
+    flavor: Flavor.dev,
+    apiBaseUrl:
+      'https://dev-api.bingopay.com/v1',
+    appName: 'Bingo Pay DEV',
+    enableLogging: true,
+    enableAnalytics: false,
+  );
+  await bootstrap();
+}
+      </div>
+    </div>
+
+    <div class="mockup" style="margin-top:1rem;font-family:monospace;font-size:0.78rem;line-height:1.7;">
+      <div class="mockup-header">Flavor config</div>
+      <div class="mockup-body" style="white-space:pre;">
+enum Flavor { dev, staging, prod }
+
+class FlavorConfig {
+  static late FlavorConfig instance;
+  final Flavor flavor;
+  final String apiBaseUrl;
+  final String appName;
+  final bool enableLogging;
+  final bool enableAnalytics;
+}
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.25rem;">Flavor × platform</h3>
+    <table style="width:100%;font-size:0.82rem;border-collapse:collapse;">
+      <tr style="background:var(--surface-2,#f5f5f5);">
+        <th style="padding:6px 10px;text-align:left;border-radius:4px 0 0 4px;">Flavor</th>
+        <th style="padding:6px 10px;text-align:left;">Android productFlavor</th>
+        <th style="padding:6px 10px;text-align:left;border-radius:0 4px 4px 0;">iOS Scheme</th>
+      </tr>
+      <tr><td style="padding:5px 10px;">dev</td><td style="padding:5px 10px;">dev</td><td style="padding:5px 10px;">Runner-Dev</td></tr>
+      <tr style="background:var(--surface-2,#f9f9f9);"><td style="padding:5px 10px;">staging</td><td style="padding:5px 10px;">staging</td><td style="padding:5px 10px;">Runner-Staging</td></tr>
+      <tr><td style="padding:5px 10px;">prod</td><td style="padding:5px 10px;">prod</td><td style="padding:5px 10px;">Runner</td></tr>
+    </table>
+  </div>
+
+</div>

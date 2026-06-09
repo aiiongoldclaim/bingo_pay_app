@@ -1,6 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/di/injection.dart';
+import '../core/config/flavor_config.dart';
+import 'app.dart';
+import 'app_bloc_observer.dart';
 
-Future<void> bootstrap(Widget Function() appBuilder) async {
+Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(appBuilder());
+  await configureDependencies(FlavorConfig.instance.flavor.name);
+  Bloc.observer = AppBlocObserver();
+  runApp(const App());
 }
