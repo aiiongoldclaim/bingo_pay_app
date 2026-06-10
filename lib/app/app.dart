@@ -22,7 +22,9 @@ class _AppState extends State<App> {
   final _connectivity = getIt<ConnectivityService>();
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
-    if (state is AuthAuthenticated) {
+    if (state is AuthLoading) {
+      _router.updateAuthState(const RouteAuthState.loading());
+    } else if (state is AuthAuthenticated) {
       _router.updateAuthState(
         RouteAuthState.authenticated(
           role: state.user.isVendor ? UserRole.vendor : UserRole.buyer,
@@ -48,6 +50,7 @@ class _AppState extends State<App> {
             return MaterialApp.router(
               title: 'Bingo Pay',
               theme: AppTheme.light,
+              debugShowCheckedModeBanner: false,
               darkTheme: AppTheme.dark,
               routerConfig: _router.router,
               builder: (context, child) {

@@ -4,24 +4,34 @@ enum UserRole { buyer, vendor }
 
 class RouteAuthState {
   final bool isAuthenticated;
+  final bool isLoading;
   final UserRole? role;
   final bool isKycPending;
 
   const RouteAuthState({
     required this.isAuthenticated,
+    this.isLoading = false,
     this.role,
     this.isKycPending = false,
   });
 
+  const RouteAuthState.loading()
+      : isAuthenticated = false,
+        isLoading = true,
+        role = null,
+        isKycPending = false;
+
   const RouteAuthState.unauthenticated()
       : isAuthenticated = false,
+        isLoading = false,
         role = null,
         isKycPending = false;
 
   const RouteAuthState.authenticated({
     required this.role,
     this.isKycPending = false,
-  }) : isAuthenticated = true;
+  }) : isAuthenticated = true,
+       isLoading = false;
 }
 
 class RouteGuard {
@@ -29,6 +39,19 @@ class RouteGuard {
     required String location,
     required RouteAuthState authState,
   }) {
+    // Stay on splash while auth is being determined; block all other routes.
+    if (authState.isLoading) {
+      return location == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+
+    // Redirect away from splash once auth is known.
+    if (location == AppRoutes.splash) {
+      if (!authState.isAuthenticated) return AppRoutes.login;
+      return authState.role == UserRole.vendor
+          ? AppRoutes.vendorHome
+          : AppRoutes.buyerHome;
+    }
+
     final isPublic = AppRoutes.publicRoutes.any(
       (r) => location == r || location.startsWith(r),
     );

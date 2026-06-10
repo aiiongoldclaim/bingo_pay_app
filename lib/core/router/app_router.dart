@@ -13,7 +13,7 @@ import 'route_guard.dart';
 @lazySingleton
 class AppRouter {
   late final GoRouter router;
-  RouteAuthState _authState = const RouteAuthState.unauthenticated();
+  RouteAuthState _authState = const RouteAuthState.loading();
 
   AppRouter() {
     router = GoRouter(
