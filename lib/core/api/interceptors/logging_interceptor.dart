@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_flavor/flutter_flavor.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
-import '../../config/flavor_config.dart';
 
 class LoggingInterceptor extends Interceptor {
   final PrettyDioLogger _logger = PrettyDioLogger(
@@ -13,7 +13,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (FlavorConfig.instance.enableLogging) {
+    if (FlavorConfig.instance.variables['enableLogging'] as bool? ?? false) {
       _logger.onRequest(options, handler);
     } else {
       handler.next(options);
@@ -22,7 +22,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (FlavorConfig.instance.enableLogging) {
+    if (FlavorConfig.instance.variables['enableLogging'] as bool? ?? false) {
       _logger.onResponse(response, handler);
     } else {
       handler.next(response);
@@ -31,7 +31,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (FlavorConfig.instance.enableLogging) {
+    if (FlavorConfig.instance.variables['enableLogging'] as bool? ?? false) {
       _logger.onError(err, handler);
     } else {
       handler.next(err);

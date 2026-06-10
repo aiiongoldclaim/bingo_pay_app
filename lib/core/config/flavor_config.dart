@@ -1,23 +1,17 @@
+import 'package:flutter_flavor/flutter_flavor.dart';
+
 enum Flavor { dev, staging, prod }
 
-class FlavorConfig {
-  static late FlavorConfig instance;
+extension AppFlavorConfig on FlavorConfig {
+  Flavor get appFlavor => Flavor.values.firstWhere(
+        (f) => f.name == name,
+        orElse: () => throw StateError(
+          'FlavorConfig.name "$name" does not match any Flavor. '
+          'Call FlavorConfig(name: "dev"|"staging"|"prod", ...) before use.',
+        ),
+      );
 
-  final Flavor flavor;
-  final String apiBaseUrl;
-  final String appName;
-  final bool enableLogging;
-  final bool enableAnalytics;
-
-  const FlavorConfig({
-    required this.flavor,
-    required this.apiBaseUrl,
-    required this.appName,
-    required this.enableLogging,
-    required this.enableAnalytics,
-  });
-
-  bool get isDev => flavor == Flavor.dev;
-  bool get isStaging => flavor == Flavor.staging;
-  bool get isProduction => flavor == Flavor.prod;
+  bool get isDev => name == 'dev';
+  bool get isStaging => name == 'staging';
+  bool get isProduction => name == 'prod';
 }
