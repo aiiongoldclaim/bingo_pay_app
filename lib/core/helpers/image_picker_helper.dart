@@ -16,12 +16,12 @@ class ImagePickerHelper {
     final source = await _showSourceSheet(context);
     if (source == null) return null;
 
-    // ignore: use_build_context_synchronously
     if (!context.mounted) return null;
 
     final permission =
         source == ImageSource.camera ? Permission.camera : Permission.photos;
 
+    // ignore: use_build_context_synchronously
     final status = await PermissionHelper.request(context, permission);
     if (!status.isGranted && !status.isLimited) return null;
 
