@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_flavor/flutter_flavor.dart';
 import 'package:logger/logger.dart';
-import '../core/config/flavor_config.dart';
 
 class AppBlocObserver extends BlocObserver {
   final Logger _logger = Logger();
@@ -8,7 +8,7 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onChange(BlocBase<dynamic> bloc, Change<dynamic> change) {
     super.onChange(bloc, change);
-    if (FlavorConfig.instance.enableLogging) {
+    if (FlavorConfig.instance.variables['enableLogging'] as bool? ?? false) {
       _logger.d('[${bloc.runtimeType}] $change');
     }
   }
@@ -29,7 +29,7 @@ class AppBlocObserver extends BlocObserver {
     Transition<dynamic, dynamic> transition,
   ) {
     super.onTransition(bloc, transition);
-    if (FlavorConfig.instance.enableLogging) {
+    if (FlavorConfig.instance.variables['enableLogging'] as bool? ?? false) {
       _logger.d('[${bloc.runtimeType}] $transition');
     }
   }
