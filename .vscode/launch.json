@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Bingo Pay (dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart"
+    },
+    {
+      "name": "Bingo Pay (staging)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staging.dart"
+    },
+    {
+      "name": "Bingo Pay (prod)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_prod.dart"
+    }
+  ]
+}
