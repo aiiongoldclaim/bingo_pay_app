@@ -31,13 +31,21 @@ class PermissionHelper {
   ) async {
     final statuses = await permissions.request();
     if (!context.mounted) return statuses;
+    // First pass: if any permission is permanently denied, show that snackbar
+    // and open settings — skip all other messages to avoid double snackbars.
     for (final entry in statuses.entries) {
       if (entry.value.isPermanentlyDenied) {
         AppSnackbar.showError(context, _permanentlyDeniedMessage(entry.key));
         await openAppSettings();
-        break;
-      } else if (entry.value.isDenied) {
+        return statuses;
+      }
+    }
+    // Second pass: show denied / restricted messages (no permanentlyDenied present).
+    for (final entry in statuses.entries) {
+      if (entry.value.isDenied) {
         AppSnackbar.showError(context, _deniedMessage(entry.key));
+      } else if (entry.value.isRestricted) {
+        AppSnackbar.showError(context, 'Permission restricted by device policy.');
       }
     }
     return statuses;

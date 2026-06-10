@@ -19,6 +19,24 @@ void _mockPermission(Permission permission, PermissionStatus status) {
   );
 }
 
+void _mockPermissions(Map<Permission, PermissionStatus> statuses) {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('flutter.baseflow.com/permissions/methods'),
+    (call) async {
+      if (call.method == 'requestPermissions') {
+        return statuses.map((p, s) => MapEntry(p.value, s.index));
+      }
+      if (call.method == 'checkPermissionStatus') {
+        final permission = Permission.byValue(call.arguments as int);
+        return statuses[permission]?.index ?? PermissionStatus.denied.index;
+      }
+      if (call.method == 'openAppSettings') return true;
+      return null;
+    },
+  );
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -31,19 +49,80 @@ void main() {
   });
 
   group('PermissionHelper.isGranted', () {
-    testWidgets('returns true when permission is granted', (tester) async {
+    test('returns true when permission is granted', () async {
       _mockPermission(Permission.camera, PermissionStatus.granted);
       expect(await PermissionHelper.isGranted(Permission.camera), isTrue);
     });
 
-    testWidgets('returns true when permission is limited', (tester) async {
+    test('returns true when permission is limited', () async {
       _mockPermission(Permission.photos, PermissionStatus.limited);
       expect(await PermissionHelper.isGranted(Permission.photos), isTrue);
     });
 
-    testWidgets('returns false when permission is denied', (tester) async {
+    test('returns false when permission is denied', () async {
       _mockPermission(Permission.camera, PermissionStatus.denied);
       expect(await PermissionHelper.isGranted(Permission.camera), isFalse);
+    });
+  });
+
+  group('PermissionHelper.requestMultiple', () {
+    testWidgets('shows restricted snackbar when permission is restricted',
+        (tester) async {
+      _mockPermissions({Permission.camera: PermissionStatus.restricted});
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (ctx) => ElevatedButton(
+                onPressed: () => PermissionHelper.requestMultiple(
+                  ctx,
+                  [Permission.camera],
+                ),
+                child: const Text('Go'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Go'));
+      await tester.pump();
+      expect(
+        find.text('Permission restricted by device policy.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+        'shows only permanentlyDenied snackbar when mix of denied and permanentlyDenied',
+        (tester) async {
+      _mockPermissions({
+        Permission.camera: PermissionStatus.denied,
+        Permission.photos: PermissionStatus.permanentlyDenied,
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (ctx) => ElevatedButton(
+                onPressed: () => PermissionHelper.requestMultiple(
+                  ctx,
+                  [Permission.camera, Permission.photos],
+                ),
+                child: const Text('Go'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Go'));
+      await tester.pump();
+      // Only the permanentlyDenied snackbar should appear.
+      expect(
+        find.text('Gallery access denied. Enable it in Settings.'),
+        findsOneWidget,
+      );
+      // The denied snackbar for camera must NOT appear.
+      expect(find.text('Camera permission denied.'), findsNothing);
     });
   });
 
