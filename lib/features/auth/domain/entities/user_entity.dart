@@ -18,7 +18,7 @@ class UserEntity extends Equatable {
   bool get isBuyer  => role == 'buyer';
   bool get isVendor => role == 'vendor';
   bool get isKycApproved => kycStatus == 'approved' || kycStatus == 'not_required';
-  bool get isKycPending  => kycStatus == 'pending'  || kycStatus == 'under_review';
+  bool get isKycPending  => kycStatus == 'pending';
 
   @override
   List<Object> get props => [id, email, name, role, kycStatus];

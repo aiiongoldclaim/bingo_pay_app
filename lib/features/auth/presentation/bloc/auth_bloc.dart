@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../domain/entities/kyc_entity.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/get_kyc_status_usecase.dart';
@@ -14,15 +16,7 @@ import 'auth_state.dart';
 
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final CheckAuthStatusUseCase _checkAuthStatus;
-  final LoginUseCase _login;
-  final RegisterUseCase _register;
-  final ForgotPasswordUseCase _forgotPassword;
-  final LogoutUseCase _logout;
-  final SubmitKycPersonalDetailsUseCase _kycPersonalDetails;
-  final UploadKycDocumentUseCase _kycDocument;
-  final UploadKycSelfieUseCase _kycSelfie;
-  final GetKycStatusUseCase _getKycStatus;
+  UserEntity? _currentUser;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
@@ -34,16 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
     required GetKycStatusUseCase getKycStatus,
-  })  : _checkAuthStatus = checkAuthStatus,
-        _login = login,
-        _register = register,
-        _forgotPassword = forgotPassword,
-        _logout = logout,
-        _kycPersonalDetails = kycPersonalDetails,
-        _kycDocument = kycDocument,
-        _kycSelfie = kycSelfie,
-        _getKycStatus = getKycStatus,
-        super(const AuthInitial()) {
+  }) : super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<LoginRequested>(_onLogin);
     on<RegisterRequested>(_onRegister);
@@ -59,66 +44,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatusRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
-    final result = await _checkAuthStatus();
-    result.fold(
-      (_) => emit(const AuthUnauthenticated()),
-      (user) => user != null
-          ? emit(AuthAuthenticated(user))
-          : emit(const AuthUnauthenticated()),
-    );
+    emit(const AuthUnauthenticated());
   }
 
   Future<void> _onLogin(
     LoginRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
-    final result = await _login(
-      LoginParams(email: event.email, password: event.password),
-    );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (user) => emit(AuthAuthenticated(user)),
-    );
+    final user = _mockUser(email: event.email, role: 'buyer');
+    _currentUser = user;
+    emit(AuthAuthenticated(user));
   }
 
   Future<void> _onRegister(
     RegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
-    final result = await _register(
-      RegisterParams(
-        email: event.email,
-        password: event.password,
-        name: event.name,
-        role: event.role,
-      ),
+    final user = _mockUser(
+      email: event.email,
+      name: event.name,
+      role: event.role,
+      kycStatus: event.role == 'vendor' ? 'pending' : 'not_required',
     );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (user) => emit(AuthAuthenticated(user)),
-    );
+    _currentUser = user;
+    emit(AuthAuthenticated(user));
   }
 
   Future<void> _onForgotPassword(
     ForgotPasswordRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
-    final result = await _forgotPassword(event.email);
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (_) => emit(const PasswordResetSent()),
-    );
+    emit(const PasswordResetSent());
   }
 
   Future<void> _onLogout(
     LogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    await _logout();
+    _currentUser = null;
     emit(const AuthUnauthenticated());
   }
 
@@ -126,57 +89,60 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     KycPersonalDetailsSubmitted event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const KycLoading());
-    final result = await _kycPersonalDetails(
-      KycPersonalDetailsParams(
-        name: event.name,
-        dateOfBirth: event.dateOfBirth,
-        address: event.address,
-      ),
-    );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (kyc) => emit(KycStepCompleted(kyc: kyc, step: 0)),
-    );
+    emit(KycStepCompleted(
+      kyc: const KycEntity(status: 'pending'),
+      step: 0,
+    ));
   }
 
   Future<void> _onKycDocument(
     KycDocumentUploaded event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const KycLoading());
-    final result = await _kycDocument(
-      KycDocumentParams(
-        filePath: event.filePath,
-        documentType: event.documentType,
-      ),
-    );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (kyc) => emit(KycStepCompleted(kyc: kyc, step: 1)),
-    );
+    emit(KycStepCompleted(
+      kyc: const KycEntity(status: 'pending'),
+      step: 1,
+    ));
   }
 
   Future<void> _onKycSelfie(
     KycSelfieUploaded event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const KycLoading());
-    final result = await _kycSelfie(event.filePath);
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (kyc) => emit(KycSubmitted(kyc)),
-    );
+    emit(KycSubmitted(const KycEntity(status: 'under_review')));
+    
+    // Update the authenticated user's KYC status and notify the router
+    if (_currentUser != null) {
+      final updatedUser = UserEntity(
+        id: _currentUser!.id,
+        email: _currentUser!.email,
+        name: _currentUser!.name,
+        role: _currentUser!.role,
+        kycStatus: 'under_review',
+      );
+      _currentUser = updatedUser;
+      emit(AuthAuthenticated(updatedUser));
+    }
   }
 
   Future<void> _onKycStatusPoll(
     KycStatusPolled event,
     Emitter<AuthState> emit,
   ) async {
-    final result = await _getKycStatus();
-    result.fold(
-      (_) {},
-      (kyc) => emit(KycSubmitted(kyc)),
-    );
+    emit(KycSubmitted(const KycEntity(status: 'under_review')));
   }
+
+  UserEntity _mockUser({
+    String email = 'user@example.com',
+    String name = 'Mock User',
+    String role = 'buyer',
+    String kycStatus = 'not_required',
+  }) =>
+      UserEntity(
+        id: 'mock-id',
+        email: email,
+        name: name,
+        role: role,
+        kycStatus: kycStatus,
+      );
 }
