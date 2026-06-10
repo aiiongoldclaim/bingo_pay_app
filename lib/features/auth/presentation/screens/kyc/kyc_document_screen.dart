@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+import '../../../../../core/helpers/image_picker_helper.dart';
 import '../../../../../core/router/app_routes.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_image_picker.dart';
@@ -20,7 +19,6 @@ class KycDocumentScreen extends StatefulWidget {
 }
 
 class _KycDocumentScreenState extends State<KycDocumentScreen> {
-  final _picker = ImagePicker();
   String? _imagePath;
   String _documentType = 'passport';
 
@@ -29,18 +27,6 @@ class _KycDocumentScreenState extends State<KycDocumentScreen> {
     ('national_id', 'National ID'),
     ('drivers_license', "Driver's License"),
   ];
-
-  Future<void> _pick(ImageSource source) async {
-    final permission =
-        source == ImageSource.camera ? Permission.camera : Permission.photos;
-    final status = await permission.request();
-    if (!status.isGranted) {
-      if (mounted) AppSnackbar.showError(context, 'Permission denied');
-      return;
-    }
-    final file = await _picker.pickImage(source: source, imageQuality: 80);
-    if (file != null) setState(() => _imagePath = file.path);
-  }
 
   void _submit() {
     if (_imagePath == null) {
@@ -96,8 +82,12 @@ class _KycDocumentScreenState extends State<KycDocumentScreen> {
               AppImagePicker(
                 label: 'Upload Document',
                 imagePath: _imagePath,
-                onPickFromCamera: () => _pick(ImageSource.camera),
-                onPickFromGallery: () => _pick(ImageSource.gallery),
+                onTap: () async {
+                  final file = await ImagePickerHelper.pick(context);
+                  if (file != null && mounted) {
+                    setState(() => _imagePath = file.path);
+                  }
+                },
               ),
               const Spacer(),
               BlocBuilder<AuthBloc, AuthState>(

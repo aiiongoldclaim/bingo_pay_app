@@ -4,6 +4,47 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('RouteGuard.redirect', () {
+    test('loading state stays on splash', () {
+      expect(
+        RouteGuard.redirect(
+          location: AppRoutes.splash,
+          authState: const RouteAuthState.loading(),
+        ),
+        isNull,
+      );
+    });
+
+    test('loading state redirects non-splash to splash', () {
+      expect(
+        RouteGuard.redirect(
+          location: AppRoutes.login,
+          authState: const RouteAuthState.loading(),
+        ),
+        AppRoutes.splash,
+      );
+    });
+
+    test('unauthenticated user on splash redirects to login', () {
+      expect(
+        RouteGuard.redirect(
+          location: AppRoutes.splash,
+          authState: const RouteAuthState.unauthenticated(),
+        ),
+        AppRoutes.login,
+      );
+    });
+
+    test('authenticated user on splash redirects to buyer home', () {
+      expect(
+        RouteGuard.redirect(
+          location: AppRoutes.splash,
+          authState: const RouteAuthState.authenticated(role: UserRole.buyer),
+        ),
+        AppRoutes.buyerHome,
+      );
+    });
+
+
     test('unauthenticated user on protected route redirects to login', () {
       final result = RouteGuard.redirect(
         location: AppRoutes.buyerHome,
