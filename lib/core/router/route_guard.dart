@@ -63,7 +63,7 @@ class RouteGuard {
     // Vendor with pending KYC must complete KYC first
     if (authState.isKycPending &&
         authState.role == UserRole.vendor &&
-        location != AppRoutes.registerKyc) {
+        !location.startsWith(AppRoutes.registerKyc)) {
       return AppRoutes.registerKyc;
     }
 

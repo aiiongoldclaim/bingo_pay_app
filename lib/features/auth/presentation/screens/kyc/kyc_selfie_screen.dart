@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../../core/helpers/dialog_helper.dart';
 import '../../../../../core/helpers/image_picker_helper.dart';
+import '../../../../../core/router/app_routes.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_image_picker.dart';
 import '../../../../../core/widgets/app_snackbar.dart';
@@ -37,6 +40,16 @@ class _KycSelfieScreenState extends State<KycSelfieScreen> {
           if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
           }
+          if (state is KycSubmitted) {
+            DialogHelper.showSuccess(
+              context: context,
+              title: 'Identity Verified',
+              message: 'Your identity has been successfully verified. You can now proceed to login.',
+              actionLabel: 'Go to Login',
+              onAction: () => context.go(AppRoutes.login),
+              barrierDismissible: false,
+            );
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -67,41 +80,16 @@ class _KycSelfieScreenState extends State<KycSelfieScreen> {
               ),
               const Spacer(),
               BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state is KycSubmitted) {
-                    return const _UnderReviewBanner();
-                  }
-                  return AppButton(
-                    label: 'Submit',
-                    onPressed: _submit,
-                    isLoading: state is KycLoading,
-                  );
-                },
+                builder: (context, state) => AppButton(
+                  label: 'Submit',
+                  onPressed: _submit,
+                  isLoading: state is KycLoading,
+                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _UnderReviewBanner extends StatelessWidget {
-  const _UnderReviewBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Icon(Icons.hourglass_top, size: 48),
-        const SizedBox(height: 8),
-        Text(
-          'KYC Under Review',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        const Text('We will notify you once your identity is verified.'),
-      ],
     );
   }
 }

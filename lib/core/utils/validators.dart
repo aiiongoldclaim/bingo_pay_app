@@ -25,7 +25,7 @@ class Validators {
 
   static String? name(String? value) {
     if (value == null || value.trim().isEmpty) return 'Name is required';
-    if (value.trim().length < 2) return 'Name must be at least 2 characters';
+    if (value.trim().length < 3) return 'Name must be at least 3 characters';
     return null;
   }
 }

@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
+import '../../features/customer/shop/presentation/bloc/shop_event.dart';
+import '../../features/customer/shop/presentation/screens/buyer_home_screen.dart';
+import '../../features/customer/shop/presentation/screens/buyer_shell_screen.dart';
+import '../../features/customer/shop/presentation/screens/cart_screen.dart';
+import '../../features/customer/shop/presentation/screens/catalog_screen.dart';
+import '../../features/customer/shop/presentation/screens/category_screen.dart';
+import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
+import '../../features/customer/shop/presentation/screens/product_detail_screen.dart';
+import '../../features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart';
+import '../../features/customer/dashboard/presentation/screens/buyer_dashboard_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_document_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
@@ -51,13 +63,93 @@ class AppRouter {
           path: AppRoutes.kycSelfie,
           builder: (_, _) => const KycSelfieScreen(),
         ),
-        GoRoute(
-          path: '/buyer',
-          builder: (_, _) => const _PlaceholderPage('Buyer Shell'),
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider<ShopBloc>(
+              create: (_) => ShopBloc()..add(const ShopStarted()),
+              child: BuyerShellScreen(
+                child: child,
+                location: state.uri.path,
+              ),
+            );
+          },
           routes: [
             GoRoute(
-              path: 'home',
-              builder: (_, _) => const _PlaceholderPage('Buyer Home'),
+              path: AppRoutes.buyerHome,
+              builder: (_, _) => const BuyerHomeScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerDashboard,
+              builder: (_, _) => BlocProvider<BuyerDashboardCubit>(
+                create: (_) => BuyerDashboardCubit(),
+                child: const BuyerDashboardScreen(),
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerCatalog,
+              builder: (_, _) => const CatalogScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerSearch,
+              builder: (context, state) => CatalogScreen(
+                title: 'Search results',
+                subtitle: 'Refine what you are looking for.',
+                initialQuery: state.uri.queryParameters['q'] ?? '',
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerCategory,
+              builder: (context, state) => CategoryScreen(
+                categorySlug: state.pathParameters['slug'] ?? '',
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerProductDetail,
+              builder: (context, state) => ProductDetailScreen(
+                productId: state.pathParameters['id'] ?? '',
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerCart,
+              builder: (_, _) => const CartScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerCheckout,
+              builder: (_, _) => const CheckoutPlaceholderScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerTransactions,
+              builder: (_, _) => const _PlaceholderPage('Transactions'),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerTransactionDetail,
+              builder: (context, state) => _PlaceholderPage(
+                'Order ${state.pathParameters['id'] ?? ''}',
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerProfile,
+              builder: (_, _) => const _PlaceholderPage('Profile'),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerSettings,
+              builder: (_, _) => const _PlaceholderPage('Settings'),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerNotifications,
+              builder: (_, _) => const _PlaceholderPage('Notifications'),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerWishlist,
+              builder: (_, _) => const _PlaceholderPage('Wishlist'),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerAddresses,
+              builder: (_, _) => const _PlaceholderPage('Addresses'),
+            ),
+            GoRoute(
+              path: AppRoutes.buyerPayments,
+              builder: (_, _) => const _PlaceholderPage('Payment Methods'),
             ),
           ],
         ),

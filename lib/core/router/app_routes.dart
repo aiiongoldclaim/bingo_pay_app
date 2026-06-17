@@ -9,6 +9,19 @@ class AppRoutes {
 
   // Buyer shell
   static const String buyerHome = '/buyer/home';
+  static const String buyerDashboard = '/buyer/dashboard';
+  static const String buyerProfile = '/buyer/profile';
+  static const String buyerSettings = '/buyer/settings';
+  static const String buyerNotifications = '/buyer/notifications';
+  static const String buyerWishlist = '/buyer/wishlist';
+  static const String buyerAddresses = '/buyer/addresses';
+  static const String buyerPayments = '/buyer/payments';
+  static const String buyerCatalog = '/buyer/catalog';
+  static const String buyerSearch = '/buyer/search';
+  static const String buyerCategory = '/buyer/categories/:slug';
+  static const String buyerProductDetail = '/buyer/products/:id';
+  static const String buyerCart = '/buyer/cart';
+  static const String buyerCheckout = '/buyer/checkout';
   static const String buyerTransactions = '/buyer/transactions';
   static const String buyerTransactionDetail = '/buyer/transactions/:id';
   static const String buyerRefer = '/buyer/refer';
@@ -34,4 +47,25 @@ class AppRoutes {
     kycSelfie,
     forgotPassword,
   ];
+
+  static String buyerCategoryPath(String slug) =>
+      buyerCategory.replaceFirst(':slug', slug);
+
+  static String buyerProductPath(String id) =>
+      buyerProductDetail.replaceFirst(':id', id);
+
+  static String buyerTransactionPath(String id) =>
+      buyerTransactionDetail.replaceFirst(':id', id);
+
+  static String buyerInvoicePath(String id) =>
+      buyerInvoiceDetail.replaceFirst(':id', id);
+
+  static String vendorProductEditPath(String id) =>
+      vendorProductEdit.replaceFirst(':id', id);
+
+  static String vendorTransactionPath(String id) =>
+      vendorTransactionDetail.replaceFirst(':id', id);
+
+  static String vendorInvoicePath(String id) =>
+      vendorInvoiceDetail.replaceFirst(':id', id);
 }
