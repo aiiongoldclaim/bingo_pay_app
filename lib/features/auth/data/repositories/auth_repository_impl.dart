@@ -34,25 +34,64 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> register({
+  Future<Either<Failure, UserEntity>> registerBuyer({
+    required String firstName,
+    required String lastName,
     required String email,
+    required String phone,
     required String password,
-    required String name,
-    required String role,
   }) async {
     try {
-      final response = await _remote.register(
+      final result = await _remote.registerBuyer(
+        firstName: firstName,
+        lastName: lastName,
         email: email,
+        phone: phone,
         password: password,
-        name: name,
-        role: role,
       );
-      await _local.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
+      await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
+      await _local.saveUser(result.user);
+      return Right(result.user);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> registerVendor({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+    required String password,
+    required String shopName,
+    required String shopSlug,
+    required String businessName,
+    String? description,
+    String? gstNumber,
+    String? panNumber,
+    String? supportEmail,
+    String? supportPhone,
+  }) async {
+    try {
+      final result = await _remote.registerVendor(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: phone,
+        password: password,
+        shopName: shopName,
+        shopSlug: shopSlug,
+        businessName: businessName,
+        description: description,
+        gstNumber: gstNumber,
+        panNumber: panNumber,
+        supportEmail: supportEmail,
+        supportPhone: supportPhone,
       );
-      await _local.saveUser(response.user);
-      return Right(response.user);
+      await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
+      await _local.saveUser(result.user);
+      return Right(result.user);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }

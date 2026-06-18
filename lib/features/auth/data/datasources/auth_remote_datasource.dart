@@ -4,6 +4,7 @@ import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../models/auth_response_model.dart';
 import '../models/kyc_model.dart';
+import '../models/register_result_model.dart';
 
 abstract interface class AuthRemoteDataSource {
   Future<AuthResponseModel> login({
@@ -11,11 +12,28 @@ abstract interface class AuthRemoteDataSource {
     required String password,
   });
 
-  Future<AuthResponseModel> register({
+  Future<RegisterResultModel> registerBuyer({
+    required String firstName,
+    required String lastName,
     required String email,
+    required String phone,
     required String password,
-    required String name,
-    required String role,
+  });
+
+  Future<RegisterResultModel> registerVendor({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+    required String password,
+    required String shopName,
+    required String shopSlug,
+    required String businessName,
+    String? description,
+    String? gstNumber,
+    String? panNumber,
+    String? supportEmail,
+    String? supportPhone,
   });
 
   Future<void> forgotPassword({required String email});
@@ -57,18 +75,70 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthResponseModel> register({
+  Future<RegisterResultModel> registerBuyer({
+    required String firstName,
+    required String lastName,
     required String email,
+    required String phone,
     required String password,
-    required String name,
-    required String role,
   }) async {
     final response = await _dio.post(
-      ApiEndpoints.register,
-      data: {'email': email, 'password': password, 'name': name, 'role': role},
+      ApiEndpoints.registerBuyer,
+      data: {
+        'firstName': firstName,
+        'lastName': lastName,
+        'password': password,
+        'countryId': '91',
+        'email': email,
+        'phoneNumber': phone,
+      },
     );
-    return AuthResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    return RegisterResultModel.fromBuyerJson(
+      response.data['data'] as Map<String, dynamic>,
+      firstName: firstName,
+      lastName: lastName,
+    );
+  }
+
+  @override
+  Future<RegisterResultModel> registerVendor({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+    required String password,
+    required String shopName,
+    required String shopSlug,
+    required String businessName,
+    String? description,
+    String? gstNumber,
+    String? panNumber,
+    String? supportEmail,
+    String? supportPhone,
+  }) async {
+    final response = await _dio.post(
+      ApiEndpoints.registerVendor,
+      data: {
+        'fullName': '$firstName $lastName'.trim(),
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'countryId': '91',
+        'shopName': shopName,
+        'shopSlug': shopSlug,
+        'businessName': businessName,
+        'description': description,
+        'gstNumber': gstNumber,
+        'panNumber': panNumber,
+        'supportEmail': supportEmail,
+        'supportPhone': supportPhone,
+      },
+    );
+    return RegisterResultModel.fromVendorJson(
+      response.data['data'] as Map<String, dynamic>,
+      firstName: firstName,
+      lastName: lastName,
+    );
   }
 
   @override
