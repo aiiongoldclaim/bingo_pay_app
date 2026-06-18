@@ -9,11 +9,28 @@ abstract interface class AuthRepository {
     required String password,
   });
 
-  Future<Either<Failure, UserEntity>> register({
+  Future<Either<Failure, UserEntity>> registerBuyer({
+    required String firstName,
+    required String lastName,
     required String email,
+    required String phone,
     required String password,
-    required String name,
-    required String role,
+  });
+
+  Future<Either<Failure, UserEntity>> registerVendor({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+    required String password,
+    required String shopName,
+    required String shopSlug,
+    required String businessName,
+    String? description,
+    String? gstNumber,
+    String? panNumber,
+    String? supportEmail,
+    String? supportPhone,
   });
 
   Future<Either<Failure, Unit>> forgotPassword({required String email});
