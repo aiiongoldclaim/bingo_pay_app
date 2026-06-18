@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -33,8 +33,10 @@ import 'package:bingo_pay/features/auth/domain/usecases/login_usecase.dart'
     as _i368;
 import 'package:bingo_pay/features/auth/domain/usecases/logout_usecase.dart'
     as _i189;
-import 'package:bingo_pay/features/auth/domain/usecases/register_usecase.dart'
-    as _i721;
+import 'package:bingo_pay/features/auth/domain/usecases/register_buyer_usecase.dart'
+    as _i685;
+import 'package:bingo_pay/features/auth/domain/usecases/register_vendor_usecase.dart'
+    as _i1029;
 import 'package:bingo_pay/features/auth/domain/usecases/submit_kyc_personal_details_usecase.dart'
     as _i627;
 import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_document_usecase.dart'
@@ -43,6 +45,8 @@ import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_selfie_usecas
     as _i520;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
+import 'package:bingo_pay/features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart'
+    as _i709;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
@@ -57,6 +61,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
+    gh.factory<_i709.BuyerDashboardCubit>(() => _i709.BuyerDashboardCubit());
     gh.singleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
     await gh.singletonAsync<_i460.SharedPreferences>(
       () => appModule.prefs,
@@ -67,21 +72,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
     );
-    gh.singleton<_i356.PreferencesService>(
-      () => _i356.PreferencesService(gh<_i460.SharedPreferences>()),
-    );
     gh.singleton<_i481.SecureStorageService>(
       () =>
           _i481.SecureStorageService(storage: gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.singleton<_i356.PreferencesService>(
+      () => _i356.PreferencesService(gh<_i460.SharedPreferences>()),
+    );
+    gh.singleton<_i541.ApiClient>(
+      () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
     );
     gh.factory<_i763.AuthLocalDataSource>(
       () => _i763.AuthLocalDataSourceImpl(
         gh<_i481.SecureStorageService>(),
         gh<_i460.SharedPreferences>(),
       ),
-    );
-    gh.singleton<_i541.ApiClient>(
-      () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
     );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
@@ -92,14 +97,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i763.AuthLocalDataSource>(),
       ),
     );
-    gh.factory<_i894.GetKycStatusUseCase>(
-      () => _i894.GetKycStatusUseCase(gh<_i917.AuthRepository>()),
+    gh.factory<_i308.CheckAuthStatusUseCase>(
+      () => _i308.CheckAuthStatusUseCase(gh<_i917.AuthRepository>()),
     );
     gh.factory<_i878.ForgotPasswordUseCase>(
       () => _i878.ForgotPasswordUseCase(gh<_i917.AuthRepository>()),
     );
-    gh.factory<_i721.RegisterUseCase>(
-      () => _i721.RegisterUseCase(gh<_i917.AuthRepository>()),
+    gh.factory<_i894.GetKycStatusUseCase>(
+      () => _i894.GetKycStatusUseCase(gh<_i917.AuthRepository>()),
     );
     gh.factory<_i368.LoginUseCase>(
       () => _i368.LoginUseCase(gh<_i917.AuthRepository>()),
@@ -107,23 +112,27 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i189.LogoutUseCase>(
       () => _i189.LogoutUseCase(gh<_i917.AuthRepository>()),
     );
+    gh.factory<_i685.RegisterBuyerUseCase>(
+      () => _i685.RegisterBuyerUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i1029.RegisterVendorUseCase>(
+      () => _i1029.RegisterVendorUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i627.SubmitKycPersonalDetailsUseCase>(
+      () => _i627.SubmitKycPersonalDetailsUseCase(gh<_i917.AuthRepository>()),
+    );
     gh.factory<_i343.UploadKycDocumentUseCase>(
       () => _i343.UploadKycDocumentUseCase(gh<_i917.AuthRepository>()),
     );
     gh.factory<_i520.UploadKycSelfieUseCase>(
       () => _i520.UploadKycSelfieUseCase(gh<_i917.AuthRepository>()),
     );
-    gh.factory<_i627.SubmitKycPersonalDetailsUseCase>(
-      () => _i627.SubmitKycPersonalDetailsUseCase(gh<_i917.AuthRepository>()),
-    );
-    gh.factory<_i308.CheckAuthStatusUseCase>(
-      () => _i308.CheckAuthStatusUseCase(gh<_i917.AuthRepository>()),
-    );
     gh.factory<_i357.AuthBloc>(
       () => _i357.AuthBloc(
         checkAuthStatus: gh<_i308.CheckAuthStatusUseCase>(),
         login: gh<_i368.LoginUseCase>(),
-        register: gh<_i721.RegisterUseCase>(),
+        registerBuyer: gh<_i685.RegisterBuyerUseCase>(),
+        registerVendor: gh<_i1029.RegisterVendorUseCase>(),
         forgotPassword: gh<_i878.ForgotPasswordUseCase>(),
         logout: gh<_i189.LogoutUseCase>(),
         kycPersonalDetails: gh<_i627.SubmitKycPersonalDetailsUseCase>(),

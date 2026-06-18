@@ -18,19 +18,58 @@ class LoginRequested extends AuthEvent {
   List<Object> get props => [email, password];
 }
 
-class RegisterRequested extends AuthEvent {
+class BuyerRegisterRequested extends AuthEvent {
+  final String firstName;
+  final String lastName;
   final String email;
+  final String phone;
   final String password;
-  final String name;
-  final String role;
-  const RegisterRequested({
+  const BuyerRegisterRequested({
+    required this.firstName,
+    required this.lastName,
     required this.email,
+    required this.phone,
     required this.password,
-    required this.name,
-    required this.role,
   });
   @override
-  List<Object> get props => [email, password, name, role];
+  List<Object> get props => [firstName, lastName, email, phone, password];
+}
+
+class VendorRegisterRequested extends AuthEvent {
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phone;
+  final String password;
+  final String shopName;
+  final String shopSlug;
+  final String businessName;
+  final String? description;
+  final String? gstNumber;
+  final String? panNumber;
+  final String? supportEmail;
+  final String? supportPhone;
+  const VendorRegisterRequested({
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    required this.phone,
+    required this.password,
+    required this.shopName,
+    required this.shopSlug,
+    required this.businessName,
+    this.description,
+    this.gstNumber,
+    this.panNumber,
+    this.supportEmail,
+    this.supportPhone,
+  });
+  @override
+  List<Object?> get props => [
+        firstName, lastName, email, phone, password,
+        shopName, shopSlug, businessName,
+        description, gstNumber, panNumber, supportEmail, supportPhone,
+      ];
 }
 
 class ForgotPasswordRequested extends AuthEvent {

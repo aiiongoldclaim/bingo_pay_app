@@ -7,7 +7,8 @@ import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/get_kyc_status_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
-import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/register_buyer_usecase.dart';
+import '../../domain/usecases/register_vendor_usecase.dart';
 import '../../domain/usecases/submit_kyc_personal_details_usecase.dart';
 import '../../domain/usecases/upload_kyc_document_usecase.dart';
 import '../../domain/usecases/upload_kyc_selfie_usecase.dart';
@@ -17,21 +18,27 @@ import 'auth_state.dart';
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
+  final RegisterBuyerUseCase _registerBuyer;
+  final RegisterVendorUseCase _registerVendor;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
     required LoginUseCase login,
-    required RegisterUseCase register,
+    required RegisterBuyerUseCase registerBuyer,
+    required RegisterVendorUseCase registerVendor,
     required ForgotPasswordUseCase forgotPassword,
     required LogoutUseCase logout,
     required SubmitKycPersonalDetailsUseCase kycPersonalDetails,
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
     required GetKycStatusUseCase getKycStatus,
-  }) : super(const AuthInitial()) {
+  }) : _registerBuyer = registerBuyer,
+       _registerVendor = registerVendor,
+       super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<LoginRequested>(_onLogin);
-    on<RegisterRequested>(_onRegister);
+    on<BuyerRegisterRequested>(_onBuyerRegister);
+    on<VendorRegisterRequested>(_onVendorRegister);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
     on<KycPersonalDetailsSubmitted>(_onKycPersonalDetails);
@@ -56,18 +63,54 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthAuthenticated(user));
   }
 
-  Future<void> _onRegister(
-    RegisterRequested event,
+  Future<void> _onBuyerRegister(
+    BuyerRegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    final user = _mockUser(
+    emit(const AuthLoading());
+    final result = await _registerBuyer(BuyerRegisterParams(
+      firstName: event.firstName,
+      lastName: event.lastName,
       email: event.email,
-      name: event.name,
-      role: event.role,
-      kycStatus: event.role == 'vendor' ? 'pending' : 'not_required',
+      phone: event.phone,
+      password: event.password,
+    ));
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (user) {
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      },
     );
-    _currentUser = user;
-    emit(AuthAuthenticated(user));
+  }
+
+  Future<void> _onVendorRegister(
+    VendorRegisterRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _registerVendor(VendorRegisterParams(
+      firstName: event.firstName,
+      lastName: event.lastName,
+      email: event.email,
+      phone: event.phone,
+      password: event.password,
+      shopName: event.shopName,
+      shopSlug: event.shopSlug,
+      businessName: event.businessName,
+      description: event.description,
+      gstNumber: event.gstNumber,
+      panNumber: event.panNumber,
+      supportEmail: event.supportEmail,
+      supportPhone: event.supportPhone,
+    ));
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (user) {
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      },
+    );
   }
 
   Future<void> _onForgotPassword(
