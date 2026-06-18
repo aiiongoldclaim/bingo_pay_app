@@ -28,5 +28,18 @@ void main() {
 
       expect(AppConfig.apiBaseUrl, 'https://api.bingopay.com/v1');
     });
+
+    test('apiKey reads from FlavorConfig variables', () {
+      FlavorConfig(
+        name: 'dev',
+        color: Colors.green,
+        variables: const {
+          'apiBaseUrl': 'https://admin-blog.bingold.to/api',
+          'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',
+        },
+      );
+
+      expect(AppConfig.apiKey, 'GTP_2026_PDA_V1_API_KEY_ASDF');
+    });
   });
 }

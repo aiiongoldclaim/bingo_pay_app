@@ -1,6 +1,8 @@
 class ApiEndpoints {
   static const String login = '/auth/login';
   static const String register = '/auth/register';
+  static const String registerBuyer = '/api/bingold/bingopay/auth/register';
+  static const String registerVendor = '/api/v1/common/vendors/sso/register';
   static const String refresh = '/auth/refresh';
   static const String forgotPassword = '/auth/forgot-password';
   static const String kycDocument = '/kyc/document';
