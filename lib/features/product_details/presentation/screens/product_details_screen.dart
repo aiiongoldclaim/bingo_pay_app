@@ -2,6 +2,7 @@ import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
+import '../../../cart/presentation/screens/cart_screen.dart';
 import '../cubit/product_details_cubit.dart';
 import '../cubit/product_details_state.dart';
 
@@ -95,6 +96,10 @@ class ProductDetailScreen extends StatelessWidget {
                   context.read<ProductDetailCubit>().onAddToCart();
                 },
                 onBuyNow: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CartScreen()),
+                  );
                   context.read<ProductDetailCubit>().onBuyNow();
                 },
               ),
