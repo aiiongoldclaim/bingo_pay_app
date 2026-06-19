@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
@@ -10,6 +12,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/country_picker.dart';
 import '../widgets/kyc_step_indicator.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -45,10 +48,71 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscureConfirm = true;
   bool _shopSlugEdited = false;
 
+  List<Country> _countries = [];
+  Country? _selectedCountry;
+
   @override
   void initState() {
     super.initState();
     _shopNameController.addListener(_onShopNameChanged);
+    _loadCountries();
+  }
+
+  Future<void> _loadCountries() async {
+    try {
+      final jsonString = await rootBundle.loadString('assets/data/countries_phone.json');
+      final List<dynamic> jsonList = json.decode(jsonString);
+      setState(() {
+        _countries = jsonList.map((e) => Country.fromJson(e)).toList();
+        _selectedCountry = _countries.firstWhere(
+          (c) => c.code.toUpperCase() == 'IN',
+          orElse: () => _countries.isNotEmpty
+              ? _countries.first
+              : const Country(
+                  name: "India",
+                  code: "IN",
+                  dialCode: "+91",
+                  minLength: 10,
+                  maxLength: 10,
+                ),
+        );
+      });
+    } catch (e) {
+      setState(() {
+        _selectedCountry = const Country(
+          name: "India",
+          code: "IN",
+          dialCode: "+91",
+          minLength: 10,
+          maxLength: 10,
+        );
+      });
+    }
+  }
+
+  void _showCountryPicker() {
+    if (_countries.isEmpty) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return CountryPickerBottomSheet(
+          countries: _countries,
+          initialSelectedCountry: _selectedCountry,
+          onCountrySelected: (country) {
+            setState(() {
+              _selectedCountry = country;
+              _phoneController.clear(); // Clear existing number when country changes to avoid validation mismatch
+            });
+          },
+        );
+      },
+    );
+  }
+
+  String _getFlagEmoji(String countryCode) {
+    return CountryPickerBottomSheet.getFlagEmoji(countryCode);
   }
 
   void _onShopNameChanged() {
@@ -85,13 +149,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submitBuyer() {
     if (_personalFormKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(BuyerRegisterRequested(
-            firstName: _firstNameController.text.trim(),
-            lastName: _lastNameController.text.trim(),
-            email: _emailController.text.trim(),
-            phone: _phoneController.text.trim(),
-            password: _passwordController.text,
-          ));
+      context.read<AuthBloc>().add(
+        BuyerRegisterRequested(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: _phoneController.text.trim(),
+          password: _passwordController.text,
+        ),
+      );
     }
   }
 
@@ -103,31 +169,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submitVendor() {
     if (_businessFormKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(VendorRegisterRequested(
-            firstName: _firstNameController.text.trim(),
-            lastName: _lastNameController.text.trim(),
-            email: _emailController.text.trim(),
-            phone: _phoneController.text.trim(),
-            password: _passwordController.text,
-            shopName: _shopNameController.text.trim(),
-            shopSlug: _shopSlugController.text.trim(),
-            businessName: _businessNameController.text.trim(),
-            description: _descriptionController.text.trim().isEmpty
-                ? null
-                : _descriptionController.text.trim(),
-            gstNumber: _gstController.text.trim().isEmpty
-                ? null
-                : _gstController.text.trim(),
-            panNumber: _panController.text.trim().isEmpty
-                ? null
-                : _panController.text.trim(),
-            supportEmail: _supportEmailController.text.trim().isEmpty
-                ? null
-                : _supportEmailController.text.trim(),
-            supportPhone: _supportPhoneController.text.trim().isEmpty
-                ? null
-                : _supportPhoneController.text.trim(),
-          ));
+      context.read<AuthBloc>().add(
+        VendorRegisterRequested(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          phone: _phoneController.text.trim(),
+          password: _passwordController.text,
+          shopName: _shopNameController.text.trim(),
+          shopSlug: _shopSlugController.text.trim(),
+          businessName: _businessNameController.text.trim(),
+          description: _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
+          gstNumber: _gstController.text.trim().isEmpty
+              ? null
+              : _gstController.text.trim(),
+          panNumber: _panController.text.trim().isEmpty
+              ? null
+              : _panController.text.trim(),
+          supportEmail: _supportEmailController.text.trim().isEmpty
+              ? null
+              : _supportEmailController.text.trim(),
+          supportPhone: _supportPhoneController.text.trim().isEmpty
+              ? null
+              : _supportPhoneController.text.trim(),
+        ),
+      );
     }
   }
 
@@ -181,9 +249,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (_selectedRole == 'vendor') ...[
                   KycStepIndicator(currentStep: _step, totalSteps: 2),
                   const SizedBox(height: 8),
-                  Text(_step == 0
-                      ? 'Step 1 of 2: Personal Details'
-                      : 'Step 2 of 2: Business Details'),
+                  Text(
+                    _step == 0
+                        ? 'Step 1 of 2: Personal Details'
+                        : 'Step 2 of 2: Business Details',
+                  ),
                   const SizedBox(height: 24),
                 ],
                 if (_selectedRole == 'buyer' || _step == 0)
@@ -202,6 +272,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           setState(() => _obscurePassword = !_obscurePassword),
                       onToggleConfirm: () =>
                           setState(() => _obscureConfirm = !_obscureConfirm),
+                      selectedCountryFlag: _selectedCountry != null
+                          ? _getFlagEmoji(_selectedCountry!.code)
+                          : '🇮🇳',
+                      selectedCountryDialCode: _selectedCountry?.dialCode ?? '+91',
+                      minPhoneLength: _selectedCountry?.minLength ?? 10,
+                      maxPhoneLength: _selectedCountry?.maxLength ?? 10,
+                      onSelectCountry: _showCountryPicker,
                     ),
                   )
                 else
@@ -248,8 +325,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         AppButton(
                           label: 'Back',
                           variant: AppButtonVariant.outlined,
-                          onPressed:
-                              isLoading ? null : () => setState(() => _step = 0),
+                          onPressed: isLoading
+                              ? null
+                              : () => setState(() => _step = 0),
                         ),
                       ],
                     );
@@ -286,6 +364,11 @@ class _PersonalDetailsFields extends StatelessWidget {
   final bool obscureConfirm;
   final VoidCallback onTogglePassword;
   final VoidCallback onToggleConfirm;
+  final String selectedCountryFlag;
+  final String selectedCountryDialCode;
+  final int minPhoneLength;
+  final int maxPhoneLength;
+  final VoidCallback onSelectCountry;
 
   const _PersonalDetailsFields({
     required this.firstNameController,
@@ -298,6 +381,11 @@ class _PersonalDetailsFields extends StatelessWidget {
     required this.obscureConfirm,
     required this.onTogglePassword,
     required this.onToggleConfirm,
+    required this.selectedCountryFlag,
+    required this.selectedCountryDialCode,
+    required this.minPhoneLength,
+    required this.maxPhoneLength,
+    required this.onSelectCountry,
   });
 
   @override
@@ -328,7 +416,57 @@ class _PersonalDetailsFields extends StatelessWidget {
           controller: phoneController,
           label: 'Phone Number',
           keyboardType: TextInputType.phone,
-          validator: Validators.phone,
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Phone number is required';
+            }
+            final cleanVal = value.trim();
+            if (cleanVal.length < minPhoneLength) {
+              return 'Phone number must be at least $minPhoneLength digits';
+            }
+            if (cleanVal.length > maxPhoneLength) {
+              return 'Phone number must be at most $maxPhoneLength digits';
+            }
+            return null;
+          },
+          prefixIcon: GestureDetector(
+            onTap: onSelectCountry,
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                border: Border(
+                  right: BorderSide(
+                    color: Theme.of(context).dividerColor.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    selectedCountryFlag,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    selectedCountryDialCode,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ],
+              ),
+            ),
+          ),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+            LengthLimitingTextInputFormatter(maxPhoneLength),
+          ],
         ),
         const SizedBox(height: 16),
         AppTextField(
@@ -337,9 +475,11 @@ class _PersonalDetailsFields extends StatelessWidget {
           obscureText: obscurePassword,
           validator: Validators.password,
           suffixIcon: IconButton(
-            icon: Icon(obscurePassword
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined),
+            icon: Icon(
+              obscurePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
             onPressed: onTogglePassword,
           ),
         ),
@@ -351,9 +491,11 @@ class _PersonalDetailsFields extends StatelessWidget {
           validator: (v) =>
               Validators.confirmPassword(v, passwordController.text),
           suffixIcon: IconButton(
-            icon: Icon(obscureConfirm
-                ? Icons.visibility_outlined
-                : Icons.visibility_off_outlined),
+            icon: Icon(
+              obscureConfirm
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
             onPressed: onToggleConfirm,
           ),
         ),
@@ -406,8 +548,7 @@ class _BusinessDetailsFields extends StatelessWidget {
         AppTextField(
           controller: businessNameController,
           label: 'Business Name',
-          validator: (v) =>
-              Validators.required(v, fieldName: 'Business name'),
+          validator: (v) => Validators.required(v, fieldName: 'Business name'),
         ),
         const SizedBox(height: 16),
         AppTextField(
