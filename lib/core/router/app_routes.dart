@@ -16,6 +16,7 @@ class AppRoutes {
   static const String vendorTransactionDetail = '/vendor/transactions/:id';
   static const String vendorInvoices = '/vendor/invoices';
   static const String vendorInvoiceDetail = '/vendor/invoices/:id';
+  static const String vendorMore = '/vendor/more';
 
   static const List<String> publicRoutes = [
     splash,

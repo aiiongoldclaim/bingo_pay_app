@@ -13,7 +13,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/country_picker.dart';
-import '../widgets/kyc_step_indicator.dart';
+import '../../../../core/widgets/step_indicator.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -200,7 +200,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                KycStepIndicator(currentStep: _step, totalSteps: 2),
+                StepIndicator(currentStep: _step, totalSteps: 2),
                 const SizedBox(height: 8),
                 Text(
                   _step == 0

@@ -24,6 +24,16 @@ class AppColors {
   static const Color warning = Color(0xFFFBBC04);
   static const Color info = Color(0xFF4285F4);
 
+  // Semantic tints (icon-chip / pill backgrounds)
+  static const Color successTint = Color(0xFFE3F3E6);
+  static const Color warningTint = Color(0xFFFCEFD9);
+  static const Color infoTint = Color(0xFFE3EDFC);
+  static const Color errorTint = Color(0xFFFBE5E3);
+
+  // Extra accent (used for "orders" stat card)
+  static const Color accentPurple = Color(0xFF7C4DFF);
+  static const Color accentPurpleTint = Color(0xFFEDE7FB);
+
   // Dividers
   static const Color divider = Color(0xFFE0E0E0);
 }

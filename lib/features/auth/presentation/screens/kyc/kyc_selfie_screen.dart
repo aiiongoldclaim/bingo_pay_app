@@ -11,7 +11,7 @@ import '../../../../../core/widgets/app_snackbar.dart';
 import '../../bloc/auth_bloc.dart';
 import '../../bloc/auth_event.dart';
 import '../../bloc/auth_state.dart';
-import '../../widgets/kyc_step_indicator.dart';
+import '../../../../../core/widgets/step_indicator.dart';
 
 class KycSelfieScreen extends StatefulWidget {
   const KycSelfieScreen({super.key});
@@ -56,7 +56,7 @@ class _KycSelfieScreenState extends State<KycSelfieScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const KycStepIndicator(currentStep: 2),
+              const StepIndicator(currentStep: 2),
               const SizedBox(height: 8),
               const Text('Step 3 of 3: Take a Selfie'),
               const SizedBox(height: 24),

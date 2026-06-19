@@ -9,7 +9,7 @@ import '../../../../../core/widgets/app_text_field.dart';
 import '../../bloc/auth_bloc.dart';
 import '../../bloc/auth_event.dart';
 import '../../bloc/auth_state.dart';
-import '../../widgets/kyc_step_indicator.dart';
+import '../../../../../core/widgets/step_indicator.dart';
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -79,7 +79,7 @@ class _KycScreenState extends State<KycScreen> {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const KycStepIndicator(currentStep: 0),
+              const StepIndicator(currentStep: 0),
               const SizedBox(height: 8),
               const Text('Step 1 of 3: Personal Details'),
               const SizedBox(height: 24),

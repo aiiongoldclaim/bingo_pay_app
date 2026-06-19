@@ -9,7 +9,7 @@ import '../../../../../core/widgets/app_snackbar.dart';
 import '../../bloc/auth_bloc.dart';
 import '../../bloc/auth_event.dart';
 import '../../bloc/auth_state.dart';
-import '../../widgets/kyc_step_indicator.dart';
+import '../../../../../core/widgets/step_indicator.dart';
 
 class KycDocumentScreen extends StatefulWidget {
   const KycDocumentScreen({super.key});
@@ -56,7 +56,7 @@ class _KycDocumentScreenState extends State<KycDocumentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const KycStepIndicator(currentStep: 1),
+              const StepIndicator(currentStep: 1),
               const SizedBox(height: 8),
               const Text('Step 2 of 3: Document Upload'),
               const SizedBox(height: 24),
