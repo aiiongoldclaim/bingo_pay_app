@@ -24,10 +24,7 @@ class _AppState extends State<App> {
   void _onAuthStateChanged(BuildContext context, AuthState state) {
     if (state is AuthAuthenticated) {
       _router.updateAuthState(
-        RouteAuthState.authenticated(
-          role: state.user.isVendor ? UserRole.vendor : UserRole.buyer,
-          isKycPending: state.user.isKycPending,
-        ),
+        RouteAuthState.authenticated(isKycPending: state.user.isKycPending),
       );
     } else if (state is AuthUnauthenticated) {
       _router.updateAuthState(const RouteAuthState.unauthenticated());

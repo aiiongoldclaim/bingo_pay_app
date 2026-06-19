@@ -4,19 +4,6 @@ import '../entities/kyc_entity.dart';
 import '../entities/user_entity.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, UserEntity>> login({
-    required String email,
-    required String password,
-  });
-
-  Future<Either<Failure, UserEntity>> registerBuyer({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String password,
-  });
-
   Future<Either<Failure, UserEntity>> registerVendor({
     required String firstName,
     required String lastName,
@@ -31,6 +18,11 @@ abstract interface class AuthRepository {
     String? panNumber,
     String? supportEmail,
     String? supportPhone,
+  });
+
+  Future<Either<Failure, UserEntity>> vendorLogin({
+    required String identifier,
+    required String password,
   });
 
   Future<Either<Failure, Unit>> forgotPassword({required String email});

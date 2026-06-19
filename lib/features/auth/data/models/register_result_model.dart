@@ -6,24 +6,6 @@ class RegisterResultModel {
 
   const RegisterResultModel({required this.accessToken, required this.user});
 
-  factory RegisterResultModel.fromBuyerJson(
-    Map<String, dynamic> json, {
-    required String firstName,
-    required String lastName,
-  }) {
-    final bingoldData = json['bingold']['data'] as Map<String, dynamic>;
-    return RegisterResultModel(
-      accessToken: json['token'] as String,
-      user: UserModel(
-        id: bingoldData['id'] as String,
-        email: bingoldData['email'] as String,
-        name: '$firstName $lastName'.trim(),
-        role: 'buyer',
-        kycStatus: 'not_required',
-      ),
-    );
-  }
-
   factory RegisterResultModel.fromVendorJson(
     Map<String, dynamic> json, {
     required String firstName,

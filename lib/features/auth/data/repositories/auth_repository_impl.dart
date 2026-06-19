@@ -16,48 +16,6 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._remote, this._local);
 
   @override
-  Future<Either<Failure, UserEntity>> login({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      final response = await _remote.login(email: email, password: password);
-      await _local.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
-      );
-      await _local.saveUser(response.user);
-      return Right(response.user);
-    } catch (e) {
-      return Left(ErrorHandler.mapErrorToFailure(e));
-    }
-  }
-
-  @override
-  Future<Either<Failure, UserEntity>> registerBuyer({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String password,
-  }) async {
-    try {
-      final result = await _remote.registerBuyer(
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        phone: phone,
-        password: password,
-      );
-      await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
-      await _local.saveUser(result.user);
-      return Right(result.user);
-    } catch (e) {
-      return Left(ErrorHandler.mapErrorToFailure(e));
-    }
-  }
-
-  @override
   Future<Either<Failure, UserEntity>> registerVendor({
     required String firstName,
     required String lastName,
@@ -88,6 +46,24 @@ class AuthRepositoryImpl implements AuthRepository {
         panNumber: panNumber,
         supportEmail: supportEmail,
         supportPhone: supportPhone,
+      );
+      await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
+      await _local.saveUser(result.user);
+      return Right(result.user);
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> vendorLogin({
+    required String identifier,
+    required String password,
+  }) async {
+    try {
+      final result = await _remote.vendorLogin(
+        identifier: identifier,
+        password: password,
       );
       await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
       await _local.saveUser(result.user);

@@ -34,11 +34,8 @@ class _KycDocumentScreenState extends State<KycDocumentScreen> {
       return;
     }
     context.read<AuthBloc>().add(
-          KycDocumentUploaded(
-            filePath: _imagePath!,
-            documentType: _documentType,
-          ),
-        );
+      KycDocumentUploaded(filePath: _imagePath!, documentType: _documentType),
+    );
   }
 
   @override

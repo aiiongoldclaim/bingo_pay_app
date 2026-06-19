@@ -2,24 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
-import '../models/auth_response_model.dart';
 import '../models/kyc_model.dart';
 import '../models/register_result_model.dart';
+import '../models/vendor_login_result_model.dart';
 
 abstract interface class AuthRemoteDataSource {
-  Future<AuthResponseModel> login({
-    required String email,
-    required String password,
-  });
-
-  Future<RegisterResultModel> registerBuyer({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String password,
-  });
-
   Future<RegisterResultModel> registerVendor({
     required String firstName,
     required String lastName,
@@ -34,6 +21,11 @@ abstract interface class AuthRemoteDataSource {
     String? panNumber,
     String? supportEmail,
     String? supportPhone,
+  });
+
+  Future<VendorLoginResultModel> vendorLogin({
+    required String identifier,
+    required String password,
   });
 
   Future<void> forgotPassword({required String email});
@@ -60,45 +52,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._apiClient);
 
   Dio get _dio => _apiClient.dio;
-
-  @override
-  Future<AuthResponseModel> login({
-    required String email,
-    required String password,
-  }) async {
-    final response = await _dio.post(
-      ApiEndpoints.login,
-      data: {'email': email, 'password': password},
-    );
-    return AuthResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>);
-  }
-
-  @override
-  Future<RegisterResultModel> registerBuyer({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String password,
-  }) async {
-    final response = await _dio.post(
-      ApiEndpoints.registerBuyer,
-      data: {
-        'firstName': firstName,
-        'lastName': lastName,
-        'password': password,
-        'countryId': '91',
-        'email': email,
-        'phoneNumber': phone,
-      },
-    );
-    return RegisterResultModel.fromBuyerJson(
-      response.data['data'] as Map<String, dynamic>,
-      firstName: firstName,
-      lastName: lastName,
-    );
-  }
 
   @override
   Future<RegisterResultModel> registerVendor({
@@ -138,6 +91,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       response.data['data'] as Map<String, dynamic>,
       firstName: firstName,
       lastName: lastName,
+    );
+  }
+
+  @override
+  Future<VendorLoginResultModel> vendorLogin({
+    required String identifier,
+    required String password,
+  }) async {
+    final response = await _dio.post(
+      ApiEndpoints.vendorLogin,
+      data: {'identifier': identifier, 'password': password},
+    );
+    return VendorLoginResultModel.fromJson(
+      response.data['data'] as Map<String, dynamic>,
     );
   }
 

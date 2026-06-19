@@ -42,7 +42,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _supportEmailController = TextEditingController();
   final _supportPhoneController = TextEditingController();
 
-  String _selectedRole = 'buyer';
   int _step = 0;
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
@@ -140,27 +139,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _selectRole(String role) {
-    setState(() {
-      _selectedRole = role;
-      _step = 0;
-    });
-  }
-
-  void _submitBuyer() {
-    if (_personalFormKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(
-        BuyerRegisterRequested(
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          email: _emailController.text.trim(),
-          phone: _phoneController.text.trim(),
-          password: _passwordController.text,
-        ),
-      );
-    }
-  }
-
   void _goToBusinessStep() {
     if (_personalFormKey.currentState?.validate() ?? false) {
       setState(() => _step = 1);
@@ -222,41 +200,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
-                Text('I am a:', style: theme.textTheme.labelLarge),
+                KycStepIndicator(currentStep: _step, totalSteps: 2),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _RoleCard(
-                        label: 'Buyer',
-                        icon: Icons.shopping_bag_outlined,
-                        isSelected: _selectedRole == 'buyer',
-                        onTap: () => _selectRole('buyer'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _RoleCard(
-                        label: 'Vendor',
-                        icon: Icons.storefront_outlined,
-                        isSelected: _selectedRole == 'vendor',
-                        onTap: () => _selectRole('vendor'),
-                      ),
-                    ),
-                  ],
+                Text(
+                  _step == 0
+                      ? 'Step 1 of 2: Personal Details'
+                      : 'Step 2 of 2: Business Details',
                 ),
-                const SizedBox(height: 32),
-                if (_selectedRole == 'vendor') ...[
-                  KycStepIndicator(currentStep: _step, totalSteps: 2),
-                  const SizedBox(height: 8),
-                  Text(
-                    _step == 0
-                        ? 'Step 1 of 2: Personal Details'
-                        : 'Step 2 of 2: Business Details',
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                if (_selectedRole == 'buyer' || _step == 0)
+                const SizedBox(height: 24),
+                if (_step == 0)
                   Form(
                     key: _personalFormKey,
                     child: _PersonalDetailsFields(
@@ -300,13 +252,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
-                    if (_selectedRole == 'buyer') {
-                      return AppButton(
-                        label: 'Create Account',
-                        onPressed: _submitBuyer,
-                        isLoading: isLoading,
-                      );
-                    }
                     if (_step == 0) {
                       return AppButton(
                         label: 'Next',
@@ -581,64 +526,6 @@ class _BusinessDetailsFields extends StatelessWidget {
           keyboardType: TextInputType.phone,
         ),
       ],
-    );
-  }
-}
-
-class _RoleCard extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _RoleCard({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? theme.colorScheme.primaryContainer
-              : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outline,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

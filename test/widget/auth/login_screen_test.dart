@@ -44,16 +44,16 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('dispatches LoginRequested on valid submit', (tester) async {
+  testWidgets('dispatches VendorLoginRequested on valid submit', (tester) async {
     await tester.pumpWidget(buildSubject(bloc));
     await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email'), 'a@b.com');
+        find.widgetWithText(TextFormField, 'Email'), 'owner13@acme.com');
     await tester.enterText(
         find.widgetWithText(TextFormField, 'Password'), 'password123');
     await tester.tap(find.text('Sign In'));
     await tester.pump();
-    verify(() => bloc.add(const LoginRequested(
-          email: 'a@b.com',
+    verify(() => bloc.add(const VendorLoginRequested(
+          identifier: 'owner13@acme.com',
           password: 'password123',
         ))).called(1);
   });

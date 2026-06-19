@@ -34,20 +34,19 @@ void main() {
       );
     });
 
-    test('authenticated user on splash redirects to buyer home', () {
+    test('authenticated user on splash redirects to vendor home', () {
       expect(
         RouteGuard.redirect(
           location: AppRoutes.splash,
-          authState: const RouteAuthState.authenticated(role: UserRole.buyer),
+          authState: const RouteAuthState.authenticated(),
         ),
-        AppRoutes.buyerHome,
+        AppRoutes.vendorHome,
       );
     });
 
-
     test('unauthenticated user on protected route redirects to login', () {
       final result = RouteGuard.redirect(
-        location: AppRoutes.buyerHome,
+        location: AppRoutes.vendorHome,
         authState: const RouteAuthState.unauthenticated(),
       );
       expect(result, AppRoutes.login);
@@ -61,55 +60,32 @@ void main() {
       expect(result, isNull);
     });
 
-    test('authenticated buyer on vendor route redirects to buyer home', () {
-      final result = RouteGuard.redirect(
-        location: AppRoutes.vendorHome,
-        authState: const RouteAuthState(
-          isAuthenticated: true,
-          role: UserRole.buyer,
-        ),
-      );
-      expect(result, AppRoutes.buyerHome);
-    });
-
     test('authenticated vendor on vendor route is allowed', () {
       final result = RouteGuard.redirect(
         location: AppRoutes.vendorHome,
-        authState: const RouteAuthState(
-          isAuthenticated: true,
-          role: UserRole.vendor,
-        ),
+        authState: const RouteAuthState(isAuthenticated: true),
       );
       expect(result, isNull);
     });
 
-    test('authenticated user on login page is redirected to their home', () {
+    test('authenticated user on login page is redirected to vendor home', () {
       final result = RouteGuard.redirect(
         location: AppRoutes.login,
-        authState: const RouteAuthState(
-          isAuthenticated: true,
-          role: UserRole.buyer,
-        ),
+        authState: const RouteAuthState(isAuthenticated: true),
       );
-      expect(result, AppRoutes.buyerHome);
+      expect(result, AppRoutes.vendorHome);
     });
 
     test('vendor with pending KYC is redirected to /register/kyc', () {
-      const state = RouteAuthState.authenticated(
-        role: UserRole.vendor,
-        isKycPending: true,
-      );
+      const state = RouteAuthState.authenticated(isKycPending: true);
       expect(
-        RouteGuard.redirect(location: '/vendor/home', authState: state),
+        RouteGuard.redirect(location: AppRoutes.vendorHome, authState: state),
         AppRoutes.registerKyc,
       );
     });
 
     test('vendor with pending KYC already at /register/kyc is not redirected', () {
-      const state = RouteAuthState.authenticated(
-        role: UserRole.vendor,
-        isKycPending: true,
-      );
+      const state = RouteAuthState.authenticated(isKycPending: true);
       expect(
         RouteGuard.redirect(location: AppRoutes.registerKyc, authState: state),
         isNull,

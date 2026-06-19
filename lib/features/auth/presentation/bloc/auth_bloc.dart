@@ -5,39 +5,36 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/get_kyc_status_usecase.dart';
-import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
-import '../../domain/usecases/register_buyer_usecase.dart';
 import '../../domain/usecases/register_vendor_usecase.dart';
 import '../../domain/usecases/submit_kyc_personal_details_usecase.dart';
 import '../../domain/usecases/upload_kyc_document_usecase.dart';
 import '../../domain/usecases/upload_kyc_selfie_usecase.dart';
+import '../../domain/usecases/vendor_login_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
-  final RegisterBuyerUseCase _registerBuyer;
   final RegisterVendorUseCase _registerVendor;
+  final VendorLoginUseCase _vendorLogin;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
-    required LoginUseCase login,
-    required RegisterBuyerUseCase registerBuyer,
     required RegisterVendorUseCase registerVendor,
+    required VendorLoginUseCase vendorLogin,
     required ForgotPasswordUseCase forgotPassword,
     required LogoutUseCase logout,
     required SubmitKycPersonalDetailsUseCase kycPersonalDetails,
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
     required GetKycStatusUseCase getKycStatus,
-  }) : _registerBuyer = registerBuyer,
-       _registerVendor = registerVendor,
+  }) : _registerVendor = registerVendor,
+       _vendorLogin = vendorLogin,
        super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
-    on<LoginRequested>(_onLogin);
-    on<BuyerRegisterRequested>(_onBuyerRegister);
+    on<VendorLoginRequested>(_onVendorLogin);
     on<VendorRegisterRequested>(_onVendorRegister);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
@@ -54,25 +51,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthUnauthenticated());
   }
 
-  Future<void> _onLogin(
-    LoginRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    final user = _mockUser(email: event.email, role: 'buyer');
-    _currentUser = user;
-    emit(AuthAuthenticated(user));
-  }
-
-  Future<void> _onBuyerRegister(
-    BuyerRegisterRequested event,
+  Future<void> _onVendorLogin(
+    VendorLoginRequested event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await _registerBuyer(BuyerRegisterParams(
-      firstName: event.firstName,
-      lastName: event.lastName,
-      email: event.email,
-      phone: event.phone,
+    final result = await _vendorLogin(VendorLoginParams(
+      identifier: event.identifier,
       password: event.password,
     ));
     result.match(
@@ -174,18 +159,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(KycSubmitted(const KycEntity(status: 'under_review')));
   }
-
-  UserEntity _mockUser({
-    String email = 'user@example.com',
-    String name = 'Mock User',
-    String role = 'buyer',
-    String kycStatus = 'not_required',
-  }) =>
-      UserEntity(
-        id: 'mock-id',
-        email: email,
-        name: name,
-        role: role,
-        kycStatus: kycStatus,
-      );
 }
