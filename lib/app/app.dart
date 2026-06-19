@@ -22,9 +22,7 @@ class _AppState extends State<App> {
   final _connectivity = getIt<ConnectivityService>();
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
-    if (state is AuthLoading) {
-      _router.updateAuthState(const RouteAuthState.loading());
-    } else if (state is AuthAuthenticated) {
+    if (state is AuthAuthenticated) {
       _router.updateAuthState(
         RouteAuthState.authenticated(
           role: state.user.isVendor ? UserRole.vendor : UserRole.buyer,

@@ -28,8 +28,8 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await _local.saveUser(response.user);
       return Right(response.user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -52,8 +52,8 @@ class AuthRepositoryImpl implements AuthRepository {
       await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
       await _local.saveUser(result.user);
       return Right(result.user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -92,8 +92,8 @@ class AuthRepositoryImpl implements AuthRepository {
       await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
       await _local.saveUser(result.user);
       return Right(result.user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -104,8 +104,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _remote.forgotPassword(email: email);
       return const Right(unit);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -114,8 +114,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _local.clearAll();
       return const Right(unit);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -124,8 +124,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = await _local.getUser();
       return Right(user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -142,8 +142,8 @@ class AuthRepositoryImpl implements AuthRepository {
         address: address,
       );
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -158,8 +158,8 @@ class AuthRepositoryImpl implements AuthRepository {
         documentType: documentType,
       );
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -170,8 +170,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final kyc = await _remote.uploadKycSelfie(filePath: filePath);
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 
@@ -180,8 +180,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final kyc = await _remote.getKycStatus();
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
     }
   }
 }

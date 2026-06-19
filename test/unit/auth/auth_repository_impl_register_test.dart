@@ -1,8 +1,11 @@
+import 'package:bingo_pay/core/error/exceptions.dart';
+import 'package:bingo_pay/core/error/failures.dart';
 import 'package:bingo_pay/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:bingo_pay/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:bingo_pay/features/auth/data/models/register_result_model.dart';
 import 'package:bingo_pay/features/auth/data/models/user_model.dart';
 import 'package:bingo_pay/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -64,6 +67,58 @@ void main() {
       verify(() => local.saveTokens(accessToken: 'buyer-jwt', refreshToken: ''))
           .called(1);
       verify(() => local.saveUser(buyerUser)).called(1);
+    });
+
+    test('returns a Failure instead of throwing when remote throws a DioException '
+        'wrapping a mapped exception (e.g. duplicate email from backend)', () async {
+      final dioError = DioException(
+        requestOptions: RequestOptions(path: '/register/buyer'),
+        error: const ValidationException(
+          message: 'Email already registered',
+          fieldErrors: {'email': 'already registered'},
+        ),
+      );
+      when(() => remote.registerBuyer(
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+            email: any(named: 'email'),
+            phone: any(named: 'phone'),
+            password: any(named: 'password'),
+          )).thenThrow(dioError);
+
+      final result = await repo.registerBuyer(
+        firstName: 'Alice',
+        lastName: 'Doe',
+        email: 'a@b.com',
+        phone: '9876543210',
+        password: 'password1',
+      );
+
+      expect(result.isLeft(), isTrue);
+      final failure = result.fold((f) => f, (_) => null);
+      expect(failure, isA<ValidationFailure>());
+      expect(failure!.message, 'Email already registered');
+    });
+
+    test('returns a Failure instead of throwing when remote throws a non-Exception '
+        'error (e.g. a TypeError from malformed JSON)', () async {
+      when(() => remote.registerBuyer(
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+            email: any(named: 'email'),
+            phone: any(named: 'phone'),
+            password: any(named: 'password'),
+          )).thenThrow(TypeError());
+
+      final result = await repo.registerBuyer(
+        firstName: 'Alice',
+        lastName: 'Doe',
+        email: 'a@b.com',
+        phone: '9876543210',
+        password: 'password1',
+      );
+
+      expect(result.isLeft(), isTrue);
     });
   });
 
