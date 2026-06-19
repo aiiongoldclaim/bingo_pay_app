@@ -36,6 +36,7 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
 
   void onBuyNow() {
     // TODO: navigate to checkout
+    
   }
 
   void onSeeAllReviews() {
