@@ -42,16 +42,19 @@ dependencies:
   connectivity_plus: ^6.1.4
   share_plus: ^10.1.4
 
+
   # Utilities
   logger: ^2.5.0
   intl: ^0.19.0
+  sizer: ^3.1.3
+  flutter_svg: ^2.0.10+1
   json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  build_runner: 2.4.14
+  build_runner: ^2.4.14
   injectable_generator: ^2.7.0
   json_serializable: ^6.9.5
   bloc_test: ^9.1.7
@@ -63,3 +66,14 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+
+  fonts:
+    - family: CormorantGaramond
+      fonts:
+        - asset: assets/fonts/CormorantGaramond-Regular.ttf
+        - asset: assets/fonts/CormorantGaramond-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/CormorantGaramond-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/CormorantGaramond-Bold.ttf
+          weight: 700

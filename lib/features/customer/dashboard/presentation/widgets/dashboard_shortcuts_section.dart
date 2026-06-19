@@ -5,7 +5,7 @@ import '../../../../../core/theme/app_dimensions.dart';
 import '../cubit/buyer_dashboard_state.dart';
 
 /// Section displaying shortcuts to common account resources.
-/// 
+///
 /// Shows:
 /// - Saved addresses
 /// - Payment methods
@@ -33,9 +33,9 @@ class DashboardShortcutsSection extends StatelessWidget {
       children: [
         Text(
           'Account Shortcuts',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppDimensions.md),
         // Addresses
@@ -43,7 +43,8 @@ class DashboardShortcutsSection extends StatelessWidget {
           _ShortcutCard(
             icon: Icons.location_on_outlined,
             title: 'Addresses',
-            subtitle: '${addresses.length} saved address${addresses.length > 1 ? 'es' : ''}',
+            subtitle:
+                '${addresses.length} saved address${addresses.length > 1 ? 'es' : ''}',
             onTap: onAddressEdit,
           ),
         if (addresses.isNotEmpty) const SizedBox(height: AppDimensions.md),
@@ -52,7 +53,8 @@ class DashboardShortcutsSection extends StatelessWidget {
           _ShortcutCard(
             icon: Icons.credit_card_outlined,
             title: 'Payment Methods',
-            subtitle: '${paymentMethods.length} saved method${paymentMethods.length > 1 ? 's' : ''}',
+            subtitle:
+                '${paymentMethods.length} saved method${paymentMethods.length > 1 ? 's' : ''}',
             onTap: onPaymentEdit,
           ),
         if (paymentMethods.isNotEmpty) const SizedBox(height: AppDimensions.md),
@@ -99,11 +101,7 @@ class _ShortcutCard extends StatelessWidget {
                     color: AppColors.primary.withAlpha(20),
                     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
-                  child: Icon(
-                    icon,
-                    color: AppColors.primary,
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: AppColors.primary, size: 24),
                 ),
                 const SizedBox(width: AppDimensions.lg),
                 Column(
@@ -112,24 +110,21 @@ class _ShortcutCard extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: AppDimensions.xs),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
-            Icon(
-              Icons.chevron_right,
-              color: AppColors.textSecondary,
-            ),
+            Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),
@@ -149,8 +144,8 @@ class _RewardsCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColors.secondary.withAlpha(200),
-            AppColors.secondary.withAlpha(150),
+            // AppColors.secondary.withAlpha(200),
+            // AppColors.secondary.withAlpha(150),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -158,7 +153,7 @@ class _RewardsCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
         boxShadow: [
           BoxShadow(
-            color: AppColors.secondary.withAlpha(50),
+            // color: AppColors.secondary.withAlpha(50),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -170,9 +165,9 @@ class _RewardsCard extends StatelessWidget {
           Text(
             'Your Rewards',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: AppDimensions.lg),
           Row(
@@ -198,10 +193,7 @@ class _RewardItem extends StatelessWidget {
   final String label;
   final String value;
 
-  const _RewardItem({
-    required this.label,
-    required this.value,
-  });
+  const _RewardItem({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -210,17 +202,17 @@ class _RewardItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Colors.white.withAlpha(200),
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: Colors.white.withAlpha(200)),
         ),
         const SizedBox(height: AppDimensions.sm),
         Text(
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ],
     );

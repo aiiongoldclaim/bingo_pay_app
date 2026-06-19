@@ -19,6 +19,8 @@ import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/dashboard/presentation/screens/home_screen.dart';
+import '../../features/dashboard/presentation/widgets/home_bottom_nav.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
@@ -29,20 +31,15 @@ class AppRouter {
 
   AppRouter() {
     router = GoRouter(
-      initialLocation: AppRoutes.splash,
+      initialLocation: AppRoutes.home,
       redirect: (context, state) => RouteGuard.redirect(
         location: state.matchedLocation,
         authState: _authState,
       ),
       routes: [
-        GoRoute(
-          path: AppRoutes.splash,
-          builder: (_, _) => const _SplashPage(),
-        ),
-        GoRoute(
-          path: AppRoutes.login,
-          builder: (_, _) => const LoginScreen(),
-        ),
+        GoRoute(path: AppRoutes.splash, builder: (_, _) => const _SplashPage()),
+        GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+        // GoRoute(path: AppRoutes.login, builder: (_, _) => const HomeScreen()),
         GoRoute(
           path: AppRoutes.register,
           builder: (_, _) => const RegisterScreen(),
@@ -63,21 +60,29 @@ class AppRouter {
           path: AppRoutes.kycSelfie,
           builder: (_, _) => const KycSelfieScreen(),
         ),
+
+        GoRoute(
+          path: AppRoutes.buyerProductDetail,
+          builder: (context, state) =>
+              ProductDetailScreen(productId: state.pathParameters['id'] ?? ''),
+        ),
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider<ShopBloc>(
               create: (_) => ShopBloc()..add(const ShopStarted()),
-              child: BuyerShellScreen(
-                child: child,
-                location: state.uri.path,
-              ),
+              child: BuyerShellScreen(child: child, location: state.uri.path),
             );
           },
           routes: [
+            // GoRoute(
+            //   path: AppRoutes.buyerHome,
+            //   builder: (_, _) => const BuyerHomeScreen(),
+            // ),
             GoRoute(
-              path: AppRoutes.buyerHome,
-              builder: (_, _) => const BuyerHomeScreen(),
+              path: AppRoutes.home,
+              builder: (_, _) => const HomeScreen(),
             ),
+
             GoRoute(
               path: AppRoutes.buyerDashboard,
               builder: (_, _) => BlocProvider<BuyerDashboardCubit>(
@@ -123,9 +128,8 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.buyerTransactionDetail,
-              builder: (context, state) => _PlaceholderPage(
-                'Order ${state.pathParameters['id'] ?? ''}',
-              ),
+              builder: (context, state) =>
+                  _PlaceholderPage('Order ${state.pathParameters['id'] ?? ''}'),
             ),
             GoRoute(
               path: AppRoutes.buyerProfile,
@@ -178,9 +182,7 @@ class _SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
 

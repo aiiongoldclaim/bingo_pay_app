@@ -44,13 +44,13 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
             child: state.isLoading
                 ? const Center(child: AppLoader())
                 : state.errorMessage != null
-                    ? _ErrorState(
-                        message: state.errorMessage!,
-                        onRetry: _cubit.refreshDashboard,
-                      )
-                    : state.data != null
-                        ? _LoadedState(data: state.data!)
-                        : const SizedBox.shrink(),
+                ? _ErrorState(
+                    message: state.errorMessage!,
+                    onRetry: _cubit.refreshDashboard,
+                  )
+                : state.data != null
+                ? _LoadedState(data: state.data!)
+                : const SizedBox.shrink(),
           ),
         );
       },
@@ -149,10 +149,7 @@ class _ErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -162,11 +159,7 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: AppDimensions.lg),
             Text(
               message,
@@ -174,10 +167,7 @@ class _ErrorState extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: AppDimensions.lg),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),

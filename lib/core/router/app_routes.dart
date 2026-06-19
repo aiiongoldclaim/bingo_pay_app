@@ -9,6 +9,7 @@ class AppRoutes {
 
   // Buyer shell
   static const String buyerHome = '/buyer/home';
+  static const String home = '/home';
   static const String buyerDashboard = '/buyer/dashboard';
   static const String buyerProfile = '/buyer/profile';
   static const String buyerSettings = '/buyer/settings';

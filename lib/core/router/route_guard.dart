@@ -16,16 +16,16 @@ class RouteAuthState {
   });
 
   const RouteAuthState.loading()
-      : isAuthenticated = false,
-        isLoading = true,
-        role = null,
-        isKycPending = false;
+    : isAuthenticated = false,
+      isLoading = true,
+      role = null,
+      isKycPending = false;
 
   const RouteAuthState.unauthenticated()
-      : isAuthenticated = false,
-        isLoading = false,
-        role = null,
-        isKycPending = false;
+    : isAuthenticated = false,
+      isLoading = false,
+      role = null,
+      isKycPending = false;
 
   const RouteAuthState.authenticated({
     required this.role,
@@ -48,7 +48,7 @@ class RouteGuard {
     if (location == AppRoutes.splash) {
       if (!authState.isAuthenticated) return AppRoutes.login;
       return authState.role == UserRole.vendor
-          ? AppRoutes.vendorHome
+          ? AppRoutes.home
           : AppRoutes.buyerHome;
     }
 
@@ -70,9 +70,12 @@ class RouteGuard {
     // Already logged in — redirect away from auth screens (but not from KYC if still pending)
     if (isPublic && location != AppRoutes.splash) {
       if (authState.isKycPending) return null;
+      // return authState.role == UserRole.vendor
+      //     ? AppRoutes.vendorHome
+      //     : AppRoutes.home;
       return authState.role == UserRole.vendor
-          ? AppRoutes.vendorHome
-          : AppRoutes.buyerHome;
+          ? AppRoutes.home
+          : AppRoutes.home;
     }
 
     // Block cross-role navigation
@@ -80,7 +83,8 @@ class RouteGuard {
       return AppRoutes.buyerHome;
     }
     if (location.startsWith('/buyer') && authState.role != UserRole.buyer) {
-      return AppRoutes.vendorHome;
+      // return AppRoutes.vendorHome;
+      return AppRoutes.home;
     }
 
     return null;

@@ -1,26 +1,126 @@
+// import 'package:flutter/material.dart';
+// import 'app_colors.dart';
+// import 'app_dimensions.dart';
+// import 'app_text_styles.dart';
+//
+// class AppTheme {
+//   static ThemeData get light => _buildTheme(Brightness.light);
+//   static ThemeData get dark => _buildTheme(Brightness.dark);
+//
+//   static ThemeData _buildTheme(Brightness brightness) {
+//     final isLight = brightness == Brightness.light;
+//     final colorScheme = ColorScheme.fromSeed(
+//       seedColor: AppColors.primary,
+//       brightness: brightness,
+//       error: AppColors.error,
+//     );
+//
+//     return ThemeData(
+//       useMaterial3: true,
+//       colorScheme: colorScheme,
+//       scaffoldBackgroundColor:
+//           isLight ? AppColors.backgroundLight : AppColors.backgroundDark,
+//       dividerColor: AppColors.divider,
+//       textTheme: TextTheme(
+//         displayLarge: AppTextStyles.displayLarge,
+//         headlineMedium: AppTextStyles.headlineMedium,
+//         titleLarge: AppTextStyles.titleLarge,
+//         bodyLarge: AppTextStyles.bodyLarge,
+//         bodyMedium: AppTextStyles.bodyMedium,
+//         labelMedium: AppTextStyles.labelMedium,
+//       ),
+//       elevatedButtonTheme: ElevatedButtonThemeData(
+//         style: ElevatedButton.styleFrom(
+//           backgroundColor: AppColors.primary,
+//           foregroundColor: Colors.white,
+//           minimumSize: const Size(double.infinity, AppDimensions.buttonHeight),
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+//           ),
+//           textStyle: AppTextStyles.buttonText,
+//         ),
+//       ),
+//       inputDecorationTheme: InputDecorationTheme(
+//         filled: true,
+//         fillColor:
+//             isLight ? AppColors.backgroundLight : AppColors.surfaceDark,
+//         border: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+//           borderSide: const BorderSide(color: AppColors.divider),
+//         ),
+//         enabledBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+//           borderSide: const BorderSide(color: AppColors.divider),
+//         ),
+//         focusedBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+//           borderSide: const BorderSide(color: AppColors.primary, width: 2),
+//         ),
+//         errorBorder: OutlineInputBorder(
+//           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+//           borderSide: const BorderSide(color: AppColors.error),
+//         ),
+//         contentPadding: const EdgeInsets.symmetric(
+//           horizontal: AppDimensions.md,
+//           vertical: AppDimensions.md,
+//         ),
+//       ),
+//       appBarTheme: AppBarTheme(
+//         backgroundColor:
+//             isLight ? AppColors.surfaceLight : AppColors.surfaceDark,
+//         elevation: 0,
+//         centerTitle: true,
+//         titleTextStyle: AppTextStyles.titleLarge,
+//         iconTheme: const IconThemeData(color: AppColors.textPrimary),
+//       ),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+
 import 'app_dimensions.dart';
 import 'app_text_styles.dart';
+import 'theme_colors.dart';
 
 class AppTheme {
   static ThemeData get light => _buildTheme(Brightness.light);
+
   static ThemeData get dark => _buildTheme(Brightness.dark);
 
   static ThemeData _buildTheme(Brightness brightness) {
     final isLight = brightness == Brightness.light;
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+
+    final colorScheme = ColorScheme(
       brightness: brightness,
-      error: AppColors.error,
+
+      primary: ThemeColors.blue,
+      onPrimary: ThemeColors.white,
+
+      secondary: ThemeColors.accent,
+      onSecondary: ThemeColors.white,
+
+      error: ThemeColors.red,
+      onError: ThemeColors.white,
+
+      surface: isLight ? ThemeColors.surface : ThemeColors.ink,
+
+      onSurface: isLight ? ThemeColors.ink : ThemeColors.white,
     );
 
     return ThemeData(
       useMaterial3: true,
+
+      /// Global Font
+      fontFamily: 'CormorantGaramond',
+
       colorScheme: colorScheme,
-      scaffoldBackgroundColor:
-          isLight ? AppColors.backgroundLight : AppColors.backgroundDark,
-      dividerColor: AppColors.divider,
+
+      scaffoldBackgroundColor: isLight
+          ? ThemeColors.background
+          : ThemeColors.ink,
+
+      dividerColor: ThemeColors.line,
+
       textTheme: TextTheme(
         displayLarge: AppTextStyles.displayLarge,
         headlineMedium: AppTextStyles.headlineMedium,
@@ -29,10 +129,11 @@ class AppTheme {
         bodyMedium: AppTextStyles.bodyMedium,
         labelMedium: AppTextStyles.labelMedium,
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor: ThemeColors.blue,
+          foregroundColor: ThemeColors.white,
           minimumSize: const Size(double.infinity, AppDimensions.buttonHeight),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
@@ -40,38 +141,49 @@ class AppTheme {
           textStyle: AppTextStyles.buttonText,
         ),
       ),
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor:
-            isLight ? AppColors.backgroundLight : AppColors.surfaceDark,
+        fillColor: isLight ? ThemeColors.surface : ThemeColors.surface2,
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          borderSide: const BorderSide(color: AppColors.divider),
+          borderSide: const BorderSide(color: ThemeColors.line),
         ),
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          borderSide: const BorderSide(color: AppColors.divider),
+          borderSide: const BorderSide(color: ThemeColors.line),
         ),
+
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: ThemeColors.blue, width: 2),
         ),
+
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(color: ThemeColors.red),
         ),
+
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppDimensions.md,
           vertical: AppDimensions.md,
         ),
       ),
+
       appBarTheme: AppBarTheme(
-        backgroundColor:
-            isLight ? AppColors.surfaceLight : AppColors.surfaceDark,
+        backgroundColor: isLight ? ThemeColors.surface : ThemeColors.ink,
+
         elevation: 0,
+
         centerTitle: true,
-        titleTextStyle: AppTextStyles.titleLarge,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+
+        titleTextStyle: AppTextStyles.titleLarge.copyWith(
+          color: ThemeColors.ink,
+        ),
+
+        iconTheme: const IconThemeData(color: ThemeColors.ink),
       ),
     );
   }
