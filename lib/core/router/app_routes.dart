@@ -14,6 +14,7 @@ class AppRoutes {
   static const String vendorProductEdit = '/vendor/products/:id/edit';
   static const String vendorTransactions = '/vendor/transactions';
   static const String vendorTransactionDetail = '/vendor/transactions/:id';
+  static const String vendorOrderCreate = '/vendor/orders/create';
   static const String vendorInvoices = '/vendor/invoices';
   static const String vendorInvoiceDetail = '/vendor/invoices/:id';
   static const String vendorMore = '/vendor/more';

@@ -1,12 +1,18 @@
+import 'package:bingo_pay/core/di/injection.dart';
 import 'package:bingo_pay/core/router/app_routes.dart';
-import 'package:bingo_pay/features/products/presentation/models/product_mock_data.dart';
+import 'package:bingo_pay/features/products/data/datasources/product_remote_datasource.dart';
 import 'package:bingo_pay/features/products/presentation/screens/add_product_screen.dart';
 import 'package:bingo_pay/features/products/presentation/screens/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+
+import '../../helpers/mocks.dart';
 
 void main() {
+  late MockProductRemoteDataSource dataSource;
+
   Widget buildApp() {
     final router = GoRouter(
       initialLocation: AppRoutes.vendorProducts,
@@ -23,7 +29,14 @@ void main() {
     return MaterialApp.router(routerConfig: router);
   }
 
-  tearDown(() => ProductRepository.instance.resetForTest());
+  setUp(() {
+    dataSource = MockProductRemoteDataSource();
+    when(() => dataSource.getProducts()).thenAnswer((_) async => []);
+    when(() => dataSource.addProduct(any())).thenAnswer((_) async {});
+    getIt.registerSingleton<ProductRemoteDataSource>(dataSource);
+  });
+
+  tearDown(() => getIt.reset());
 
   testWidgets('FAB on Products screen navigates to Add Product wizard', (tester) async {
     await tester.pumpWidget(buildApp());
@@ -88,21 +101,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('adding a product to the repository makes it appear on the Products screen', (tester) async {
-    await tester.pumpWidget(buildApp());
-    await tester.pumpAndSettle();
-
-    expect(find.text('Brand New Gadget'), findsNothing);
-
-    ProductRepository.instance.addProduct(
-      const Product(
-        name: 'Brand New Gadget',
-        sku: 'NEW-0001',
-        category: 'Electronics',
-        status: ProductStatus.active,
-        stock: StockInfo.inStock(),
-      ),
+  testWidgets('Products screen renders products returned by the API', (tester) async {
+    when(() => dataSource.getProducts()).thenAnswer(
+      (_) async => [
+        {
+          'product_name': 'Brand New Gadget',
+          'sku': 'NEW-0001',
+          'sub_category': 'Electronics',
+          'selling_price': 1999,
+          'stock_quantity': 10,
+          'low_stock_threshold': 5,
+        },
+      ],
     );
+
+    await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Brand New Gadget'), findsOneWidget);

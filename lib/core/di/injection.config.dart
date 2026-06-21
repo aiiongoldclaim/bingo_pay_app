@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:bingo_pay/core/api/api_client.dart' as _i541;
+import 'package:bingo_pay/core/api/apps_script_client.dart' as _i382;
 import 'package:bingo_pay/core/di/app_module.dart' as _i842;
 import 'package:bingo_pay/core/network/connectivity_service.dart' as _i133;
 import 'package:bingo_pay/core/router/app_router.dart' as _i14;
@@ -43,6 +44,12 @@ import 'package:bingo_pay/features/auth/domain/usecases/vendor_login_usecase.dar
     as _i984;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
+import 'package:bingo_pay/features/more/data/datasources/profile_remote_datasource.dart'
+    as _i2;
+import 'package:bingo_pay/features/products/data/datasources/product_remote_datasource.dart'
+    as _i109;
+import 'package:bingo_pay/features/transactions/data/datasources/order_remote_datasource.dart'
+    as _i771;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
@@ -63,6 +70,7 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.singleton<_i895.Connectivity>(() => appModule.connectivity);
+    gh.lazySingleton<_i382.AppsScriptClient>(() => _i382.AppsScriptClient());
     gh.lazySingleton<_i14.AppRouter>(() => _i14.AppRouter());
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
@@ -74,8 +82,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i356.PreferencesService>(
       () => _i356.PreferencesService(gh<_i460.SharedPreferences>()),
     );
+    gh.factory<_i771.OrderRemoteDataSource>(
+      () => _i771.OrderRemoteDataSourceImpl(gh<_i382.AppsScriptClient>()),
+    );
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
+    );
+    gh.factory<_i109.ProductRemoteDataSource>(
+      () => _i109.ProductRemoteDataSourceImpl(gh<_i382.AppsScriptClient>()),
+    );
+    gh.factory<_i2.ProfileRemoteDataSource>(
+      () => _i2.ProfileRemoteDataSourceImpl(
+        gh<_i541.ApiClient>(),
+        gh<_i481.SecureStorageService>(),
+      ),
     );
     gh.factory<_i763.AuthLocalDataSource>(
       () => _i763.AuthLocalDataSourceImpl(

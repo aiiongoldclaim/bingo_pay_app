@@ -49,14 +49,8 @@ class RouteGuard {
       return isPublic ? null : AppRoutes.login;
     }
 
-    // Vendor with pending KYC must complete KYC first
-    if (authState.isKycPending && !location.startsWith(AppRoutes.registerKyc)) {
-      return AppRoutes.registerKyc;
-    }
-
-    // Already logged in — redirect away from auth screens (but not from KYC if still pending)
+    // Already logged in — redirect away from auth screens, regardless of KYC status
     if (isPublic && location != AppRoutes.splash) {
-      if (authState.isKycPending) return null;
       return AppRoutes.vendorHome;
     }
 

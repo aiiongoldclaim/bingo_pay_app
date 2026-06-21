@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 enum ProductStatus { active, draft, archived }
 
 enum StockStatusType { inStock, lowStock, outOfStock }
@@ -31,6 +29,46 @@ class Product {
     this.price,
     this.discountPercent,
   });
+
+  /// Maps a raw row from the Apps Script `getProducts` response. The sheet
+  /// has no status column, so every product from the API is treated as active.
+  factory Product.fromApi(Map<String, dynamic> json) {
+    final mrp = _toDouble(json['mrp']);
+    final sellingPrice = _toDouble(json['selling_price']);
+    final discountPercent = (mrp != null && sellingPrice != null && sellingPrice < mrp && mrp > 0)
+        ? (((mrp - sellingPrice) / mrp) * 100).round()
+        : null;
+
+    final stockQty = _toInt(json['stock_quantity']) ?? 0;
+    final lowStockThreshold = _toInt(json['low_stock_threshold']) ?? 10;
+    final stock = stockQty <= 0
+        ? const StockInfo.outOfStock()
+        : stockQty <= lowStockThreshold
+        ? StockInfo.lowStock(stockQty)
+        : const StockInfo.inStock();
+
+    return Product(
+      name: json['product_name']?.toString() ?? '',
+      sku: json['sku']?.toString() ?? '',
+      category: json['sub_category']?.toString() ?? '',
+      price: sellingPrice,
+      discountPercent: discountPercent,
+      status: ProductStatus.active,
+      stock: stock,
+    );
+  }
+}
+
+double? _toDouble(dynamic value) {
+  if (value == null || value == '') return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}
+
+int? _toInt(dynamic value) {
+  if (value == null || value == '') return null;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }
 
 enum ProductFilter { all, active, draft, outOfStock, archived }
@@ -45,81 +83,13 @@ extension ProductFilterLabel on ProductFilter {
   };
 }
 
-const List<Product> _seedProducts = [
-  Product(
-    name: "Men's cotton t-shirt — navy",
-    sku: 'TSH-1042',
-    category: 'Apparel',
-    price: 999,
-    discountPercent: 30,
-    status: ProductStatus.active,
-    stock: StockInfo.inStock(),
-  ),
-  Product(
-    name: 'Gold plated ring — size adjustable',
-    sku: 'JWL-0087',
-    category: 'Jewellery',
-    status: ProductStatus.active,
-    stock: StockInfo.lowStock(4),
-  ),
-  Product(
-    name: 'Leather wallet — brown',
-    sku: 'ACC-2210',
-    category: 'Accessories',
-    status: ProductStatus.draft,
-    stock: StockInfo.outOfStock(),
-  ),
-  Product(
-    name: 'Running shoes — size 9',
-    sku: 'SHO-3301',
-    category: 'Footwear',
-    price: 2799,
-    discountPercent: 21,
-    status: ProductStatus.active,
-    stock: StockInfo.inStock(),
-  ),
-  Product(
-    name: 'Wireless earbuds — white',
-    sku: 'ELE-5521',
-    category: 'Electronics',
-    price: 1499,
-    status: ProductStatus.archived,
-    stock: StockInfo.outOfStock(),
-  ),
-];
-
-/// In-memory product list shared between the Products list screen and the
-/// Add Product wizard. No backend yet — this stands in for one.
-class ProductRepository extends ChangeNotifier {
-  ProductRepository._() : _products = List.of(_seedProducts);
-
-  static final ProductRepository instance = ProductRepository._();
-
-  final List<Product> _products;
-
-  List<Product> get products => List.unmodifiable(_products);
-
-  List<Product> filtered(ProductFilter filter) {
-    return switch (filter) {
-      ProductFilter.all => products,
-      ProductFilter.active => _products.where((p) => p.status == ProductStatus.active).toList(),
-      ProductFilter.draft => _products.where((p) => p.status == ProductStatus.draft).toList(),
-      ProductFilter.archived => _products.where((p) => p.status == ProductStatus.archived).toList(),
-      ProductFilter.outOfStock =>
-        _products.where((p) => p.stock.type == StockStatusType.outOfStock).toList(),
-    };
-  }
-
-  void addProduct(Product product) {
-    _products.insert(0, product);
-    notifyListeners();
-  }
-
-  @visibleForTesting
-  void resetForTest() {
-    _products
-      ..clear()
-      ..addAll(_seedProducts);
-    notifyListeners();
-  }
+List<Product> filterProducts(List<Product> products, ProductFilter filter) {
+  return switch (filter) {
+    ProductFilter.all => products,
+    ProductFilter.active => products.where((p) => p.status == ProductStatus.active).toList(),
+    ProductFilter.draft => products.where((p) => p.status == ProductStatus.draft).toList(),
+    ProductFilter.archived => products.where((p) => p.status == ProductStatus.archived).toList(),
+    ProductFilter.outOfStock =>
+      products.where((p) => p.stock.type == StockStatusType.outOfStock).toList(),
+  };
 }

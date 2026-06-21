@@ -23,103 +23,116 @@ extension DateRangeFilterLabel on DateRangeFilter {
   };
 }
 
+class OrderItem {
+  final String productName;
+  final int quantity;
+  final double price;
+
+  const OrderItem({required this.productName, required this.quantity, required this.price});
+
+  factory OrderItem.fromApi(Map<String, dynamic> json) => OrderItem(
+    productName: json['product_name']?.toString() ?? '',
+    quantity: _toInt(json['quantity']) ?? 0,
+    price: _toDouble(json['price']) ?? 0,
+  );
+
+  Map<String, dynamic> toApi() => {
+    'product_name': productName,
+    'quantity': quantity,
+    'price': price,
+  };
+}
+
 class Order {
   final String orderId;
   final String customerName;
-  final String itemSummary;
-  final String timeAgo;
-  final int daysAgo;
+  final String customerPhone;
+  final List<OrderItem> items;
+  final double totalAmount;
   final PaymentType payment;
   final OrderStatus status;
+  final DateTime createdAt;
 
   const Order({
     required this.orderId,
     required this.customerName,
-    required this.itemSummary,
-    required this.timeAgo,
-    required this.daysAgo,
+    required this.customerPhone,
+    required this.items,
+    required this.totalAmount,
     required this.payment,
     required this.status,
+    required this.createdAt,
   });
+
+  String get itemSummary {
+    if (items.isEmpty) return '';
+    if (items.length == 1) return items.first.productName;
+    return '${items.first.productName} +${items.length - 1} more';
+  }
+
+  String get timeAgo => _formatTimeAgo(createdAt);
+
+  int get daysAgo => DateTime.now().difference(createdAt).inDays;
+
+  factory Order.fromApi(Map<String, dynamic> json) {
+    final itemsJson = json['items'];
+    final items = itemsJson is List
+        ? itemsJson
+              .whereType<Map>()
+              .map((e) => OrderItem.fromApi(e.map((k, v) => MapEntry(k.toString(), v))))
+              .toList()
+        : <OrderItem>[];
+
+    return Order(
+      orderId: json['order_id']?.toString() ?? '',
+      customerName: json['customer_name']?.toString() ?? '',
+      customerPhone: json['customer_phone']?.toString() ?? '',
+      items: items,
+      totalAmount: _toDouble(json['total_amount']) ?? 0,
+      payment: json['payment_type']?.toString() == 'paid' ? PaymentType.paid : PaymentType.cod,
+      status: _statusFromApi(json['status']?.toString()),
+      createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+    );
+  }
 }
 
-class OrderMockData {
-  static const List<Order> orders = [
-    Order(
-      orderId: 'ORD12390',
-      customerName: 'Rashi Khurana',
-      itemSummary: 'Cotton T-Shirt +2 more',
-      timeAgo: '12 min ago',
-      daysAgo: 0,
-      payment: PaymentType.cod,
-      status: OrderStatus.pending,
-    ),
-    Order(
-      orderId: 'ORD12389',
-      customerName: 'Gargi Rana',
-      itemSummary: 'Gold Ring',
-      timeAgo: '38 min ago',
-      daysAgo: 0,
-      payment: PaymentType.paid,
-      status: OrderStatus.confirmed,
-    ),
-    Order(
-      orderId: 'ORD12387',
-      customerName: 'Shubham Chitransh',
-      itemSummary: 'Running Shoes +1 more',
-      timeAgo: '1 hr ago',
-      daysAgo: 0,
-      payment: PaymentType.paid,
-      status: OrderStatus.processing,
-    ),
-    Order(
-      orderId: 'ORD12386',
-      customerName: 'Achal Sharma',
-      itemSummary: 'Leather Wallet',
-      timeAgo: '2 hrs ago',
-      daysAgo: 0,
-      payment: PaymentType.paid,
-      status: OrderStatus.delivered,
-    ),
-    Order(
-      orderId: 'ORD12381',
-      customerName: 'Priya Nair',
-      itemSummary: 'Wireless Earbuds',
-      timeAgo: '5 hrs ago',
-      daysAgo: 0,
-      payment: PaymentType.paid,
-      status: OrderStatus.shipped,
-    ),
-    Order(
-      orderId: 'ORD12350',
-      customerName: 'Karan Mehta',
-      itemSummary: 'Denim Jacket',
-      timeAgo: '3 days ago',
-      daysAgo: 3,
-      payment: PaymentType.cod,
-      status: OrderStatus.delivered,
-    ),
-    Order(
-      orderId: 'ORD12298',
-      customerName: 'Ishita Verma',
-      itemSummary: 'Silver Bracelet +1 more',
-      timeAgo: '12 days ago',
-      daysAgo: 12,
-      payment: PaymentType.paid,
-      status: OrderStatus.delivered,
-    ),
-  ];
+OrderStatus _statusFromApi(String? value) {
+  return OrderStatus.values.firstWhere((s) => s.name == value, orElse: () => OrderStatus.pending);
+}
 
-  static List<Order> filtered({required OrderStatus? status, required DateRangeFilter dateRange}) {
-    return orders.where((order) {
-      final matchesStatus = status == null || order.status == status;
-      final matchesDate = switch (dateRange) {
-        DateRangeFilter.today => order.daysAgo == 0,
-        DateRangeFilter.thisWeek => order.daysAgo <= 7,
-        DateRangeFilter.thisMonth => order.daysAgo <= 30,
-        DateRangeFilter.custom => true,
-      };
-      return matchesStatus && matchesDate;
-    }).toList();
-  }
+List<Order> filterOrders(
+  List<Order> orders, {
+  required OrderStatus? status,
+  required DateRangeFilter dateRange,
+}) {
+  return orders.where((order) {
+    final matchesStatus = status == null || order.status == status;
+    final matchesDate = switch (dateRange) {
+      DateRangeFilter.today => order.daysAgo == 0,
+      DateRangeFilter.thisWeek => order.daysAgo <= 7,
+      DateRangeFilter.thisMonth => order.daysAgo <= 30,
+      DateRangeFilter.custom => true,
+    };
+    return matchesStatus && matchesDate;
+  }).toList();
+}
+
+String _formatTimeAgo(DateTime dt) {
+  final diff = DateTime.now().difference(dt);
+  if (diff.inMinutes < 1) return 'Just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
+  if (diff.inHours < 24) return '${diff.inHours} hr${diff.inHours == 1 ? '' : 's'} ago';
+  return '${diff.inDays} day${diff.inDays == 1 ? '' : 's'} ago';
+}
+
+double? _toDouble(dynamic value) {
+  if (value == null || value == '') return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}
+
+int? _toInt(dynamic value) {
+  if (value == null || value == '') return null;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }

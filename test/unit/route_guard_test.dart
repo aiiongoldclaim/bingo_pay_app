@@ -76,19 +76,19 @@ void main() {
       expect(result, AppRoutes.vendorHome);
     });
 
-    test('vendor with pending KYC is redirected to /register/kyc', () {
+    test('vendor with pending KYC on vendor home is allowed (not forced into KYC)', () {
       const state = RouteAuthState.authenticated(isKycPending: true);
       expect(
         RouteGuard.redirect(location: AppRoutes.vendorHome, authState: state),
-        AppRoutes.registerKyc,
+        isNull,
       );
     });
 
-    test('vendor with pending KYC already at /register/kyc is not redirected', () {
+    test('vendor with pending KYC visiting /register/kyc is sent to vendor home', () {
       const state = RouteAuthState.authenticated(isKycPending: true);
       expect(
         RouteGuard.redirect(location: AppRoutes.registerKyc, authState: state),
-        isNull,
+        AppRoutes.vendorHome,
       );
     });
   });

@@ -2,10 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/slugify.dart';
 import '../../../../core/widgets/step_indicator.dart';
+import '../../data/datasources/product_remote_datasource.dart';
 import '../models/product_form_data.dart';
 import '../models/product_mock_data.dart';
 import '../widgets/add_product/info_step.dart';
@@ -25,6 +27,7 @@ class AddProductScreen extends StatefulWidget {
 
 class _AddProductScreenState extends State<AddProductScreen> {
   int _step = 0;
+  bool _isSubmitting = false;
   final _draft = ProductDraft();
 
   final _formKeys = List.generate(5, (_) => GlobalKey<FormState>());
@@ -97,40 +100,52 @@ class _AddProductScreenState extends State<AddProductScreen> {
     if (_step > 0) setState(() => _step--);
   }
 
-  void _submit({required ProductStatus status}) {
+  Future<void> _submit({required ProductStatus status}) async {
     if (!_formKeys[_step].currentState!.validate()) return;
+    if (_isSubmitting) return;
 
     final mrp = double.tryParse(_mrpController.text.trim());
     final sellingPrice = double.tryParse(_sellingPriceController.text.trim());
-    final discountPercent = (mrp != null && sellingPrice != null && sellingPrice < mrp && mrp > 0)
-        ? (((mrp - sellingPrice) / mrp) * 100).round()
-        : null;
-
+    final costPrice = double.tryParse(_costPriceController.text.trim());
     final lowStockThreshold = int.tryParse(_lowStockThresholdController.text.trim()) ?? 10;
-    final stock = !_draft.trackInventory
-        ? const StockInfo.inStock()
-        : _draft.stockQty <= 0
-        ? const StockInfo.outOfStock()
-        : _draft.stockQty <= lowStockThreshold
-        ? StockInfo.lowStock(_draft.stockQty)
-        : const StockInfo.inStock();
 
-    final product = Product(
-      name: _nameController.text.trim(),
-      sku: _skuController.text.trim(),
-      category: _draft.category ?? '',
-      price: sellingPrice,
-      discountPercent: discountPercent,
-      status: status,
-      stock: stock,
-    );
+    final payload = {
+      'product_name': _nameController.text.trim(),
+      'short_description': _shortDescriptionController.text.trim(),
+      'sub_category': _draft.subCategory ?? '',
+      'selling_price': sellingPrice ?? '',
+      'cost_price': costPrice ?? '',
+      'mrp': mrp ?? '',
+      'gst': _draft.gstSlab ?? '',
+      'sku': _skuController.text.trim(),
+      'barcode': _barcodeController.text.trim(),
+      'stock_quantity': _draft.trackInventory ? _draft.stockQty : '',
+      'low_stock_threshold': lowStockThreshold,
+      'featured': _draft.featured,
+      'hsn_code': _hsnCodeController.text.trim(),
+      'country_of_origin': _countryOfOriginController.text.trim(),
+      'shipping_weight': _shippingWeightController.text.trim(),
+      'images': '',
+    };
 
-    ProductRepository.instance.addProduct(product);
+    setState(() => _isSubmitting = true);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(status == ProductStatus.draft ? 'Saved as draft' : 'Product published')),
-    );
-    Navigator.of(context).pop();
+    try {
+      await getIt<ProductRemoteDataSource>().addProduct(payload);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(status == ProductStatus.draft ? 'Saved as draft' : 'Product published')),
+      );
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save product: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -223,7 +238,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
         children: [
           Expanded(
             child: OutlinedButton(
-              onPressed: isLastStep ? () => _submit(status: ProductStatus.draft) : (_step > 0 ? _previous : null),
+              onPressed: _isSubmitting
+                  ? null
+                  : isLastStep
+                  ? () => _submit(status: ProductStatus.draft)
+                  : (_step > 0 ? _previous : null),
               child: Text(isLastStep ? 'Save as draft' : 'Previous'),
             ),
           ),
@@ -231,8 +250,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
           Expanded(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-              onPressed: isLastStep ? () => _submit(status: ProductStatus.active) : _next,
-              child: Text(isLastStep ? 'Publish' : 'Next'),
+              onPressed: _isSubmitting ? null : (isLastStep ? () => _submit(status: ProductStatus.active) : _next),
+              child: isLastStep && _isSubmitting
+                  ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : Text(isLastStep ? 'Publish' : 'Next'),
             ),
           ),
         ],

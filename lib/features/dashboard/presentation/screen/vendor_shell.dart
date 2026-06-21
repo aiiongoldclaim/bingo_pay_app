@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class VendorShell extends StatelessWidget {
@@ -9,7 +7,8 @@ class VendorShell extends StatelessWidget {
   const VendorShell({super.key, required this.navigationShell});
 
   void _onTap(int index) {
-    navigationShell.goBranch(
+    navigationShell.
+    goBranch(
       index,
       // Tap karke same tab pe dobara jao toh root tak reset ho jaye
       initialLocation: index == navigationShell.currentIndex,
@@ -60,11 +59,6 @@ class VendorShell extends StatelessWidget {
               ],
             ),
             label: 'Orders',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            activeIcon: Icon(Icons.account_balance_wallet),
-            label: 'Finance',
           ),
           const BottomNavigationBarItem(
             icon: Icon(Icons.more_horiz),

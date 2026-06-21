@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -11,6 +12,12 @@ import '../widgets/quick_action_row.dart';
 import '../widgets/recent_orders_section.dart';
 import '../widgets/sales_trend_chart.dart';
 import '../widgets/stat_card.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../../core/widgets/email_qr_sheet.dart';
+
+
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -27,6 +34,9 @@ class DashboardScreen extends StatelessWidget {
             avatarInitial: DashboardMockData.vendorName[0],
             hasUnreadNotifications: true,
             onNotificationsTap: () {},
+            onLogoutTap: () {
+              context.read<AuthBloc>().add(const LogoutRequested());
+            },
           ),
           const SliverToBoxAdapter(child: _DashboardBody()),
         ],
@@ -130,7 +140,12 @@ class _DashboardBody extends StatelessWidget {
                 label: 'My QR code',
                 iconColor: const Color(0xFF4C7A2D),
                 iconBackground: AppColors.successTint,
-                onTap: () {},
+                onTap: () {
+                  final state = context.read<AuthBloc>().state;
+                  if (state is AuthAuthenticated) {
+                    showEmailQrSheet(context, email: state.user.email);
+                  }
+                },
               ),
               QuickAction(
                 icon: Icons.bar_chart,

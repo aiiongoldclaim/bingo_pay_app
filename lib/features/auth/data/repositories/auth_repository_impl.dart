@@ -7,6 +7,7 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../models/user_model.dart';
 
 @Injectable(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -145,6 +146,19 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final kyc = await _remote.uploadKycSelfie(filePath: filePath);
+      final cachedUser = await _local.getUser();
+      if (cachedUser != null) {
+        await _local.saveUser(UserModel(
+          id: cachedUser.id,
+          email: cachedUser.email,
+          name: cachedUser.name,
+          role: cachedUser.role,
+          kycStatus: kyc.status,
+          shopName: cachedUser.shopName,
+          merchantCode: cachedUser.merchantCode,
+          businessName: cachedUser.businessName,
+        ));
+      }
       return Right(kyc);
     } catch (e) {
       return Left(ErrorHandler.mapErrorToFailure(e));

@@ -17,8 +17,11 @@ import 'auth_state.dart';
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
+  final CheckAuthStatusUseCase _checkAuthStatus;
   final RegisterVendorUseCase _registerVendor;
   final VendorLoginUseCase _vendorLogin;
+  final LogoutUseCase _logout;
+  final UploadKycSelfieUseCase _kycSelfie;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
@@ -30,8 +33,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
     required GetKycStatusUseCase getKycStatus,
-  }) : _registerVendor = registerVendor,
+  }) : _checkAuthStatus = checkAuthStatus,
+       _registerVendor = registerVendor,
        _vendorLogin = vendorLogin,
+       _logout = logout,
+       _kycSelfie = kycSelfie,
        super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<VendorLoginRequested>(_onVendorLogin);
@@ -48,7 +54,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatusRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthUnauthenticated());
+    emit(const AuthLoading());
+    final result = await _checkAuthStatus();
+    result.match(
+      (failure) => emit(const AuthUnauthenticated()),
+      (user) {
+        if (user == null) {
+          emit(const AuthUnauthenticated());
+          return;
+        }
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      },
+    );
   }
 
   Future<void> _onVendorLogin(
@@ -109,6 +127,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
+    await _logout();
     _currentUser = null;
     emit(const AuthUnauthenticated());
   }
@@ -137,20 +156,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     KycSelfieUploaded event,
     Emitter<AuthState> emit,
   ) async {
-    emit(KycSubmitted(const KycEntity(status: 'under_review')));
-    
-    // Update the authenticated user's KYC status and notify the router
-    if (_currentUser != null) {
-      final updatedUser = UserEntity(
-        id: _currentUser!.id,
-        email: _currentUser!.email,
-        name: _currentUser!.name,
-        role: _currentUser!.role,
-        kycStatus: 'under_review',
-      );
-      _currentUser = updatedUser;
-      emit(AuthAuthenticated(updatedUser));
-    }
+    emit(const KycLoading());
+    final result = await _kycSelfie(event.filePath);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (kyc) {
+        emit(KycSubmitted(kyc));
+
+        // Update the authenticated user's KYC status and notify the router
+        if (_currentUser != null) {
+          final updatedUser = UserEntity(
+            id: _currentUser!.id,
+            email: _currentUser!.email,
+            name: _currentUser!.name,
+            role: _currentUser!.role,
+            kycStatus: kyc.status,
+            shopName: _currentUser!.shopName,
+            merchantCode: _currentUser!.merchantCode,
+            businessName: _currentUser!.businessName,
+          );
+          _currentUser = updatedUser;
+          emit(AuthAuthenticated(updatedUser));
+        }
+      },
+    );
   }
 
   Future<void> _onKycStatusPoll(

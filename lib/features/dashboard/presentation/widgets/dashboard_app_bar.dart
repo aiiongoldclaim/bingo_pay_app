@@ -8,6 +8,7 @@ class DashboardAppBar extends StatelessWidget {
   final String shopName;
   final String avatarInitial;
   final VoidCallback onNotificationsTap;
+  final VoidCallback onLogoutTap;
   final bool hasUnreadNotifications;
 
   const DashboardAppBar({
@@ -16,6 +17,7 @@ class DashboardAppBar extends StatelessWidget {
     required this.shopName,
     required this.avatarInitial,
     required this.onNotificationsTap,
+    required this.onLogoutTap,
     this.hasUnreadNotifications = false,
   });
 
@@ -24,7 +26,7 @@ class DashboardAppBar extends StatelessWidget {
     return SliverAppBar(
       automaticallyImplyLeading: false,
       pinned: true,
-      expandedHeight: 116,
+      expandedHeight: 72,
       toolbarHeight: 72,
       backgroundColor: const Color(0xFF1B2A6B),
       elevation: 0,
@@ -55,7 +57,7 @@ class DashboardAppBar extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'Good morning, $greetingName!',
+                          'Welcome, $greetingName!',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -78,6 +80,8 @@ class DashboardAppBar extends StatelessWidget {
                     onTap: onNotificationsTap,
                   ),
                   const SizedBox(width: 8),
+                  _LogoutButton(onTap: onLogoutTap),
+                  const SizedBox(width: 8),
                   Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -96,6 +100,29 @@ class DashboardAppBar extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _LogoutButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _LogoutButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppDimensions.radiusCircular),
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.logout, color: Colors.white, size: 20),
       ),
     );
   }

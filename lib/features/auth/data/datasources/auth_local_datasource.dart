@@ -37,6 +37,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> saveUser(UserModel user) async {
+    await _secureStorage.saveUserId(user.id);
     await _prefs.setString(_userKey, jsonEncode(user.toJson()));
   }
 

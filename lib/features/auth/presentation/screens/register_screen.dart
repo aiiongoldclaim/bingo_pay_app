@@ -529,3 +529,4 @@ class _BusinessDetailsFields extends StatelessWidget {
     );
   }
 }
+

@@ -12,4 +12,7 @@ class ApiEndpoints {
   static const String transactions = '/transactions';
   static const String invoices = '/invoices';
   static const String referral = '/referral';
+
+  static String vendorProfile(String uuid) =>
+      '/api/v1/common/vendors/$uuid/sso/profile';
 }

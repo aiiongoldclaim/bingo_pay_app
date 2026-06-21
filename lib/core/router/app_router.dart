@@ -222,6 +222,7 @@ import '../../features/dashboard/presentation/screen/vendor_shell.dart';
 import '../../features/more/presentation/screens/more_screen.dart';
 import '../../features/products/presentation/screens/add_product_screen.dart';
 import '../../features/products/presentation/screens/products_screen.dart';
+import '../../features/transactions/presentation/screens/add_order_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_screen.dart';
 import '../storage/secure_storage_service.dart';
 import 'app_routes.dart';
@@ -284,18 +285,6 @@ class AppRouter {
                 GoRoute(
                   path: AppRoutes.vendorProducts,
                   builder: (_, _) => const ProductsScreen(),
-                  routes: [
-                    GoRoute(
-                      path: 'create',
-                      builder: (_, _) => const AddProductScreen(),
-                    ),
-                    GoRoute(
-                      path: ':id/edit',
-                      builder: (context, state) => _PlaceholderPage(
-                        'Edit Product ${state.pathParameters['id']}',
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -324,6 +313,24 @@ class AppRouter {
               ],
             ),
           ],
+        ),
+
+        // Add/edit product stays outside bottom-nav shell (pushed on top, full-screen)
+        GoRoute(
+          path: AppRoutes.vendorProductCreate,
+          builder: (_, _) => const AddProductScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.vendorProductEdit,
+          builder: (context, state) => _PlaceholderPage(
+            'Edit Product ${state.pathParameters['id']}',
+          ),
+        ),
+
+        // Add order stays outside bottom-nav shell (pushed on top, full-screen)
+        GoRoute(
+          path: AppRoutes.vendorOrderCreate,
+          builder: (_, _) => const AddOrderScreen(),
         ),
 
         // Invoices stays outside bottom-nav shell (pushed on top, full-screen)
