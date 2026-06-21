@@ -5,10 +5,7 @@ import '../../../../core/storage/secure_storage_service.dart';
 import '../models/user_model.dart';
 
 abstract interface class AuthLocalDataSource {
-  Future<void> saveTokens({
-    required String accessToken,
-    required String refreshToken,
-  });
+  Future<void> saveAccessToken(String accessToken);
 
   Future<void> saveUser(UserModel user);
 
@@ -27,12 +24,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   static const _userKey = 'cached_user';
 
   @override
-  Future<void> saveTokens({
-    required String accessToken,
-    required String refreshToken,
-  }) async {
+  Future<void> saveAccessToken(String accessToken) async {
     await _secureStorage.saveAccessToken(accessToken);
-    await _secureStorage.saveRefreshToken(refreshToken);
   }
 
   @override
@@ -42,8 +35,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<UserModel?> getUser() async {
-    final hasToken = await _secureStorage.hasAccessToken();
-    if (!hasToken) return null;
     final json = _prefs.getString(_userKey);
     if (json == null) return null;
     return UserModel.fromJson(jsonDecode(json) as Map<String, dynamic>);

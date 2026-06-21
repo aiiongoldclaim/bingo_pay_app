@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../cubit/payment_cubit.dart';
 
 class PaymentSuccessScreen extends StatelessWidget {
@@ -66,36 +69,6 @@ class PaymentSuccessScreen extends StatelessWidget {
                             ),
                           ),
 
-                          SizedBox(height: AppDimensions.lg),
-
-                          // Coins Earned
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: AppDimensions.lg,
-                              vertical: AppDimensions.sm,
-                            ),
-                            decoration: BoxDecoration(
-                              color: ThemeColors.accent,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.currency_bitcoin,
-                                  color: AppColors.white,
-                                ),
-                                SizedBox(width: AppDimensions.sm),
-                                Text(
-                                  '+${state.coinsEarned} BINGOLD coins earned',
-                                  style: AppTextStyles.titleMedium.copyWith(
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
                           SizedBox(height: AppDimensions.xl),
 
                           // Invoice Card
@@ -126,10 +99,13 @@ class PaymentSuccessScreen extends StatelessWidget {
                                         children: [
                                           Text('Invoice no.', style: AppTextStyles.labelMedium),
                                           Text(
-                                            'INV-${state.orderId.substring(3)}',
+                                            'INV-${state.orderId}',
                                             style: AppTextStyles.titleMedium,
                                           ),
-                                          Text('12 Jun 2026', style: AppTextStyles.bodySmall),
+                                          Text(
+                                            DateFormat('d MMM yyyy').format(DateTime.now()),
+                                            style: AppTextStyles.bodySmall,
+                                          ),
                                         ],
                                       ),
                                     ],
@@ -146,7 +122,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                                       Text('BILLED TO', style: AppTextStyles.labelMedium),
                                       SizedBox(height: AppDimensions.xs),
                                       Text(
-                                        'Aarav Mehta\n14 Lotus Residency, Bandra West,\nMumbai 400050',
+                                        _billedToName(context),
                                         style: AppTextStyles.bodyMedium,
                                       ),
                                     ],
@@ -159,9 +135,12 @@ class PaymentSuccessScreen extends StatelessWidget {
                                   padding: EdgeInsets.all(AppDimensions.md),
                                   child: Column(
                                     children: [
-                                      _buildItemRow('Aurora Pro Wireless Headphones', 'Qty 1 • incl. 18% GST', '₹18,990'),
-                                      _buildItemRow('Velvet Runner Knit Sneakers', 'Qty 1 • incl. 18% GST', '₹6,490'),
-                                      _buildItemRow('Nimbus Smart Desk Lamp', 'Qty 1 • incl. 18% GST', '₹3,490'),
+                                      for (final item in state.cartItems)
+                                        _buildItemRow(
+                                          item.product.name,
+                                          'Qty ${item.quantity}',
+                                          '₹${item.lineTotal.toStringAsFixed(0)}',
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -172,9 +151,20 @@ class PaymentSuccessScreen extends StatelessWidget {
                                   padding: EdgeInsets.all(AppDimensions.md),
                                   child: Column(
                                     children: [
-                                      _buildSummaryRow('Subtotal', '₹28,980'),
-                                      _buildSummaryRow('Discount & coins', '- ₹6,338', isGreen: true),
-                                      _buildSummaryRow('Delivery', 'FREE', isGreen: true),
+                                      _buildSummaryRow('Subtotal', '₹${state.itemTotal.toStringAsFixed(0)}'),
+                                      if (state.savings > 0)
+                                        _buildSummaryRow(
+                                          'Discount',
+                                          '- ₹${state.savings.toStringAsFixed(0)}',
+                                          isGreen: true,
+                                        ),
+                                      _buildSummaryRow(
+                                        'Delivery',
+                                        state.deliveryCharge == 0
+                                            ? 'FREE'
+                                            : '₹${state.deliveryCharge.toStringAsFixed(0)}',
+                                        isGreen: state.deliveryCharge == 0,
+                                      ),
                                       const Divider(height: 24),
                                       _buildSummaryRow('Amount paid', state.formattedTotal, isBold: true),
                                     ],
@@ -252,6 +242,11 @@ class PaymentSuccessScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _billedToName(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    return authState is AuthAuthenticated ? authState.user.name : 'Guest';
   }
 
   Widget _buildItemRow(String name, String subtitle, String price) {

@@ -40,11 +40,12 @@ class BuyerHomeScreen extends StatelessWidget {
         final saved = state.savedForLaterProducts;
 
         return Scaffold(
-          backgroundColor: AppColors.backgroundLight,
+          // backgroundColor: AppColors.backgroundLight,
           body: Stack(
             children: [
               const _BackgroundWash(),
               SafeArea(
+                top: false,
                 child: RefreshIndicator(
                   onRefresh: () async {
                     context.read<ShopBloc>().add(const ShopStarted());

@@ -23,9 +23,28 @@ class Validators {
     return null;
   }
 
-  static String? name(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    if (value.trim().length < 3) return 'Name must be at least 3 characters';
+  static String? name(String? value, {String fieldName = 'Name'}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    if (value.trim().length < 2) {
+      return '$fieldName must be at least 2 characters';
+    }
+    return null;
+  }
+
+  static String? phoneNumber(String? value, {int? minLength, int? maxLength}) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Phone number is required';
+    }
+    final digits = value.trim();
+    if (!RegExp(r'^\d+$').hasMatch(digits)) {
+      return 'Phone number must contain digits only';
+    }
+    if (minLength != null && maxLength != null &&
+        (digits.length < minLength || digits.length > maxLength)) {
+      return 'Enter a valid phone number';
+    }
     return null;
   }
 }

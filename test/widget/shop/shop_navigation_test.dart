@@ -11,6 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../unit/shop/fakes/fake_shop_remote_datasource.dart';
+
 GoRouter buildRouter(ShopBloc bloc) {
   return GoRouter(
     initialLocation: AppRoutes.buyerHome,
@@ -50,14 +52,15 @@ GoRouter buildRouter(ShopBloc bloc) {
 
 void main() {
   testWidgets('supports the main buyer shopping flow', (tester) async {
-    final bloc = ShopBloc()..add(const ShopStarted());
+    final bloc = ShopBloc(remoteDataSource: FakeShopRemoteDataSource())
+      ..add(const ShopStarted());
 
     await tester.pumpWidget(
       MaterialApp.router(
         routerConfig: buildRouter(bloc),
       ),
     );
-    await tester.pump(const Duration(milliseconds: 150));
+    await tester.pumpAndSettle();
 
     expect(find.text('Shop now'), findsOneWidget);
 

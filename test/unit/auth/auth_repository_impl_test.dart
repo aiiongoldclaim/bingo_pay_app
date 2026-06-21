@@ -23,27 +23,33 @@ void main() {
     repo = AuthRepositoryImpl(remote, local);
   });
 
-  const user = UserModel(
-    id: '1', email: 'a@b.com', name: 'Alice',
-    role: 'buyer', kycStatus: 'not_required',
-  );
-  const response = AuthResponseModel(
-    accessToken: 'acc', refreshToken: 'ref', user: user,
-  );
+  const user = UserModel(id: '1', email: 'a@b.com', name: 'Alice');
+  const response = AuthResponseModel(token: 'acc', user: user);
 
   group('login', () {
     test('saves tokens and returns user on success', () async {
       when(() => remote.login(email: 'a@b.com', password: 'pw'))
           .thenAnswer((_) async => response);
-      when(() => local.saveTokens(accessToken: 'acc', refreshToken: 'ref'))
-          .thenAnswer((_) async {});
+      when(() => local.saveAccessToken('acc')).thenAnswer((_) async {});
       when(() => local.saveUser(user)).thenAnswer((_) async {});
 
       final result = await repo.login(email: 'a@b.com', password: 'pw');
 
       expect(result, Right<Failure, UserModel>(user));
-      verify(() => local.saveTokens(accessToken: 'acc', refreshToken: 'ref'))
-          .called(1);
+      verify(() => local.saveAccessToken('acc')).called(1);
+    });
+
+    test('saves user without saving a token when none is returned',
+        () async {
+      const noTokenResponse = AuthResponseModel(user: user);
+      when(() => remote.login(email: 'a@b.com', password: 'pw'))
+          .thenAnswer((_) async => noTokenResponse);
+      when(() => local.saveUser(user)).thenAnswer((_) async {});
+
+      final result = await repo.login(email: 'a@b.com', password: 'pw');
+
+      expect(result, Right<Failure, UserModel>(user));
+      verifyNever(() => local.saveAccessToken(any()));
     });
 
     test('returns NetworkFailure when NetworkException thrown', () async {

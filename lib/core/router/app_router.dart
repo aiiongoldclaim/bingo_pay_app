@@ -9,18 +9,18 @@ import '../../features/customer/shop/presentation/screens/buyer_shell_screen.dar
 import '../../features/customer/shop/presentation/screens/cart_screen.dart';
 import '../../features/customer/shop/presentation/screens/catalog_screen.dart';
 import '../../features/customer/shop/presentation/screens/category_screen.dart';
-import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
 import '../../features/customer/shop/presentation/screens/product_detail_screen.dart';
 import '../../features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart';
 import '../../features/customer/dashboard/presentation/screens/buyer_dashboard_screen.dart';
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_state.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
-import '../../features/auth/presentation/screens/kyc/kyc_document_screen.dart';
-import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
-import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/dashboard/presentation/screens/home_screen.dart';
 import '../../features/dashboard/presentation/widgets/home_bottom_nav.dart';
+import '../../features/payment/presentation/cubit/payment_cubit.dart';
+import '../../features/payment/presentation/screens/payment_screen.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
@@ -47,18 +47,6 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.forgotPassword,
           builder: (_, _) => const ForgotPasswordScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.registerKyc,
-          builder: (_, _) => const KycScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.kycDocument,
-          builder: (_, _) => const KycDocumentScreen(),
-        ),
-        GoRoute(
-          path: AppRoutes.kycSelfie,
-          builder: (_, _) => const KycSelfieScreen(),
         ),
 
         GoRoute(
@@ -120,7 +108,19 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.buyerCheckout,
-              builder: (_, _) => const CheckoutPlaceholderScreen(),
+              builder: (context, state) {
+                final shopBloc = context.read<ShopBloc>();
+                final authState = context.read<AuthBloc>().state;
+                final user = authState is AuthAuthenticated ? authState.user : null;
+                return BlocProvider<PaymentCubit>(
+                  create: (_) => PaymentCubit(
+                    shopBloc: shopBloc,
+                    customerName: user?.name ?? '',
+                    customerPhone: user?.phone ?? '',
+                  ),
+                  child: const PaymentScreen(),
+                );
+              },
             ),
             GoRoute(
               path: AppRoutes.buyerTransactions,
@@ -154,16 +154,6 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.buyerPayments,
               builder: (_, _) => const _PlaceholderPage('Payment Methods'),
-            ),
-          ],
-        ),
-        GoRoute(
-          path: '/vendor',
-          builder: (_, _) => const _PlaceholderPage('Vendor Shell'),
-          routes: [
-            GoRoute(
-              path: 'home',
-              builder: (_, _) => const _PlaceholderPage('Vendor Home'),
             ),
           ],
         ),

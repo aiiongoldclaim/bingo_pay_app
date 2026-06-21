@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -19,9 +18,7 @@ class PaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => PaymentCubit(),
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
           statusBarColor: AppColors.surface,
           statusBarIconBrightness: Brightness.dark,
@@ -91,8 +88,7 @@ class PaymentScreen extends StatelessWidget {
                     PaymentMethodOption(
                       icon: Icons.account_balance_wallet,
                       title: 'BINGOLD Wallet',
-                      subtitle: 'Balance ₹12,480 · Instant',
-                      trailing: 'Earn 2x coins',
+                      subtitle: 'Pay the full amount from your wallet',
                       method: PaymentMethod.bingoldWallet,
                       selectedMethod: state.selectedMethod,
                       onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.bingoldWallet),
@@ -104,31 +100,34 @@ class PaymentScreen extends StatelessWidget {
                       subtitle: 'GPay, PhonePe, Paytm',
                       method: PaymentMethod.upi,
                       selectedMethod: state.selectedMethod,
+                      enabled: enabledPaymentMethods.contains(PaymentMethod.upi),
                       onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.upi),
                     ),
 
                     PaymentMethodOption(
                       icon: Icons.credit_card,
                       title: 'Credit / Debit Card',
-                      subtitle: 'Visa •••• 4291',
+                      subtitle: 'Visa, Mastercard, RuPay',
                       method: PaymentMethod.creditDebit,
                       selectedMethod: state.selectedMethod,
+                      enabled: enabledPaymentMethods.contains(PaymentMethod.creditDebit),
                       onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.creditDebit),
                     ),
 
                     PaymentMethodOption(
                       icon: Icons.timer,
                       title: 'Pay Later',
-                      subtitle: '0% EMI · 3 months',
+                      subtitle: '0% EMI options',
                       method: PaymentMethod.payLater,
                       selectedMethod: state.selectedMethod,
+                      enabled: enabledPaymentMethods.contains(PaymentMethod.payLater),
                       onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.payLater),
                     ),
 
                     PaymentMethodOption(
                       icon: Icons.local_shipping_outlined,
                       title: 'Cash on Delivery',
-                      subtitle: '₹20 handling fee',
+                      subtitle: 'Pay when your order arrives',
                       method: PaymentMethod.cashOnDelivery,
                       selectedMethod: state.selectedMethod,
                       onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.cashOnDelivery),
@@ -199,7 +198,7 @@ class PaymentScreen extends StatelessWidget {
             },
           ),
         ),
-      ),
-    );
+      );
+
   }
 }

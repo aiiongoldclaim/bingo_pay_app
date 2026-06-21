@@ -26,12 +26,7 @@ class _AppState extends State<App> {
     if (state is AuthLoading) {
       _router.updateAuthState(const RouteAuthState.loading());
     } else if (state is AuthAuthenticated) {
-      _router.updateAuthState(
-        RouteAuthState.authenticated(
-          role: state.user.isVendor ? UserRole.vendor : UserRole.buyer,
-          isKycPending: state.user.isKycPending,
-        ),
-      );
+      _router.updateAuthState(const RouteAuthState.authenticated());
     } else if (state is AuthUnauthenticated) {
       _router.updateAuthState(const RouteAuthState.unauthenticated());
     }

@@ -247,6 +247,11 @@ class ShopState extends Equatable {
   double get cartTotal =>
       (cartSubtotal - promoDiscount + shippingFee + taxAmount);
 
+  // Assumes a single vendor per order; the product catalog has no per-item
+  // vendor split today, so checkout pays the first cart item's vendor.
+  String? get cartVendorEmail =>
+      cartItems.isEmpty ? null : cartItems.first.product.vendorEmail;
+
   @override
   List<Object?> get props => [
         isLoading,

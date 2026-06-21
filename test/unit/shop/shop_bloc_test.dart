@@ -1,11 +1,12 @@
 import 'package:bingo_pay/features/customer/shop/presentation/bloc/shop_bloc.dart';
 import 'package:bingo_pay/features/customer/shop/presentation/bloc/shop_event.dart';
-import 'package:bingo_pay/features/customer/shop/presentation/bloc/shop_state.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'fakes/fake_shop_remote_datasource.dart';
 
 void main() {
   test('loads fixture catalog and filters products', () async {
-    final bloc = ShopBloc();
+    final bloc = ShopBloc(remoteDataSource: FakeShopRemoteDataSource());
 
     bloc.add(const ShopStarted());
     await Future<void>.delayed(const Duration(milliseconds: 150));
@@ -29,7 +30,7 @@ void main() {
   });
 
   test('supports cart and saved-for-later flows', () async {
-    final bloc = ShopBloc();
+    final bloc = ShopBloc(remoteDataSource: FakeShopRemoteDataSource());
 
     bloc.add(const ShopStarted());
     await Future<void>.delayed(const Duration(milliseconds: 150));
@@ -55,7 +56,7 @@ void main() {
   });
 
   test('applies promo codes and summary totals', () async {
-    final bloc = ShopBloc();
+    final bloc = ShopBloc(remoteDataSource: FakeShopRemoteDataSource());
 
     bloc.add(const ShopStarted());
     await Future<void>.delayed(const Duration(milliseconds: 150));

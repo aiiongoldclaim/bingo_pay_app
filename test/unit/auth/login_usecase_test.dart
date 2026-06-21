@@ -18,10 +18,7 @@ void main() {
   });
 
   const params = LoginParams(email: 'a@b.com', password: 'pass123');
-  const user = UserEntity(
-    id: '1', email: 'a@b.com', name: 'Alice',
-    role: 'buyer', kycStatus: 'not_required',
-  );
+  const user = UserEntity(id: '1', email: 'a@b.com', name: 'Alice');
 
   test('returns UserEntity on success', () async {
     when(() => repo.login(email: 'a@b.com', password: 'pass123'))

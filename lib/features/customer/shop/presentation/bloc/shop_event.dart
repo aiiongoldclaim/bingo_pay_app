@@ -126,3 +126,10 @@ class ShopPromoCodeApplied extends ShopEvent {
   @override
   List<Object> get props => [promoCode];
 }
+
+class ShopCartCleared extends ShopEvent {
+  const ShopCartCleared();
+
+  @override
+  List<Object> get props => [];
+}

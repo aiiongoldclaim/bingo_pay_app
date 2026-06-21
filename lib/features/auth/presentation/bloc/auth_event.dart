@@ -21,16 +21,21 @@ class LoginRequested extends AuthEvent {
 class RegisterRequested extends AuthEvent {
   final String email;
   final String password;
-  final String name;
-  final String role;
+  final String firstName;
+  final String lastName;
+  final String phoneNumber;
+  final String countryId;
   const RegisterRequested({
     required this.email,
     required this.password,
-    required this.name,
-    required this.role,
+    required this.firstName,
+    required this.lastName,
+    required this.phoneNumber,
+    required this.countryId,
   });
   @override
-  List<Object> get props => [email, password, name, role];
+  List<Object> get props =>
+      [email, password, firstName, lastName, phoneNumber, countryId];
 }
 
 class ForgotPasswordRequested extends AuthEvent {
@@ -42,43 +47,6 @@ class ForgotPasswordRequested extends AuthEvent {
 
 class LogoutRequested extends AuthEvent {
   const LogoutRequested();
-  @override
-  List<Object> get props => [];
-}
-
-class KycPersonalDetailsSubmitted extends AuthEvent {
-  final String name;
-  final String dateOfBirth;
-  final String address;
-  const KycPersonalDetailsSubmitted({
-    required this.name,
-    required this.dateOfBirth,
-    required this.address,
-  });
-  @override
-  List<Object> get props => [name, dateOfBirth, address];
-}
-
-class KycDocumentUploaded extends AuthEvent {
-  final String filePath;
-  final String documentType;
-  const KycDocumentUploaded({
-    required this.filePath,
-    required this.documentType,
-  });
-  @override
-  List<Object> get props => [filePath, documentType];
-}
-
-class KycSelfieUploaded extends AuthEvent {
-  final String filePath;
-  const KycSelfieUploaded({required this.filePath});
-  @override
-  List<Object> get props => [filePath];
-}
-
-class KycStatusPolled extends AuthEvent {
-  const KycStatusPolled();
   @override
   List<Object> get props => [];
 }

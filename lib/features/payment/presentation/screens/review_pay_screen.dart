@@ -44,7 +44,7 @@ class ReviewPayScreen extends StatelessWidget {
                   SizedBox(height: AppDimensions.lg),
 
                   // Paying With Section
-                  _buildPayingWithSection(state,context),
+                  _buildPayingWithSection(state, context),
 
                   SizedBox(height: AppDimensions.xl),
 
@@ -60,25 +60,27 @@ class ReviewPayScreen extends StatelessWidget {
                       SizedBox(width: AppDimensions.sm),
                       Expanded(
                         child: Text(
-                          '100% secure payment • PCI-DSS encrypted',
+                          '100% secure payment',
                           style: AppTextStyles.bodyMedium,
                         ),
                       ),
                     ],
                   ),
 
-                  SizedBox(height: AppDimensions.md),
-
-                  // Payment Logos
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('VISA ', style: TextStyle(color: ThemeColors.inkMid)),
-                      Text('UPI ', style: TextStyle(color: ThemeColors.inkMid)),
-                      Text('RuPay ', style: TextStyle(color: ThemeColors.inkMid)),
-                      Text('Mastercard', style: TextStyle(color: ThemeColors.inkMid)),
-                    ],
-                  ),
+                  if (state.errorMessage != null) ...[
+                    SizedBox(height: AppDimensions.md),
+                    Container(
+                      padding: EdgeInsets.all(AppDimensions.md),
+                      decoration: BoxDecoration(
+                        color: ThemeColors.red.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+                      ),
+                      child: Text(
+                        state.errorMessage!,
+                        style: AppTextStyles.bodyMedium.copyWith(color: ThemeColors.red),
+                      ),
+                    ),
+                  ],
 
                   SizedBox(height: AppDimensions.xxl),
 
@@ -93,7 +95,8 @@ class ReviewPayScreen extends StatelessWidget {
                               final cubit = context.read<PaymentCubit>();
                               await cubit.makePayment();
 
-                              if (context.mounted) {
+                              if (!context.mounted) return;
+                              if (cubit.state.status == PaymentStatus.success) {
                                 Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
@@ -132,6 +135,8 @@ class ReviewPayScreen extends StatelessWidget {
   }
 
   Widget _buildPayingWithSection(PaymentState state, BuildContext context) {
+    final isWallet = state.selectedMethod == PaymentMethod.bingoldWallet;
+
     return Container(
       padding: EdgeInsets.all(AppDimensions.md),
       decoration: BoxDecoration(
@@ -157,7 +162,7 @@ class ReviewPayScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                 ),
                 child: Icon(
-                  Icons.account_balance_wallet,
+                  isWallet ? Icons.account_balance_wallet : Icons.local_shipping_outlined,
                   color: ThemeColors.blue,
                   size: 28.sp,
                 ),
@@ -168,9 +173,14 @@ class ReviewPayScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('BINGOLD Wallet', style: AppTextStyles.titleMedium),
                     Text(
-                      'Balance ${state.formattedWalletBalance}',
+                      isWallet ? 'BINGOLD Wallet' : 'Cash on Delivery',
+                      style: AppTextStyles.titleMedium,
+                    ),
+                    Text(
+                      isWallet
+                          ? 'Full amount paid from your wallet'
+                          : 'Pay when your order arrives',
                       style: AppTextStyles.bodyMedium,
                     ),
                   ],
@@ -182,29 +192,6 @@ class ReviewPayScreen extends StatelessWidget {
                 child: Text('Change', style: AppTextStyles.labelLarge),
               ),
             ],
-          ),
-
-          SizedBox(height: AppDimensions.md),
-
-          // Remaining Amount Banner
-          Container(
-            padding: EdgeInsets.all(AppDimensions.sm),
-            decoration: BoxDecoration(
-              color: AppColors.accentSoft,
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.flash_on, color: ThemeColors.accentInk, size: 20.sp),
-                SizedBox(width: AppDimensions.sm),
-                Expanded(
-                  child: Text(
-                    'Wallet covers ${state.formattedWalletBalance} • remaining ${state.formattedRemaining} via UPI',
-                    style: AppTextStyles.bodyMedium,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -225,12 +212,13 @@ class ReviewPayScreen extends StatelessWidget {
 
           SizedBox(height: AppDimensions.md),
 
-          _buildSummaryRow('Item total', '₹${state.itemTotal.toStringAsFixed(0)}'),
-          _buildSummaryRow('Savings', '- ₹${state.savings.toStringAsFixed(0)}', isGreen: true),
+          _buildSummaryRow('Items (${state.itemCount})', '₹${state.itemTotal.toStringAsFixed(0)}'),
+          if (state.savings > 0)
+            _buildSummaryRow('Savings', '- ₹${state.savings.toStringAsFixed(0)}', isGreen: true),
           _buildSummaryRow(
             'Delivery',
-            state.deliveryCharge == 0 ? 'FREE' : '₹${state.deliveryCharge}',
-            isGreen: true,
+            state.deliveryCharge == 0 ? 'FREE' : '₹${state.deliveryCharge.toStringAsFixed(0)}',
+            isGreen: state.deliveryCharge == 0,
           ),
           _buildSummaryRow('Taxes & fees', '₹${state.taxes.toStringAsFixed(0)}'),
           const Divider(height: 32),

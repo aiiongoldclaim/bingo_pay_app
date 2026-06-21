@@ -12,6 +12,7 @@ class AppTextField extends StatelessWidget {
   final Widget? prefixIcon;
   final bool enabled;
   final int? maxLines;
+  final FocusNode? focusNode;
 
   const AppTextField({
     super.key,
@@ -26,12 +27,14 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.enabled = true,
     this.maxLines,
+    this.focusNode,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,

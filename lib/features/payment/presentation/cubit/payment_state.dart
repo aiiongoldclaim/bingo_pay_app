@@ -12,77 +12,82 @@ enum PaymentMethod {
   cashOnDelivery,
 }
 
+/// Payment methods that actually process a payment today. The rest are
+/// shown as "Coming soon" until they're implemented.
+const Set<PaymentMethod> enabledPaymentMethods = {
+  PaymentMethod.bingoldWallet,
+  PaymentMethod.cashOnDelivery,
+};
+
 class PaymentState {
   final PaymentMethod selectedMethod;
   final PaymentStatus status;
   final bool isProcessing;
   final String? errorMessage;
 
-  // Order & Wallet Details
-  final double walletBalance;
+  // Order details, snapshotted from the cart at checkout time.
+  final List<CartItem> cartItems;
+  final String? vendorEmail;
+  final String reference;
   final double itemTotal;
   final double savings;
   final double deliveryCharge;
   final double taxes;
   final double totalAmount;
 
-  // Success Screen Data
+  // Success screen data
   final String orderId;
-  final int coinsEarned;
 
   PaymentState({
     required this.selectedMethod,
     this.status = PaymentStatus.initial,
     this.isProcessing = false,
     this.errorMessage,
-    this.walletBalance = 12480.0,
-    this.itemTotal = 28980.0,
-    this.savings = 6338.0,
-    this.deliveryCharge = 0.0,
-    this.taxes = 0.0,
-    this.totalAmount = 22642.0,
-    this.orderId = "BG-48231",
-    this.coinsEarned = 380,
+    this.cartItems = const [],
+    this.vendorEmail,
+    this.reference = '',
+    this.itemTotal = 0,
+    this.savings = 0,
+    this.deliveryCharge = 0,
+    this.taxes = 0,
+    this.totalAmount = 0,
+    this.orderId = '',
   });
-
-  factory PaymentState.initial() => PaymentState(
-        selectedMethod: PaymentMethod.bingoldWallet,
-      );
 
   PaymentState copyWith({
     PaymentMethod? selectedMethod,
     PaymentStatus? status,
     bool? isProcessing,
     String? errorMessage,
-    double? walletBalance,
+    List<CartItem>? cartItems,
+    String? vendorEmail,
+    String? reference,
     double? itemTotal,
     double? savings,
     double? deliveryCharge,
     double? taxes,
     double? totalAmount,
     String? orderId,
-    int? coinsEarned,
   }) {
     return PaymentState(
       selectedMethod: selectedMethod ?? this.selectedMethod,
       status: status ?? this.status,
       isProcessing: isProcessing ?? this.isProcessing,
-      errorMessage: errorMessage ?? this.errorMessage,
-      walletBalance: walletBalance ?? this.walletBalance,
+      errorMessage: errorMessage,
+      cartItems: cartItems ?? this.cartItems,
+      vendorEmail: vendorEmail ?? this.vendorEmail,
+      reference: reference ?? this.reference,
       itemTotal: itemTotal ?? this.itemTotal,
       savings: savings ?? this.savings,
       deliveryCharge: deliveryCharge ?? this.deliveryCharge,
       taxes: taxes ?? this.taxes,
       totalAmount: totalAmount ?? this.totalAmount,
       orderId: orderId ?? this.orderId,
-      coinsEarned: coinsEarned ?? this.coinsEarned,
     );
   }
 
-  // Helper Getters
-  double get remainingAmount => totalAmount - walletBalance;
+  int get itemCount =>
+      cartItems.fold<int>(0, (total, item) => total + item.quantity);
 
   String get formattedTotal => '₹${totalAmount.toStringAsFixed(0)}';
-  String get formattedWalletBalance => '₹${walletBalance.toStringAsFixed(0)}';
-  String get formattedRemaining => '₹${remainingAmount.toStringAsFixed(0)}';
 }

@@ -1,13 +1,13 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
-import '../entities/kyc_entity.dart';
 import '../repositories/auth_repository.dart';
 
 @injectable
-class GetKycStatusUseCase {
+class CheckUserExistsUseCase {
   final AuthRepository _repository;
-  const GetKycStatusUseCase(this._repository);
+  const CheckUserExistsUseCase(this._repository);
 
-  Future<Either<Failure, KycEntity>> call() => _repository.getKycStatus();
+  Future<Either<Failure, bool>> call(String email) =>
+      _repository.checkUserExists(email: email);
 }

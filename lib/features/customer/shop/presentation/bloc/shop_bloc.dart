@@ -1,13 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../data/shop_fixture_data.dart';
+import '../../data/shop_remote_datasource.dart';
 import '../../domain/entities/cart_item.dart';
+import '../../domain/entities/shop_category.dart';
+import '../../domain/entities/shop_product.dart';
 import 'shop_event.dart';
 import 'shop_state.dart';
 
 class ShopBloc extends Bloc<ShopEvent, ShopState> {
-  ShopBloc() : super(ShopState.initial()) {
+  final ShopRemoteDataSource _remoteDataSource;
+
+  ShopRemoteDataSource get remoteDataSource => _remoteDataSource;
+
+  ShopBloc({ShopRemoteDataSource? remoteDataSource})
+      : _remoteDataSource = remoteDataSource ?? ShopRemoteDataSource(),
+        super(ShopState.initial()) {
     on<ShopStarted>(_onStarted);
     on<ShopSearchChanged>(_onSearchChanged);
     on<ShopCategorySelected>(_onCategorySelected);
@@ -22,16 +30,46 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
     on<ShopSaveForLaterToggled>(_onSaveForLaterToggled);
     on<ShopFiltersCleared>(_onFiltersCleared);
     on<ShopPromoCodeApplied>(_onPromoCodeApplied);
+    on<ShopCartCleared>(_onCartCleared);
+  }
+
+  void _onCartCleared(ShopCartCleared event, Emitter<ShopState> emit) {
+    emit(state.copyWith(cartItems: <CartItem>[], promoCode: ''));
   }
 
   Future<void> _onStarted(ShopStarted event, Emitter<ShopState> emit) async {
-    emit(
-      state.copyWith(
-        isLoading: false,
-        categories: ShopFixtureData.categories,
-        products: ShopFixtureData.products,
-      ),
-    );
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+    try {
+      final products = await _remoteDataSource.getProducts();
+      emit(
+        state.copyWith(
+          isLoading: false,
+          products: products,
+          categories: _categoriesFromProducts(products),
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+    }
+  }
+
+  List<ShopCategory> _categoriesFromProducts(List<ShopProduct> products) {
+    final counts = <String, int>{};
+    final names = <String, String>{};
+    for (final product in products) {
+      counts[product.categorySlug] = (counts[product.categorySlug] ?? 0) + 1;
+      names[product.categorySlug] = product.brand;
+    }
+    return counts.entries
+        .map(
+          (entry) => ShopCategory(
+            slug: entry.key,
+            name: names[entry.key] ?? entry.key,
+            description: '',
+            productCount: entry.value,
+          ),
+        )
+        .toList();
   }
 
   void _onSearchChanged(

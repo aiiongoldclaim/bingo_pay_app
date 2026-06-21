@@ -18,19 +18,17 @@ void main() {
     datasource = AuthLocalDataSourceImpl(mockSecure, mockPrefs);
   });
 
-  test('getUser returns null when no access token', () async {
-    when(() => mockSecure.hasAccessToken()).thenAnswer((_) async => false);
+  test('getUser returns null when no cached user', () async {
+    when(() => mockPrefs.getString(any())).thenReturn(null);
     final result = await datasource.getUser();
     expect(result, isNull);
   });
 
-  test('saveTokens delegates to SecureStorageService', () async {
+  test('saveAccessToken delegates to SecureStorageService', () async {
     when(() => mockSecure.saveAccessToken(any())).thenAnswer((_) async {});
-    when(() => mockSecure.saveRefreshToken(any())).thenAnswer((_) async {});
 
-    await datasource.saveTokens(accessToken: 'acc', refreshToken: 'ref');
+    await datasource.saveAccessToken('acc');
 
     verify(() => mockSecure.saveAccessToken('acc')).called(1);
-    verify(() => mockSecure.saveRefreshToken('ref')).called(1);
   });
 }
