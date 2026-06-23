@@ -10,11 +10,22 @@ abstract interface class AuthRepository {
   });
 
   Future<Either<Failure, UserEntity>> register({
-    required String email,
+    required String firstName,
+    required String lastName,
     required String password,
-    required String name,
-    required String role,
+    required String countryId,
+    required String email,
+    required String phoneNumber,
   });
+
+  Future<Either<Failure, UserEntity>> verifyOtp({
+    required String email,
+    required String otp,
+  });
+
+  Future<Either<Failure, Unit>> resendOtp({required String email});
+
+  Future<Either<Failure, bool>> checkEmailExists({required String email});
 
   Future<Either<Failure, Unit>> forgotPassword({required String email});
 

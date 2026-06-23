@@ -1,34 +1,27 @@
 import 'app_routes.dart';
 
-enum UserRole { buyer, vendor }
-
 class RouteAuthState {
   final bool isAuthenticated;
   final bool isLoading;
-  final UserRole? role;
   final bool isKycPending;
 
   const RouteAuthState({
     required this.isAuthenticated,
     this.isLoading = false,
-    this.role,
     this.isKycPending = false,
   });
 
   const RouteAuthState.loading()
     : isAuthenticated = false,
       isLoading = true,
-      role = null,
       isKycPending = false;
 
   const RouteAuthState.unauthenticated()
     : isAuthenticated = false,
       isLoading = false,
-      role = null,
       isKycPending = false;
 
   const RouteAuthState.authenticated({
-    required this.role,
     this.isKycPending = false,
   }) : isAuthenticated = true,
        isLoading = false;
@@ -47,9 +40,7 @@ class RouteGuard {
     // Redirect away from splash once auth is known.
     if (location == AppRoutes.splash) {
       if (!authState.isAuthenticated) return AppRoutes.login;
-      return authState.role == UserRole.vendor
-          ? AppRoutes.home
-          : AppRoutes.buyerHome;
+      return AppRoutes.home;
     }
 
     final isPublic = AppRoutes.publicRoutes.any(
@@ -60,30 +51,14 @@ class RouteGuard {
       return isPublic ? null : AppRoutes.login;
     }
 
-    // Vendor with pending KYC must complete KYC first
-    if (authState.isKycPending &&
-        authState.role == UserRole.vendor &&
-        !location.startsWith(AppRoutes.registerKyc)) {
+    // Pending KYC must be completed first
+    if (authState.isKycPending && !location.startsWith(AppRoutes.registerKyc)) {
       return AppRoutes.registerKyc;
     }
 
     // Already logged in — redirect away from auth screens (but not from KYC if still pending)
     if (isPublic && location != AppRoutes.splash) {
       if (authState.isKycPending) return null;
-      // return authState.role == UserRole.vendor
-      //     ? AppRoutes.vendorHome
-      //     : AppRoutes.home;
-      return authState.role == UserRole.vendor
-          ? AppRoutes.home
-          : AppRoutes.home;
-    }
-
-    // Block cross-role navigation
-    if (location.startsWith('/vendor') && authState.role != UserRole.vendor) {
-      return AppRoutes.buyerHome;
-    }
-    if (location.startsWith('/buyer') && authState.role != UserRole.buyer) {
-      // return AppRoutes.vendorHome;
       return AppRoutes.home;
     }
 

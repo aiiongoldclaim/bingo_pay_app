@@ -3,14 +3,17 @@ import 'package:injectable/injectable.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
+import '../../domain/usecases/check_email_exists_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/get_kyc_status_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
+import '../../domain/usecases/resend_otp_usecase.dart';
 import '../../domain/usecases/submit_kyc_personal_details_usecase.dart';
 import '../../domain/usecases/upload_kyc_document_usecase.dart';
 import '../../domain/usecases/upload_kyc_selfie_usecase.dart';
+import '../../domain/usecases/verify_otp_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -18,20 +21,41 @@ import 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
 
+  final RegisterUseCase _registerUser;
+  final LoginUseCase _loginUser;
+  final CheckAuthStatusUseCase _checkAuthStatus;
+  final VerifyOtpUseCase _verifyOtp;
+  final ResendOtpUseCase _resendOtp;
+  final LogoutUseCase _logoutUser;
+  final CheckEmailExistsUseCase _checkEmailExists;
+
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
     required LoginUseCase login,
     required RegisterUseCase register,
+    required VerifyOtpUseCase verifyOtp,
+    required ResendOtpUseCase resendOtp,
     required ForgotPasswordUseCase forgotPassword,
     required LogoutUseCase logout,
+    required CheckEmailExistsUseCase checkEmailExists,
     required SubmitKycPersonalDetailsUseCase kycPersonalDetails,
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
     required GetKycStatusUseCase getKycStatus,
-  }) : super(const AuthInitial()) {
+  })  : _registerUser = register,
+        _loginUser = login,
+        _checkAuthStatus = checkAuthStatus,
+        _verifyOtp = verifyOtp,
+        _resendOtp = resendOtp,
+        _logoutUser = logout,
+        _checkEmailExists = checkEmailExists,
+        super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<LoginRequested>(_onLogin);
     on<RegisterRequested>(_onRegister);
+    on<OtpVerifyRequested>(_onVerifyOtp);
+    on<OtpResendRequested>(_onResendOtp);
+    on<EmailExistenceCheckRequested>(_onCheckEmailExists);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
     on<KycPersonalDetailsSubmitted>(_onKycPersonalDetails);
@@ -44,30 +68,105 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatusRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthUnauthenticated());
+        emit(const AuthLoading());
+    final result = await _checkAuthStatus();
+    result.match(
+      (failure) => emit(const AuthUnauthenticated()),
+      (user) {
+        if (user == null) {
+          emit(const AuthUnauthenticated());
+          return;
+        }
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      },
+    );
   }
 
   Future<void> _onLogin(
     LoginRequested event,
     Emitter<AuthState> emit,
   ) async {
-    final user = _mockUser(email: event.email, role: 'buyer');
-    _currentUser = user;
-    emit(AuthAuthenticated(user));
+    emit(const AuthLoading());
+    final result = await _loginUser(
+      LoginParams(email: event.email, password: event.password),
+    );
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (user) {
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      },
+    );
   }
 
   Future<void> _onRegister(
     RegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    final user = _mockUser(
-      email: event.email,
-      name: event.name,
-      role: event.role,
-      kycStatus: event.role == 'vendor' ? 'pending' : 'not_required',
+    emit (const AuthLoading());
+    final result = await _registerUser(
+      RegisterParams(
+        firstName: event.firstName,
+        lastName: event.lastName,
+        email: event.email,
+        password: event.password,
+        countryId: event.countryId,
+        phoneNumber: event.phoneNumber,
+      ),
     );
-    _currentUser = user;
-    emit(AuthAuthenticated(user));
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (user) {
+        _currentUser = user;
+        // OTP verification is temporarily skipped after register; the
+        // flow (events/states/usecases/screen) is kept intact to re-enable
+        // by emitting AuthOtpRequired(user.email) instead when needed.
+        emit(AuthAuthenticated(user));
+      },
+    );
+  }
+
+  Future<void> _onVerifyOtp(
+    OtpVerifyRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _verifyOtp(
+      VerifyOtpParams(email: event.email, otp: event.otp),
+    );
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (user) {
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      },
+    );
+  }
+
+  Future<void> _onResendOtp(
+    OtpResendRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _resendOtp(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (_) => emit(const OtpResendSent()),
+    );
+  }
+
+  Future<void> _onCheckEmailExists(
+    EmailExistenceCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const EmailExistenceChecking());
+    final result = await _checkEmailExists(event.email);
+    result.match(
+      (failure) {},
+      (exists) =>
+          emit(EmailExistenceChecked(email: event.email, exists: exists)),
+    );
   }
 
   Future<void> _onForgotPassword(
@@ -81,8 +180,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    _currentUser = null;
-    emit(const AuthUnauthenticated());
+    emit(const AuthLoading());
+    final result = await _logoutUser();
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (_) {
+        _currentUser = null;
+        emit(const AuthUnauthenticated());
+      },
+    );
   }
 
   Future<void> _onKycPersonalDetails(
@@ -117,7 +223,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         id: _currentUser!.id,
         email: _currentUser!.email,
         name: _currentUser!.name,
-        role: _currentUser!.role,
         kycStatus: 'under_review',
       );
       _currentUser = updatedUser;
@@ -131,18 +236,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(KycSubmitted(const KycEntity(status: 'under_review')));
   }
-
-  UserEntity _mockUser({
-    String email = 'user@example.com',
-    String name = 'Mock User',
-    String role = 'buyer',
-    String kycStatus = 'not_required',
-  }) =>
-      UserEntity(
-        id: 'mock-id',
-        email: email,
-        name: name,
-        role: role,
-        kycStatus: kycStatus,
-      );
 }

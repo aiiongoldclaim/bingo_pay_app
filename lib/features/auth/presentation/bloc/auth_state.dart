@@ -26,6 +26,33 @@ class AuthAuthenticated extends AuthState {
   List<Object> get props => [user];
 }
 
+class AuthOtpRequired extends AuthState {
+  final String email;
+  const AuthOtpRequired(this.email);
+  @override
+  List<Object> get props => [email];
+}
+
+class OtpResendSent extends AuthState {
+  const OtpResendSent();
+  @override
+  List<Object> get props => [];
+}
+
+class EmailExistenceChecking extends AuthState {
+  const EmailExistenceChecking();
+  @override
+  List<Object> get props => [];
+}
+
+class EmailExistenceChecked extends AuthState {
+  final String email;
+  final bool exists;
+  const EmailExistenceChecked({required this.email, required this.exists});
+  @override
+  List<Object> get props => [email, exists];
+}
+
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
   @override

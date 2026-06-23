@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -19,31 +22,64 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  String _selectedRole = 'buyer';
+  final _countryIdController = TextEditingController(text: '91');
+  final _phoneNumberController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
+  Timer? _emailDebounce;
+  String? _checkedEmail;
+  bool? _emailExists;
+  bool _checkingEmail = false;
+
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _countryIdController.dispose();
+    _phoneNumberController.dispose();
+    _emailDebounce?.cancel();
     super.dispose();
   }
 
+  void _onEmailChanged(String value) {
+    _emailDebounce?.cancel();
+    setState(() {
+      _checkedEmail = null;
+      _emailExists = null;
+      _checkingEmail = false;
+    });
+    final email = value.trim();
+    if (Validators.email(email) != null) return;
+    _emailDebounce = Timer(const Duration(milliseconds: 600), () {
+      context
+          .read<AuthBloc>()
+          .add(EmailExistenceCheckRequested(email: email));
+    });
+  }
+
   void _submit() {
+    if (_emailExists == true) {
+      AppSnackbar.showError(context, 'This email is already registered');
+      return;
+    }
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
             RegisterRequested(
+              firstName: _firstNameController.text.trim(),
+              lastName: _lastNameController.text.trim(),
               email: _emailController.text.trim(),
               password: _passwordController.text,
-              name: _nameController.text.trim(),
-              role: _selectedRole,
+              countryId: _countryIdController.text.trim(),
+              phoneNumber: _phoneNumberController.text.trim(),
             ),
           );
     }
@@ -57,6 +93,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         listener: (context, state) {
           if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
+          } else if (state is AuthOtpRequired) {
+            context.push(AppRoutes.registerOtp, extra: state.email);
+          } else if (state is EmailExistenceChecking) {
+            setState(() => _checkingEmail = true);
+          } else if (state is EmailExistenceChecked) {
+            if (state.email != _emailController.text.trim()) return;
+            setState(() {
+              _checkingEmail = false;
+              _checkedEmail = state.email;
+              _emailExists = state.exists;
+            });
           }
         },
         child: SafeArea(
@@ -75,8 +122,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 32),
                   AppTextField(
-                    controller: _nameController,
-                    label: 'Full Name',
+                    controller: _firstNameController,
+                    label: 'First Name',
+                    validator: Validators.name,
+                  ),
+                  const SizedBox(height: 16),
+                  AppTextField(
+                    controller: _lastNameController,
+                    label: 'Last Name',
                     validator: Validators.name,
                   ),
                   const SizedBox(height: 16),
@@ -85,6 +138,66 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     label: 'Email',
                     keyboardType: TextInputType.emailAddress,
                     validator: Validators.email,
+                    onChanged: _onEmailChanged,
+                    suffixIcon: _checkingEmail
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          )
+                        : _emailExists == null ||
+                                _checkedEmail != _emailController.text.trim()
+                            ? null
+                            : Icon(
+                                _emailExists!
+                                    ? Icons.error_outline
+                                    : Icons.check_circle_outline,
+                                color: _emailExists!
+                                    ? AppColors.error
+                                    : AppColors.success,
+                              ),
+                  ),
+                  if (!_checkingEmail &&
+                      _emailExists == true &&
+                      _checkedEmail == _emailController.text.trim())
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 4),
+                      child: Text(
+                        'This email is already registered',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: AppColors.error),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 90,
+                        child: AppTextField(
+                          controller: _countryIdController,
+                          label: 'Code',
+                          keyboardType: TextInputType.number,
+                          validator: (v) =>
+                              Validators.required(v, fieldName: 'Code'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppTextField(
+                          controller: _phoneNumberController,
+                          label: 'Phone Number',
+                          keyboardType: TextInputType.phone,
+                          validator: (v) =>
+                              Validators.required(v, fieldName: 'Phone number'),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   AppTextField(
@@ -115,31 +228,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           setState(() => _obscureConfirm = !_obscureConfirm),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text('I am a:', style: theme.textTheme.labelLarge),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _RoleCard(
-                          label: 'Buyer',
-                          icon: Icons.shopping_bag_outlined,
-                          isSelected: _selectedRole == 'buyer',
-                          onTap: () => setState(() => _selectedRole = 'buyer'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _RoleCard(
-                          label: 'Vendor',
-                          icon: Icons.storefront_outlined,
-                          isSelected: _selectedRole == 'vendor',
-                          onTap: () =>
-                              setState(() => _selectedRole = 'vendor'),
-                        ),
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 32),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) => AppButton(
@@ -163,64 +251,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RoleCard extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _RoleCard({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? theme.colorScheme.primaryContainer
-              : theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outline,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.onSurface,
-              ),
-            ),
-          ],
         ),
       ),
     );

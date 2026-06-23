@@ -11,6 +11,7 @@ void main() async {
       'appName': 'Bingo Pay',
       'enableLogging': false,
       'enableAnalytics': true,
+      'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',
     },
   );
   await bootstrap();

@@ -19,18 +19,45 @@ class LoginRequested extends AuthEvent {
 }
 
 class RegisterRequested extends AuthEvent {
+  final String firstName;
+  final String lastName;
   final String email;
   final String password;
-  final String name;
-  final String role;
+  final String countryId;
+  final String phoneNumber;
   const RegisterRequested({
+    required this.firstName,
+    required this.lastName,
     required this.email,
     required this.password,
-    required this.name,
-    required this.role,
+    required this.countryId,
+    required this.phoneNumber,
   });
   @override
-  List<Object> get props => [email, password, name, role];
+  List<Object> get props =>
+      [firstName, lastName, email, password, countryId, phoneNumber];
+}
+
+class OtpVerifyRequested extends AuthEvent {
+  final String email;
+  final String otp;
+  const OtpVerifyRequested({required this.email, required this.otp});
+  @override
+  List<Object> get props => [email, otp];
+}
+
+class OtpResendRequested extends AuthEvent {
+  final String email;
+  const OtpResendRequested({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
+class EmailExistenceCheckRequested extends AuthEvent {
+  final String email;
+  const EmailExistenceCheckRequested({required this.email});
+  @override
+  List<Object> get props => [email];
 }
 
 class ForgotPasswordRequested extends AuthEvent {

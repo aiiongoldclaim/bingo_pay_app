@@ -13,11 +13,13 @@ import '../../features/customer/shop/presentation/screens/checkout_placeholder_s
 import '../../features/customer/shop/presentation/screens/product_detail_screen.dart';
 import '../../features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart';
 import '../../features/customer/dashboard/presentation/screens/buyer_dashboard_screen.dart';
+import '../../features/customer/profile/presentation/screens/profile_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_document_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/dashboard/presentation/screens/home_screen.dart';
 import '../../features/dashboard/presentation/widgets/home_bottom_nav.dart';
@@ -43,6 +45,11 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.register,
           builder: (_, _) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.registerOtp,
+          builder: (_, state) =>
+              OtpVerificationScreen(email: state.extra as String? ?? ''),
         ),
         GoRoute(
           path: AppRoutes.forgotPassword,
@@ -133,7 +140,7 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.buyerProfile,
-              builder: (_, _) => const _PlaceholderPage('Profile'),
+              builder: (_, _) => const ProfileScreen(),
             ),
             GoRoute(
               path: AppRoutes.buyerSettings,

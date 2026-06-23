@@ -1,6 +1,7 @@
 import 'package:bingo_pay/core/error/error_handler.dart';
 import 'package:bingo_pay/core/error/exceptions.dart';
 import 'package:bingo_pay/core/error/failures.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -42,6 +43,17 @@ void main() {
       final exception = Exception('Something unexpected');
       final failure = ErrorHandler.mapExceptionToFailure(exception);
       expect(failure, isA<UnknownFailure>());
+    });
+
+    test('unwraps DioException.error to the real failure and message', () {
+      final dioException = DioException(
+        requestOptions: RequestOptions(path: '/auth/login'),
+        type: DioExceptionType.badResponse,
+        error: const AuthException(message: 'Invalid credentials'),
+      );
+      final failure = ErrorHandler.mapExceptionToFailure(dioException);
+      expect(failure, isA<AuthFailure>());
+      expect(failure.message, 'Invalid credentials');
     });
   });
 }

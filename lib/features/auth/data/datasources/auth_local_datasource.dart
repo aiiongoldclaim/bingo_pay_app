@@ -10,6 +10,8 @@ abstract interface class AuthLocalDataSource {
     required String refreshToken,
   });
 
+  Future<void> saveAccessToken(String accessToken);
+
   Future<void> saveUser(UserModel user);
 
   Future<UserModel?> getUser();
@@ -33,6 +35,11 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   }) async {
     await _secureStorage.saveAccessToken(accessToken);
     await _secureStorage.saveRefreshToken(refreshToken);
+  }
+
+  @override
+  Future<void> saveAccessToken(String accessToken) async {
+    await _secureStorage.saveAccessToken(accessToken);
   }
 
   @override

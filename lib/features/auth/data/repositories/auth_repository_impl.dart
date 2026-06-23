@@ -7,6 +7,7 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
+import '../models/user_model.dart';
 
 @Injectable(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -21,13 +22,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final response = await _remote.login(email: email, password: password);
-      await _local.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
-      );
-      await _local.saveUser(response.user);
-      return Right(response.user);
+      final result = await _remote.login(email: email, password: password);
+      await _local.saveAccessToken(result.token);
+      await _local.saveUser(result.user);
+      return Right(result.user);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }
@@ -35,24 +33,66 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity>> register({
-    required String email,
+    required String firstName,
+    required String lastName,
     required String password,
-    required String name,
-    required String role,
+    required String countryId,
+    required String email,
+    required String phoneNumber,
   }) async {
     try {
-      final response = await _remote.register(
-        email: email,
+      final result = await _remote.register(
+        firstName: firstName,
+        lastName: lastName,
         password: password,
-        name: name,
-        role: role,
+        countryId: countryId,
+        email: email,
+        phoneNumber: phoneNumber,
       );
-      await _local.saveTokens(
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
-      );
-      await _local.saveUser(response.user);
-      return Right(response.user);
+      await _local.saveAccessToken(result.token);
+      await _local.saveUser(result.user);
+      return Right(result.user);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> verifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      await _remote.verifyOtp(email: email, otp: otp);
+      final cached = await _local.getUser();
+      if (cached == null) {
+        return const Left(CacheFailure(message: 'No registered user found'));
+      }
+      final verified = cached.copyWith(emailVerified: true);
+      await _local.saveUser(verified);
+      return Right(verified);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> resendOtp({required String email}) async {
+    try {
+      await _remote.resendOtp(email: email);
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> checkEmailExists({
+    required String email,
+  }) async {
+    try {
+      final exists = await _remote.checkEmailExists(email: email);
+      return Right(exists);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }

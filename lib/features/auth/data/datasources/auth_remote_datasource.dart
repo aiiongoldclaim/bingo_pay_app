@@ -2,21 +2,30 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
-import '../models/auth_response_model.dart';
+import '../models/auth_result_model.dart';
 import '../models/kyc_model.dart';
+import '../models/user_model.dart';
 
 abstract interface class AuthRemoteDataSource {
-  Future<AuthResponseModel> login({
+  Future<AuthResultModel> login({
     required String email,
     required String password,
   });
 
-  Future<AuthResponseModel> register({
-    required String email,
+  Future<AuthResultModel> register({
+    required String firstName,
+    required String lastName,
     required String password,
-    required String name,
-    required String role,
+    required String countryId,
+    required String email,
+    required String phoneNumber,
   });
+
+  Future<void> verifyOtp({required String email, required String otp});
+
+  Future<void> resendOtp({required String email});
+
+  Future<bool> checkEmailExists({required String email});
 
   Future<void> forgotPassword({required String email});
 
@@ -44,7 +53,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Dio get _dio => _apiClient.dio;
 
   @override
-  Future<AuthResponseModel> login({
+  Future<AuthResultModel> login({
     required String email,
     required String password,
   }) async {
@@ -52,23 +61,65 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiEndpoints.login,
       data: {'email': email, 'password': password},
     );
-    return AuthResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    final data = response.data['data'] as Map<String, dynamic>;
+    final profile = data['profile'] as Map<String, dynamic>;
+    // The login response has no token field; use the profile's uuid as the
+    // stored session identifier instead.
+    return AuthResultModel(
+      token: profile['uuid'] as String,
+      user: UserModel.fromProfileJson(profile),
+    );
   }
 
   @override
-  Future<AuthResponseModel> register({
-    required String email,
+  Future<AuthResultModel> register({
+    required String firstName,
+    required String lastName,
     required String password,
-    required String name,
-    required String role,
+    required String countryId,
+    required String email,
+    required String phoneNumber,
   }) async {
     final response = await _dio.post(
       ApiEndpoints.register,
-      data: {'email': email, 'password': password, 'name': name, 'role': role},
+      data: {
+        'firstName': firstName,
+        'lastName': lastName,
+        'password': password,
+        'countryId': countryId,
+        'email': email,
+        'phoneNumber': phoneNumber,
+      },
     );
-    return AuthResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    final data = response.data['data'] as Map<String, dynamic>;
+    final profile = data['profile'] as Map<String, dynamic>;
+    return AuthResultModel(
+      token: data['token'] as String,
+      user: UserModel.fromProfileJson(profile),
+    );
+  }
+
+  @override
+  Future<void> verifyOtp({required String email, required String otp}) async {
+    await _dio.post(
+      ApiEndpoints.verifyOtp,
+      data: {'email': email, 'otp': otp},
+    );
+  }
+
+  @override
+  Future<void> resendOtp({required String email}) async {
+    await _dio.post(ApiEndpoints.resendOtp, data: {'email': email});
+  }
+
+  @override
+  Future<bool> checkEmailExists({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.userExists,
+      data: {'email': email},
+    );
+    final data = response.data['data'] as Map<String, dynamic>;
+    return data['exists'] as bool? ?? false;
   }
 
   @override

@@ -22,17 +22,24 @@ class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   final _connectivity = getIt<ConnectivityService>();
 
+  // Splash/loading is only meaningful while the app is determining the
+  // initial session on boot. Later AuthLoading emissions (login, register,
+  // OTP, etc.) share the same state class but must not bounce the router
+  // back to the splash screen mid-flow.
+  bool _authDetermined = false;
+
   void _onAuthStateChanged(BuildContext context, AuthState state) {
     if (state is AuthLoading) {
-      _router.updateAuthState(const RouteAuthState.loading());
+      if (!_authDetermined) {
+        _router.updateAuthState(const RouteAuthState.loading());
+      }
     } else if (state is AuthAuthenticated) {
-      _router.updateAuthState(
-        RouteAuthState.authenticated(
-          role: state.user.isVendor ? UserRole.vendor : UserRole.buyer,
-          isKycPending: state.user.isKycPending,
-        ),
-      );
+      _authDetermined = true;
+      // kyc_status is no longer used to gate navigation; authenticated
+      // users always land on Home regardless of pending KYC.
+      _router.updateAuthState(const RouteAuthState.authenticated());
     } else if (state is AuthUnauthenticated) {
+      _authDetermined = true;
       _router.updateAuthState(const RouteAuthState.unauthenticated());
     }
   }
