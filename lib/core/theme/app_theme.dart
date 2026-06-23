@@ -111,7 +111,7 @@ class AppTheme {
       useMaterial3: true,
 
       /// Global Font
-      fontFamily: 'CormorantGaramond',
+      fontFamily: 'Roboto',
 
       colorScheme: colorScheme,
 

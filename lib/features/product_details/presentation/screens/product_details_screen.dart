@@ -2,11 +2,10 @@ import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../payment/presentation/screens/payment_screen.dart';
 import '../cubit/product_details_cubit.dart';
 import '../cubit/product_details_state.dart';
-
-import '../widgets/product_bottom_bar.dart';
 import '../widgets/product_color_section.dart';
 import '../widgets/product_highlights_section.dart';
 import '../widgets/product_image_section.dart';
@@ -43,7 +42,7 @@ class ProductDetailScreen extends StatelessWidget {
                       /// IMAGE
                       ProductImageSection(
                         icon: product.icon,
-                        imageUrl: product.imageUrl,
+                        images: product.images,
                         isFavourite: data.isFavourite,
                         onBack: () => Navigator.pop(context),
                         onShare: () {},
@@ -90,17 +89,22 @@ class ProductDetailScreen extends StatelessWidget {
               ),
 
               /// BOTTOM BAR
-              ProductBottomBar(
+              AppBottomActionBar(
                 price: product.price,
-                onAddToCart: () {
-                  context.read<ProductDetailCubit>().onAddToCart();
-                },
-                onBuyNow: () {
-                  // context.read<ProductDetailCubit>().onBuyNow();
+
+                primaryLabel: 'Buy Now',
+                onPrimaryPressed: () {
                   Navigator.push(
-  context,
-  MaterialPageRoute(builder: (_) => const PaymentScreen()),
-);
+                    context,
+                    MaterialPageRoute(builder: (_) => const PaymentScreen()),
+                  );
+                },
+                secondaryTextColor: ThemeColors.black,
+                secondaryIconColor: ThemeColors.black,
+                secondaryLabel: 'Add Cart',
+                secondaryIcon: Icons.shopping_bag_outlined,
+                onSecondaryPressed: () {
+                  context.read<ProductDetailCubit>().onAddToCart();
                 },
               ),
             ],

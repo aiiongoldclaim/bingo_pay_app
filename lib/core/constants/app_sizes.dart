@@ -8,11 +8,13 @@ class AppSizes {
   static const double radiusSm = 8;
   static const double radiusMd = 12;
   static const double radiusLg = 16;
+  static const double radiusL = 18;
   static const double radiusXl = 14;
   static const double radius2Xl = 24;
 
   // Padding
   static const double paddingXs = 8;
+  static const double paddingX = 6;
   static const double paddingSm = 12;
   static const double paddingMd = 16;
   static const double paddingLg = 24;

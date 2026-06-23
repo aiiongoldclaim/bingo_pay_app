@@ -23,7 +23,7 @@ class BrandChip extends StatelessWidget {
         style: TextStyle(
           fontSize: 16.sp,
           fontWeight: FontWeight.w600,
-          fontFamily: 'CormorantGaramond',
+          fontFamily: 'Roboto',
         ),
       ),
     );

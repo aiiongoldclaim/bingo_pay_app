@@ -50,18 +50,6 @@ class CategoriesCubit extends Cubit<CategoriesState> {
             icon: Icons.diamond_outlined,
             color: const Color(0xFFF0EBFF),
           ),
-          CategoryModel(
-            title: 'Watches',
-            items: '410 items',
-            icon: Icons.watch_outlined,
-            color: const Color(0xFFEFF2FF),
-          ),
-          CategoryModel(
-            title: 'Cameras',
-            items: '260 items',
-            icon: Icons.camera_alt_outlined,
-            color: const Color(0xFFEFF2FF),
-          ),
         ],
         brands: const ['SONARA', 'NOVA', 'TYDE', 'OPTIK', 'STRIDE', 'MAISON'],
         collections: [

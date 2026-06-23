@@ -9,7 +9,7 @@ class AppTextStyles {
     fontSize: 32,
     fontWeight: FontWeight.w700,
     color: ThemeColors.ink,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     letterSpacing: -0.5,
   );
 
@@ -17,7 +17,7 @@ class AppTextStyles {
   static const TextStyle headlineMedium = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w700,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     color: ThemeColors.ink,
   );
 
@@ -31,7 +31,7 @@ class AppTextStyles {
   static const TextStyle titleMedium = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     color: ThemeColors.ink,
   );
 
@@ -39,7 +39,7 @@ class AppTextStyles {
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     color: ThemeColors.ink,
     height: 1.5,
   );
@@ -48,14 +48,14 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: ThemeColors.inkMid,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     height: 1.5,
   );
 
   static const TextStyle bodySmall = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     color: ThemeColors.inkDim,
     height: 1.4,
   );
@@ -64,7 +64,7 @@ class AppTextStyles {
   static const TextStyle labelLarge = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     color: ThemeColors.ink,
     letterSpacing: 0.2,
   );
@@ -72,7 +72,7 @@ class AppTextStyles {
   static const TextStyle labelMedium = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     color: ThemeColors.inkMid,
     letterSpacing: 0.4,
   );
@@ -81,7 +81,7 @@ class AppTextStyles {
     fontSize: 10,
     fontWeight: FontWeight.w500,
     color: ThemeColors.inkDim,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     letterSpacing: 0.5,
   );
 
@@ -89,7 +89,7 @@ class AppTextStyles {
   static const TextStyle buttonText = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     letterSpacing: 0.2,
     color: ThemeColors.white,
   );
@@ -98,7 +98,7 @@ class AppTextStyles {
   static const TextStyle bannerTitle = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     letterSpacing: 2,
     color: ThemeColors.accentInk,
   );
@@ -106,7 +106,7 @@ class AppTextStyles {
   static const TextStyle bannerHeading = TextStyle(
     fontSize: 34,
     fontWeight: FontWeight.w600,
-    fontFamily: 'CormorantGaramond',
+    fontFamily: 'Roboto',
     height: 0.95,
     color: ThemeColors.accentInk,
   );

@@ -26,7 +26,8 @@ class ProductHighlightsSection extends StatelessWidget {
             'Highlights',
             style: AppTextStyles.titleLarge.copyWith(
               fontSize: 17.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w700,
+              color: ThemeColors.black,
             ),
           ),
           SizedBox(height: 1.5.h),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_colors.dart';
-import '../../../../core/widgets/appbar_serach.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../cubit/categories_cubit.dart';
 import '../cubit/categories_state.dart';
@@ -32,9 +33,12 @@ class CategoriesScreen extends StatelessWidget {
               appBar: CustomAppBar(
                 title: 'Categories',
                 actionIcon1: Icons.search_rounded,
-                onAction1: () {},
+                onAction1: () {
+                  context.push(AppRoutes.search);
+                },
               ),
               body: SafeArea(
+                top: false,
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(4.w),
                   child: Column(

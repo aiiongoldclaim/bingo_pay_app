@@ -10,7 +10,7 @@ class ProductDetailModel {
   final String rating; // "4.6"
   final String reviewCount; // "2,143"
   final IconData icon; // placeholder until real imageUrl
-  final String? imageUrl;
+  final List<String> images;
   final int coinsEarned;
   final List<String> highlights;
   final List<ProductColorOption> colorOptions;
@@ -27,7 +27,7 @@ class ProductDetailModel {
     required this.rating,
     required this.reviewCount,
     required this.icon,
-    this.imageUrl,
+    this.images = const [],
     this.coinsEarned = 0,
     this.highlights = const [],
     this.colorOptions = const [],
@@ -45,7 +45,7 @@ class ProductColorOption {
 
 class RatingBreakdown {
   final int stars;
-  final double percentage; // 0.0 – 1.0
+  final double percentage;
 
   const RatingBreakdown({required this.stars, required this.percentage});
 }

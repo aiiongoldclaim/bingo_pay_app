@@ -155,7 +155,7 @@ class ListingProductCard extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '₹${_formatPrice(product.price)}',
+                        _formatPrice(product.price),
                         style: AppTextStyles.titleMedium.copyWith(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,

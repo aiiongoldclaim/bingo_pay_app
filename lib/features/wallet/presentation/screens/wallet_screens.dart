@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
-import '../../../../core/widgets/appbar_serach.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../data/model/wallet_model.dart';
 import '../cubit/wallet_cubit.dart';
@@ -31,14 +30,14 @@ class _WalletScreenState extends State<WalletScreen> {
     return Scaffold(
       backgroundColor: ThemeColors.background,
       appBar: CustomAppBar(
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: ThemeColors.ink,
-            size: 20,
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(
+        //     Icons.arrow_back_ios_new_rounded,
+        //     color: ThemeColors.ink,
+        //     size: 20,
+        //   ),
+        //   onPressed: () => Navigator.of(context).pop(),
+        // ),
         title: 'Wallet',
         actionIcon1: Icons.access_time_rounded,
         onAction1: () {},

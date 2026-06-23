@@ -1,101 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/constants/app_sizes.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/theme_colors.dart';
-import '../../cubit/payment_cubit.dart';
 
-class PaymentMethodOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final String? trailing;
-  final PaymentMethod method;
-  final PaymentMethod selectedMethod;
-  final VoidCallback onTap;
-
-  const PaymentMethodOption({
+class PaymentMethodCard extends StatelessWidget {
+  const PaymentMethodCard({
     super.key,
-    required this.icon,
     required this.title,
     required this.subtitle,
-    this.trailing,
-    required this.method,
-    required this.selectedMethod,
+    required this.icon,
+    required this.isSelected,
     required this.onTap,
   });
 
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
   @override
   Widget build(BuildContext context) {
-    final isSelected = selectedMethod == method;
-
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppSizes.radiusLg),
       onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.only(bottom: AppDimensions.md),
-        padding: EdgeInsets.all(AppDimensions.md),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(AppSizes.paddingMd),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+          color: ThemeColors.white,
+          borderRadius: BorderRadius.circular(AppSizes.radiusLg),
           border: Border.all(
-            color: isSelected ? ThemeColors.blue : AppColors.line,
-            width: isSelected ? 2 : 1,
+            color: isSelected
+                ? ThemeColors.blue
+                : ThemeColors.inkDim.withValues(alpha: .2),
+            width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? ThemeColors.blue : ThemeColors.inkMid,
-              size: 24.sp,
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
+                color: ThemeColors.background,
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+              ),
+              child: Icon(
+                icon,
+                color: ThemeColors.inkMid,
+                size: AppSizes.iconLg,
+              ),
             ),
-            SizedBox(width: AppDimensions.md),
+
+            const SizedBox(width: AppSizes.paddingMd),
 
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.titleMedium,
-                  ),
-                  SizedBox(height: 0.4.h),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.bodyMedium,
-                  ),
+                  Text(title, style: AppTextStyles.titleMedium),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: AppTextStyles.bodySmall),
                 ],
               ),
             ),
 
-            if (trailing != null)
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppDimensions.sm,
-                  vertical: 0.6.h,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.accentSoft,
-                  borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
-                ),
-                child: Text(
-                  trailing!,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: ThemeColors.accentInk,
-                  ),
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? ThemeColors.blue
+                      : ThemeColors.inkDim.withValues(alpha: .3),
+                  width: 2,
                 ),
               ),
-
-            SizedBox(width: AppDimensions.sm),
-
-            Radio<PaymentMethod>(
-              value: method,
-              groupValue: selectedMethod,
-              onChanged: (_) => onTap(),
-              activeColor: ThemeColors.blue,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                          color: ThemeColors.blue,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                  : null,
             ),
           ],
         ),

@@ -1,3 +1,4 @@
+import 'package:bingo_pay/core/constants/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -91,22 +92,30 @@ class AppSearchBar extends StatelessWidget {
           ),
 
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16),
+            borderRadius: BorderRadius.circular(
+              borderRadius ?? AppSizes.radiusMd,
+            ),
             borderSide: BorderSide(color: borderColor ?? AppColors.divider),
           ),
 
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16),
+            borderRadius: BorderRadius.circular(
+              borderRadius ?? AppSizes.radiusMd,
+            ),
             borderSide: const BorderSide(color: ThemeColors.inkMid, width: 0.5),
           ),
 
           disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16),
+            borderRadius: BorderRadius.circular(
+              borderRadius ?? AppSizes.radiusMd,
+            ),
             borderSide: BorderSide(color: AppColors.divider.withOpacity(.5)),
           ),
 
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius ?? 16),
+            borderRadius: BorderRadius.circular(
+              borderRadius ?? AppSizes.radiusMd,
+            ),
             borderSide: BorderSide(color: borderColor ?? AppColors.divider),
           ),
         ),

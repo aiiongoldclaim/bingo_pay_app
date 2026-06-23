@@ -4,7 +4,6 @@ import 'package:sizer/sizer.dart';
 import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:bingo_pay/core/theme/app_text_styles.dart';
 
-import '../../../../core/widgets/appbar_serach.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../cubit/orders_cubit.dart';
@@ -37,7 +36,7 @@ class _OrderDetailView extends StatelessWidget {
     return Scaffold(
       backgroundColor: ThemeColors.background,
       appBar: CustomAppBar(
-        leading: Icon(Icons.arrow_back_ios_new_outlined),
+        // leading: Icon(Icons.arrow_back_ios_new_outlined),
         title: 'Order ${order.orderId}',
         actionIcon1: Icons.headphones_outlined,
         onAction1: () {},
@@ -56,12 +55,12 @@ class _OrderDetailView extends StatelessWidget {
           return const SizedBox.shrink();
         },
       ),
-      bottomNavigationBar: BottomActionBar(
-        secondaryText: 'Need Help?',
-        secondaryOnTap: () {},
-
-        primaryText: 'Track Live',
-        primaryOnTap: () {},
+      bottomNavigationBar: AppBottomActionBar(
+        primaryLabel: 'Track Live',
+        secondaryLabel: 'Need Help',
+        secondaryIcon: Icons.headphones_outlined,
+        onPrimaryPressed: () {},
+        onSecondaryPressed: () {},
       ),
     );
   }

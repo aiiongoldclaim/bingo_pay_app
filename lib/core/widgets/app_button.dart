@@ -1,3 +1,4 @@
+import 'package:bingo_pay/core/constants/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -11,6 +12,8 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final AppButtonVariant variant;
   final IconData? prefixIcon;
+  final Color? textColor;
+  final Color? iconColor;
 
   const AppButton({
     super.key,
@@ -19,6 +22,8 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.variant = AppButtonVariant.primary,
     this.prefixIcon,
+    this.textColor,
+    this.iconColor,
   });
 
   @override
@@ -34,7 +39,7 @@ class AppButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (prefixIcon != null) ...[
-          Icon(prefixIcon, size: 18.sp, color: _textColor),
+          Icon(prefixIcon, size: 18.sp, color: iconColor ?? _textColor),
           SizedBox(width: 2.w),
         ],
         Text(
@@ -42,7 +47,7 @@ class AppButton extends StatelessWidget {
           style: TextStyle(
             fontSize: 15.sp,
             fontWeight: FontWeight.w600,
-            color: _textColor,
+            color: textColor ?? _textColor,
           ),
         ),
       ],
@@ -56,7 +61,7 @@ class AppButton extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               gradient: ThemeColors.primaryGradient,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             ),
             child: ElevatedButton(
               onPressed: onPressed,
@@ -66,7 +71,7 @@ class AppButton extends StatelessWidget {
                 surfaceTintColor: Colors.transparent,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                 ),
               ),
               child: child,
@@ -82,10 +87,10 @@ class AppButton extends StatelessWidget {
             onPressed: onPressed,
             style: FilledButton.styleFrom(
               backgroundColor: ThemeColors.white,
-              foregroundColor: ThemeColors.blue,
+              foregroundColor: ThemeColors.inkDim,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
             ),
             child: child,
@@ -99,9 +104,9 @@ class AppButton extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onPressed,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ThemeColors.blue),
+              side: const BorderSide(color: ThemeColors.inkDim),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
             ),
             child: child,

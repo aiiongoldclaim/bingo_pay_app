@@ -38,17 +38,18 @@ class ProductRatingsSection extends StatelessWidget {
                 style: AppTextStyles.titleLarge.copyWith(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w700,
+                  color: ThemeColors.black,
                 ),
               ),
-              GestureDetector(
-                onTap: onSeeAll,
-                child: Text(
-                  'See all',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: ThemeColors.blue,
-                  ),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: onSeeAll,
+              //   child: Text(
+              //     'See all',
+              //     style: AppTextStyles.labelLarge.copyWith(
+              //       color: ThemeColors.blue,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           SizedBox(height: 1.h),
@@ -57,7 +58,7 @@ class ProductRatingsSection extends StatelessWidget {
             children: [
               // Big score + star row + review count
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     rating,
@@ -75,11 +76,11 @@ class ProductRatingsSection extends StatelessWidget {
                         color: i < double.parse(rating).floor()
                             ? ThemeColors.accent
                             : ThemeColors.line,
-                        size: 18.sp,
+                        size: 17.sp,
                       ),
                     ),
                   ),
-                  //SizedBox(height: 0.5.h),
+
                   Text(
                     reviewCount,
                     style: TextStyle(

@@ -1,26 +1,29 @@
+import 'package:bingo_pay/core/constants/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sizer/sizer.dart';
-
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/bottom_action_bar.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 import '../cubit/payment_cubit.dart';
+import '../cubit/payment_state.dart';
 import 'review_pay_screen.dart';
 import 'widgets/payment_address_card.dart';
 import 'widgets/payment_method_option.dart';
 import 'widgets/payment_progress_stepper.dart';
-
 
 class PaymentScreen extends StatelessWidget {
   const PaymentScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int selectedMethod = 0;
+
     return BlocProvider(
-      create: (_) => PaymentCubit(),
+      create: (_) => PaymentMethodCubit(),
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
           statusBarColor: AppColors.surface,
@@ -28,54 +31,93 @@ class PaymentScreen extends StatelessWidget {
         ),
         child: Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: AppColors.surface,
-            elevation: 0,
-            title: Text(
-              'Payment',
-              style: AppTextStyles.titleLarge,
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: ThemeColors.ink),
-              onPressed: () => Navigator.pop(context),
-            ),
-            actions: const [
-              Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: Row(
-                  children: [
-                    Icon(Icons.lock, size: 18, color: ThemeColors.green),
-                    SizedBox(width: 4),
-                    Text(
-                      'Secure',
-                      style: TextStyle(
-                        color: ThemeColors.green,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          appBar: CustomAppBar(
+            // leading: Icon(Icons.arrow_back_ios_new_outlined),
+            title: 'Payment',
+            actionIcon1: Icons.security,
+            onAction1: () {},
           ),
-          body: BlocBuilder<PaymentCubit, PaymentState>(
+
+          bottomNavigationBar:
+              BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
+                builder: (context, state) {
+                  return AppBottomActionBar(
+                    primaryLabel: 'Continue to Pay',
+                    secondaryLabel: 'Need Help',
+                    secondaryIcon: Icons.headphones_outlined,
+
+                    onPrimaryPressed: () {
+                      final cubit = context.read<PaymentMethodCubit>();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: cubit,
+                            child: const ReviewPayScreen(),
+                          ),
+                        ),
+                      );
+                    },
+
+                    onSecondaryPressed: () {
+                      // Open support screen / chat
+                    },
+                  );
+                },
+              ),
+
+          // AppBar(
+          //   backgroundColor: AppColors.surface,
+          //   elevation: 0,
+          //   title: Text('Payment', style: AppTextStyles.titleLarge),
+          //   leading: IconButton(
+          //     icon: const Icon(Icons.arrow_back_ios, color: ThemeColors.ink),
+          //     onPressed: () => Navigator.pop(context),
+          //   ),
+          //   actions: const [
+          //     Padding(
+          //       padding: EdgeInsets.only(right: 16),
+          //       child: Row(
+          //         children: [
+          //           Icon(Icons.lock, size: 18, color: ThemeColors.green),
+          //           SizedBox(width: 4),
+          //           Text(
+          //             'Secure',
+          //             style: TextStyle(
+          //               color: ThemeColors.green,
+          //               fontWeight: FontWeight.w500,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          body: BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
             builder: (context, state) {
               return SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: AppDimensions.md),
+                padding: EdgeInsets.symmetric(horizontal: AppSizes.radiusMd),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: AppDimensions.lg),
+                    // SizedBox(height: AppDimensions.lg),
 
                     // Progress Stepper
                     const PaymentProgressStepper(currentStep: 3),
 
-                    SizedBox(height: AppDimensions.xl),
+                    SizedBox(height: AppSizes.radiusSm),
 
                     // Address Card
-                    const PaymentAddressCard(),
+                    PaymentAddressCard(
+                      addressType: 'Home',
+                      address: '14 Lotus Residency, Bandra West, Mumbai 400050',
+                      onChange: () {
+                        // Navigate to address screen
+                      },
+                    ),
 
-                    SizedBox(height: AppDimensions.xl),
+                    SizedBox(height: AppSizes.radiusMd),
 
                     // Title
                     Text(
@@ -87,112 +129,31 @@ class PaymentScreen extends StatelessWidget {
 
                     SizedBox(height: AppDimensions.md),
 
-                    // Payment Methods
-                    PaymentMethodOption(
-                      icon: Icons.account_balance_wallet,
-                      title: 'BINGOLD Wallet',
-                      subtitle: 'Balance ₹12,480 · Instant',
-                      trailing: 'Earn 2x coins',
-                      method: PaymentMethod.bingoldWallet,
-                      selectedMethod: state.selectedMethod,
-                      onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.bingoldWallet),
+                    //Payment Methods
+                    PaymentMethodCard(
+                      title: 'Bingo Wallet',
+                      subtitle:
+                          'Earn ${state.coinsEarned} Coins on this purchase',
+                      icon: Icons.account_balance_wallet_outlined,
+                      isSelected: state.selectedMethod == PaymentMethod.wallet,
+                      onTap: () {
+                        context.read<PaymentMethodCubit>().selectPaymentMethod(
+                          PaymentMethod.wallet,
+                        );
+                      },
                     ),
-
-                    PaymentMethodOption(
-                      icon: Icons.language,
-                      title: 'UPI',
-                      subtitle: 'GPay, PhonePe, Paytm',
-                      method: PaymentMethod.upi,
-                      selectedMethod: state.selectedMethod,
-                      onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.upi),
-                    ),
-
-                    PaymentMethodOption(
-                      icon: Icons.credit_card,
+                    SizedBox(height: AppDimensions.sm),
+                    PaymentMethodCard(
                       title: 'Credit / Debit Card',
                       subtitle: 'Visa •••• 4291',
-                      method: PaymentMethod.creditDebit,
-                      selectedMethod: state.selectedMethod,
-                      onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.creditDebit),
+                      icon: Icons.credit_card_outlined,
+                      isSelected: state.selectedMethod == PaymentMethod.card,
+                      onTap: () {
+                        context.read<PaymentMethodCubit>().selectPaymentMethod(
+                          PaymentMethod.card,
+                        );
+                      },
                     ),
-
-                    PaymentMethodOption(
-                      icon: Icons.timer,
-                      title: 'Pay Later',
-                      subtitle: '0% EMI · 3 months',
-                      method: PaymentMethod.payLater,
-                      selectedMethod: state.selectedMethod,
-                      onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.payLater),
-                    ),
-
-                    PaymentMethodOption(
-                      icon: Icons.local_shipping_outlined,
-                      title: 'Cash on Delivery',
-                      subtitle: '₹20 handling fee',
-                      method: PaymentMethod.cashOnDelivery,
-                      selectedMethod: state.selectedMethod,
-                      onTap: () => context.read<PaymentCubit>().selectPaymentMethod(PaymentMethod.cashOnDelivery),
-                    ),
-
-                    SizedBox(height: AppDimensions.xl),
-
-                    // Payable Amount
-                    Container(
-                      padding: EdgeInsets.all(AppDimensions.md),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Payable',
-                            style: AppTextStyles.titleMedium,
-                          ),
-                          Text(
-                            state.formattedTotal,
-                            style: AppTextStyles.titleLarge.copyWith(
-                              color: ThemeColors.blue,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: AppDimensions.xxl),
-
-                    // Continue Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: AppDimensions.buttonHeight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final cubit = context.read<PaymentCubit>();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BlocProvider.value(
-                                value: cubit,
-                                child: const ReviewPayScreen(),
-                              ),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: ThemeColors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                          ),
-                        ),
-                        child: Text(
-                          'Continue to pay',
-                          style: AppTextStyles.buttonText,
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: AppDimensions.xxl),
                   ],
                 ),
               );

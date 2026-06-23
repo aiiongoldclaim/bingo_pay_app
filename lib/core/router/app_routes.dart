@@ -27,6 +27,7 @@ class AppRoutes {
   static const String wallet = '/wallet';
   static const String search = '/search';
   static const String scanner = '/scanner';
+  static const String productDetails = '/productDetails';
   static const String productListing = '/product-listing/:categoryName';
   static const String buyerSearch = '/buyer/search';
   static const String buyerCategory = '/buyer/categories/:slug';

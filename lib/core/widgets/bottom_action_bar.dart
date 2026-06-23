@@ -1,118 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../constants/app_sizes.dart';
-import '../theme/app_text_styles.dart';
+import '../constants/currency_constants.dart';
 import '../theme/theme_colors.dart';
+import 'app_button.dart';
 
-class BottomActionBar extends StatelessWidget {
-  const BottomActionBar({
+class AppBottomActionBar extends StatelessWidget {
+  const AppBottomActionBar({
     super.key,
-    required this.primaryText,
-    required this.primaryOnTap,
-    this.secondaryText,
-    this.secondaryOnTap,
-    this.primaryFlex = 2,
-    this.secondaryFlex = 1,
+    this.price,
+    required this.primaryLabel,
+    required this.onPrimaryPressed,
+    required this.secondaryLabel,
+    required this.onSecondaryPressed,
+    this.secondaryTextColor,
+    this.secondaryIconColor,
+    this.secondaryIcon,
+    this.secondaryVariant = AppButtonVariant.outlined,
   });
 
-  final String primaryText;
-  final VoidCallback primaryOnTap;
+  final String? price;
 
-  final String? secondaryText;
-  final VoidCallback? secondaryOnTap;
+  final String primaryLabel;
+  final VoidCallback onPrimaryPressed;
 
-  final int primaryFlex;
-  final int secondaryFlex;
+  final String secondaryLabel;
+  final VoidCallback onSecondaryPressed;
+  final IconData? secondaryIcon;
+  final AppButtonVariant secondaryVariant;
+  final Color? secondaryTextColor;
+  final Color? secondaryIconColor;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Container(
-        padding: EdgeInsets.fromLTRB(4.w, 1.5.h, 4.w, 2.h),
-        decoration: BoxDecoration(
-          color: ThemeColors.surface,
-          border: Border(top: BorderSide(color: ThemeColors.line)),
-        ),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+      decoration: BoxDecoration(
+        color: ThemeColors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: ThemeColors.ink.withOpacity(.08),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
         child: Row(
           children: [
-            if (secondaryText != null) ...[
-              Expanded(
-                flex: secondaryFlex,
-                child: _SecondaryButton(
-                  text: secondaryText!,
-                  onTap: secondaryOnTap,
-                ),
+            /// Price (optional)
+            if (price != null) ...[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Total',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: ThemeColors.inkDim,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  Text(
+                    '${CurrencyConstants.dollar}${price!}',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: ThemeColors.ink,
+                    ),
+                  ),
+                ],
               ),
 
-              SizedBox(width: 3.w),
+              SizedBox(width: 4.w),
             ],
 
+            /// Secondary Button
             Expanded(
-              flex: primaryFlex,
-              child: _PrimaryButton(text: primaryText, onTap: primaryOnTap),
+              child: AppButton(
+                label: secondaryLabel,
+                prefixIcon: secondaryIcon,
+                variant: secondaryVariant,
+                textColor: secondaryTextColor,
+                iconColor: secondaryIconColor,
+                onPressed: onSecondaryPressed,
+              ),
+            ),
+
+            SizedBox(width: 3.w),
+
+            /// Primary Button
+            Expanded(
+              child: AppButton(
+                label: primaryLabel,
+                variant: AppButtonVariant.primary,
+                onPressed: onPrimaryPressed,
+              ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  const _PrimaryButton({required this.text, required this.onTap});
-
-  final String text;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 6.h,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: ThemeColors.blue,
-          borderRadius: BorderRadius.circular(AppSizes.radiusXl),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyles.buttonText.copyWith(
-            fontSize: AppSizes.iconSm,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SecondaryButton extends StatelessWidget {
-  const _SecondaryButton({required this.text, this.onTap});
-
-  final String text;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 6.h,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: ThemeColors.surface,
-          borderRadius: BorderRadius.circular(AppSizes.radiusXl),
-          border: Border.all(color: ThemeColors.line),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyles.labelLarge.copyWith(
-            fontSize: AppSizes.iconSm,
-            fontWeight: FontWeight.w600,
-          ),
         ),
       ),
     );

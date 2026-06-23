@@ -26,13 +26,15 @@ import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
-import '../../features/dashboard/presentation/screens/home_screen.dart';
-import '../../features/dashboard/presentation/widgets/home_bottom_nav.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
 import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
 import '../../features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart';
 import '../../features/product_categories_details/presentation/screens/product_categories_screen.dart';
+import '../../features/product_details/data/models/product_details_model.dart';
+import '../../features/product_details/presentation/cubit/product_details_cubit.dart';
+import '../../features/product_details/presentation/screens/product_details_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
@@ -84,12 +86,6 @@ class AppRouter {
         ),
 
         GoRoute(
-          path: AppRoutes.buyerProductDetail,
-          builder: (context, state) =>
-              ProductDetailScreen(productId: state.pathParameters['id'] ?? ''),
-        ),
-
-        GoRoute(
           path: AppRoutes.orderDetail,
           builder: (context, state) {
             debugPrint('ORDER DETAIL ROUTE HIT');
@@ -107,12 +103,23 @@ class AppRouter {
             child: const SearchScreen(),
           ),
         ),
+        GoRoute(
+          path: AppRoutes.productDetails,
+          builder: (context, state) {
+            final product = state.extra as ProductDetailModel;
+
+            return BlocProvider(
+              create: (_) => ProductDetailCubit()..loadProduct(product),
+              child: const ProductDetailScreen(),
+            );
+          },
+        ),
 
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider<ShopBloc>(
               create: (_) => ShopBloc()..add(const ShopStarted()),
-              child: BuyerShellScreen(child: child, location: state.uri.path),
+              child: BuyerShellScreen(location: state.uri.path, child: child),
             );
           },
           routes: [
@@ -192,12 +199,7 @@ class AppRouter {
                 categorySlug: state.pathParameters['slug'] ?? '',
               ),
             ),
-            GoRoute(
-              path: AppRoutes.buyerProductDetail,
-              builder: (context, state) => ProductDetailScreen(
-                productId: state.pathParameters['id'] ?? '',
-              ),
-            ),
+
             GoRoute(
               path: AppRoutes.buyerCart,
               builder: (_, _) => const CartScreen(),

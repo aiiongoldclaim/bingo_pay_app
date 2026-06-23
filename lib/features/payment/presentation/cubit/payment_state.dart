@@ -1,7 +1,3 @@
-// ==================== payment_state.dart ====================
-
-part of 'payment_cubit.dart';
-
 enum PaymentStatus { initial, loading, success, failure }
 
 enum PaymentMethod {
@@ -10,9 +6,11 @@ enum PaymentMethod {
   creditDebit,
   payLater,
   cashOnDelivery,
+  card,
+  wallet,
 }
 
-class PaymentState {
+class PaymentMethodState {
   final PaymentMethod selectedMethod;
   final PaymentStatus status;
   final bool isProcessing;
@@ -30,7 +28,7 @@ class PaymentState {
   final String orderId;
   final int coinsEarned;
 
-  PaymentState({
+  PaymentMethodState({
     required this.selectedMethod,
     this.status = PaymentStatus.initial,
     this.isProcessing = false,
@@ -45,11 +43,10 @@ class PaymentState {
     this.coinsEarned = 380,
   });
 
-  factory PaymentState.initial() => PaymentState(
-        selectedMethod: PaymentMethod.bingoldWallet,
-      );
+  factory PaymentMethodState.initial() =>
+      PaymentMethodState(selectedMethod: PaymentMethod.bingoldWallet);
 
-  PaymentState copyWith({
+  PaymentMethodState copyWith({
     PaymentMethod? selectedMethod,
     PaymentStatus? status,
     bool? isProcessing,
@@ -63,7 +60,7 @@ class PaymentState {
     String? orderId,
     int? coinsEarned,
   }) {
-    return PaymentState(
+    return PaymentMethodState(
       selectedMethod: selectedMethod ?? this.selectedMethod,
       status: status ?? this.status,
       isProcessing: isProcessing ?? this.isProcessing,

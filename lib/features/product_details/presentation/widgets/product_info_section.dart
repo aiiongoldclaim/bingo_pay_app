@@ -1,8 +1,10 @@
+import 'package:bingo_pay/core/constants/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
+import '../../../../core/constants/currency_constants.dart';
 import '../../data/models/product_details_model.dart';
 
 class ProductInfoSection extends StatelessWidget {
@@ -27,13 +29,14 @@ class ProductInfoSection extends StatelessWidget {
                 style: AppTextStyles.labelMedium.copyWith(
                   color: ThemeColors.inkMid,
                   fontWeight: FontWeight.w600,
+                  fontSize: 16.sp,
                 ),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: .2.h),
                 decoration: BoxDecoration(
                   color: ThemeColors.green,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
                 ),
                 child: Row(
                   children: [
@@ -57,7 +60,6 @@ class ProductInfoSection extends StatelessWidget {
             ],
           ),
 
-          // SizedBox(height: 1.h),
           Text(
             product.productName,
             style: AppTextStyles.headlineMedium.copyWith(
@@ -66,11 +68,10 @@ class ProductInfoSection extends StatelessWidget {
             ),
           ),
 
-          // SizedBox(height: 1.h),
           Row(
             children: [
               Text(
-                product.price,
+                '${CurrencyConstants.dollar}${product.price}',
                 style: AppTextStyles.headlineMedium.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -79,9 +80,10 @@ class ProductInfoSection extends StatelessWidget {
               SizedBox(width: 2.w),
 
               Text(
-                product.oldPrice,
+                '${CurrencyConstants.dollar}${product.oldPrice}',
                 style: AppTextStyles.bodyMedium.copyWith(
                   decoration: TextDecoration.lineThrough,
+                  color: ThemeColors.inkDim,
                 ),
               ),
 
@@ -91,7 +93,7 @@ class ProductInfoSection extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: .3.h),
                 decoration: BoxDecoration(
                   color: ThemeColors.greenSoft,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                 ),
                 child: Text(
                   '${product.discount}% OFF',
@@ -109,13 +111,13 @@ class ProductInfoSection extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 1.w),
             decoration: BoxDecoration(
-              color: ThemeColors.accent1,
-              borderRadius: BorderRadius.circular(10),
+              color: ThemeColors.accent1.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(
                     color: Colors.white60,
                     shape: BoxShape.circle,
@@ -138,7 +140,8 @@ class ProductInfoSection extends StatelessWidget {
                   "Earn 380 BINGOLD coins on this order",
                   style: AppTextStyles.headlineMedium.copyWith(
                     fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
+                    color: ThemeColors.accentInk,
                   ),
                 ),
               ],

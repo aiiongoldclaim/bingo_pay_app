@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/custom_container.dart';
 import '../product_categories_cubit/product_categories_cubit.dart';
 import '../product_categories_cubit/product_categories_state.dart';
 import '../widgets/filter_bar.dart';
@@ -38,14 +39,6 @@ class _ProductListingView extends StatelessWidget {
         return Scaffold(
           backgroundColor: ThemeColors.background,
           appBar: CustomAppBar(
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: ThemeColors.ink,
-                size: 20,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
             title: categoryName,
             actionIcon1: Icons.search,
             onAction1: () {
@@ -116,6 +109,7 @@ class _ProductListingView extends StatelessWidget {
 
                               return ListingProductCard(
                                 product: product,
+
                                 onTap: () {},
                                 onFavouriteTap: () =>
                                     cubit.toggleFavourite(product.id),

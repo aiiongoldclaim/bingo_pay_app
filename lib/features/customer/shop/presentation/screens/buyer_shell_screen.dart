@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/router/app_routes.dart';
-import '../../../../dashboard/presentation/widgets/home_bottom_nav.dart';
+import '../../../../../core/widgets/custom_bottom_nav.dart';
 
 class BuyerShellScreen extends StatelessWidget {
   final Widget child;
@@ -66,7 +66,7 @@ class BuyerShellScreen extends StatelessWidget {
       body: child,
       bottomNavigationBar: hideBottomNav
           ? null
-          : HomeBottomNav(
+          : CustomBottomNav(
               currentIndex: _selectedIndex,
               onTap: (index) {
                 switch (index) {
