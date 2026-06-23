@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import '../../features/account/presentation/cubit/account_cubit.dart';
+import '../../features/account/presentation/screens/account_screen.dart';
+import '../../features/cart/presentation/screens/cart_screen.dart';
+import '../../features/categories/presentation/cubit/categories_cubit.dart';
+import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
 import '../../features/customer/shop/presentation/screens/buyer_home_screen.dart';
@@ -21,6 +26,16 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/dashboard/presentation/screens/home_screen.dart';
 import '../../features/dashboard/presentation/widgets/home_bottom_nav.dart';
+import '../../features/orders/data/models/order_model.dart';
+import '../../features/orders/presentation/screens/my_oders_screen.dart';
+import '../../features/orders/presentation/screens/order_details_screen.dart';
+import '../../features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart';
+import '../../features/product_categories_details/presentation/screens/product_categories_screen.dart';
+import '../../features/scanner/presentation/screens/scanner_screen.dart';
+import '../../features/search/presentation/cubit/search_cubit.dart';
+import '../../features/search/presentation/screens/search_screen.dart';
+import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
+import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
@@ -66,6 +81,26 @@ class AppRouter {
           builder: (context, state) =>
               ProductDetailScreen(productId: state.pathParameters['id'] ?? ''),
         ),
+
+        GoRoute(
+          path: AppRoutes.orderDetail,
+          builder: (context, state) {
+            debugPrint('ORDER DETAIL ROUTE HIT');
+
+            final order = state.extra as OrderModel;
+
+            return OrderDetailScreen(order: order);
+          },
+        ),
+
+        GoRoute(
+          path: AppRoutes.search,
+          builder: (context, state) => BlocProvider(
+            create: (_) => SearchCubit(),
+            child: const SearchScreen(),
+          ),
+        ),
+
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider<ShopBloc>(
@@ -74,13 +109,14 @@ class AppRouter {
             );
           },
           routes: [
-            // GoRoute(
-            //   path: AppRoutes.buyerHome,
-            //   builder: (_, _) => const BuyerHomeScreen(),
-            // ),
             GoRoute(
               path: AppRoutes.home,
               builder: (_, _) => const HomeScreen(),
+            ),
+
+            GoRoute(
+              path: AppRoutes.scanner,
+              builder: (context, state) => const ScannerScreen(),
             ),
 
             GoRoute(
@@ -90,6 +126,47 @@ class AppRouter {
                 child: const BuyerDashboardScreen(),
               ),
             ),
+            GoRoute(
+              path: AppRoutes.categories,
+              builder: (_, _) => BlocProvider(
+                create: (_) => CategoriesCubit()..loadData(),
+                child: const CategoriesScreen(),
+              ),
+            ),
+
+            GoRoute(
+              path: AppRoutes.productListing,
+              builder: (context, state) => BlocProvider(
+                create: (_) => ProductListingCubit()
+                  ..loadCategory(state.pathParameters['categoryName'] ?? ''),
+                child: ProductListingScreen(
+                  categoryName: state.pathParameters['categoryName'] ?? '',
+                ),
+              ),
+            ),
+
+            GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
+            GoRoute(
+              path: AppRoutes.orders,
+              builder: (_, _) => const OrdersScreen(),
+            ),
+
+            GoRoute(
+              path: AppRoutes.account,
+              builder: (context, state) => BlocProvider(
+                create: (_) => AccountCubit()..loadAccount(),
+                child: const AccountScreen(),
+              ),
+            ),
+
+            GoRoute(
+              path: AppRoutes.wallet,
+              builder: (context, state) => BlocProvider(
+                create: (_) => WalletCubit()..loadWallet(),
+                child: const WalletScreen(),
+              ),
+            ),
+
             GoRoute(
               path: AppRoutes.buyerCatalog,
               builder: (_, _) => const CatalogScreen(),

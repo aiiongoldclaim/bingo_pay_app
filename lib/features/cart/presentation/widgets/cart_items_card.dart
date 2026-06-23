@@ -47,11 +47,11 @@ class CartItemTile extends StatelessWidget {
       children: [
         /// Product Icon Box
         Container(
-          width: 24.w,
-          height: 24.w,
+          width: 20.w,
+          height: 20.w,
           decoration: BoxDecoration(
             color: ThemeColors.surface2,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(item.icon, color: ThemeColors.blue, size: 12.w),
         ),
@@ -67,6 +67,7 @@ class CartItemTile extends StatelessWidget {
                 item.brand,
                 style: AppTextStyles.labelMedium.copyWith(
                   color: ThemeColors.inkDim,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -77,15 +78,15 @@ class CartItemTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
+                  fontSize: 15.sp,
                 ),
               ),
-
-              SizedBox(height: 1.h),
 
               Text(
                 item.price,
                 style: AppTextStyles.titleLarge.copyWith(
                   fontWeight: FontWeight.w800,
+                  fontSize: 15.sp,
                 ),
               ),
             ],

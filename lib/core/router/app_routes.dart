@@ -18,6 +18,15 @@ class AppRoutes {
   static const String buyerAddresses = '/buyer/addresses';
   static const String buyerPayments = '/buyer/payments';
   static const String buyerCatalog = '/buyer/catalog';
+  static const String categories = '/categories';
+  static const String cart = '/cart';
+  static const String orderDetail = '/orders/detail';
+  static const String orders = '/orders';
+  static const String account = '/account';
+  static const String wallet = '/wallet';
+  static const String search = '/search';
+  static const String scanner = '/scanner';
+  static const String productListing = '/product-listing/:categoryName';
   static const String buyerSearch = '/buyer/search';
   static const String buyerCategory = '/buyer/categories/:slug';
   static const String buyerProductDetail = '/buyer/products/:id';

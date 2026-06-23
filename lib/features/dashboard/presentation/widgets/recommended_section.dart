@@ -14,7 +14,7 @@ class RecommendedSection extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2.w),
+          padding: EdgeInsets.symmetric(horizontal: 4.w),
           child: Row(
             children: [
               Text(
@@ -30,7 +30,7 @@ class RecommendedSection extends StatelessWidget {
           height: 34.h,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            // padding: EdgeInsets.symmetric(horizontal: 5.w),
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
             itemCount: products.length,
             separatorBuilder: (_, __) => SizedBox(width: 3.w),
             itemBuilder: (context, index) {

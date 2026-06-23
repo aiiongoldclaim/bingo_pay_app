@@ -124,66 +124,50 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      borderRadius: BorderRadius.circular(16),
       onTap: onTap,
       child: SizedBox(
         height: 10.h,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: .9.h),
-              decoration: selected
-                  ? BoxDecoration(
-                      color: ThemeColors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    )
+        child: Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+            decoration: BoxDecoration(
+              color: selected ? ThemeColors.blueSoft : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
                   : null,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(
-                    icon,
-                    size: 23.sp,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 25.sp,
+                  color: selected ? ThemeColors.blue : ThemeColors.inkMid,
+                ),
+
+                SizedBox(height: 0.4.h),
+
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
                     color: selected ? ThemeColors.blue : ThemeColors.inkMid,
                   ),
-
-                  // if (badgeCount != null)
-                  //   Positioned(
-                  //     right: -10,
-                  //     top: -8,
-                  //     child: Container(
-                  //       width: 5.w,
-                  //       height: 5.w,
-                  //       decoration: const BoxDecoration(
-                  //         color: Color(0xFFD4AF37),
-                  //         shape: BoxShape.circle,
-                  //       ),
-                  //       child: Center(
-                  //         child: Text(
-                  //           badgeCount.toString(),
-                  //           style: TextStyle(
-                  //             fontSize: 7.sp,
-                  //             fontWeight: FontWeight.w700,
-                  //             color: Colors.black,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // SizedBox(height: .4.h),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 15.sp,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                color: selected ? ThemeColors.blue : ThemeColors.inkMid,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

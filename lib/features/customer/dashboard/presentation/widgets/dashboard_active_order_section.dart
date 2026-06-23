@@ -4,12 +4,6 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../cubit/buyer_dashboard_state.dart';
 
-/// Section displaying the current active order status.
-/// 
-/// Shows real-time order tracking information including:
-/// - Order ID
-/// - Current status
-/// - Estimated delivery time
 class DashboardActiveOrderSection extends StatelessWidget {
   final ActiveOrder activeOrder;
   final VoidCallback onTrackOrder;
@@ -21,7 +15,6 @@ class DashboardActiveOrderSection extends StatelessWidget {
   });
 
   @override
-  
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -38,9 +31,9 @@ class DashboardActiveOrderSection extends StatelessWidget {
             children: [
               Text(
                 'Active Order',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -54,9 +47,9 @@ class DashboardActiveOrderSection extends StatelessWidget {
                 child: Text(
                   activeOrder.statusLabel,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -64,17 +57,17 @@ class DashboardActiveOrderSection extends StatelessWidget {
           const SizedBox(height: AppDimensions.md),
           Text(
             'Order #${activeOrder.id}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppDimensions.sm),
           Text(
             activeOrder.etaLabel,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.success,
-                ),
+              fontWeight: FontWeight.w600,
+              color: AppColors.success,
+            ),
           ),
           const SizedBox(height: AppDimensions.md),
           SizedBox(
