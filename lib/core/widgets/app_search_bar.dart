@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/theme_colors.dart';
 
 class AppSearchBar extends StatelessWidget {
   const AppSearchBar({
@@ -76,19 +77,13 @@ class AppSearchBar extends StatelessWidget {
 
           prefixIcon:
               prefixIcon ??
-              Icon(
-                Icons.search_rounded,
-                size: 20.sp,
-                color: AppColors.textSecondary,
-              ),
+              Icon(Icons.search_rounded, size: 20.sp, color: AppColors.blue),
 
           suffixIcon: suffixIcon,
 
           filled: true,
 
-          fillColor:
-              backgroundColor ??
-              (isDark ? AppColors.surfaceDark : AppColors.surfaceLight),
+          fillColor: backgroundColor ?? Colors.white,
 
           contentPadding: EdgeInsets.symmetric(
             horizontal: 4.w,
@@ -102,7 +97,7 @@ class AppSearchBar extends StatelessWidget {
 
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius ?? 16),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+            borderSide: const BorderSide(color: ThemeColors.inkMid, width: 0.5),
           ),
 
           disabledBorder: OutlineInputBorder(

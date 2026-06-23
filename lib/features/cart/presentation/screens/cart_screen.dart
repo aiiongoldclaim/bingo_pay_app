@@ -11,8 +11,8 @@ import '../widgets/coupen_card.dart';
 import '../widgets/delivery_banner.dart';
 import '../widgets/price_details.dart';
 
-class CartScreen extends StatelessWidget {
-  const CartScreen({super.key});
+class CartPage extends StatelessWidget {
+  const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {

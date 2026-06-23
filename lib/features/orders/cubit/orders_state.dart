@@ -1,38 +1,42 @@
 import '../data/models/order_model.dart';
 
-enum OrdersStatus { initial, loading, success, failure }
+abstract class OrdersState {}
 
-class OrdersState {
-  final OrdersStatus status;
-  final List<OrderModel> orders;
-  final List<OrderModel> filteredOrders;
-  final String selectedTab;
+class OrdersInitial extends OrdersState {}
 
-  OrdersState({
-    required this.status,
-    required this.orders,
-    required this.filteredOrders,
-    required this.selectedTab,
+class OrdersLoading extends OrdersState {}
+
+class OrdersLoaded extends OrdersState {
+  final List<OrderModel> all;
+  final List<OrderModel> filtered;
+  final String activeFilter; // 'All' | 'In Transit' | 'Delivered' | 'Cancelled'
+
+  OrdersLoaded({
+    required this.all,
+    required this.filtered,
+    required this.activeFilter,
   });
+}
 
-  factory OrdersState.initial() => OrdersState(
-    status: OrdersStatus.initial,
-    orders: [],
-    filteredOrders: [],
-    selectedTab: "All",
-  );
+class OrdersError extends OrdersState {
+  final String message;
+  OrdersError(this.message);
+}
 
-  OrdersState copyWith({
-    OrdersStatus? status,
-    List<OrderModel>? orders,
-    List<OrderModel>? filteredOrders,
-    String? selectedTab,
-  }) {
-    return OrdersState(
-      status: status ?? this.status,
-      orders: orders ?? this.orders,
-      filteredOrders: filteredOrders ?? this.filteredOrders,
-      selectedTab: selectedTab ?? this.selectedTab,
-    );
-  }
+// ── Order Detail States ───────────────────────────────────────────────────────
+
+abstract class OrderDetailState {}
+
+class OrderDetailInitial extends OrderDetailState {}
+
+class OrderDetailLoading extends OrderDetailState {}
+
+class OrderDetailLoaded extends OrderDetailState {
+  final OrderModel order;
+  OrderDetailLoaded(this.order);
+}
+
+class OrderDetailError extends OrderDetailState {
+  final String message;
+  OrderDetailError(this.message);
 }

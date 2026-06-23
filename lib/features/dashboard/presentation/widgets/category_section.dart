@@ -23,7 +23,7 @@ class CategorySection extends StatelessWidget {
             children: [
               Text(
                 'Shop by category',
-                style: AppTextStyles.titleLarge.copyWith(fontSize: 16.sp),
+                style: AppTextStyles.titleLarge.copyWith(fontSize: 18.sp),
               ),
 
               Text(
