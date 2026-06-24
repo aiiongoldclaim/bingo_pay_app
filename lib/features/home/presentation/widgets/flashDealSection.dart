@@ -7,7 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/product_card.dart';
-import '../../../product_details/data/models/product_details_model.dart';
+import '../../data/models/product_model.dart';
 import 'countdown_timer.dart';
 
 class FlashDealSection extends StatelessWidget {
@@ -20,7 +20,7 @@ class FlashDealSection extends StatelessWidget {
     this.icon = Icons.flash_on_outlined,
   });
 
-  final List<ProductDetailModel> products;
+  final List<ProductModel> products;
   final String title;
   final Duration duration;
   final VoidCallback? onSeeAll;
@@ -64,23 +64,22 @@ class FlashDealSection extends StatelessWidget {
         SizedBox(height: 1.h),
 
         SizedBox(
-          height: 33.h,
+          height: 34.h,
           child: ListView.separated(
             padding: EdgeInsets.symmetric(horizontal: 4.w),
             scrollDirection: Axis.horizontal,
             itemCount: products.length,
-            separatorBuilder: (_, __) => SizedBox(width: 1.w),
+            separatorBuilder: (_, __) => SizedBox(width: 3.w),
             itemBuilder: (context, index) {
               final product = products[index];
 
               return ProductCard(
+                width: 42.w,
                 brand: product.brand,
-                productName: product.productName,
+                productName: product.name,
                 price: product.price,
-                oldPrice: product.oldPrice,
-                discount: product.discount,
+                imageUrl: product.images.isNotEmpty ? product.images.first : '',
                 rating: product.rating,
-                icon: product.icon,
                 onTap: () {
                   context.push(AppRoutes.productDetails, extra: product);
                 },

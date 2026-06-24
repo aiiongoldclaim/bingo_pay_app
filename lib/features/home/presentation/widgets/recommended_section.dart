@@ -6,11 +6,12 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/product_card.dart';
 import '../../../product_details/data/models/product_details_model.dart';
+import '../../data/models/product_model.dart';
 
 class RecommendedSection extends StatelessWidget {
   const RecommendedSection({super.key, required this.products});
 
-  final List<ProductDetailModel> products;
+  final List<ProductModel> products;
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +45,10 @@ class RecommendedSection extends StatelessWidget {
               final product = products[index];
               return ProductCard(
                 brand: product.brand,
-                productName: product.productName,
+                productName: product.name,
                 price: product.price,
-                oldPrice: product.oldPrice,
-                discount: product.discount,
+                imageUrl: product.images.isNotEmpty ? product.images.first : '',
                 rating: product.rating,
-                icon: product.icon,
                 onTap: () {
                   context.push(AppRoutes.productDetails, extra: product);
                 },

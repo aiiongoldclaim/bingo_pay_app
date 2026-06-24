@@ -35,19 +35,19 @@ class CartPage extends StatelessWidget {
                         CartItemModel(
                           brand: 'SONARA',
                           name: 'Aurora Pro Wireless Headphones',
-                          price: '₹18,990',
+                          price: '18,990',
                           icon: Icons.headphones,
                         ),
                         CartItemModel(
                           brand: 'STRIDE',
                           name: 'Velvet Runner Knit Sneakers',
-                          price: '₹6,490',
+                          price: '6,490',
                           icon: Icons.hiking,
                         ),
                         CartItemModel(
                           brand: 'GLOW',
                           name: 'Nimbus Smart Desk Lamp',
-                          price: '₹3,490',
+                          price: '3,490',
                           icon: Icons.light,
                         ),
                       ],

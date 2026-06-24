@@ -12,29 +12,21 @@ class ProductCard extends StatefulWidget {
     required this.brand,
     required this.productName,
     required this.price,
-    required this.oldPrice,
-    required this.discount,
-    required this.rating,
-    required this.icon,
-    this.reviewCount = '(4.9k)',
+    required this.imageUrl,
+    this.width,
     this.onTap,
     this.initialFavourite = false,
     this.onFavouriteChanged,
-    this.width,
+    required this.rating,
   });
 
   final String brand;
   final String productName;
   final String price;
-  final String oldPrice;
-  final int discount;
+  final String imageUrl;
   final String rating;
-  final String reviewCount;
-  final IconData icon;
-
   final double? width;
   final VoidCallback? onTap;
-
   final bool initialFavourite;
   final ValueChanged<bool>? onFavouriteChanged;
 
@@ -63,209 +55,132 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: widget.onTap,
-      child: SizedBox(
-        width: widget.width ?? 44.w,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            /// TOP CONTAINER
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(2.w),
-              decoration: BoxDecoration(
-                color: ThemeColors.surface2,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(AppSizes.radiusMd),
-                  topRight: Radius.circular(AppSizes.radiusMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// IMAGE
+          Container(
+            width: 44.w,
+            decoration: BoxDecoration(
+              color: ThemeColors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: ThemeColors.black.withOpacity(.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 2.5.w,
-                          vertical: .6.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: ThemeColors.accent,
-                          borderRadius: BorderRadius.circular(
-                            AppSizes.radiusLg,
-                          ),
-                        ),
-                        child: Text(
-                          '-${widget.discount}%',
-                          style: AppTextStyles.labelLarge.copyWith(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w700,
-                            color: ThemeColors.black,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// IMAGE
+                Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: AspectRatio(
+                        aspectRatio: 1.2,
+                        child: Container(
+                          width: double.infinity,
+                          color: ThemeColors.white,
+                          child: Padding(
+                            padding: EdgeInsets.all(3.w),
+                            child: Image.network(
+                              widget.imageUrl,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
+                    ),
 
-                      GestureDetector(
+                    Positioned(
+                      top: 10.sp,
+                      right: 10.sp,
+                      child: GestureDetector(
                         onTap: _toggleFavourite,
-                        child: CircleAvatar(
-                          radius: 2.4.h,
-                          backgroundColor: Colors.grey.shade100,
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSizes.radiusXs),
+                          decoration: BoxDecoration(
+                            color: ThemeColors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(.1),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
                           child: Icon(
                             isFavourite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            size: 18.sp,
                             color: isFavourite
                                 ? ThemeColors.red
-                                : ThemeColors.inkMid,
+                                : ThemeColors.inkDim,
+                            size: 18,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-
-                  Center(
-                    child: Icon(
-                      widget.icon,
-                      size: 20.w,
-                      color: ThemeColors.blue,
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            /// BOTTOM CONTAINER
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(3.w),
-              decoration: BoxDecoration(
-                color: ThemeColors.surface,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(AppSizes.radiusMd),
-                  bottomRight: Radius.circular(AppSizes.radiusMd),
+                  ],
                 ),
-                border: Border.all(
-                  color: ThemeColors.black.withOpacity(0.5),
-                  width: .5,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.brand.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.labelMedium.copyWith(
-                      fontSize: 16.sp,
-                      color: ThemeColors.inkDim,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
 
-                  Text(
-                    widget.productName,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                      height: 1,
-                    ),
-                  ),
-
-                  SizedBox(height: 1.h),
-
-                  Row(
+                Padding(
+                  padding: EdgeInsets.all(3.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 2.w,
-                          vertical: .4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(
-                            AppSizes.radiusMd,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              color: ThemeColors.white,
-                              size: 15.sp,
-                            ),
-                            SizedBox(width: 1.w),
-                            Text(
-                              widget.rating,
-                              style: TextStyle(
-                                color: ThemeColors.white,
-                                fontSize: 15.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(width: 1.w),
-
                       Text(
-                        widget.reviewCount,
-                        style: TextStyle(
-                          color: ThemeColors.inkMid,
-                          fontSize: 15.sp,
+                        widget.brand,
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: ThemeColors.blue,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ],
-                  ),
 
-                  SizedBox(height: 1.h),
+                      // SizedBox(height: .5.h),
+                      Text(
+                        widget.productName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.titleMedium.copyWith(height: 1.2),
+                      ),
 
-                  Row(
-                    children: [
+                      SizedBox(height: .2.h),
+
+                      /// 5 STAR RATING
+                      Row(
+                        children: [
+                          ...List.generate(
+                            5,
+                            (index) => Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                              size: 14.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: .5.h),
+
                       Text(
                         '${CurrencyConstants.dollar}${widget.price}',
-                        style: TextStyle(
-                          fontSize: 15.sp,
+                        style: AppTextStyles.titleLarge.copyWith(
                           fontWeight: FontWeight.bold,
                           color: ThemeColors.black,
                         ),
                       ),
-
-                      SizedBox(width: 2.w),
-
-                      Text(
-                        widget.oldPrice,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          color: ThemeColors.inkMid,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-
-                      Spacer(),
-
-                      Text(
-                        '${widget.discount}%',
-                        style: AppTextStyles.labelLarge.copyWith(
-                          fontSize: 15.sp,
-                          color: ThemeColors.green,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

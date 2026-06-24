@@ -1,11 +1,15 @@
 import 'package:equatable/equatable.dart';
+import '../../domain/enities/account_entity.dart';
 
-import '../../data/account_model/account_model.dart';
-
-abstract class AccountState extends Equatable {
+sealed class AccountState extends Equatable {
   const AccountState();
+
   @override
   List<Object?> get props => [];
+}
+
+class AccountInitial extends AccountState {
+  const AccountInitial();
 }
 
 class AccountLoading extends AccountState {
@@ -13,9 +17,8 @@ class AccountLoading extends AccountState {
 }
 
 class AccountLoaded extends AccountState {
-  final AccountModel account;
-
-  const AccountLoaded({required this.account});
+  final AccountEntity account;
+  const AccountLoaded(this.account);
 
   @override
   List<Object?> get props => [account];

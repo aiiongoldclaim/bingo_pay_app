@@ -48,7 +48,17 @@ class HomeHeader extends StatelessWidget {
             ),
           ),
 
-          AppIconContainer(icon: Icons.notifications_none, onTap: () {}),
+          AppIconContainer(
+            icon: Icons.notifications_none,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Notification feature coming soon'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

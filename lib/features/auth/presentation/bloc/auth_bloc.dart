@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/storage/secure_storage_service.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
@@ -20,6 +21,7 @@ import 'auth_state.dart';
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
+  final SecureStorageService _storage;
 
   final RegisterUseCase _registerUser;
   final LoginUseCase _loginUser;
@@ -42,14 +44,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
     required GetKycStatusUseCase getKycStatus,
-  })  : _registerUser = register,
-        _loginUser = login,
-        _checkAuthStatus = checkAuthStatus,
-        _verifyOtp = verifyOtp,
-        _resendOtp = resendOtp,
-        _logoutUser = logout,
-        _checkEmailExists = checkEmailExists,
-        super(const AuthInitial()) {
+    required SecureStorageService storage,
+  }) : _storage = storage,
+       _registerUser = register,
+       _loginUser = login,
+       _checkAuthStatus = checkAuthStatus,
+       _verifyOtp = verifyOtp,
+       _resendOtp = resendOtp,
+       _logoutUser = logout,
+       _checkEmailExists = checkEmailExists,
+       super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<LoginRequested>(_onLogin);
     on<RegisterRequested>(_onRegister);
@@ -68,43 +72,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatusRequested event,
     Emitter<AuthState> emit,
   ) async {
-        emit(const AuthLoading());
+    emit(const AuthLoading());
     final result = await _checkAuthStatus();
-    result.match(
-      (failure) => emit(const AuthUnauthenticated()),
-      (user) {
-        if (user == null) {
-          emit(const AuthUnauthenticated());
-          return;
-        }
-        _currentUser = user;
-        emit(AuthAuthenticated(user));
-      },
-    );
+    result.match((failure) => emit(const AuthUnauthenticated()), (user) {
+      if (user == null) {
+        emit(const AuthUnauthenticated());
+        return;
+      }
+      _currentUser = user;
+      emit(AuthAuthenticated(user));
+    });
   }
 
-  Future<void> _onLogin(
-    LoginRequested event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onLogin(LoginRequested event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     final result = await _loginUser(
       LoginParams(email: event.email, password: event.password),
     );
-    result.match(
-      (failure) => emit(AuthError(failure)),
-      (user) {
-        _currentUser = user;
-        emit(AuthAuthenticated(user));
-      },
-    );
+    result.match((failure) => emit(AuthError(failure)), (user) async {
+      _currentUser = user;
+
+      await _storage.saveEmail(user.email);
+
+      emit(AuthAuthenticated(user));
+    });
   }
 
   Future<void> _onRegister(
     RegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit (const AuthLoading());
+    emit(const AuthLoading());
     final result = await _registerUser(
       RegisterParams(
         firstName: event.firstName,
@@ -115,16 +113,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         phoneNumber: event.phoneNumber,
       ),
     );
-    result.match(
-      (failure) => emit(AuthError(failure)),
-      (user) {
-        _currentUser = user;
-        // OTP verification is temporarily skipped after register; the
-        // flow (events/states/usecases/screen) is kept intact to re-enable
-        // by emitting AuthOtpRequired(user.email) instead when needed.
-        emit(AuthAuthenticated(user));
-      },
-    );
+    result.match((failure) => emit(AuthError(failure)), (user) async {
+      _currentUser = user;
+
+      await _storage.saveEmail(user.email);
+
+      emit(AuthAuthenticated(user));
+    });
   }
 
   Future<void> _onVerifyOtp(
@@ -135,13 +130,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _verifyOtp(
       VerifyOtpParams(email: event.email, otp: event.otp),
     );
-    result.match(
-      (failure) => emit(AuthError(failure)),
-      (user) {
-        _currentUser = user;
-        emit(AuthAuthenticated(user));
-      },
-    );
+    result.match((failure) => emit(AuthError(failure)), (user) {
+      _currentUser = user;
+      emit(AuthAuthenticated(user));
+    });
   }
 
   Future<void> _onResendOtp(
@@ -176,39 +168,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const PasswordResetSent());
   }
 
-  Future<void> _onLogout(
-    LogoutRequested event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onLogout(LogoutRequested event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     final result = await _logoutUser();
-    result.match(
-      (failure) => emit(AuthError(failure)),
-      (_) {
-        _currentUser = null;
-        emit(const AuthUnauthenticated());
-      },
-    );
+    result.match((failure) => emit(AuthError(failure)), (_) async {
+      await _storage.clear();
+      _currentUser = null;
+
+      emit(const AuthUnauthenticated());
+    });
   }
 
   Future<void> _onKycPersonalDetails(
     KycPersonalDetailsSubmitted event,
     Emitter<AuthState> emit,
   ) async {
-    emit(KycStepCompleted(
-      kyc: const KycEntity(status: 'pending'),
-      step: 0,
-    ));
+    emit(KycStepCompleted(kyc: const KycEntity(status: 'pending'), step: 0));
   }
 
   Future<void> _onKycDocument(
     KycDocumentUploaded event,
     Emitter<AuthState> emit,
   ) async {
-    emit(KycStepCompleted(
-      kyc: const KycEntity(status: 'pending'),
-      step: 1,
-    ));
+    emit(KycStepCompleted(kyc: const KycEntity(status: 'pending'), step: 1));
   }
 
   Future<void> _onKycSelfie(
@@ -216,7 +198,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(KycSubmitted(const KycEntity(status: 'under_review')));
-    
+
     // Update the authenticated user's KYC status and notify the router
     if (_currentUser != null) {
       final updatedUser = UserEntity(

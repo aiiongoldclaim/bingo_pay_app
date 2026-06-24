@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/app_button.dart';
-import '../../data/account_model/account_model.dart';
+import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import '../../domain/enities/account_entity.dart';
 
 class AccountHeader extends StatelessWidget {
-  final AccountModel account;
+  final AccountEntity account;
   final VoidCallback onEdit;
   final VoidCallback onWalletTap;
 
@@ -17,16 +20,8 @@ class AccountHeader extends StatelessWidget {
     required this.onWalletTap,
   });
 
-  String _formatBalance(double v) {
-    final s = v.truncate().toString();
-    final buf = StringBuffer();
-    for (int i = 0; i < s.length; i++) {
-      final fromEnd = s.length - i;
-      buf.write(s[i]);
-      final rem = fromEnd - 1;
-      if (rem == 3 || (rem > 3 && (rem - 3) % 2 == 0)) buf.write(',');
-    }
-    return buf.toString();
+  String _formatBalance(double value) {
+    return value.toStringAsFixed(2);
   }
 
   @override
@@ -34,10 +29,9 @@ class AccountHeader extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: ThemeColors.primaryGradient,
-        // color: Colors.white,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(16),
-          bottomRight: Radius.circular(16),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(AppSizes.radiusMd),
+          bottomRight: Radius.circular(AppSizes.radiusMd),
         ),
       ),
       child: SafeArea(
@@ -45,14 +39,18 @@ class AccountHeader extends StatelessWidget {
         child: Column(
           children: [
             _AppBarRow(title: 'Account', onEdit: onEdit),
-            SizedBox(height: 0.5.h),
+            SizedBox(height: .5.h),
+
             _AvatarRow(account: account),
+
             SizedBox(height: 2.5.h),
+
             _StatRow(
               account: account,
-              formattedBalance: _formatBalance(account.walletBalance),
+              formattedBalance: _formatBalance(account.bigoldBalance),
               onWalletTap: onWalletTap,
             ),
+
             SizedBox(height: 3.h),
           ],
         ),
@@ -105,7 +103,8 @@ class _AppBarRow extends StatelessWidget {
 }
 
 class _AvatarRow extends StatelessWidget {
-  final AccountModel account;
+  final AccountEntity account;
+
   const _AvatarRow({required this.account});
 
   @override
@@ -114,22 +113,26 @@ class _AvatarRow extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 5.w),
       child: Row(
         children: [
-          // Avatar circle
           Container(
             width: 14.w,
             height: 14.w,
             decoration: BoxDecoration(
-              color: ThemeColors.white.withOpacity(0.2),
+              color: ThemeColors.white.withOpacity(.2),
               borderRadius: BorderRadius.circular(12),
             ),
             alignment: Alignment.center,
-            child: account.avatarUrl != null
+            child:
+                account.profileImageUrl != null &&
+                    account.profileImageUrl!.isNotEmpty
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(14),
-                    child: Image.network(account.avatarUrl!),
+                    child: Image.network(
+                      account.profileImageUrl!,
+                      fit: BoxFit.cover,
+                    ),
                   )
                 : Text(
-                    account.initial,
+                    account.initials,
                     style: TextStyle(
                       color: ThemeColors.white,
                       fontSize: 20.sp,
@@ -137,8 +140,9 @@ class _AvatarRow extends StatelessWidget {
                     ),
                   ),
           ),
+
           SizedBox(width: 4.w),
-          // Name + email
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,29 +154,29 @@ class _AvatarRow extends StatelessWidget {
                     fontSize: 18.sp,
                   ),
                 ),
+
                 Text(
                   account.email,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: ThemeColors.white,
-                    fontSize: 15.sp,
+                    fontSize: 14.sp,
                   ),
                 ),
               ],
             ),
           ),
-          // Membership badge
+
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
+            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: .8.h),
             decoration: BoxDecoration(
               color: ThemeColors.accent,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              account.membershipTier,
+              account.kycStatus.label,
               style: AppTextStyles.labelMedium.copyWith(
                 color: ThemeColors.accentInk,
                 fontWeight: FontWeight.bold,
-                fontSize: 15.sp,
               ),
             ),
           ),
@@ -183,7 +187,7 @@ class _AvatarRow extends StatelessWidget {
 }
 
 class _StatRow extends StatelessWidget {
-  final AccountModel account;
+  final AccountEntity account;
   final String formattedBalance;
   final VoidCallback onWalletTap;
 
@@ -202,18 +206,25 @@ class _StatRow extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               onTap: onWalletTap,
-              child: _StatTile(value: '₹$formattedBalance', label: 'Wallet'),
+              child: _StatTile(value: formattedBalance, label: 'Bingold'),
             ),
           ),
+
           SizedBox(width: 3.w),
-          Expanded(
-            child: _StatTile(value: '${account.coins}', label: 'Coins'),
-          ),
-          SizedBox(width: 3.w),
+
           Expanded(
             child: _StatTile(
-              value: '${account.wishlistCount}',
-              label: 'Wishlist',
+              value: account.usdtBalance.toStringAsFixed(2),
+              label: 'USDT',
+            ),
+          ),
+
+          SizedBox(width: 3.w),
+
+          Expanded(
+            child: _StatTile(
+              value: account.referralCode.toString(),
+              label: 'Referral',
             ),
           ),
         ],

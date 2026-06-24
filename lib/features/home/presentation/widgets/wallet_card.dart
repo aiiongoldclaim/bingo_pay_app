@@ -1,7 +1,14 @@
+import 'package:bingo_pay/core/constants/currency_constants.dart';
 import 'package:bingo_pay/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_router.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/router/route_guard.dart';
+import '../../../../core/storage/preferences_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -52,7 +59,7 @@ class WalletCard extends StatelessWidget {
                 Text(
                   "BINGO Wallet",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w400,
                     color: ThemeColors.white,
                   ),
@@ -62,9 +69,10 @@ class WalletCard extends StatelessWidget {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: "₹${amount.toStringAsFixed(0)} ",
+                        text:
+                            "${CurrencyConstants.dollar}${amount.toStringAsFixed(0)} ",
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w400,
                           color: ThemeColors.white,
                         ),
@@ -72,7 +80,7 @@ class WalletCard extends StatelessWidget {
                       TextSpan(
                         text: goldWeight,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.w400,
                           color: ThemeColors.white,
                         ),
@@ -90,7 +98,17 @@ class WalletCard extends StatelessWidget {
               label: 'Top up',
               textColor: ThemeColors.blue,
               variant: AppButtonVariant.secondary,
-              onPressed: () {},
+              onPressed: () async {
+                await getIt<PreferencesService>().clear();
+
+                getIt<AppRouter>().updateAuthState(
+                  const RouteAuthState.unauthenticated(),
+                );
+
+                if (context.mounted) {
+                  context.push(AppRoutes.login);
+                }
+              },
             ),
           ),
         ],

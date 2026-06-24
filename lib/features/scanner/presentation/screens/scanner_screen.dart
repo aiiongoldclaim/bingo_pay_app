@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -5,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 
@@ -49,31 +52,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _isScanned = true;
 
-    final code = barcode.rawValue!;
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('QR Code Detected'),
-        content: Text(code),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _isScanned = false;
-            },
-            child: const Text('Scan Again'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.pop();
-            },
-            child: const Text('Done'),
-          ),
-        ],
-      ),
-    );
+    context.push(AppRoutes.reviewPayment, extra: barcode.rawValue!);
   }
 
   @override

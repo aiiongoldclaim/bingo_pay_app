@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
-import '../../data/account_model/account_model.dart';
+import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/router/app_routes.dart';
 
 /// White card containing the menu items list.
 class AccountMenuList extends StatelessWidget {
@@ -88,7 +89,7 @@ class _MenuItem extends StatelessWidget {
               height: 10.w,
               decoration: BoxDecoration(
                 color: ThemeColors.blueSoft,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
               alignment: Alignment.center,
               child: Icon(
@@ -128,4 +129,62 @@ class _MenuItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class AccountMenuItem {
+  final String title;
+  final String subtitle;
+  final String iconAsset;
+  final String route;
+
+  const AccountMenuItem({
+    required this.title,
+    required this.subtitle,
+    required this.iconAsset,
+    required this.route,
+  });
+
+  static const List<AccountMenuItem> items = [
+    AccountMenuItem(
+      title: 'My Orders',
+      subtitle: 'Track, return or buy again',
+      iconAsset: 'orders',
+      route: AppRoutes.orders,
+    ),
+
+    AccountMenuItem(
+      title: 'Wishlist',
+      subtitle: '24 saved items',
+      iconAsset: 'wishlist',
+      route: '/wishlist',
+    ),
+
+    AccountMenuItem(
+      title: 'Addresses',
+      subtitle: '2 saved',
+      iconAsset: 'addresses',
+      route: '/addresses',
+    ),
+
+    AccountMenuItem(
+      title: 'Payment Methods',
+      subtitle: 'UPI, cards & wallet',
+      iconAsset: 'payments',
+      route: '/payments',
+    ),
+
+    AccountMenuItem(
+      title: 'Coupons & Offers',
+      subtitle: '5 available',
+      iconAsset: 'coupons',
+      route: '/coupons',
+    ),
+
+    AccountMenuItem(
+      title: 'Help & Support',
+      subtitle: 'FAQs, chat with us',
+      iconAsset: 'help',
+      route: '/help',
+    ),
+  ];
 }

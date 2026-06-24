@@ -1,8 +1,8 @@
-import 'package:bingo_pay/core/theme/theme_colors.dart';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
+import '../constants/app_sizes.dart';
 
 class CustomBottomNav extends StatelessWidget {
   const CustomBottomNav({super.key, this.currentIndex = 0, this.onTap});
@@ -12,92 +12,84 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 10.h,
-      decoration: const BoxDecoration(color: Color(0xFFF2F4FB)),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(4.w, 0, 4.w, 2.h),
       child: Stack(
         clipBehavior: Clip.none,
-        alignment: Alignment.topCenter,
+        alignment: Alignment.center,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.home_outlined,
-                  label: 'Home',
-                  selected: currentIndex == 0,
-                  onTap: () => onTap?.call(0),
-                ),
-              ),
-
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.grid_view_rounded,
-                  label: 'Categories',
-                  selected: currentIndex == 1,
-                  onTap: () => onTap?.call(1),
-                ),
-              ),
-
-              SizedBox(width: 22.w),
-
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.shopping_bag_outlined,
-                  label: 'Cart',
-                  badgeCount: 3,
-                  selected: currentIndex == 3,
-                  onTap: () => onTap?.call(3),
-                ),
-              ),
-
-              Expanded(
-                child: _NavItem(
-                  icon: Icons.person_outline,
-                  label: 'Account',
-                  selected: currentIndex == 4,
-                  onTap: () => onTap?.call(4),
-                ),
-              ),
-            ],
-          ),
-
-          Positioned(
-            top: -3.2.h,
-            child: GestureDetector(
-              onTap: () => onTap?.call(2),
+          // ── Glass panel ──────────────────────────────────────────────
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
               child: Container(
-                width: 18.w,
-                height: 18.w,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  color: Colors.white,
+                  color: ThemeColors.white.withOpacity(0.88),
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                  border: Border.all(
+                    color: ThemeColors.white.withOpacity(0.6),
+                    width: 1.2,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(.18),
-                      blurRadius: 18,
-                      spreadRadius: 4,
+                      color: ThemeColors.blue.withOpacity(0.10),
+                      blurRadius: AppSizes.shadowBlurLg,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: ThemeColors.black.withOpacity(0.06),
+                      blurRadius: AppSizes.shadowBlurMd,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
-                child: Container(
-                  margin: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(14),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF2F5BFF), Color(0xFF1638B7)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                child: Row(
+                  children: [
+                    _NavItem(
+                      icon: Icons.home_rounded,
+                      outlinedIcon: Icons.home_outlined,
+                      label: 'Home',
+                      selected: currentIndex == 0,
+                      onTap: () => onTap?.call(0),
                     ),
-                  ),
-                  child: Icon(
-                    Icons.qr_code_scanner_rounded,
-                    color: Colors.white,
-                    size: 22.sp,
-                  ),
+                    _NavItem(
+                      icon: Icons.grid_view_rounded,
+                      outlinedIcon: Icons.grid_view_outlined,
+                      label: 'Categories',
+                      selected: currentIndex == 1,
+                      onTap: () => onTap?.call(1),
+                    ),
+                    // Centre gap for the QR button
+                    SizedBox(width: 18.w),
+                    _NavItem(
+                      icon: Icons.favorite,
+                      outlinedIcon: Icons.favorite_border,
+                      label: 'Wishlist',
+                      selected: currentIndex == 3,
+                      badgeCount: 3,
+                      onTap: () => onTap?.call(3),
+                    ),
+                    _NavItem(
+                      icon: Icons.person_rounded,
+                      outlinedIcon: Icons.person_outline_rounded,
+                      label: 'Account',
+                      selected: currentIndex == 4,
+                      onTap: () => onTap?.call(4),
+                    ),
+                  ],
                 ),
               ),
+            ),
+          ),
+
+          // ── Floating QR centre button ─────────────────────────────
+          Positioned(
+            top: -3.2.h,
+            child: _CentreButton(
+              selected: currentIndex == 2,
+              onTap: () => onTap?.call(2),
             ),
           ),
         ],
@@ -106,9 +98,12 @@ class CustomBottomNav extends StatelessWidget {
   }
 }
 
+// ── Nav item ──────────────────────────────────────────────────────────────
+
 class _NavItem extends StatelessWidget {
   const _NavItem({
     required this.icon,
+    required this.outlinedIcon,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -116,6 +111,7 @@ class _NavItem extends StatelessWidget {
   });
 
   final IconData icon;
+  final IconData outlinedIcon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -123,49 +119,124 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: SizedBox(
-        height: 10.h,
-        child: Center(
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
-            decoration: BoxDecoration(
-              color: selected ? ThemeColors.blueSoft : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 1.2.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Pill + icon
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                padding: EdgeInsets.symmetric(
+                  horizontal: selected ? 3.w : 2.w,
+                  vertical: 1.h,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? ThemeColors.blue.withOpacity(0.10)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    AnimatedScale(
+                      scale: selected ? 1.5 : 1.0,
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      child: Icon(
+                        selected ? icon : outlinedIcon,
+                        size: AppSizes.iconMd,
+                        color: selected ? ThemeColors.blue : ThemeColors.inkDim,
                       ),
-                    ]
-                  : null,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  size: 25.sp,
-                  color: selected ? ThemeColors.blue : ThemeColors.inkMid,
+                    ),
+                    // if (badgeCount != null && badgeCount! > 0)
+                    //   Positioned(
+                    //     top: -0.6.h,
+                    //     right: -1.5.w,
+                    //     child: _Badge(count: badgeCount!),
+                    //   ),
+                  ],
                 ),
-
-                SizedBox(height: 0.4.h),
-
-                Text(
+              ),
+              SizedBox(height: 0.4.h),
+              // Label
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 220),
+                style: TextStyle(
+                  fontSize: selected ? 14.sp : 13.sp,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                  color: selected ? ThemeColors.blue : ThemeColors.inkDim,
+                  fontFamily: 'Roboto',
+                  letterSpacing: 0.1,
+                ),
+                child: Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                    color: selected ? ThemeColors.blue : ThemeColors.inkMid,
-                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Centre QR button ──────────────────────────────────────────────────────
+
+class _CentreButton extends StatelessWidget {
+  const _CentreButton({required this.selected, required this.onTap});
+
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    // Button size derived from bar height so it scales with screen
+    final size = 14.w;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSizes.radiusL),
+          gradient: ThemeColors.primaryGradient,
+          boxShadow: [
+            // White ring
+            const BoxShadow(
+              color: ThemeColors.white,
+              blurRadius: 0,
+              spreadRadius: 3,
+            ),
+            // Blue glow
+            BoxShadow(
+              color: ThemeColors.blue.withOpacity(selected ? 0.55 : 0.30),
+              blurRadius: selected ? 24 : 14,
+              spreadRadius: selected ? 2 : 0,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: AnimatedScale(
+            scale: selected ? 1.1 : 1.0,
+            duration: const Duration(milliseconds: 220),
+            child: Icon(
+              Icons.qr_code_scanner_rounded,
+              color: ThemeColors.white,
+              size: AppSizes.iconMd,
             ),
           ),
         ),

@@ -21,16 +21,30 @@ import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
+
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
+
 class MockVerifyOtpUseCase extends Mock implements VerifyOtpUseCase {}
+
 class MockResendOtpUseCase extends Mock implements ResendOtpUseCase {}
+
 class MockForgotPasswordUseCase extends Mock implements ForgotPasswordUseCase {}
+
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
-class MockCheckEmailExistsUseCase extends Mock implements CheckEmailExistsUseCase {}
-class MockCheckAuthStatusUseCase extends Mock implements CheckAuthStatusUseCase {}
-class MockKycPersonalDetailsUseCase extends Mock implements SubmitKycPersonalDetailsUseCase {}
+
+class MockCheckEmailExistsUseCase extends Mock
+    implements CheckEmailExistsUseCase {}
+
+class MockCheckAuthStatusUseCase extends Mock
+    implements CheckAuthStatusUseCase {}
+
+class MockKycPersonalDetailsUseCase extends Mock
+    implements SubmitKycPersonalDetailsUseCase {}
+
 class MockKycDocumentUseCase extends Mock implements UploadKycDocumentUseCase {}
+
 class MockKycSelfieUseCase extends Mock implements UploadKycSelfieUseCase {}
+
 class MockGetKycStatusUseCase extends Mock implements GetKycStatusUseCase {}
 
 AuthBloc buildBloc({
@@ -42,21 +56,21 @@ AuthBloc buildBloc({
   MockLogoutUseCase? logout,
   MockForgotPasswordUseCase? forgotPassword,
   MockCheckEmailExistsUseCase? checkEmailExists,
-}) =>
-    AuthBloc(
-      checkAuthStatus: checkAuth ?? MockCheckAuthStatusUseCase(),
-      login: login ?? MockLoginUseCase(),
-      register: register ?? MockRegisterUseCase(),
-      verifyOtp: verifyOtp ?? MockVerifyOtpUseCase(),
-      resendOtp: resendOtp ?? MockResendOtpUseCase(),
-      forgotPassword: forgotPassword ?? MockForgotPasswordUseCase(),
-      logout: logout ?? MockLogoutUseCase(),
-      checkEmailExists: checkEmailExists ?? MockCheckEmailExistsUseCase(),
-      kycPersonalDetails: MockKycPersonalDetailsUseCase(),
-      kycDocument: MockKycDocumentUseCase(),
-      kycSelfie: MockKycSelfieUseCase(),
-      getKycStatus: MockGetKycStatusUseCase(),
-    );
+}) => AuthBloc(
+  checkAuthStatus: checkAuth ?? MockCheckAuthStatusUseCase(),
+  login: login ?? MockLoginUseCase(),
+  register: register ?? MockRegisterUseCase(),
+  verifyOtp: verifyOtp ?? MockVerifyOtpUseCase(),
+  resendOtp: resendOtp ?? MockResendOtpUseCase(),
+  forgotPassword: forgotPassword ?? MockForgotPasswordUseCase(),
+  logout: logout ?? MockLogoutUseCase(),
+  checkEmailExists: checkEmailExists ?? MockCheckEmailExistsUseCase(),
+  kycPersonalDetails: MockKycPersonalDetailsUseCase(),
+  kycDocument: MockKycDocumentUseCase(),
+  kycSelfie: MockKycSelfieUseCase(),
+  getKycStatus: MockGetKycStatusUseCase(),
+  storage: '',
+);
 
 void main() {
   setUpAll(() {
@@ -75,18 +89,26 @@ void main() {
   });
 
   const user = UserEntity(
-    id: '1', email: 'a@b.com', name: 'Alice',
+    id: '1',
+    email: 'a@b.com',
+    name: 'Alice',
     kycStatus: 'not_required',
   );
 
   const unverifiedUser = UserEntity(
-    id: '1', email: 'a@b.com', name: 'Alice',
-    kycStatus: 'pending', emailVerified: false,
+    id: '1',
+    email: 'a@b.com',
+    name: 'Alice',
+    kycStatus: 'pending',
+    emailVerified: false,
   );
 
   const verifiedUser = UserEntity(
-    id: '1', email: 'a@b.com', name: 'Alice',
-    kycStatus: 'pending', emailVerified: true,
+    id: '1',
+    email: 'a@b.com',
+    name: 'Alice',
+    kycStatus: 'pending',
+    emailVerified: true,
   );
 
   group('LoginRequested', () {
@@ -94,8 +116,7 @@ void main() {
       'emits [AuthLoading, AuthAuthenticated] on success',
       build: () {
         final mockLogin = MockLoginUseCase();
-        when(() => mockLogin(any()))
-            .thenAnswer((_) async => const Right(user));
+        when(() => mockLogin(any())).thenAnswer((_) async => const Right(user));
         return buildBloc(login: mockLogin);
       },
       act: (bloc) =>
@@ -107,8 +128,9 @@ void main() {
       'emits [AuthLoading, AuthError] on failure',
       build: () {
         final mockLogin = MockLoginUseCase();
-        when(() => mockLogin(any()))
-            .thenAnswer((_) async => const Left(NetworkFailure()));
+        when(
+          () => mockLogin(any()),
+        ).thenAnswer((_) async => const Left(NetworkFailure()));
         return buildBloc(login: mockLogin);
       },
       act: (bloc) =>
@@ -122,8 +144,7 @@ void main() {
       'emits [AuthLoading, AuthAuthenticated] when stored user exists',
       build: () {
         final mockCheck = MockCheckAuthStatusUseCase();
-        when(() => mockCheck())
-            .thenAnswer((_) async => const Right(user));
+        when(() => mockCheck()).thenAnswer((_) async => const Right(user));
         return buildBloc(checkAuth: mockCheck);
       },
       act: (bloc) => bloc.add(const CheckAuthStatusRequested()),
@@ -134,8 +155,7 @@ void main() {
       'emits [AuthLoading, AuthUnauthenticated] when no stored user',
       build: () {
         final mockCheck = MockCheckAuthStatusUseCase();
-        when(() => mockCheck())
-            .thenAnswer((_) async => const Right(null));
+        when(() => mockCheck()).thenAnswer((_) async => const Right(null));
         return buildBloc(checkAuth: mockCheck);
       },
       act: (bloc) => bloc.add(const CheckAuthStatusRequested()),
@@ -151,32 +171,50 @@ void main() {
       'emits [AuthLoading, AuthAuthenticated] even when email is unverified',
       build: () {
         final mockRegister = MockRegisterUseCase();
-        when(() => mockRegister(any()))
-            .thenAnswer((_) async => const Right(unverifiedUser));
+        when(
+          () => mockRegister(any()),
+        ).thenAnswer((_) async => const Right(unverifiedUser));
         return buildBloc(register: mockRegister);
       },
-      act: (bloc) => bloc.add(const RegisterRequested(
-        firstName: 'A', lastName: 'B', email: 'a@b.com',
-        password: 'pw', countryId: '91', phoneNumber: '123',
-      )),
-      expect: () =>
-          [const AuthLoading(), const AuthAuthenticated(unverifiedUser)],
+      act: (bloc) => bloc.add(
+        const RegisterRequested(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: 'pw',
+          countryId: '91',
+          phoneNumber: '123',
+        ),
+      ),
+      expect: () => [
+        const AuthLoading(),
+        const AuthAuthenticated(unverifiedUser),
+      ],
     );
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, AuthAuthenticated] when email is already verified',
       build: () {
         final mockRegister = MockRegisterUseCase();
-        when(() => mockRegister(any()))
-            .thenAnswer((_) async => const Right(verifiedUser));
+        when(
+          () => mockRegister(any()),
+        ).thenAnswer((_) async => const Right(verifiedUser));
         return buildBloc(register: mockRegister);
       },
-      act: (bloc) => bloc.add(const RegisterRequested(
-        firstName: 'A', lastName: 'B', email: 'a@b.com',
-        password: 'pw', countryId: '91', phoneNumber: '123',
-      )),
-      expect: () =>
-          [const AuthLoading(), const AuthAuthenticated(verifiedUser)],
+      act: (bloc) => bloc.add(
+        const RegisterRequested(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: 'pw',
+          countryId: '91',
+          phoneNumber: '123',
+        ),
+      ),
+      expect: () => [
+        const AuthLoading(),
+        const AuthAuthenticated(verifiedUser),
+      ],
     );
   });
 
@@ -185,14 +223,17 @@ void main() {
       'emits [AuthLoading, AuthAuthenticated] on success',
       build: () {
         final mockVerify = MockVerifyOtpUseCase();
-        when(() => mockVerify(any()))
-            .thenAnswer((_) async => const Right(verifiedUser));
+        when(
+          () => mockVerify(any()),
+        ).thenAnswer((_) async => const Right(verifiedUser));
         return buildBloc(verifyOtp: mockVerify);
       },
       act: (bloc) =>
           bloc.add(const OtpVerifyRequested(email: 'a@b.com', otp: '123456')),
-      expect: () =>
-          [const AuthLoading(), const AuthAuthenticated(verifiedUser)],
+      expect: () => [
+        const AuthLoading(),
+        const AuthAuthenticated(verifiedUser),
+      ],
     );
 
     blocTest<AuthBloc, AuthState>(
@@ -200,7 +241,8 @@ void main() {
       build: () {
         final mockVerify = MockVerifyOtpUseCase();
         when(() => mockVerify(any())).thenAnswer(
-            (_) async => const Left(AuthFailure(message: 'Invalid OTP')));
+          (_) async => const Left(AuthFailure(message: 'Invalid OTP')),
+        );
         return buildBloc(verifyOtp: mockVerify);
       },
       act: (bloc) =>
@@ -217,8 +259,9 @@ void main() {
       'emits [AuthLoading, OtpResendSent] on success',
       build: () {
         final mockResend = MockResendOtpUseCase();
-        when(() => mockResend(any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockResend(any()),
+        ).thenAnswer((_) async => const Right(unit));
         return buildBloc(resendOtp: mockResend);
       },
       act: (bloc) => bloc.add(const OtpResendRequested(email: 'a@b.com')),
@@ -231,8 +274,7 @@ void main() {
       'emits [EmailExistenceChecking, EmailExistenceChecked(exists: true)]',
       build: () {
         final mockCheck = MockCheckEmailExistsUseCase();
-        when(() => mockCheck(any()))
-            .thenAnswer((_) async => const Right(true));
+        when(() => mockCheck(any())).thenAnswer((_) async => const Right(true));
         return buildBloc(checkEmailExists: mockCheck);
       },
       act: (bloc) =>
@@ -247,8 +289,9 @@ void main() {
       'emits only [EmailExistenceChecking] on failure (silently ignored)',
       build: () {
         final mockCheck = MockCheckEmailExistsUseCase();
-        when(() => mockCheck(any()))
-            .thenAnswer((_) async => const Left(NetworkFailure()));
+        when(
+          () => mockCheck(any()),
+        ).thenAnswer((_) async => const Left(NetworkFailure()));
         return buildBloc(checkEmailExists: mockCheck);
       },
       act: (bloc) =>
@@ -273,8 +316,9 @@ void main() {
       'emits [AuthLoading, AuthError] on failure',
       build: () {
         final mockLogout = MockLogoutUseCase();
-        when(() => mockLogout())
-            .thenAnswer((_) async => const Left(CacheFailure(message: 'fail')));
+        when(
+          () => mockLogout(),
+        ).thenAnswer((_) async => const Left(CacheFailure(message: 'fail')));
         return buildBloc(logout: mockLogout);
       },
       act: (bloc) => bloc.add(const LogoutRequested()),
@@ -290,12 +334,12 @@ void main() {
       'emits [AuthLoading, PasswordResetSent] on success',
       build: () {
         final mockForgot = MockForgotPasswordUseCase();
-        when(() => mockForgot(any()))
-            .thenAnswer((_) async => const Right(unit));
+        when(
+          () => mockForgot(any()),
+        ).thenAnswer((_) async => const Right(unit));
         return buildBloc(forgotPassword: mockForgot);
       },
-      act: (bloc) =>
-          bloc.add(const ForgotPasswordRequested(email: 'a@b.com')),
+      act: (bloc) => bloc.add(const ForgotPasswordRequested(email: 'a@b.com')),
       expect: () => [const AuthLoading(), const PasswordResetSent()],
     );
   });

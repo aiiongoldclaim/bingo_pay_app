@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import '../../features/account/presentation/cubit/account_cubit.dart';
+import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/account/presentation/screens/account_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/cubit/categories_cubit.dart';
@@ -26,20 +27,25 @@ import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/home/data/models/product_model.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
 import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
+import '../../features/payment/presentation/screens/payment_success_screen.dart';
 import '../../features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart';
 import '../../features/product_categories_details/presentation/screens/product_categories_screen.dart';
 import '../../features/product_details/data/models/product_details_model.dart';
 import '../../features/product_details/presentation/cubit/product_details_cubit.dart';
 import '../../features/product_details/presentation/screens/product_details_screen.dart';
+import '../../features/scanner/presentation/cubit/payment_cubit.dart';
+import '../../features/scanner/presentation/screens/review_payment_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
+import '../di/injection.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
@@ -103,6 +109,18 @@ class AppRouter {
             child: const SearchScreen(),
           ),
         ),
+
+        // GoRoute(
+        //   path: AppRoutes.productDetails,
+        //   builder: (context, state) {
+        //     final product = state.extra as ProductModel;
+        //
+        //     return BlocProvider(
+        //       create: (_) => ProductDetailCubit()..loadProduct(product),
+        //       child: const ProductDetailScreen(),
+        //     );
+        //   },
+        // ),
         GoRoute(
           path: AppRoutes.productDetails,
           builder: (context, state) {
@@ -112,6 +130,29 @@ class AppRouter {
               create: (_) => ProductDetailCubit()..loadProduct(product),
               child: const ProductDetailScreen(),
             );
+          },
+        ),
+
+        GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
+
+        GoRoute(
+          path: AppRoutes.reviewPayment,
+          builder: (context, state) {
+            final qrCode = state.extra as String;
+
+            return BlocProvider(
+              create: (_) => getIt<PaymentCubit>(),
+              child: ReviewPaymentScreen(qrCode: qrCode, data: const {}),
+            );
+          },
+        ),
+
+        GoRoute(
+          path: AppRoutes.paymentSuccess,
+          builder: (context, state) {
+            final data = state.extra as Map<String, dynamic>;
+
+            return PaymentSuccessScreen();
           },
         ),
 
@@ -159,7 +200,6 @@ class AppRouter {
               ),
             ),
 
-            GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
             GoRoute(
               path: AppRoutes.orders,
               builder: (_, _) => const OrdersScreen(),
@@ -167,10 +207,12 @@ class AppRouter {
 
             GoRoute(
               path: AppRoutes.account,
-              builder: (context, state) => BlocProvider(
-                create: (_) => AccountCubit()..loadAccount(),
-                child: const AccountScreen(),
-              ),
+              builder: (context, state) {
+                return BlocProvider(
+                  create: (_) => getIt<AccountCubit>(),
+                  child: const AccountScreen(),
+                );
+              },
             ),
 
             GoRoute(

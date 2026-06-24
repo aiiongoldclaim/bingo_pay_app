@@ -6,6 +6,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/app_search_bar.dart';
+import '../../data/models/product_model.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../widgets/category_section.dart';
@@ -71,9 +72,7 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                     child: AppSearchBar(
                                       hintText: 'Search products, brands...',
-
                                       backgroundColor: ThemeColors.white,
-
                                       prefixIcon: Icon(
                                         Icons.search_sharp,
                                         color: ThemeColors.blue,
@@ -123,10 +122,12 @@ class HomeScreen extends StatelessWidget {
                                   CategorySection(categories: state.categories),
 
                                   /// Flash Deals
-                                  FlashDealSection(products: state.recommended),
+                                  FlashDealSection(
+                                    products: ProductModel.flashDeals(),
+                                  ),
 
                                   RecommendedSection(
-                                    products: state.recommended,
+                                    products: ProductModel.recommended(),
                                   ),
 
                                   SizedBox(height: 2.h),
