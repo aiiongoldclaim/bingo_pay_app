@@ -5,7 +5,6 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/router/app_routes.dart';
 
-/// White card containing the menu items list.
 class AccountMenuList extends StatelessWidget {
   final List<AccountMenuItem> items;
   final void Function(AccountMenuItem) onTap;
@@ -18,7 +17,7 @@ class AccountMenuList extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 4.w),
       decoration: BoxDecoration(
         color: ThemeColors.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         boxShadow: [
           BoxShadow(
             color: ThemeColors.ink.withOpacity(0.05),
@@ -78,7 +77,7 @@ class _MenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
         child: Row(

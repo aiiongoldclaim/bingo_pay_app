@@ -7,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/helpers/email_qr_code.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
@@ -52,7 +53,27 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _isScanned = true;
 
-    context.push(AppRoutes.reviewPayment, extra: barcode.rawValue!);
+    try {
+      final encryptedQr = barcode.rawValue!;
+
+      print("Encrypted QR : $encryptedQr");
+
+      final merchantEmail = EmailQrCodec.decrypt(encryptedQr);
+
+      print("Merchant Email : $merchantEmail");
+      print('Key Length = ${"BingoPayVendorQrEncryptionKey32!".length}');
+
+      context.push(
+        AppRoutes.reviewPayment,
+        extra: {'merchantEmail': merchantEmail},
+      );
+    } catch (e) {
+      _isScanned = false;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Invalid QR Code")));
+    }
   }
 
   @override
@@ -74,13 +95,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.black54,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                     ),
                     child: IconButton(
                       onPressed: () => context.pop(),
                       icon: const Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white,
+                        color: ThemeColors.white,
                       ),
                     ),
                   ),
@@ -118,7 +139,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         onPressed: () => controller.toggleTorch(),
                         icon: Icon(
                           Icons.flash_on_rounded,
-                          color: Colors.white,
+                          color: ThemeColors.white,
                           size: AppSizes.iconLg,
                         ),
                       ),
@@ -135,7 +156,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         onPressed: _pickFromGallery,
                         icon: Icon(
                           Icons.photo_library_rounded,
-                          color: Colors.white,
+                          color: ThemeColors.white,
                           size: AppSizes.iconLg,
                         ),
                       ),

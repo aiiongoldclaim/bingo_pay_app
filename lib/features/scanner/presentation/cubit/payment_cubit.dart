@@ -16,6 +16,13 @@ class PaymentCubit extends Cubit<PaymentState> {
     required double amount,
     required String reference,
   }) async {
+    print("============ PAYMENT CUBIT ============");
+
+    print(customerEmail);
+    print(merchantEmail);
+    print(amount);
+    print(reference);
+
     try {
       emit(PaymentLoading());
 
@@ -26,8 +33,12 @@ class PaymentCubit extends Cubit<PaymentState> {
         reference: reference,
       );
 
+      print("Payment Success");
+
       emit(PaymentSuccess());
     } catch (e) {
+      print(e);
+
       emit(PaymentFailure(e.toString()));
     }
   }

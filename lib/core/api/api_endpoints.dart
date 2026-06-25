@@ -12,6 +12,7 @@ class ApiEndpoints {
   static const String kycPersonalDetails = '/kyc/personal-details';
   static const String me = '/auth/me';
   static const String products = '/products';
+  static const String categories = '/api/v1/categories';
   static const String transactions = '/transactions';
   static const String invoices = '/invoices';
   static const String referral = '/referral';

@@ -1,4 +1,4 @@
-import 'package:bingo_pay/features/categories/data/categories_model.dart';
+import 'package:bingo_pay/features/categories/data/models/categories_model.dart';
 import 'package:equatable/equatable.dart';
 
 class CategoriesState extends Equatable {
@@ -31,3 +31,37 @@ class CategoriesState extends Equatable {
   @override
   List<Object?> get props => [categories, brands, collections, isLoading];
 }
+
+// import '../../domain/entities/category_entity.dart';
+//
+// class CategoriesState {
+//   final bool loading;
+//
+//   final List<CategoryEntity> categories;
+//
+//   final String? error;
+//
+//   const CategoriesState({
+//     this.loading = false,
+//
+//     this.categories = const [],
+//
+//     this.error,
+//   });
+//
+//   CategoriesState copyWith({
+//     bool? loading,
+//
+//     List<CategoryEntity>? categories,
+//
+//     String? error,
+//   }) {
+//     return CategoriesState(
+//       loading: loading ?? this.loading,
+//
+//       categories: categories ?? this.categories,
+//
+//       error: error,
+//     );
+//   }
+// }

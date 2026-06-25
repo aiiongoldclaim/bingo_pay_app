@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../data/categories_model.dart';
+import '../../data/models/categories_model.dart';
 
 import 'curated_collection_card.dart';
 

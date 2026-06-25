@@ -118,6 +118,8 @@ class AccountEntity extends Equatable {
     return '$f$l';
   }
 
+  double get displayBigoldBalance => bigoldBalance / 1e8;
+
   @override
   List<Object?> get props => [id, uuid, email, kycStatus];
 }

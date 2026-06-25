@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/app_button.dart';
 
-class PaymentSuccessScreen extends StatelessWidget {
+class TransferScreen extends StatelessWidget {
   final Map<String, dynamic> data;
 
-  const PaymentSuccessScreen({super.key, required this.data});
+  const TransferScreen({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +24,11 @@ class PaymentSuccessScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 100),
+              const Icon(
+                Icons.check_circle,
+                color: ThemeColors.green,
+                size: 100,
+              ),
 
               const SizedBox(height: 20),
 
@@ -30,7 +37,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 7.h),
 
               Text('Merchant: $merchant'),
 
@@ -38,13 +45,13 @@ class PaymentSuccessScreen extends StatelessWidget {
 
               Text('Reference: $reference'),
 
-              const SizedBox(height: 30),
+              SizedBox(height: 5.h),
 
-              ElevatedButton(
+              AppButton(
                 onPressed: () {
                   context.go(AppRoutes.home);
                 },
-                child: const Text('Done'),
+                label: 'Done',
               ),
             ],
           ),

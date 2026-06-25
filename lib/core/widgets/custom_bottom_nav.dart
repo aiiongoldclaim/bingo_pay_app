@@ -64,9 +64,9 @@ class CustomBottomNav extends StatelessWidget {
                     // Centre gap for the QR button
                     SizedBox(width: 18.w),
                     _NavItem(
-                      icon: Icons.favorite,
-                      outlinedIcon: Icons.favorite_border,
-                      label: 'Wishlist',
+                      icon: Icons.add_shopping_cart,
+                      outlinedIcon: Icons.add_shopping_cart,
+                      label: 'Order',
                       selected: currentIndex == 3,
                       badgeCount: 3,
                       onTap: () => onTap?.call(3),

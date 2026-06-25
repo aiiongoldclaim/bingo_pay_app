@@ -103,6 +103,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
+
     final result = await _registerUser(
       RegisterParams(
         firstName: event.firstName,
@@ -113,24 +114,55 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         phoneNumber: event.phoneNumber,
       ),
     );
-    result.match((failure) => emit(AuthError(failure)), (user) async {
-      _currentUser = user;
 
-      await _storage.saveEmail(user.email);
+    await result.fold(
+      (failure) async {
+        emit(AuthError(failure));
+      },
+      (register) async {
+        await _storage.saveEmail(register.email);
 
-      emit(AuthAuthenticated(user));
-    });
+        if (emit.isDone) return;
+
+        emit(AuthOtpRequired(register.email));
+      },
+    );
   }
+
+  // Future<void> _onRegister(
+  //     RegisterRequested event,
+  //     Emitter<AuthState> emit,
+  //     ) async {
+  //   emit(const AuthLoading());
+  //
+  //   final result = await _registerUser(
+  //     RegisterParams(
+  //       firstName: event.firstName,
+  //       lastName: event.lastName,
+  //       email: event.email,
+  //       password: event.password,
+  //       countryId: event.countryId,
+  //       phoneNumber: event.phoneNumber,
+  //     ),
+  //   );
+  //
+  //   result.fold(
+  //         (failure) => emit(AuthError(failure)),
+  //         (register) => emit(AuthOtpRequired(register.email)),
+  //   );
+  // }
 
   Future<void> _onVerifyOtp(
     OtpVerifyRequested event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
+
     final result = await _verifyOtp(
       VerifyOtpParams(email: event.email, otp: event.otp),
     );
-    result.match((failure) => emit(AuthError(failure)), (user) {
+
+    result.fold((failure) => emit(AuthError(failure)), (user) {
       _currentUser = user;
       emit(AuthAuthenticated(user));
     });

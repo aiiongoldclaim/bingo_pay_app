@@ -133,7 +133,7 @@ class BuyerShellScreen extends StatelessWidget {
         context.push(AppRoutes.scanner);
         break;
       case 3:
-        context.push(AppRoutes.cart);
+        context.push(AppRoutes.orders);
         break;
       case 4:
         context.push(AppRoutes.account);

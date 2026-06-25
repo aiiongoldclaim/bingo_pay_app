@@ -21,7 +21,8 @@ class AccountHeader extends StatelessWidget {
   });
 
   String _formatBalance(double value) {
-    return value.toStringAsFixed(2);
+    final actualBalance = value / 100000000; // 10^8
+    return actualBalance.toStringAsFixed(8);
   }
 
   @override
@@ -47,7 +48,7 @@ class AccountHeader extends StatelessWidget {
 
             _StatRow(
               account: account,
-              formattedBalance: _formatBalance(account.bigoldBalance),
+              formattedBalance: _formatBalance(account.displayBigoldBalance),
               onWalletTap: onWalletTap,
             ),
 
@@ -86,7 +87,7 @@ class _AppBarRow extends StatelessWidget {
               height: 12.w,
               decoration: BoxDecoration(
                 color: ThemeColors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),
               alignment: Alignment.center,
               child: Icon(
@@ -118,14 +119,14 @@ class _AvatarRow extends StatelessWidget {
             height: 14.w,
             decoration: BoxDecoration(
               color: ThemeColors.white.withOpacity(.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             ),
             alignment: Alignment.center,
             child:
                 account.profileImageUrl != null &&
                     account.profileImageUrl!.isNotEmpty
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusMd),
                     child: Image.network(
                       account.profileImageUrl!,
                       fit: BoxFit.cover,
@@ -170,7 +171,7 @@ class _AvatarRow extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: .8.h),
             decoration: BoxDecoration(
               color: ThemeColors.accent,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             ),
             child: Text(
               account.kycStatus.label,
@@ -199,35 +200,33 @@ class _StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5.w),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
+    return SizedBox(
+      height: 11.h,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 5.w),
+        child: Row(
+          children: [
+            GestureDetector(
               onTap: onWalletTap,
-              child: _StatTile(value: formattedBalance, label: 'Bingold'),
+              child: _StatTile(value: formattedBalance, label: "BiGold"),
             ),
-          ),
 
-          SizedBox(width: 3.w),
+            SizedBox(width: 3.w),
 
-          Expanded(
-            child: _StatTile(
+            _StatTile(
               value: account.usdtBalance.toStringAsFixed(2),
-              label: 'USDT',
+              label: "USDT",
             ),
-          ),
 
-          SizedBox(width: 3.w),
+            SizedBox(width: 3.w),
 
-          Expanded(
-            child: _StatTile(
+            _StatTile(
               value: account.referralCode.toString(),
-              label: 'Referral',
+              label: "Referral",
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -236,37 +235,46 @@ class _StatRow extends StatelessWidget {
 class _StatTile extends StatelessWidget {
   final String value;
   final String label;
+
   const _StatTile({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 3.w),
-      decoration: BoxDecoration(
-        color: ThemeColors.white.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            value,
-            style: AppTextStyles.titleMedium.copyWith(
-              color: ThemeColors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 17.sp,
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: 28.w, maxWidth: 60.w),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
+        decoration: BoxDecoration(
+          color: ThemeColors.white.withOpacity(.12),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(
+                value,
+                style: AppTextStyles.titleMedium.copyWith(
+                  color: ThemeColors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17.sp,
+                ),
+              ),
             ),
-          ),
-          SizedBox(height: 0.1.h),
-          Text(
-            label,
-            style: AppTextStyles.labelSmall.copyWith(
-              color: ThemeColors.white.withOpacity(0.7),
-              fontSize: 15.sp,
-              fontWeight: FontWeight.bold,
+
+            SizedBox(height: .5.h),
+
+            Text(
+              label,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: ThemeColors.white.withOpacity(.7),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

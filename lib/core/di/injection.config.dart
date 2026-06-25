@@ -59,6 +59,10 @@ import 'package:bingo_pay/features/auth/domain/usecases/verify_otp_usecase.dart'
     as _i99;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
+import 'package:bingo_pay/features/categories/domain/repositories/category_repository.dart'
+    as _i298;
+import 'package:bingo_pay/features/categories/domain/usecases/get_categories_usecase.dart'
+    as _i507;
 import 'package:bingo_pay/features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart'
     as _i709;
 import 'package:bingo_pay/features/scanner/data/datasource/payment_remote_datasource.dart'
@@ -95,6 +99,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i14.AppRouter>(() => _i14.AppRouter());
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
+    );
+    gh.factory<_i507.GetCategoriesUseCase>(
+      () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
     );
     gh.singleton<_i481.SecureStorageService>(
       () =>

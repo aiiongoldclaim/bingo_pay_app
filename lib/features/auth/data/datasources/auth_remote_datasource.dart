@@ -4,6 +4,7 @@ import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../models/auth_result_model.dart';
 import '../models/kyc_model.dart';
+import '../models/register_response_model.dart';
 import '../models/user_model.dart';
 
 abstract interface class AuthRemoteDataSource {
@@ -12,7 +13,7 @@ abstract interface class AuthRemoteDataSource {
     required String password,
   });
 
-  Future<AuthResultModel> register({
+  Future<RegisterResponseModel> register({
     required String firstName,
     required String lastName,
     required String password,
@@ -21,7 +22,10 @@ abstract interface class AuthRemoteDataSource {
     required String phoneNumber,
   });
 
-  Future<void> verifyOtp({required String email, required String otp});
+  Future<AuthResultModel> verifyOtp({
+    required String email,
+    required String otp,
+  });
 
   Future<void> resendOtp({required String email});
 
@@ -72,7 +76,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthResultModel> register({
+  Future<RegisterResponseModel> register({
     required String firstName,
     required String lastName,
     required String password,
@@ -91,25 +95,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'phoneNumber': phoneNumber,
       },
     );
-    final data = response.data['data'] as Map<String, dynamic>;
-    final profile = data['profile'] as Map<String, dynamic>;
-    return AuthResultModel(
-      token: data['token'] as String,
-      user: UserModel.fromProfileJson(profile),
+
+    return RegisterResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
     );
   }
 
   @override
-  Future<void> verifyOtp({required String email, required String otp}) async {
-    await _dio.post(
+  Future<AuthResultModel> verifyOtp({
+    required String email,
+    required String otp,
+  }) async {
+    final response = await _dio.post(
       ApiEndpoints.verifyOtp,
-      data: {'email': email, 'otp': otp},
+      data: {
+        "email": email,
+        "otp": otp,
+        "type": "SignUp", // Required by backend
+        "tOtp": "",
+        "google2faSecret": "",
+        "token": "",
+      },
+    );
+
+    final data = response.data["data"] as Map<String, dynamic>;
+
+    return AuthResultModel(
+      token: data["token"] as String,
+      user: UserModel.fromProfileJson(data["profile"] as Map<String, dynamic>),
     );
   }
 
   @override
   Future<void> resendOtp({required String email}) async {
-    await _dio.post(ApiEndpoints.resendOtp, data: {'email': email});
+    await _dio.post(
+      ApiEndpoints.resendOtp,
+      data: {"email": email, "type": "SIGNUP"},
+    );
   }
 
   @override

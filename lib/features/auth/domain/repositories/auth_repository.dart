@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/kyc_entity.dart';
+import '../entities/register_entity.dart';
 import '../entities/user_entity.dart';
 
 abstract interface class AuthRepository {
@@ -9,7 +10,7 @@ abstract interface class AuthRepository {
     required String password,
   });
 
-  Future<Either<Failure, UserEntity>> register({
+  Future<Either<Failure, RegisterEntity>> register({
     required String firstName,
     required String lastName,
     required String password,
@@ -44,7 +45,9 @@ abstract interface class AuthRepository {
     required String documentType,
   });
 
-  Future<Either<Failure, KycEntity>> uploadKycSelfie({required String filePath});
+  Future<Either<Failure, KycEntity>> uploadKycSelfie({
+    required String filePath,
+  });
 
   Future<Either<Failure, KycEntity>> getKycStatus();
 }

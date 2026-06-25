@@ -1,22 +1,20 @@
+import 'package:bingo_pay/features/scanner/presentation/screens/payment_success_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 import '../../features/account/presentation/cubit/account_cubit.dart';
 import '../../features/account/presentation/screens/account_page.dart';
-import '../../features/account/presentation/screens/account_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/cubit/categories_cubit.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
-import '../../features/customer/shop/presentation/screens/buyer_home_screen.dart';
 import '../../features/customer/shop/presentation/screens/buyer_shell_screen.dart';
 import '../../features/customer/shop/presentation/screens/cart_screen.dart';
 import '../../features/customer/shop/presentation/screens/catalog_screen.dart';
 import '../../features/customer/shop/presentation/screens/category_screen.dart';
 import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
-import '../../features/customer/shop/presentation/screens/product_detail_screen.dart';
 import '../../features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart';
 import '../../features/customer/dashboard/presentation/screens/buyer_dashboard_screen.dart';
 import '../../features/customer/profile/presentation/screens/profile_screen.dart';
@@ -27,11 +25,11 @@ import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
-import '../../features/home/data/models/product_model.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
 import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
+import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_success_screen.dart';
 import '../../features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart';
 import '../../features/product_categories_details/presentation/screens/product_categories_screen.dart';
@@ -39,7 +37,7 @@ import '../../features/product_details/data/models/product_details_model.dart';
 import '../../features/product_details/presentation/cubit/product_details_cubit.dart';
 import '../../features/product_details/presentation/screens/product_details_screen.dart';
 import '../../features/scanner/presentation/cubit/payment_cubit.dart';
-import '../../features/scanner/presentation/screens/review_payment_screen.dart';
+import '../../features/scanner/presentation/screens/payment_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
@@ -138,11 +136,14 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.reviewPayment,
           builder: (context, state) {
-            final qrCode = state.extra as String;
+            final data = state.extra as Map<String, dynamic>;
 
             return BlocProvider(
               create: (_) => getIt<PaymentCubit>(),
-              child: ReviewPaymentScreen(qrCode: qrCode, data: const {}),
+              child: ReviewPaymentScreen(
+                merchantName: data['merchantName'] ?? '',
+                merchantEmail: data['merchantEmail'] ?? '',
+              ),
             );
           },
         ),
@@ -153,6 +154,15 @@ class AppRouter {
             final data = state.extra as Map<String, dynamic>;
 
             return PaymentSuccessScreen();
+          },
+        ),
+
+        GoRoute(
+          path: AppRoutes.transferSuccess,
+          builder: (context, state) {
+            final data = state.extra as Map<String, dynamic>;
+
+            return TransferScreen(data: data);
           },
         ),
 
@@ -181,14 +191,14 @@ class AppRouter {
                 child: const BuyerDashboardScreen(),
               ),
             ),
-            GoRoute(
-              path: AppRoutes.categories,
-              builder: (_, _) => BlocProvider(
-                create: (_) => CategoriesCubit()..loadData(),
-                child: const CategoriesScreen(),
-              ),
-            ),
 
+            // GoRoute(
+            //   path: AppRoutes.categories,
+            //   builder: (_, _) => BlocProvider(
+            //     create: (_) => CategoriesCubit()..loadData(),
+            //     child: const CategoriesScreen(),
+            //   ),
+            // ),
             GoRoute(
               path: AppRoutes.productListing,
               builder: (context, state) => BlocProvider(

@@ -1,9 +1,9 @@
-import 'package:bingo_pay/features/categories/data/categories_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../home/data/models/category_model.dart';
 import 'categories_card.dart';
 
 class CategoriesGrid extends StatelessWidget {

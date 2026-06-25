@@ -35,8 +35,9 @@ class AccountModel {
     required this.usdtBalance,
   });
 
-  /// Full display name, e.g. "Nidhi Prajapati"
+  /// Full display name, e.g. "Nidhi Aparajita"
   String get fullName => '$firstName $lastName'.trim();
+  double get displayBigoldBalance => bigoldBalance / 1e8;
 
   /// Avatar initials, e.g. "NP"
   String get initials {

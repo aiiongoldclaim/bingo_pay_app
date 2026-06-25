@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
+import '../entities/register_entity.dart';
 import '../entities/user_entity.dart';
 import '../repositories/auth_repository.dart';
 
@@ -10,7 +11,7 @@ class RegisterUseCase {
   final AuthRepository _repository;
   const RegisterUseCase(this._repository);
 
-  Future<Either<Failure, UserEntity>> call(RegisterParams params) =>
+  Future<Either<Failure, RegisterEntity>> call(RegisterParams params) =>
       _repository.register(
         firstName: params.firstName,
         lastName: params.lastName,
@@ -37,6 +38,12 @@ class RegisterParams extends Equatable {
     required this.phoneNumber,
   });
   @override
-  List<Object> get props =>
-      [firstName, lastName, password, countryId, email, phoneNumber];
+  List<Object> get props => [
+    firstName,
+    lastName,
+    password,
+    countryId,
+    email,
+    phoneNumber,
+  ];
 }

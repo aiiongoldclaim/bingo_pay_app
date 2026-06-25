@@ -98,17 +98,7 @@ class WalletCard extends StatelessWidget {
               label: 'Top up',
               textColor: ThemeColors.blue,
               variant: AppButtonVariant.secondary,
-              onPressed: () async {
-                await getIt<PreferencesService>().clear();
-
-                getIt<AppRouter>().updateAuthState(
-                  const RouteAuthState.unauthenticated(),
-                );
-
-                if (context.mounted) {
-                  context.push(AppRoutes.login);
-                }
-              },
+              onPressed: () {},
             ),
           ),
         ],

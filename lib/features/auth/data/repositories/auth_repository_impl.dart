@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/kyc_entity.dart';
+import '../../domain/entities/register_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
@@ -32,7 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> register({
+  Future<Either<Failure, RegisterEntity>> register({
     required String firstName,
     required String lastName,
     required String password,
@@ -49,9 +50,8 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         phoneNumber: phoneNumber,
       );
-      await _local.saveAccessToken(result.token);
-      await _local.saveUser(result.user);
-      return Right(result.user);
+
+      return Right(result.data);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }
@@ -63,14 +63,12 @@ class AuthRepositoryImpl implements AuthRepository {
     required String otp,
   }) async {
     try {
-      await _remote.verifyOtp(email: email, otp: otp);
-      final cached = await _local.getUser();
-      if (cached == null) {
-        return const Left(CacheFailure(message: 'No registered user found'));
-      }
-      final verified = cached.copyWith(emailVerified: true);
-      await _local.saveUser(verified);
-      return Right(verified);
+      final result = await _remote.verifyOtp(email: email, otp: otp);
+
+      await _local.saveAccessToken(result.token);
+      await _local.saveUser(result.user);
+
+      return Right(result.user);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }
@@ -99,9 +97,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> forgotPassword({
-    required String email,
-  }) async {
+  Future<Either<Failure, Unit>> forgotPassword({required String email}) async {
     try {
       await _remote.forgotPassword(email: email);
       return const Right(unit);
