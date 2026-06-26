@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
@@ -20,7 +21,7 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CategoriesCubit()..loadData(),
+      create: (_) => getIt<CategoriesCubit>()..loadData(),
       child: BlocBuilder<CategoriesCubit, CategoriesState>(
         builder: (context, state) {
           return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -63,7 +64,8 @@ class CategoriesScreen extends StatelessWidget {
                             const SectionTitle(title: 'Curated collections'),
                             SizedBox(height: 2.h),
                             CuratedCollectionsList(
-                                collections: state.collections),
+                              collections: state.collections,
+                            ),
 
                             SizedBox(height: 2.h),
                           ],

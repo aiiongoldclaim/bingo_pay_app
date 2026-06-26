@@ -3,41 +3,59 @@ import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../data/models/category_model.dart';
+import '../../../categories/data/models/categories_model.dart';
 
 class CategoryItem extends StatelessWidget {
-  const CategoryItem({super.key, required this.category});
+  const CategoryItem({super.key, required this.category, this.onTap});
 
   final CategoryModel category;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 18.w,
-          height: 18.w,
-          margin: EdgeInsets.symmetric(horizontal: 0.5.h),
-          decoration: BoxDecoration(
-            color: category.backgroundColor,
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 18.w,
+            height: 18.w,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+              color: category.color,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: category.image != null
+                ? Image.network(
+                    category.image!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Icon(
+                      category.icon,
+                      color: ThemeColors.accent,
+                      size: 24.sp,
+                    ),
+                  )
+                : Icon(category.icon, color: ThemeColors.accent, size: 24.sp),
           ),
-          child: Icon(category.icon, color: category.iconColor, size: 24.sp),
-        ),
 
-        SizedBox(height: 1.h),
+          SizedBox(height: 1.h),
 
-        Text(
-          category.title,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w700,
-            color: ThemeColors.black.withOpacity(.9),
+          SizedBox(
+            width: 22.w,
+            child: Text(
+              category.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w700,
+                color: ThemeColors.black.withOpacity(.9),
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

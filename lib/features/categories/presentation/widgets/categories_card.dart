@@ -5,6 +5,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../categories/data/models/categories_model.dart';
+import '../../domain/entities/category_entity.dart';
 
 class CategoryCard extends StatelessWidget {
   const CategoryCard({
@@ -14,7 +15,7 @@ class CategoryCard extends StatelessWidget {
     this.height,
   });
 
-  final CategoryModel category;
+  final CategoryEntity category;
   final VoidCallback? onTap;
   final double? height;
 

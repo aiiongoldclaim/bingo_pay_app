@@ -1,4 +1,4 @@
-import '../../data/models/category_model.dart';
+import '../../../categories/data/models/categories_model.dart';
 import '../../data/models/product_model.dart';
 
 enum HomeStatus { initial, loading, loaded, error }
