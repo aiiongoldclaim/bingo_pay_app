@@ -89,13 +89,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _loginUser(
       LoginParams(email: event.email, password: event.password),
     );
-    result.match((failure) => emit(AuthError(failure)), (user) async {
-      _currentUser = user;
-
-      await _storage.saveEmail(user.email);
-
-      emit(AuthAuthenticated(user));
-    });
+    await result.fold(
+      (failure) async {
+        emit(AuthError(failure));
+      },
+      (user) async {
+        _currentUser = user;
+        await _storage.saveEmail(user.email);
+        if (emit.isDone) return;
+        emit(AuthAuthenticated(user));
+      },
+    );
   }
 
   Future<void> _onRegister(

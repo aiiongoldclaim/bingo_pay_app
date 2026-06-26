@@ -46,7 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthError) {
+          if (state is AuthAuthenticated) {
+            context.go(AppRoutes.home);
+          } else if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
           }
         },
@@ -75,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     label: 'Email',
                     keyboardType: TextInputType.emailAddress,
-                    validator: Validators.email,
+                    // validator: Validators.email,
                   ),
                   const SizedBox(height: 16),
                   AppTextField(

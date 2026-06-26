@@ -71,7 +71,7 @@ class ProductInfoSection extends StatelessWidget {
           Row(
             children: [
               Text(
-                '${CurrencyConstants.dollar}${product.price}',
+                '${product.price}',
                 style: AppTextStyles.headlineMedium.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -80,7 +80,7 @@ class ProductInfoSection extends StatelessWidget {
               SizedBox(width: 2.w),
 
               Text(
-                '${CurrencyConstants.dollar}${product.oldPrice}',
+                '${product.oldPrice}',
                 style: AppTextStyles.bodyMedium.copyWith(
                   decoration: TextDecoration.lineThrough,
                   color: ThemeColors.inkDim,
@@ -105,48 +105,9 @@ class ProductInfoSection extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 1.h),
 
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 1.w),
-            decoration: BoxDecoration(
-              color: ThemeColors.accent1.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Colors.white60,
-                    shape: BoxShape.circle,
-                  ),
-                  child: CircleAvatar(
-                    radius: 3.w,
-                    backgroundColor: ThemeColors.accent,
-                    child: Text(
-                      "B",
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.bold,
-                        color: ThemeColors.ink,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 3.w),
-                Text(
-                  "Earn 380 BINGOLD coins on this order",
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                    color: ThemeColors.accentInk,
-                  ),
-                ),
-              ],
-            ),
-          ),
+
+         
         ],
       ),
     );

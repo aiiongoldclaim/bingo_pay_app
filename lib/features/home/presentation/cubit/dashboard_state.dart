@@ -21,12 +21,12 @@ class HomeState {
   });
 
   String get formattedBigoldBalance {
-    if (bigoldBalance <= 0) return '0.00 USDT';
+    if (bigoldBalance <= 0) return '0.00 Bigod';
     final fixed8 = bigoldBalance.toStringAsFixed(8);
     final decimals = fixed8.split('.').last;
     final allZero = decimals.split('').every((c) => c == '0');
     final amount = allZero ? bigoldBalance.toStringAsFixed(2) : fixed8;
-    return '$amount USDT';
+    return '$amount Bigod';
   }
 
   HomeState copyWith({
