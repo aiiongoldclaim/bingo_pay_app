@@ -174,11 +174,10 @@ class PaymentMethodState {
 
   String get formattedBigoldBalance {
     if (bigoldBalance <= 0) return '—';
-    final fixed8 = bigoldBalance.toStringAsFixed(8);
-    final decimals = fixed8.split('.').last;
-    final allZero = decimals.split('').every((c) => c == '0');
-    final amount = allZero ? bigoldBalance.toStringAsFixed(2) : fixed8;
-    return '$amount USDT';
+    String s = bigoldBalance.toStringAsFixed(8);
+    s = s.replaceAll(RegExp(r'0+$'), '');
+    s = s.replaceAll(RegExp(r'\.$'), '');
+    return '$s Bigod';
   }
 
   String get formattedRemaining => '\$${remainingAmount.toStringAsFixed(0)}';

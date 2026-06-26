@@ -174,11 +174,13 @@
 
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/constants/app_sizes.dart';
@@ -199,8 +201,28 @@ class _ScannerScreenState extends State<ScannerScreen> {
   bool _isScanned = false;
   final ImagePicker _picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    _requestCameraPermission();
+  }
+
+  Future<void> _requestCameraPermission() async {
+    final status = await Permission.camera.request();
+    if (status.isPermanentlyDenied && mounted) {
+      await openAppSettings();
+    }
+  }
+
   Future<void> _pickFromGallery() async {
     _isScanned = false;
+
+    // On Android request storage/photos permission; iOS 14+ uses PHPickerViewController
+    // which manages its own access without a prior permission prompt.
+    if (Platform.isAndroid) {
+      final status = await Permission.photos.request();
+      if (!status.isGranted && !status.isLimited) return;
+    }
 
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -209,6 +231,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     final BarcodeCapture? capture = await controller.analyzeImage(image.path);
 
     if (capture == null || capture.barcodes.isEmpty) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("No QR code found")));

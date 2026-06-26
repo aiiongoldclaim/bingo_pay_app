@@ -180,6 +180,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       streetError: _streetError,
                       cityError: _cityError,
                       postalError: _postalError,
+                      nameValid: _nameValid,
+                      phoneValid: _phoneValid,
+                      streetValid: _streetValid,
+                      cityValid: _cityValid,
+                      postalValid: _postalValid,
                       onChanged: () => setState(() {}),
                     ),
 
@@ -460,6 +465,11 @@ class _AddressForm extends StatelessWidget {
   final String? streetError;
   final String? cityError;
   final String? postalError;
+  final bool nameValid;
+  final bool phoneValid;
+  final bool streetValid;
+  final bool cityValid;
+  final bool postalValid;
   final VoidCallback onChanged;
 
   const _AddressForm({
@@ -473,6 +483,11 @@ class _AddressForm extends StatelessWidget {
     this.streetError,
     this.cityError,
     this.postalError,
+    this.nameValid = false,
+    this.phoneValid = false,
+    this.streetValid = false,
+    this.cityValid = false,
+    this.postalValid = false,
     required this.onChanged,
   });
 
@@ -556,6 +571,7 @@ class _AddressForm extends StatelessWidget {
                   hint: 'e.g. Rahul Sharma',
                   icon: Icons.person_outline_rounded,
                   errorText: nameError,
+                  isValid: nameValid,
                   onChanged: onChanged,
                   textCapitalization: TextCapitalization.words,
                   maxLength: 50,
@@ -568,6 +584,7 @@ class _AddressForm extends StatelessWidget {
                   icon: Icons.phone_android_rounded,
                   keyboardType: TextInputType.phone,
                   errorText: phoneError,
+                  isValid: phoneValid,
                   onChanged: onChanged,
                   maxLength: 10,
                   digitsOnly: true,
@@ -580,6 +597,7 @@ class _AddressForm extends StatelessWidget {
                   icon: Icons.home_outlined,
                   maxLines: 2,
                   errorText: streetError,
+                  isValid: streetValid,
                   onChanged: onChanged,
                   maxLength: 200,
                 ),
@@ -595,6 +613,7 @@ class _AddressForm extends StatelessWidget {
                         hint: 'e.g. Mumbai',
                         icon: Icons.location_city_rounded,
                         errorText: cityError,
+                        isValid: cityValid,
                         onChanged: onChanged,
                         textCapitalization: TextCapitalization.words,
                         maxLength: 50,
@@ -610,6 +629,7 @@ class _AddressForm extends StatelessWidget {
                         icon: Icons.pin_drop_outlined,
                         keyboardType: TextInputType.number,
                         errorText: postalError,
+                        isValid: postalValid,
                         onChanged: onChanged,
                         maxLength: 6,
                         digitsOnly: true,
@@ -634,6 +654,7 @@ class _Field extends StatefulWidget {
   final TextInputType? keyboardType;
   final int maxLines;
   final String? errorText;
+  final bool isValid;
   final VoidCallback onChanged;
   final int? maxLength;
   final bool digitsOnly;
@@ -647,6 +668,7 @@ class _Field extends StatefulWidget {
     this.keyboardType,
     this.maxLines = 1,
     this.errorText,
+    this.isValid = false,
     required this.onChanged,
     this.maxLength,
     this.digitsOnly = false,
@@ -673,9 +695,8 @@ class _FieldState extends State<_Field> {
     super.dispose();
   }
 
-  bool get _hasValue => widget.controller.text.trim().isNotEmpty;
   bool get _isError => widget.errorText != null;
-  bool get _isValid => !_isError && _hasValue;
+  bool get _isValid => !_isError && widget.isValid;
 
   Color get _borderColor {
     if (_isError) return ThemeColors.red;

@@ -28,7 +28,7 @@ class CartItemModel {
   });
 
   IconData get icon =>
-      IconData(iconCodePoint, fontFamily: iconFontFamily);
+      const IconData(0xe55b, fontFamily: 'MaterialIcons');
 
   CartItemModel copyWith({int? quantity}) => CartItemModel(
         productUuid: productUuid,
