@@ -18,8 +18,10 @@ class AccountHeader extends StatelessWidget {
   });
 
   String _formatBalance(double value) {
-    final actualBalance = value / 100000000; // 10^8
-    return actualBalance.toStringAsFixed(8);
+    String s = value.toStringAsFixed(8);
+    s = s.replaceAll(RegExp(r'0+$'), '');
+    s = s.replaceAll(RegExp(r'\.$'), '');
+    return s;
   }
 
   @override
