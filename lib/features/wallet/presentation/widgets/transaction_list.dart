@@ -226,7 +226,7 @@ class TransactionTileData {
   final String subtitle;
   final IconData icon;
 
-  /// Pre-formatted string, e.g. "−₹22,642" or "+₹10,000".
+  /// Pre-formatted string, e.g. "−\$22,642" or "+\$10,000".
   final String formattedAmount;
   final bool amountIsCredit;
 
@@ -252,7 +252,7 @@ class TransactionTileData {
   }) {
     final isCredit = amount > 0;
     final abs = amount.abs().toInt();
-    final formatted = '${isCredit ? '+' : '−'}₹${_formatInr(abs)}';
+    final formatted = '${isCredit ? '+' : '−'}\$${_formatInr(abs)}';
 
     final icon = _iconFor(type);
     final iconBg = _iconBgFor(type);

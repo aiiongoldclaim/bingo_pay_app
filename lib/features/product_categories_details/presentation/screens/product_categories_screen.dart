@@ -14,13 +14,19 @@ import '../widgets/listing_results_bar.dart';
 
 class ProductListingScreen extends StatelessWidget {
   final String categoryName;
+  final String categoryUuid;
 
-  const ProductListingScreen({super.key, required this.categoryName});
+  const ProductListingScreen({
+    super.key,
+    required this.categoryName,
+    required this.categoryUuid,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ProductListingCubit()..loadCategory(categoryName),
+      create: (_) =>
+          ProductListingCubit()..loadCategory(categoryName, categoryUuid),
       child: _ProductListingView(categoryName: categoryName),
     );
   }
@@ -110,7 +116,12 @@ class _ProductListingView extends StatelessWidget {
                               return ListingProductCard(
                                 product: product,
 
-                                onTap: () {},
+                                onTap: product.uuid != null
+                                    ? () => context.push(
+                                          AppRoutes.productDetails,
+                                          extra: product.uuid,
+                                        )
+                                    : null,
                                 onFavouriteTap: () =>
                                     cubit.toggleFavourite(product.id),
                               );
@@ -133,7 +144,12 @@ class _ProductListingView extends StatelessWidget {
                                   height: 18.h,
                                   child: ListingProductCard(
                                     product: product,
-                                    onTap: () {},
+                                    onTap: product.uuid != null
+                                    ? () => context.push(
+                                          AppRoutes.productDetails,
+                                          extra: product.uuid,
+                                        )
+                                    : null,
                                     onFavouriteTap: () =>
                                         cubit.toggleFavourite(product.id),
                                   ),

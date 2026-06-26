@@ -1,104 +1,84 @@
-import 'package:bingo_pay/core/constants/currency_constants.dart';
-import 'package:bingo_pay/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../core/di/injection.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/router/app_routes.dart';
-import '../../../../core/router/route_guard.dart';
-import '../../../../core/storage/preferences_service.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
-import '../../../../core/widgets/app_button.dart';
 
 class WalletCard extends StatelessWidget {
-  const WalletCard({super.key, required this.amount, required this.goldWeight});
+  const WalletCard({super.key, required this.bigoldBalance});
 
-  final double amount;
-  final String goldWeight;
+  final String bigoldBalance;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w),
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
       decoration: BoxDecoration(
-        color: ThemeColors.white.withOpacity(.25),
+        color: ThemeColors.white.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: ThemeColors.white.withValues(alpha: 0.22),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
+          // Gold coin icon
           Container(
-            padding: const EdgeInsets.all(3),
-            decoration: const BoxDecoration(
-              color: Colors.white60,
-              shape: BoxShape.circle,
+            width: 11.w,
+            height: 11.w,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFD700).withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: CircleAvatar(
-              radius: 5.w,
-              backgroundColor: AppColors.accent,
-              child: Text(
-                "B",
-                style: TextStyle(
-                  fontSize: 17.sp,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.ink,
-                ),
-              ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.toll_rounded,
+              color: const Color(0xFFFFD700),
+              size: 20.sp,
             ),
           ),
 
           SizedBox(width: 3.w),
 
+          // Label + balance
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "BINGO Wallet",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w400,
-                    color: ThemeColors.white,
+                  'Bingold Wallet',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: ThemeColors.white.withValues(alpha: 0.75),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
                   ),
                 ),
-
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text:
-                            "${CurrencyConstants.dollar}${amount.toStringAsFixed(0)} ",
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColors.white,
-                        ),
-                      ),
-                      TextSpan(
-                        text: goldWeight,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w400,
-                          color: ThemeColors.white,
-                        ),
-                      ),
-                    ],
+                SizedBox(height: 0.4.h),
+                Text(
+                  bigoldBalance,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: ThemeColors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15.sp,
                   ),
                 ),
               ],
             ),
           ),
 
-          SizedBox(
-            width: 25.w,
-            child: AppButton(
-              label: 'Top up',
-              textColor: ThemeColors.blue,
-              variant: AppButtonVariant.secondary,
-              onPressed: () {},
+          // Arrow indicator
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: ThemeColors.white.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: ThemeColors.white,
+              size: 12.sp,
             ),
           ),
         ],

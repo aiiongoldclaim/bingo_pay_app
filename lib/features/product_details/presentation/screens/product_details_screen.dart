@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
+import '../../../cart/data/models/cart_model.dart';
+import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../payment/presentation/screens/payment_screen.dart';
 import '../cubit/product_details_cubit.dart';
 import '../cubit/product_details_state.dart';
@@ -94,9 +96,21 @@ class ProductDetailScreen extends StatelessWidget {
 
                 primaryLabel: 'Buy Now',
                 onPrimaryPressed: () {
+                  final rawPrice = product.price
+                      .replaceAll(RegExp(r'[$,]'), '')
+                      .trim();
+                  final priceValue =
+                      double.tryParse(rawPrice) ?? 0.0;
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const PaymentScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => PaymentScreen(
+                        vendorEmail: product.vendorEmail,
+                        productName: product.productName,
+                        productPrice: priceValue,
+                        // productPrice: 350,
+                      ),
+                    ),
                   );
                 },
                 secondaryTextColor: ThemeColors.black,
@@ -104,7 +118,15 @@ class ProductDetailScreen extends StatelessWidget {
                 secondaryLabel: 'Add Cart',
                 secondaryIcon: Icons.shopping_bag_outlined,
                 onSecondaryPressed: () {
-                  context.read<ProductDetailCubit>().onAddToCart();
+                  context.read<CartCubit>().addItem(
+                        CartItemModel.fromProduct(product),
+                      );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${product.productName} added to cart'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
                 },
               ),
             ],

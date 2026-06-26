@@ -9,4 +9,6 @@ class AppConfig {
   static String get apiBaseUrl =>
       FlavorConfig.instance.variables['apiBaseUrl'] as String;
   static String get apiKey => FlavorConfig.instance.variables['apiKey'] as String;
+  static String get categoriesApiBaseUrl =>
+      FlavorConfig.instance.variables['categoriesApiBaseUrl'] as String;
 }

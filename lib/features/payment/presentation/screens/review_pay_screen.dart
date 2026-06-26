@@ -240,21 +240,21 @@
 //
 //           _buildSummaryRow(
 //             'Item total',
-//             '₹${state.itemTotal.toStringAsFixed(0)}',
+//             '\$${state.itemTotal.toStringAsFixed(0)}',
 //           ),
 //           _buildSummaryRow(
 //             'Savings',
-//             '- ₹${state.savings.toStringAsFixed(0)}',
+//             '- \$${state.savings.toStringAsFixed(0)}',
 //             isGreen: true,
 //           ),
 //           _buildSummaryRow(
 //             'Delivery',
-//             state.deliveryCharge == 0 ? 'FREE' : '₹${state.deliveryCharge}',
+//             state.deliveryCharge == 0 ? 'FREE' : '\$${state.deliveryCharge}',
 //             isGreen: true,
 //           ),
 //           _buildSummaryRow(
 //             'Taxes & fees',
-//             '₹${state.taxes.toStringAsFixed(0)}',
+//             '\$${state.taxes.toStringAsFixed(0)}',
 //           ),
 //           const Divider(height: 32),
 //
@@ -299,92 +299,111 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../cart/data/models/cart_model.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 
 class ReviewPaymentCard extends StatelessWidget {
   const ReviewPaymentCard({
     super.key,
-    required this.walletBalance,
-    required this.remainingAmount,
-    required this.onChange,
+    required this.methodName,
+    required this.bigoldBalance,
   });
 
-  final String walletBalance;
-  final String remainingAmount;
-  final VoidCallback onChange;
+  final String methodName;
+  final String bigoldBalance;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSizes.paddingMd),
       decoration: BoxDecoration(
         color: ThemeColors.white,
         borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A1D4E).withValues(alpha: 0.10),
+            blurRadius: 24,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('PAYING WITH', style: AppTextStyles.labelMedium),
-
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Container(
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  color: ThemeColors.blue.withValues(alpha: .08),
-                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                ),
-                child: const Icon(
-                  Icons.account_balance_wallet_outlined,
-                  color: ThemeColors.blue,
-                ),
+          // ── Gradient header ───────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1A1D4E), Color(0xFF2B2FA8)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
               ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('BINGOLD Wallet', style: AppTextStyles.titleMedium),
-                    Text(
-                      'Balance $walletBalance',
-                      style: AppTextStyles.bodyMedium,
-                    ),
-                  ],
+              borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppSizes.radius2Xl)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: ThemeColors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: const Icon(Icons.account_balance_wallet_outlined,
+                      size: 17, color: ThemeColors.white),
                 ),
-              ),
-
-              TextButton(
-                onPressed: onChange,
-                child: Text(
-                  'Change',
-                  style: AppTextStyles.labelLarge.copyWith(
-                    color: ThemeColors.blue,
+                const SizedBox(width: 10),
+                Text(
+                  methodName,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: ThemeColors.white,
+                    letterSpacing: 0.3,
                   ),
                 ),
-              ),
-            ],
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: ThemeColors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lock_outline,
+                          size: 11, color: ThemeColors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Secured',
+                        style: AppTextStyles.labelSmall
+                            .copyWith(color: ThemeColors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
 
-          const Divider(height: 32),
-
-          Row(
-            children: [
-              const Icon(Icons.bolt, color: Colors.amber, size: 18),
-              const SizedBox(width: 8),
-
-              Expanded(
-                child: Text(
-                  'Wallet covers $walletBalance • remaining $remainingAmount via UPI',
-                  style: AppTextStyles.bodyMedium,
+          // ── Balance ────────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('YOUR BALANCE',
+                    style: AppTextStyles.labelSmall
+                        .copyWith(color: ThemeColors.inkDim)),
+                const SizedBox(height: 12),
+                _BalanceRow(
+                  icon: Icons.currency_bitcoin,
+                  label: 'Bigod Balance',
+                  value: bigoldBalance,
+                  color: const Color(0xFFF7A928),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -392,9 +411,49 @@ class ReviewPaymentCard extends StatelessWidget {
   }
 }
 
+class _BalanceRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+  const _BalanceRow(
+      {required this.icon,
+      required this.label,
+      required this.value,
+      required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+            child: Text(label,
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: ThemeColors.inkMid))),
+        Text(
+          value,
+          style: AppTextStyles.titleMedium.copyWith(
+              fontWeight: FontWeight.w700, color: ThemeColors.ink),
+        ),
+      ],
+    );
+  }
+}
+
 class OrderSummaryCard extends StatelessWidget {
   const OrderSummaryCard({
     super.key,
+    this.productName = '',
+    this.cartItems = const [],
     required this.itemTotal,
     required this.savings,
     required this.delivery,
@@ -402,6 +461,8 @@ class OrderSummaryCard extends StatelessWidget {
     required this.total,
   });
 
+  final String productName;
+  final List<CartItemModel> cartItems;
   final String itemTotal;
   final String savings;
   final String delivery;
@@ -417,22 +478,54 @@ class OrderSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Cart items list
+          if (cartItems.isNotEmpty) ...[
+            ...cartItems.map((item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.bodyMedium),
+                            Text('Qty: ${item.quantity}',
+                                style: AppTextStyles.bodySmall
+                                    .copyWith(color: ThemeColors.inkDim)),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '\$${(item.priceValue * item.quantity).toStringAsFixed(0)}',
+                        style: AppTextStyles.bodyMedium,
+                      ),
+                    ],
+                  ),
+                )),
+            const Divider(height: 8),
+            const SizedBox(height: 8),
+          ] else if (productName.isNotEmpty) ...[
+            Text(productName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.bodySmall
+                    .copyWith(color: ThemeColors.inkDim)),
+            const Divider(height: 20),
+          ],
+
           _row('Item total', itemTotal),
           const SizedBox(height: 12),
-
           _row('Savings', savings, color: ThemeColors.green),
-
           const SizedBox(height: 12),
-
           _row('Delivery', delivery, color: ThemeColors.green),
-
           const SizedBox(height: 12),
-
           _row('Taxes & fees', tax),
-
           const Divider(height: 32),
-
           _row('Total', total, isBold: true),
         ],
       ),
@@ -554,11 +647,11 @@ class ReviewPayScreen extends StatelessWidget {
               isLoading: state.isProcessing,
               onPay: () async {
                 final cubit = context.read<PaymentMethodCubit>();
-
                 await cubit.makePayment();
 
-                if (context.mounted &&
-                    cubit.state.status == PaymentStatus.success) {
+                if (!context.mounted) return;
+
+                if (cubit.state.status == PaymentStatus.success) {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -568,48 +661,114 @@ class ReviewPayScreen extends StatelessWidget {
                       ),
                     ),
                   );
+                } else if (cubit.state.status == PaymentStatus.failure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        cubit.state.errorMessage ??
+                            'Payment failed. Please try again.',
+                      ),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 4),
+                    ),
+                  );
                 }
               },
             ),
 
             body: SingleChildScrollView(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSizes.paddingMd),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Delivery Address ──────────────────────────────────
+                  if (state.deliveryName.isNotEmpty) ...[
+                    _ReviewAddressCard(state: state),
+                    const SizedBox(height: AppSizes.paddingLg),
+                  ],
+
+                  // ── Paying With ───────────────────────────────────────
                   ReviewPaymentCard(
-                    walletBalance: state.formattedWalletBalance,
-                    remainingAmount: state.formattedRemaining,
-                    onChange: () => Navigator.pop(context),
+                    methodName: state.methodDisplayName,
+                    bigoldBalance: state.formattedBigoldBalance,
                   ),
 
                   const SizedBox(height: AppSizes.paddingLg),
 
+                  // ── Order Summary ─────────────────────────────────────
                   Text('Order summary', style: AppTextStyles.titleLarge),
-
                   const SizedBox(height: AppSizes.paddingSm),
 
                   OrderSummaryCard(
-                    itemTotal: '₹${state.itemTotal.toStringAsFixed(0)}',
-                    savings: '- ₹${state.savings.toStringAsFixed(0)}',
+                    productName: state.isCartFlow ? '' : state.productName,
+                    cartItems: state.cartItems,
+                    itemTotal: state.itemTotal > 0
+                        ? '\$${state.itemTotal.toStringAsFixed(0)}'
+                        : 'N/A',
+                    savings: state.savings > 0
+                        ? '- \$${state.savings.toStringAsFixed(0)}'
+                        : '\$0',
                     delivery: state.deliveryCharge == 0
-                        ? 'FREE'
-                        : '₹${state.deliveryCharge}',
-                    tax: '₹${state.taxes.toStringAsFixed(0)}',
+                        ? '\$0'
+                        : '\$${state.deliveryCharge}',
+                    tax: '\$${state.taxes.toStringAsFixed(0)}',
                     total: state.formattedTotal,
                   ),
 
                   const SizedBox(height: AppSizes.paddingLg),
-
                   const SecurePaymentInfo(),
-
                   const SizedBox(height: 120),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ── Delivery Address Review Card ────────────────────────────────────────────
+
+class _ReviewAddressCard extends StatelessWidget {
+  final PaymentMethodState state;
+  const _ReviewAddressCard({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final fullAddress =
+        '${state.deliveryAddress}, ${state.deliveryCity} - ${state.deliveryPostal}';
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingMd),
+      decoration: BoxDecoration(
+        color: ThemeColors.white,
+        borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.location_on_outlined,
+                  size: 18, color: ThemeColors.blue),
+              const SizedBox(width: 6),
+              Text('DELIVERY ADDRESS',
+                  style: AppTextStyles.labelMedium
+                      .copyWith(color: ThemeColors.inkMid)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(state.deliveryName, style: AppTextStyles.titleMedium),
+          const SizedBox(height: 2),
+          Text(state.deliveryPhone,
+              style: AppTextStyles.bodySmall
+                  .copyWith(color: ThemeColors.inkDim)),
+          const SizedBox(height: 4),
+          Text(fullAddress,
+              style: AppTextStyles.bodyMedium
+                  .copyWith(color: ThemeColors.inkMid)),
+        ],
       ),
     );
   }

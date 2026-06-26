@@ -14,7 +14,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      padding: EdgeInsets.only(left: 5.w,right: 5.w, top: 6.h,bottom: 2.h),
       child: Row(
         children: [
           AppIconContainer(

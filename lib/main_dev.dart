@@ -8,6 +8,7 @@ void main() async {
     color: Colors.green,
     variables: const {
       'apiBaseUrl': 'http://54.116.213.252:3001',
+      'categoriesApiBaseUrl': 'http://13.159.7.199:5001',
       'appName': 'Bingo Pay DEV',
       'enableLogging': true,
       'enableAnalytics': false,

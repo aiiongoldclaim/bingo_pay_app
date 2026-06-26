@@ -80,7 +80,7 @@ class _WalletBody extends StatelessWidget {
         // ── Balance card ────────────────────────────────────────────────────
         WalletCard(
           walletName: 'BINGOLD Wallet',
-          balance: '₹12,480',
+          balance: '\$12,480',
           subTitle: '≈ 1.84 g digital gold · 480 coins',
           onAddMoney: () {
             debugPrint('Add Money');
@@ -96,7 +96,7 @@ class _WalletBody extends StatelessWidget {
         GoldInvestBanner(
           title: 'Grow with digital gold',
           subtitle:
-              '${state.goldRate.karat} · ₹${state.goldRate.pricePerGram.toStringAsFixed(0)}/g'
+              '${state.goldRate.karat} · \$${state.goldRate.pricePerGram.toStringAsFixed(0)}/g'
               ' · +${state.goldRate.changePercent}% today',
           buttonLabel: 'Invest',
           onTap: cubit.onInvest,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ProductModel {
+  final String? uuid;
   final String brand;
   final String name;
   final String price;
@@ -11,6 +12,7 @@ class ProductModel {
   final List<String> images;
 
   ProductModel({
+    this.uuid,
     required this.brand,
     required this.name,
     required this.price,
@@ -21,123 +23,100 @@ class ProductModel {
     required this.images,
   });
 
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    final mediaList = (json['media'] as List<dynamic>?) ?? [];
+    final images = mediaList
+        .map((m) => (m as Map<String, dynamic>)['url'] as String? ?? '')
+        .where((url) => url.isNotEmpty)
+        .toList();
+
+    final brand = json['brand'] as Map<String, dynamic>?;
+    final variants = (json['variants'] as List<dynamic>?) ?? [];
+
+    double price = 0.0;
+    double oldPrice = 0.0;
+    int discount = 0;
+    if (variants.isNotEmpty) {
+      final v = variants.first as Map<String, dynamic>;
+      // API returns salePrice/basePrice as strings; fall back to numeric price/compareAtPrice
+      price = double.tryParse(v['salePrice']?.toString() ?? '') ??
+          (v['price'] as num?)?.toDouble() ??
+          0.0;
+      oldPrice = double.tryParse(v['basePrice']?.toString() ?? '') ??
+          (v['compareAtPrice'] as num?)?.toDouble() ??
+          0.0;
+      if (oldPrice > 0 && price < oldPrice) {
+        discount = (((oldPrice - price) / oldPrice) * 100).round();
+      }
+    }
+
+    final averageRating =
+        (json['averageRating'] as num?)?.toDouble() ?? 0.0;
+
+    return ProductModel(
+      uuid: json['uuid'] as String?,
+      brand: brand?['name'] as String? ?? '',
+      name: json['title'] as String? ?? '',
+      price: price > 0 ? '\$${_fmt(price)}' : 'N/A',
+      oldPrice: oldPrice > 0 ? '\$${_fmt(oldPrice)}' : '',
+      rating: averageRating.toStringAsFixed(1),
+      discount: discount,
+      icon: Icons.shopping_bag_outlined,
+      images: images,
+    );
+  }
+
+  static String _fmt(double v) {
+    final s = v.truncate().toString();
+    final buf = StringBuffer();
+    for (int i = 0; i < s.length; i++) {
+      final fromEnd = s.length - i;
+      buf.write(s[i]);
+      final rem = fromEnd - 1;
+      if (rem == 3 || (rem > 3 && (rem - 3) % 2 == 0)) buf.write(',');
+    }
+    return buf.toString();
+  }
+
   static List<ProductModel> flashDeals() => [
-    ProductModel(
-      brand: 'NOVA',
-      name: 'Helios 5G Smartphone 256GB',
-      price: '64,999',
-      oldPrice: '72,999',
-      rating: '4.6',
-      discount: 11,
-      icon: Icons.smartphone_outlined,
-      images: [
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-        'https://images.unsplash.com/photo-1598327105666-5b89351aff97',
-        'https://images.unsplash.com/photo-1580910051074-3eb694886505',
-      ],
-    ),
-
-    ProductModel(
-      brand: 'SONARA',
-      name: 'Aurora Pro Wireless Headphones',
-      price: '18,990',
-      oldPrice: '24,990',
-      rating: '4.8',
-      discount: 24,
-      icon: Icons.headphones_outlined,
-      images: [
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-        'https://images.unsplash.com/photo-1484704849700-f032a568e944',
-        'https://images.unsplash.com/photo-1546435770-a3e426bf472b',
-      ],
-    ),
-
-    ProductModel(
-      brand: 'OPTIX',
-      name: 'Lumina Smart Camera',
-      price: '8,990',
-      oldPrice: '11,990',
-      rating: '4.7',
-      discount: 20,
-      icon: Icons.camera_alt_outlined,
-      images: [
-        'https://images.unsplash.com/photo-1516035069371-29a1b244cc32',
-        'https://images.unsplash.com/photo-1502920917128-1aa500764ce7',
-        'https://images.unsplash.com/photo-1495707902641-75cac588d2e9',
-      ],
-    ),
-
-    ProductModel(
-      brand: 'TYDE',
-      name: 'Eclipse Smartwatch',
-      price: '32,400',
-      oldPrice: '389876',
-      rating: '4.7',
-      discount: 20,
-      icon: Icons.camera_alt_outlined,
-      images: [
-        'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
-        'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9',
-        'https://images.unsplash.com/photo-1546868871-7041f2a55e12',
-      ],
-    ),
-  ];
+        ProductModel(
+          brand: 'NOVA',
+          name: 'Helios 5G Smartphone 256GB',
+          price: '\$64,999',
+          oldPrice: '\$72,999',
+          rating: '4.6',
+          discount: 11,
+          icon: Icons.smartphone_outlined,
+          images: [
+            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
+          ],
+        ),
+        ProductModel(
+          brand: 'SONARA',
+          name: 'Aurora Pro Wireless Headphones',
+          price: '\$18,990',
+          oldPrice: '\$24,990',
+          rating: '4.8',
+          discount: 24,
+          icon: Icons.headphones_outlined,
+          images: [
+            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+          ],
+        ),
+      ];
 
   static List<ProductModel> recommended() => [
-    ProductModel(
-      brand: 'TYDE',
-      name: 'Eclipse Smartwatch',
-      price: '32,400',
-      oldPrice: '38,000',
-      rating: '4.7',
-      discount: 15,
-      icon: Icons.watch,
-      images: [
-        'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
-        'https://images.unsplash.com/photo-1546868871-7041f2a55e12',
-      ],
-    ),
-
-    ProductModel(
-      brand: 'MAISON',
-      name: 'Arc Mini Crossbody Bag',
-      price: '9,990',
-      oldPrice: '12,990',
-      rating: '4.6',
-      discount: 23,
-      icon: Icons.shopping_bag_outlined,
-      images: [
-        'https://images.unsplash.com/photo-1584917865442-de89df76afd3',
-        'https://images.unsplash.com/photo-1591561954557-26941169b49e',
-      ],
-    ),
-
-    ProductModel(
-      brand: 'STRIDE',
-      name: 'Velvet Runner Knit',
-      price: '6,490',
-      oldPrice: '8,990',
-      rating: '4.5',
-      discount: 28,
-      icon: Icons.directions_run,
-      images: [
-        'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
-        'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519',
-      ],
-    ),
-
-    ProductModel(
-      brand: 'APPLE',
-      name: 'AirPods Pro Gen 2',
-      price: '22,990',
-      oldPrice: '26,990',
-      rating: '4.9',
-      discount: 12,
-      icon: Icons.earbuds,
-      images: [
-        'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46',
-        'https://images.unsplash.com/photo-1588423771073-b8903fbb85b5',
-      ],
-    ),
-  ];
+        ProductModel(
+          brand: 'TYDE',
+          name: 'Eclipse Smartwatch',
+          price: '\$32,400',
+          oldPrice: '\$38,000',
+          rating: '4.7',
+          discount: 15,
+          icon: Icons.watch,
+          images: [
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
+          ],
+        ),
+      ];
 }

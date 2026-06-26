@@ -35,7 +35,7 @@ class CoinRedemptionCard extends StatelessWidget {
               children: [
                 Text('Use 480 BINGOLD coins', style: AppTextStyles.titleMedium),
                 Text(
-                  'Save ₹480 on this order',
+                  'Save \$480 on this order',
                   style: AppTextStyles.bodyMedium,
                 ),
               ],

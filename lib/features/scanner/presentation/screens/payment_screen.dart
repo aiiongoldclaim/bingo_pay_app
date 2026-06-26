@@ -239,7 +239,7 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
             ),
 
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}\$')),
             ],
 
             onChanged: (value) {

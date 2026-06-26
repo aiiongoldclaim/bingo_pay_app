@@ -130,7 +130,7 @@ class OrderCard extends StatelessWidget {
 
               /// Price
               Text(
-                '₹${_formatPrice(order.totalAmount)}',
+                '\$${_formatPrice(order.totalAmount)}',
                 style: AppTextStyles.titleMedium.copyWith(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.bold,

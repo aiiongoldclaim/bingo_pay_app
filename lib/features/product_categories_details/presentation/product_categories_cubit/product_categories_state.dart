@@ -21,7 +21,7 @@ class ProductListingLoaded extends ProductListingState {
   final List<ListingProductModel> filteredProducts;
   final SortOption selectedSort;
   final ViewMode viewMode;
-  final String? selectedPriceFilter; // "Under ₹20k", "₹20k–₹50k" etc.
+  final String? selectedPriceFilter; // "Under \$20k", "\$20k–\$50k" etc.
   final String? selectedRatingFilter; // "4★ & up"
 
   const ProductListingLoaded({

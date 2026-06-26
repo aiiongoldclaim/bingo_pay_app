@@ -14,7 +14,7 @@ import '../bloc/shop_event.dart';
 import '../bloc/shop_state.dart';
 
 String formatCurrency(num value) =>
-    NumberFormat.currency(symbol: '₹', decimalDigits: 0).format(value);
+    NumberFormat.currency(symbol: '\$', decimalDigits: 0).format(value);
 
 String categoryLabelFor(String slug) {
   return slug

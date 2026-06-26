@@ -72,13 +72,16 @@ class ListingProductCard extends StatelessWidget {
                               child: Image.network(
                                 product.imageUrl!,
                                 fit: BoxFit.contain,
+                                errorBuilder: (ctx, err, st) => _Fallback(
+                                  icon: product.icon,
+                                ),
+                                loadingBuilder: (ctx, child, p) =>
+                                    p == null
+                                        ? child
+                                        : _Fallback(icon: product.icon),
                               ),
                             )
-                          : Icon(
-                              product.icon,
-                              size: 15.w,
-                              color: ThemeColors.blue,
-                            ),
+                          : _Fallback(icon: product.icon),
                     ),
                   ),
                   // Badge top-left
@@ -155,17 +158,20 @@ class ListingProductCard extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        _formatPrice(product.price),
+                        product.price > 0
+                            ? '\$${_formatPrice(product.price)}'
+                            : 'N/A',
                         style: AppTextStyles.titleMedium.copyWith(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w800,
                           color: ThemeColors.ink,
                         ),
                       ),
-                      if (product.originalPrice != null) ...[
+                      if (product.originalPrice != null &&
+                          product.originalPrice! > 0) ...[
                         SizedBox(width: 1.5.w),
                         Text(
-                          '₹${_formatPrice(product.originalPrice!)}',
+                          '\$${_formatPrice(product.originalPrice!)}',
                           style: AppTextStyles.labelSmall.copyWith(
                             color: ThemeColors.inkDim,
                             fontSize: 15.sp,
@@ -192,6 +198,20 @@ class ListingProductCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Fallback extends StatelessWidget {
+  const _Fallback({required this.icon});
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: ThemeColors.surface2,
+      alignment: Alignment.center,
+      child: Icon(icon, size: 15.w, color: ThemeColors.inkDim),
     );
   }
 }

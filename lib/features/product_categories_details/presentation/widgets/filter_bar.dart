@@ -6,7 +6,7 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../product_categories_cubit/product_categories_state.dart';
 
 /// Horizontal scrollable filter row:
-/// [Filters] [Sort] [Under ₹20k] [4★ & up] …
+/// [Filters] [Sort] [Under \$20k] [4★ & up] …
 class ListingFilterBar extends StatelessWidget {
   final SortOption selectedSort;
   final String? selectedPriceFilter;
@@ -27,7 +27,7 @@ class ListingFilterBar extends StatelessWidget {
     required this.onRatingFilter,
   });
 
-  static const _priceFilters = ['Under ₹20k', '₹20k–₹50k', 'Above ₹50k'];
+  static const _priceFilters = ['Under \$20k', '\$20k–\$50k', 'Above \$50k'];
   static const _ratingFilters = ['4★ & up', '3★ & up'];
 
   @override

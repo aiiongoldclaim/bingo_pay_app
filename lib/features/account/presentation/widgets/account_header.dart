@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/router/app_routes.dart';
-import '../../../../core/widgets/custom_app_bar.dart';
 import '../../domain/enities/account_entity.dart';
 
 class AccountHeader extends StatelessWidget {
@@ -46,10 +43,9 @@ class AccountHeader extends StatelessWidget {
 
             SizedBox(height: 2.5.h),
 
-            _StatRow(
-              account: account,
+            _WalletCard(
               formattedBalance: _formatBalance(account.displayBigoldBalance),
-              onWalletTap: onWalletTap,
+              onTap: onWalletTap,
             ),
 
             SizedBox(height: 3.h),
@@ -166,114 +162,95 @@ class _AvatarRow extends StatelessWidget {
               ],
             ),
           ),
-
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: .8.h),
-            decoration: BoxDecoration(
-              color: ThemeColors.accent,
-              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-            ),
-            child: Text(
-              account.kycStatus.label,
-              style: AppTextStyles.labelMedium.copyWith(
-                color: ThemeColors.accentInk,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 }
 
-class _StatRow extends StatelessWidget {
-  final AccountEntity account;
+class _WalletCard extends StatelessWidget {
   final String formattedBalance;
-  final VoidCallback onWalletTap;
+  final VoidCallback onTap;
 
-  const _StatRow({
-    required this.account,
-    required this.formattedBalance,
-    required this.onWalletTap,
-  });
+  const _WalletCard({required this.formattedBalance, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 11.h,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 5.w),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: onWalletTap,
-              child: _StatTile(value: formattedBalance, label: "BiGold"),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 5.w),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.8.h),
+          decoration: BoxDecoration(
+            color: ThemeColors.white.withValues(alpha: 0.13),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: ThemeColors.white.withValues(alpha: 0.22),
+              width: 1,
             ),
-
-            SizedBox(width: 3.w),
-
-            _StatTile(
-              value: account.usdtBalance.toStringAsFixed(2),
-              label: "USDT",
-            ),
-
-            SizedBox(width: 3.w),
-
-            _StatTile(
-              value: account.referralCode.toString(),
-              label: "Referral",
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  final String value;
-  final String label;
-
-  const _StatTile({required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: 28.w, maxWidth: 60.w),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.5.h),
-        decoration: BoxDecoration(
-          color: ThemeColors.white.withOpacity(.12),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Text(
-                value,
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: ThemeColors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17.sp,
+          ),
+          child: Row(
+            children: [
+              // Coin icon
+              Container(
+                width: 11.w,
+                height: 11.w,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFD700).withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.toll_rounded,
+                  color: const Color(0xFFFFD700),
+                  size: 20.sp,
                 ),
               ),
-            ),
 
-            SizedBox(height: .5.h),
+              SizedBox(width: 3.5.w),
 
-            Text(
-              label,
-              style: AppTextStyles.labelSmall.copyWith(
-                color: ThemeColors.white.withOpacity(.7),
-                fontWeight: FontWeight.bold,
+              // Label + balance
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bingold Wallet',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: ThemeColors.white.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    SizedBox(height: 0.4.h),
+                    Text(
+                      '$formattedBalance USDT',
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: ThemeColors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Tap indicator
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: ThemeColors.white.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: ThemeColors.white,
+                  size: 12.sp,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

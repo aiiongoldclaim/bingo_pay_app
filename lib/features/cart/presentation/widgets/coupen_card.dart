@@ -31,7 +31,7 @@ class CouponCard extends StatelessWidget {
                     color: ThemeColors.blue,
                   ),
                 ),
-                Text('You saved ₹2,848', style: AppTextStyles.bodyMedium),
+                Text('You saved \$2,848', style: AppTextStyles.bodyMedium),
               ],
             ),
           ),

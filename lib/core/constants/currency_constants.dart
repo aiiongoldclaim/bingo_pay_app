@@ -2,7 +2,7 @@ class CurrencyConstants {
   CurrencyConstants._();
 
   /// Currency Symbol
-  static const String rupee = '₹';
+  static const String rupee = '\$';
   static const String dollar = '\$';
   static const String euro = '€';
   static const String pound = '£';

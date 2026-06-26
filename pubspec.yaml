@@ -42,6 +42,9 @@ dependencies:
   permission_handler: ^11.4.0
   connectivity_plus: ^6.1.4
   share_plus: ^10.1.4
+  pdf: ^3.11.2
+  printing: ^5.14.2
+  path_provider: ^2.1.5
   mobile_scanner: ^7.2.0
 
 

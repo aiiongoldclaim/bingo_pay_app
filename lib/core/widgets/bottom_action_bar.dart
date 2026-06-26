@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../constants/currency_constants.dart';
 import '../theme/theme_colors.dart';
 import 'app_button.dart';
 
@@ -50,7 +49,7 @@ class AppBottomActionBar extends StatelessWidget {
         child: Row(
           children: [
             /// Price (optional)
-            if (price != null) ...[
+            if (price != null && price != 'N/A') ...[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -65,7 +64,7 @@ class AppBottomActionBar extends StatelessWidget {
                   ),
 
                   Text(
-                    '${CurrencyConstants.dollar}${price!}',
+                    price!,
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,

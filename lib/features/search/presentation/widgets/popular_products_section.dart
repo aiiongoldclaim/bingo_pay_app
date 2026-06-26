@@ -310,7 +310,7 @@ class _PriceRow extends StatelessWidget {
       runSpacing: .2.h,
       children: [
         Text(
-          '₹${price.toInt()}',
+          '\$${price.toInt()}',
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 15.sp,
@@ -319,7 +319,7 @@ class _PriceRow extends StatelessWidget {
 
         if (originalPrice != null)
           Text(
-            '₹${originalPrice!.toInt()}',
+            '\$${originalPrice!.toInt()}',
             style: AppTextStyles.bodySmall.copyWith(
               decoration: TextDecoration.lineThrough,
               fontSize: 15.sp,

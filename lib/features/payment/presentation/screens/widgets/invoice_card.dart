@@ -12,141 +12,180 @@ class InvoiceCard extends StatelessWidget {
     required this.totalAmount,
     required this.customerName,
     required this.customerAddress,
+    this.productName = '',
+    this.deliveryCharge = 0.0,
   });
 
   final String orderId;
   final String totalAmount;
+  final String productName;
   final String customerName;
   final String customerAddress;
+  final double deliveryCharge;
+
+  static String _month(int m) {
+    const months = [
+      'Jan','Feb','Mar','Apr','May','Jun',
+      'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+    return months[m - 1];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final dateStr = '${now.day} ${_month(now.month)} ${now.year}';
+
     return Container(
-      margin: const EdgeInsets.all(AppSizes.paddingMd),
+      margin: const EdgeInsets.symmetric(horizontal: AppSizes.paddingMd),
       decoration: BoxDecoration(
         color: ThemeColors.white,
         borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A1D4E).withValues(alpha: 0.18),
+            blurRadius: 32,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          _buildHeader(),
-
-          const Divider(),
-
-          _buildCustomerInfo(),
-
-          const Divider(),
-
-          const Padding(
-            padding: EdgeInsets.all(AppSizes.paddingMd),
-            child: Column(
+          // ── Gradient header ─────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(AppSizes.paddingMd),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1A1D4E), Color(0xFF2B2FA8)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppSizes.radius2Xl)),
+            ),
+            child: Row(
               children: [
-                InvoiceItemTile(
-                  title: 'Aurora Pro Wireless Headphones',
-                  subtitle: 'Qty 1 • incl. 18% GST',
-                  price: '₹18,990',
+                Container(
+                  height: 46,
+                  width: 46,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.store_rounded,
+                      color: Colors.white, size: 24),
                 ),
-
-                InvoiceItemTile(
-                  title: 'Velvet Runner Knit Sneakers',
-                  subtitle: 'Qty 1 • incl. 18% GST',
-                  price: '₹6,490',
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Bingold Pay',
+                        style: AppTextStyles.titleMedium
+                            .copyWith(color: Colors.white),
+                      ),
+                      Text(
+                        'Tax Invoice',
+                        style: AppTextStyles.bodySmall.copyWith(
+                            color: Colors.white.withValues(alpha: 0.75)),
+                      ),
+                    ],
+                  ),
                 ),
-
-                InvoiceItemTile(
-                  title: 'Nimbus Smart Desk Lamp',
-                  subtitle: 'Qty 1 • incl. 18% GST',
-                  price: '₹3,490',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'INV-${orderId.replaceAll('BG-', '')}',
+                      style: AppTextStyles.labelMedium
+                          .copyWith(color: Colors.white),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      dateStr,
+                      style: AppTextStyles.bodySmall.copyWith(
+                          color: Colors.white.withValues(alpha: 0.75)),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          const Divider(),
-
-          _buildSummary(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(AppSizes.paddingMd),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
+          // ── Billed To ───────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(AppSizes.paddingMd),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('BINGO Pay', style: AppTextStyles.titleLarge),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  'Tax Invoice • GSTIN 27ABCDE1234F1Z5',
-                  style: AppTextStyles.bodySmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A1D4E).withValues(alpha: 0.07),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.location_on_outlined,
+                      size: 18, color: Color(0xFF2B2FA8)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('BILLED TO',
+                          style: AppTextStyles.labelSmall
+                              .copyWith(color: ThemeColors.inkDim)),
+                      const SizedBox(height: 4),
+                      Text(customerName,
+                          style: AppTextStyles.titleMedium),
+                      if (customerAddress.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(customerAddress,
+                            style: AppTextStyles.bodySmall
+                                .copyWith(color: ThemeColors.inkMid)),
+                      ],
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(width: 12),
+          Divider(height: 1, color: ThemeColors.inkDim.withValues(alpha: 0.12)),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Invoice no.', style: AppTextStyles.labelMedium),
-
-              Text(
-                'INV-${orderId.replaceAll('BG-', '')}',
-                style: AppTextStyles.titleMedium,
-              ),
-
-              Text('12 Jun 2026', style: AppTextStyles.bodySmall),
-            ],
+          // ── Item ────────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(AppSizes.paddingMd),
+            child: InvoiceItemTile(
+              title: productName.isNotEmpty ? productName : 'Product',
+              subtitle: 'Qty 1 • incl. GST',
+              price: totalAmount,
+            ),
           ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildCustomerInfo() {
-    return Padding(
-      padding: const EdgeInsets.all(AppSizes.paddingMd),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('BILLED TO', style: AppTextStyles.labelMedium),
+          // Divider(height: 1, color: ThemeColors.inkDim.withValues(alpha: 0.12)),
 
-          const SizedBox(height: 8),
-
-          Text(customerName, style: AppTextStyles.titleMedium),
-
-          const SizedBox(height: 4),
-
-          Text(customerAddress, style: AppTextStyles.bodyMedium),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummary() {
-    return Padding(
-      padding: const EdgeInsets.all(AppSizes.paddingMd),
-      child: Column(
-        children: [
-          _summaryRow('Subtotal', '₹28,980'),
-
-          _summaryRow('Discount & coins', '- ₹6,338', color: ThemeColors.green),
-
-          _summaryRow('Delivery', 'FREE', color: ThemeColors.green),
-
-          const Divider(height: 28),
-
-          _summaryRow('Amount paid', totalAmount, isBold: true),
+          // ── Summary ─────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(AppSizes.paddingX),
+            child: Column(
+              children: [
+                if (deliveryCharge > 0) ...[
+                  _summaryRow(
+                    'Delivery',
+                    '\$${deliveryCharge.toStringAsFixed(0)}',
+                    color: ThemeColors.green,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                Divider(
+                    height: 24,
+                    color: ThemeColors.inkDim.withValues(alpha: 0.12)),
+                _summaryRow('Amount paid', totalAmount, isBold: true),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -158,25 +197,26 @@ class InvoiceCard extends StatelessWidget {
     Color? color,
     bool isBold = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: isBold
-                ? AppTextStyles.titleMedium
-                : AppTextStyles.bodyMedium,
-          ),
-          Text(
-            value,
-            style: isBold
-                ? AppTextStyles.titleLarge
-                : AppTextStyles.bodyMedium.copyWith(color: color),
-          ),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: isBold
+              ? AppTextStyles.titleMedium
+              : AppTextStyles.bodyMedium
+                  .copyWith(color: ThemeColors.inkMid),
+        ),
+        Text(
+          value,
+          style: isBold
+              ? AppTextStyles.titleLarge.copyWith(
+                  color: const Color(0xFF1A1D4E),
+                  fontWeight: FontWeight.w800,
+                )
+              : AppTextStyles.bodyMedium.copyWith(color: color),
+        ),
+      ],
     );
   }
 }

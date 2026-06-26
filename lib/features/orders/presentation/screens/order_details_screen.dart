@@ -120,7 +120,7 @@ class _OrderDetailView extends StatelessWidget {
 
           OrderInfoCard(
             address: 'Home · Bandra West, Mumbai 400050',
-            payment: 'BINGOLD Wallet + UPI · ₹25,480',
+            payment: 'BINGOLD Wallet + UPI · \$25,480',
             invoiceNo: 'INV-48217 · Download PDF',
             onDownloadInvoice: () {},
           ),

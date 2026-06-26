@@ -41,7 +41,7 @@ class TransferScreen extends StatelessWidget {
 
               Text('Merchant: $merchant'),
 
-              Text('Amount: \$ $amount'),
+              Text('Amount: \$$amount'),
 
               Text('Reference: $reference'),
 

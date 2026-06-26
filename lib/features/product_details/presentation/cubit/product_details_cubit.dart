@@ -1,17 +1,23 @@
-import 'package:bingo_pay/features/product_details/presentation/cubit/product_details_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
+import '../../../../core/api/api_client.dart';
+import '../../../../core/config/app_config.dart';
 import '../../data/models/product_details_model.dart';
+import 'product_details_state.dart';
 
 class ProductDetailCubit extends Cubit<ProductDetailState> {
   ProductDetailCubit() : super(const ProductDetailLoading());
 
-  Future<void> loadProduct(ProductDetailModel product) async {
+  Future<void> loadProduct(String uuid) async {
+    emit(const ProductDetailLoading());
     try {
-      emit(const ProductDetailLoading());
-      // Simulate network delay — remove when using real repository
-      await Future.delayed(const Duration(milliseconds: 300));
+      final client = GetIt.I<ApiClient>();
+      final url =
+          '${AppConfig.categoriesApiBaseUrl}/api/v1/products/$uuid';
+      final response = await client.dio.get(url);
+      final product = ProductDetailModel.fromJson(
+          response.data as Map<String, dynamic>);
       emit(ProductDetailLoaded(product: product));
     } catch (e) {
       emit(ProductDetailError(e.toString()));
@@ -30,16 +36,9 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     emit(current.copyWith(selectedColorIndex: index));
   }
 
-  void onAddToCart() {
-    // TODO: dispatch to cart repository / show snackbar
-  }
+  void onAddToCart() {}
 
-  void onBuyNow() {
-    // TODO: navigate to checkout
-    
-  }
+  void onBuyNow() {}
 
-  void onSeeAllReviews() {
-    // TODO: navigate to reviews screen
-  }
+  void onSeeAllReviews() {}
 }

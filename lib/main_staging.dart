@@ -8,6 +8,7 @@ void main() async {
     color: Colors.orange,
     variables: const {
       'apiBaseUrl': 'https://stg-api.bingopay.com/v1',
+      'categoriesApiBaseUrl': 'https://stg-api.bingopay.com',
       'appName': 'Bingo Pay STG',
       'enableLogging': true,
       'enableAnalytics': false,

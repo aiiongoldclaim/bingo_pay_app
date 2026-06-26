@@ -1,78 +1,56 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-//
-// import '../../data/models/categories_model.dart';
-// import 'categories_state.dart';
-//
-// class CategoriesCubit extends Cubit<CategoriesState> {
-//   CategoriesCubit() : super(const CategoriesState());
-//
-//   void loadData() {
-//     emit(state.copyWith(isLoading: true));
-//
-//     emit(
-//       state.copyWith(
-//         isLoading: false,
-//         categories: [
-//           CategoryModel(
-//             title: 'Electronics',
-//             items: '1,240 items',
-//             icon: Icons.devices,
-//             color: const Color(0xFFEFF2FF),
-//           ),
-//           CategoryModel(
-//             title: 'Fashion',
-//             items: '3,180 items',
-//             icon: Icons.shopping_bag_outlined,
-//             color: const Color(0xFFF8F0D8),
-//           ),
-//           CategoryModel(
-//             title: 'Audio',
-//             items: '540 items',
-//             icon: Icons.headphones,
-//             color: const Color(0xFFE7F4EC),
-//           ),
-//           CategoryModel(
-//             title: 'Home & Living',
-//             items: '2,010 items',
-//             icon: Icons.home_outlined,
-//             color: const Color(0xFFF6EBDD),
-//           ),
-//           CategoryModel(
-//             title: 'Beauty',
-//             items: '890 items',
-//             icon: Icons.favorite_border,
-//             color: const Color(0xFFF8E6F0),
-//           ),
-//           CategoryModel(
-//             title: 'Jewelry',
-//             items: '320 items',
-//             icon: Icons.diamond_outlined,
-//             color: const Color(0xFFF0EBFF),
-//           ),
-//         ],
-//         brands: const ['SONARA', 'NOVA', 'TYDE', 'OPTIK', 'STRIDE', 'MAISON'],
-//         collections: [
-//           CuratedCollectionModel(
-//             title: 'BINGOLD Luxe',
-//             subtitle: 'Fine jewelry & watches',
-//             icon: Icons.diamond_outlined,
-//             iconBg: const Color(0xFFF4EFD9),
-//           ),
-//           CuratedCollectionModel(
-//             title: 'Tech Essentials',
-//             subtitle: 'Top-rated electronics',
-//             icon: Icons.bolt,
-//             iconBg: const Color(0xFFE8EEFF),
-//           ),
-//           CuratedCollectionModel(
-//             title: 'Home Refresh',
-//             subtitle: 'Furniture & decor',
-//             icon: Icons.home_outlined,
-//             iconBg: const Color(0xFFF5EBDD),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../../../core/api/api_client.dart';
+import '../../../../core/api/api_endpoints.dart';
+import '../../../../core/config/app_config.dart';
+import '../../data/models/categories_model.dart';
+import '../../data/models/categories_response_model.dart';
+import 'categories_state.dart';
+
+class CategoriesCubit extends Cubit<CategoriesState> {
+  CategoriesCubit() : super(const CategoriesState());
+
+  Future<void> loadData() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      final client = GetIt.I<ApiClient>();
+      final url =
+          '${AppConfig.categoriesApiBaseUrl}${ApiEndpoints.categories}';
+      final response = await client.dio.get(url);
+      final result = CategoryResponseModel.fromJson(
+          response.data as Map<String, dynamic>);
+      final filtered = result.data
+          .where((c) => c.parentId == null && c.isActive)
+          .toList();
+      emit(state.copyWith(
+        isLoading: false,
+        categories: filtered,
+        brands: const ['SONARA', 'NOVA', 'TYDE', 'OPTIK', 'STRIDE', 'MAISON'],
+        collections: [
+          CuratedCollectionModel(
+            title: 'BINGOLD Luxe',
+            subtitle: 'Fine jewelry & watches',
+            icon: Icons.diamond_outlined,
+            iconBg: const Color(0xFFF4EFD9),
+          ),
+          CuratedCollectionModel(
+            title: 'Tech Essentials',
+            subtitle: 'Top-rated electronics',
+            icon: Icons.bolt,
+            iconBg: const Color(0xFFE8EEFF),
+          ),
+          CuratedCollectionModel(
+            title: 'Home Refresh',
+            subtitle: 'Furniture & decor',
+            icon: Icons.home_outlined,
+            iconBg: const Color(0xFFF5EBDD),
+          ),
+        ],
+      ));
+    } catch (_) {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+}

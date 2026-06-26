@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
+
 import '../core/di/injection.dart';
 import '../core/network/connectivity_service.dart';
 import '../core/router/app_router.dart';
@@ -10,6 +11,8 @@ import '../core/widgets/app_snackbar.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
+import '../features/cart/data/services/cart_service.dart';
+import '../features/cart/presentation/cubit/cart_cubit.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -21,11 +24,6 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   final _connectivity = getIt<ConnectivityService>();
-
-  // Splash/loading is only meaningful while the app is determining the
-  // initial session on boot. Later AuthLoading emissions (login, register,
-  // OTP, etc.) share the same state class but must not bounce the router
-  // back to the splash screen mid-flow.
   bool _authDetermined = false;
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
@@ -35,8 +33,6 @@ class _AppState extends State<App> {
       }
     } else if (state is AuthAuthenticated) {
       _authDetermined = true;
-      // kyc_status is no longer used to gate navigation; authenticated
-      // users always land on Home regardless of pending KYC.
       _router.updateAuthState(const RouteAuthState.authenticated());
     } else if (state is AuthUnauthenticated) {
       _authDetermined = true;
@@ -46,8 +42,16 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>(
-      create: (_) => getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (_) =>
+              getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
+        ),
+        BlocProvider<CartCubit>(
+          create: (_) => CartCubit(CartService()),
+        ),
+      ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
         child: Sizer(
@@ -65,8 +69,9 @@ class _AppState extends State<App> {
                   builder: (context, child) {
                     if (!isConnected) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (context.mounted)
+                        if (context.mounted) {
                           AppSnackbar.showOfflineBanner(context);
+                        }
                       });
                     }
                     return child ?? const SizedBox.shrink();

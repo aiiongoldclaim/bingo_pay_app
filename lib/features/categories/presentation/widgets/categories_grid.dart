@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../core/router/app_routes.dart';
-import '../../../home/data/models/category_model.dart';
+import '../../../categories/data/models/categories_model.dart';
 import 'categories_card.dart';
 
 class CategoriesGrid extends StatelessWidget {
@@ -25,11 +24,12 @@ class CategoriesGrid extends StatelessWidget {
       ),
       itemBuilder: (_, index) {
         final category = categories[index];
-        return GestureDetector(
-          onTap: () {
-            context.push(AppRoutes.productListing);
-          },
-          child: CategoryCard(category: category),
+        return CategoryCard(
+          category: category,
+          onTap: () => context.push(
+            '/product-listing/${Uri.encodeComponent(category.name)}',
+            extra: category.uuid,
+          ),
         );
       },
     );

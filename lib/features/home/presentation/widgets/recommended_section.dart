@@ -49,9 +49,12 @@ class RecommendedSection extends StatelessWidget {
                 price: product.price,
                 imageUrl: product.images.isNotEmpty ? product.images.first : '',
                 rating: product.rating,
-                onTap: () {
-                  context.push(AppRoutes.productDetails, extra: product);
-                },
+                onTap: product.uuid != null
+                    ? () => context.push(
+                          AppRoutes.productDetails,
+                          extra: product.uuid,
+                        )
+                    : null,
               );
             },
           ),

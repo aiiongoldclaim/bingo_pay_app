@@ -37,17 +37,21 @@ class AppButton extends StatelessWidget {
 
     Widget child = Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (prefixIcon != null) ...[
           Icon(prefixIcon, size: 18.sp, color: iconColor ?? _textColor),
           SizedBox(width: 2.w),
         ],
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 15.sp,
-            fontWeight: FontWeight.w600,
-            color: textColor ?? _textColor,
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15.sp,
+              fontWeight: FontWeight.w600,
+              color: textColor ?? _textColor,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

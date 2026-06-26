@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../constants/app_sizes.dart';
-import '../constants/currency_constants.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme_colors.dart';
 
@@ -32,6 +31,23 @@ class ProductCard extends StatefulWidget {
 
   @override
   State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ImageFallback extends StatelessWidget {
+  const _ImageFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: ThemeColors.surface2,
+      alignment: Alignment.center,
+      child: Icon(
+        Icons.shopping_bag_outlined,
+        size: 32,
+        color: ThemeColors.inkDim,
+      ),
+    );
+  }
 }
 
 class _ProductCardState extends State<ProductCard> {
@@ -85,13 +101,19 @@ class _ProductCardState extends State<ProductCard> {
                         child: Container(
                           width: double.infinity,
                           color: ThemeColors.white,
-                          child: Padding(
-                            padding: EdgeInsets.all(3.w),
-                            child: Image.network(
-                              widget.imageUrl,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
+                          child: widget.imageUrl.isNotEmpty
+                              ? Padding(
+                                  padding: EdgeInsets.all(3.w),
+                                  child: Image.network(
+                                    widget.imageUrl,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (ctx, err, st) =>
+                                        const _ImageFallback(),
+                                    loadingBuilder: (ctx, child, p) =>
+                                        p == null ? child : const _ImageFallback(),
+                                  ),
+                                )
+                              : const _ImageFallback(),
                         ),
                       ),
                     ),
@@ -168,7 +190,7 @@ class _ProductCardState extends State<ProductCard> {
                       SizedBox(height: .5.h),
 
                       Text(
-                        '${CurrencyConstants.dollar}${widget.price}',
+                        widget.price,
                         style: AppTextStyles.titleLarge.copyWith(
                           fontWeight: FontWeight.bold,
                           color: ThemeColors.black,

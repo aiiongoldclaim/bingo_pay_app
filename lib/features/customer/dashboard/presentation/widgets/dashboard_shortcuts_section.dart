@@ -175,7 +175,7 @@ class _RewardsCard extends StatelessWidget {
             children: [
               _RewardItem(
                 label: 'Wallet Balance',
-                value: '₹${rewards.walletBalance.toStringAsFixed(0)}',
+                value: '\$${rewards.walletBalance.toStringAsFixed(0)}',
               ),
               _RewardItem(
                 label: 'Reward Points',

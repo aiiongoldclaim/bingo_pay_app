@@ -1,16 +1,16 @@
-// import 'package:json_annotation/json_annotation.dart';
-//
-// import '../../../home/data/models/category_model.dart';
-//
-// @JsonSerializable()
-// class CategoryResponseModel {
-//   final bool success;
-//   final List<CategoryModel> data;
-//
-//   const CategoryResponseModel({required this.success, required this.data});
-//
-//   factory CategoryResponseModel.fromJson(Map<String, dynamic> json) =>
-//       _$CategoryResponseModelFromJson(json);
-//
-//   Map<String, dynamic> toJson() => _$CategoryResponseModelToJson(this);
-// }
+import 'categories_model.dart';
+
+class CategoryResponseModel {
+  final bool success;
+  final List<CategoryModel> data;
+
+  const CategoryResponseModel({required this.success, required this.data});
+
+  factory CategoryResponseModel.fromJson(Map<String, dynamic> json) =>
+      CategoryResponseModel(
+        success: json['success'] as bool,
+        data: (json['data'] as List<dynamic>)
+            .map((e) => CategoryModel.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+}

@@ -31,9 +31,7 @@ import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_success_screen.dart';
-import '../../features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart';
 import '../../features/product_categories_details/presentation/screens/product_categories_screen.dart';
-import '../../features/product_details/data/models/product_details_model.dart';
 import '../../features/product_details/presentation/cubit/product_details_cubit.dart';
 import '../../features/product_details/presentation/screens/product_details_screen.dart';
 import '../../features/scanner/presentation/cubit/payment_cubit.dart';
@@ -122,10 +120,9 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.productDetails,
           builder: (context, state) {
-            final product = state.extra as ProductDetailModel;
-
+            final uuid = state.extra as String;
             return BlocProvider(
-              create: (_) => ProductDetailCubit()..loadProduct(product),
+              create: (_) => ProductDetailCubit()..loadProduct(uuid),
               child: const ProductDetailScreen(),
             );
           },
@@ -192,21 +189,16 @@ class AppRouter {
               ),
             ),
 
-            // GoRoute(
-            //   path: AppRoutes.categories,
-            //   builder: (_, _) => BlocProvider(
-            //     create: (_) => CategoriesCubit()..loadData(),
-            //     child: const CategoriesScreen(),
-            //   ),
-            // ),
+            GoRoute(
+              path: AppRoutes.categories,
+              builder: (_, _) => const CategoriesScreen(),
+            ),
             GoRoute(
               path: AppRoutes.productListing,
-              builder: (context, state) => BlocProvider(
-                create: (_) => ProductListingCubit()
-                  ..loadCategory(state.pathParameters['categoryName'] ?? ''),
-                child: ProductListingScreen(
-                  categoryName: state.pathParameters['categoryName'] ?? '',
-                ),
+              builder: (context, state) => ProductListingScreen(
+                categoryName: Uri.decodeComponent(
+                    state.pathParameters['categoryName'] ?? ''),
+                categoryUuid: state.extra as String? ?? '',
               ),
             ),
 

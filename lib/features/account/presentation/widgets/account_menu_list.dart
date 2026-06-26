@@ -56,6 +56,8 @@ class _MenuItem extends StatelessWidget {
 
   IconData _iconFor(String key) {
     switch (key) {
+      case 'cart':
+        return Icons.shopping_cart_outlined;
       case 'orders':
         return Icons.inventory_2_outlined;
       case 'wishlist':
@@ -145,6 +147,13 @@ class AccountMenuItem {
 
   static const List<AccountMenuItem> items = [
     AccountMenuItem(
+      title: 'My Cart',
+      subtitle: 'View & manage your cart',
+      iconAsset: 'cart',
+      route: AppRoutes.cart,
+    ),
+
+    AccountMenuItem(
       title: 'My Orders',
       subtitle: 'Track, return or buy again',
       iconAsset: 'orders',
@@ -158,26 +167,26 @@ class AccountMenuItem {
       route: '/wishlist',
     ),
 
-    AccountMenuItem(
-      title: 'Addresses',
-      subtitle: '2 saved',
-      iconAsset: 'addresses',
-      route: '/addresses',
-    ),
+    // AccountMenuItem(
+    //   title: 'Addresses',
+    //   subtitle: '2 saved',
+    //   iconAsset: 'addresses',
+    //   route: '/addresses',
+    // ),
 
-    AccountMenuItem(
-      title: 'Payment Methods',
-      subtitle: 'UPI, cards & wallet',
-      iconAsset: 'payments',
-      route: '/payments',
-    ),
+    // AccountMenuItem(
+    //   title: 'Payment Methods',
+    //   subtitle: 'UPI, cards & wallet',
+    //   iconAsset: 'payments',
+    //   route: '/payments',
+    // ),
 
-    AccountMenuItem(
-      title: 'Coupons & Offers',
-      subtitle: '5 available',
-      iconAsset: 'coupons',
-      route: '/coupons',
-    ),
+    // AccountMenuItem(
+    //   title: 'Coupons & Offers',
+    //   subtitle: '5 available',
+    //   iconAsset: 'coupons',
+    //   route: '/coupons',
+    // ),
 
     AccountMenuItem(
       title: 'Help & Support',
