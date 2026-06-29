@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-
 import '../constants/app_sizes.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme_colors.dart';
@@ -79,7 +78,7 @@ class _ProductCardState extends State<ProductCard> {
             width: 44.w,
             decoration: BoxDecoration(
               color: ThemeColors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               boxShadow: [
                 BoxShadow(
                   color: ThemeColors.black.withOpacity(.05),
@@ -109,8 +108,9 @@ class _ProductCardState extends State<ProductCard> {
                                     fit: BoxFit.contain,
                                     errorBuilder: (ctx, err, st) =>
                                         const _ImageFallback(),
-                                    loadingBuilder: (ctx, child, p) =>
-                                        p == null ? child : const _ImageFallback(),
+                                    loadingBuilder: (ctx, child, p) => p == null
+                                        ? child
+                                        : const _ImageFallback(),
                                   ),
                                 )
                               : const _ImageFallback(),

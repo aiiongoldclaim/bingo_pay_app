@@ -3,6 +3,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../data/models/categories_model.dart';
 
+import '../cubit/categories_state.dart';
 import 'curated_collection_card.dart';
 
 class CuratedCollectionsList extends StatelessWidget {

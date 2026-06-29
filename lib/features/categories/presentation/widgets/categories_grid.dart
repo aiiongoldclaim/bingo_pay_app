@@ -1,14 +1,13 @@
+import 'package:bingo_pay/features/categories/domain/entities/category_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
-
-import '../../../categories/data/models/categories_model.dart';
 import 'categories_card.dart';
 
 class CategoriesGrid extends StatelessWidget {
   const CategoriesGrid({super.key, required this.categories});
 
-  final List<CategoryModel> categories;
+  final List<CategoryEntity> categories;
 
   @override
   Widget build(BuildContext context) {

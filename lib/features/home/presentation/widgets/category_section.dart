@@ -4,7 +4,7 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
-import '../../data/models/category_model.dart';
+import '../../../categories/data/models/categories_model.dart';
 import 'category_item.dart';
 
 class CategorySection extends StatelessWidget {
@@ -51,13 +51,23 @@ class CategorySection extends StatelessWidget {
 
         SizedBox(
           height: 15.h,
-          child: ListView.separated(
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 4.w),
-            itemBuilder: (_, index) =>
-                CategoryItem(category: categories[index]),
-            separatorBuilder: (_, __) => SizedBox(width: 1.w),
             itemCount: categories.length,
+            itemBuilder: (_, index) {
+              final category = categories[index];
+
+              return CategoryItem(
+                category: category,
+                onTap: () {
+                  context.push(
+                    '/product-listing/${Uri.encodeComponent(category.name)}',
+                    extra: category.uuid,
+                  );
+                },
+              );
+            },
           ),
         ),
       ],

@@ -1,35 +1,47 @@
-import 'package:bingo_pay/features/categories/data/models/categories_model.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../data/models/categories_model.dart';
+import '../../domain/entities/category_entity.dart';
+
 class CategoriesState extends Equatable {
-  final List<CategoryModel> categories;
+  final bool isLoading;
+  final List<CategoryEntity> categories;
   final List<String> brands;
   final List<CuratedCollectionModel> collections;
-  final bool isLoading;
+  final String? error;
 
   const CategoriesState({
+    this.isLoading = false,
     this.categories = const [],
     this.brands = const [],
     this.collections = const [],
-    this.isLoading = false,
+    this.error,
   });
 
   CategoriesState copyWith({
-    List<CategoryModel>? categories,
+    bool? isLoading,
+    List<CategoryEntity>? categories,
     List<String>? brands,
     List<CuratedCollectionModel>? collections,
-    bool? isLoading,
+    String? error,
   }) {
     return CategoriesState(
+      isLoading: isLoading ?? this.isLoading,
       categories: categories ?? this.categories,
       brands: brands ?? this.brands,
       collections: collections ?? this.collections,
-      isLoading: isLoading ?? this.isLoading,
+      error: error,
     );
   }
 
   @override
-  List<Object?> get props => [categories, brands, collections, isLoading];
+  List<Object?> get props => [
+    isLoading,
+    categories,
+    brands,
+    collections,
+    error,
+  ];
 }
 
 // import '../../domain/entities/category_entity.dart';

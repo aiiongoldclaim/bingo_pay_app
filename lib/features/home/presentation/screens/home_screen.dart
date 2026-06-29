@@ -152,9 +152,9 @@ class HomeScreen extends StatelessWidget {
       create: (_) => HomeCubit()..loadHome(),
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
-          statusBarColor: ThemeColors.blue, // same as header
-          statusBarIconBrightness: Brightness.light, // Android
-          statusBarBrightness: Brightness.dark, // iOS
+          statusBarColor: ThemeColors.blue,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
         ),
         child: Scaffold(
           backgroundColor: AppColors.backgroundLight,
@@ -214,7 +214,7 @@ class HomeScreen extends StatelessWidget {
                               ),
 
                               // Buffer so rounded white card overlaps gradient
-                              SizedBox(height: 3.h),
+                              SizedBox(height: 5.h),
                             ],
                           ),
                         ),

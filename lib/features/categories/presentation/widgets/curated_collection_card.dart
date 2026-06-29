@@ -4,6 +4,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../data/models/categories_model.dart';
+import '../cubit/categories_state.dart';
 
 class CuratedCollectionCard extends StatelessWidget {
   const CuratedCollectionCard({
