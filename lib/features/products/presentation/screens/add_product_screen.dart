@@ -1,25 +1,25 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
-import '../../../../core/utils/slugify.dart';
 import '../../../../core/widgets/step_indicator.dart';
 import '../../data/datasources/product_remote_datasource.dart';
+import '../../data/models/category_form_model.dart';
+import '../../data/models/category_model.dart';
 import '../models/product_form_data.dart';
-import '../models/product_mock_data.dart';
 import '../widgets/add_product/info_step.dart';
 import '../widgets/add_product/media_step.dart';
-import '../widgets/add_product/pricing_step.dart';
+import '../widgets/add_product/pricing_stock_step.dart';
 import '../widgets/add_product/publish_step.dart';
-import '../widgets/add_product/stock_step.dart';
+import '../widgets/add_product/specifications_step.dart';
 
-const List<String> _stepLabels = ['Info', 'Pricing', 'Stock', 'Media', 'Publish'];
+const List<String> _allStepLabels = ['Info', 'Spec', 'Variant', 'Media', 'Publish'];
 
 class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({super.key});
+  final String? productId;
+
+  const AddProductScreen({super.key, this.productId});
 
   @override
   State<AddProductScreen> createState() => _AddProductScreenState();
@@ -28,29 +28,137 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   int _step = 0;
   bool _isSubmitting = false;
+  bool _isLoadingInitial = false;
   final _draft = ProductDraft();
+  CategoryFormData? _formData;
+
+  bool get _hasSpecStep => _formData?.hasSpecifications == true;
+
+  List<int> get _activeStepIndices => _hasSpecStep ? [0, 1, 2, 3, 4] : [0, 2, 3, 4];
+
+  List<String> get _activeStepLabels =>
+      _activeStepIndices.map((i) => _allStepLabels[i]).toList();
+
+  int get _displayStep {
+    final idx = _activeStepIndices.indexOf(_step);
+    return idx < 0 ? 0 : idx;
+  }
 
   final _formKeys = List.generate(5, (_) => GlobalKey<FormState>());
 
   final _nameController = TextEditingController();
   final _shortDescriptionController = TextEditingController();
   final _fullDescriptionController = TextEditingController();
-  final _brandController = TextEditingController();
-
-  final _mrpController = TextEditingController();
-  final _sellingPriceController = TextEditingController();
-  final _costPriceController = TextEditingController();
-
-  final _skuController = TextEditingController();
-  final _barcodeController = TextEditingController();
-  final _lowStockThresholdController = TextEditingController(text: '10');
 
   final _videoLinkController = TextEditingController();
 
-  final _scheduledPublishController = TextEditingController(text: 'Publish immediately');
-  final _hsnCodeController = TextEditingController();
-  final _countryOfOriginController = TextEditingController(text: 'India');
-  final _shippingWeightController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.productId != null) _loadExisting();
+  }
+
+  Future<void> _loadExisting() async {
+    setState(() => _isLoadingInitial = true);
+    try {
+      final ds = getIt<ProductRemoteDataSource>();
+      final data = await ds.getProductDetail(widget.productId!);
+      if (!mounted) return;
+
+      _nameController.text = data['title']?.toString() ?? '';
+      _shortDescriptionController.text = data['shortDescription']?.toString() ?? '';
+      _fullDescriptionController.text = data['description']?.toString() ?? '';
+      final brandJson = data['brand'] as Map<String, dynamic>?;
+      if (brandJson != null) {
+        _draft.brand = brandJson['name']?.toString();
+        _draft.brandUuid = brandJson['uuid']?.toString();
+      }
+
+      final categoryJson = data['category'] as Map<String, dynamic>?;
+      if (categoryJson != null) {
+        final catUuid = categoryJson['uuid']?.toString();
+        final catName = categoryJson['name']?.toString() ?? '';
+        final tree = await ds.getCategoryTree();
+        final isRoot = tree.any((c) => c.uuid == catUuid);
+        if (isRoot) {
+          _draft.categoryUuid = catUuid;
+          _draft.category = catName;
+        } else {
+          CategoryModel? parent;
+          for (final root in tree) {
+            if (root.children.any((c) => c.uuid == catUuid)) {
+              parent = root;
+              break;
+            }
+          }
+          if (parent != null) {
+            _draft.categoryUuid = parent.uuid;
+            _draft.category = parent.name;
+          }
+          _draft.subCategoryUuid = catUuid;
+          _draft.subCategory = catName;
+        }
+      }
+
+      _draft.featured = data['isFeatured'] == true;
+
+      try {
+        final variants = await ds.getProductVariants(widget.productId!);
+        for (final v in variants) {
+          final stock = v['stock'] ?? v['stockQuantity'];
+          _draft.variants.add(VariantDraft(
+            uuid: v['uuid']?.toString(),
+            title: v['title']?.toString() ?? '',
+            basePrice: double.tryParse(v['basePrice']?.toString() ?? ''),
+            salePrice: double.tryParse(v['salePrice']?.toString() ?? ''),
+            costPrice: double.tryParse(v['costPrice']?.toString() ?? ''),
+            sku: v['sku']?.toString() ?? '',
+            barcode: v['barcode']?.toString() ?? '',
+            stock: stock != null ? (stock as num).toInt() : 0,
+            isDefault: v['isDefault'] == true,
+          ));
+        }
+      } catch (_) {
+        // variants not yet created
+      }
+
+      // Load category form + existing specs in parallel
+      final categoryUuid = _draft.subCategoryUuid ?? _draft.categoryUuid;
+      if (categoryUuid != null) {
+        try {
+          final results = await Future.wait([
+            ds.getCategoryForm(categoryUuid),
+            ds.getProductSpecifications(widget.productId!),
+          ]);
+          final form = results[0] as CategoryFormData;
+          final specs = results[1] as List<Map<String, dynamic>>;
+          for (final spec in specs) {
+            final catAttrId = spec['categoryAttributeId']?.toString();
+            final value = spec['value']?.toString() ?? '';
+            if (catAttrId != null && value.isNotEmpty) {
+              final attr = form.specificationAttributes
+                  .where((a) => a.id == catAttrId)
+                  .firstOrNull;
+              if (attr != null) _draft.specifications[attr.uuid] = value;
+            }
+          }
+          if (mounted) setState(() => _formData = form);
+        } catch (_) {
+          // non-fatal — proceed without spec step
+        }
+      }
+
+      setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load product: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoadingInitial = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -58,18 +166,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       _nameController,
       _shortDescriptionController,
       _fullDescriptionController,
-      _brandController,
-      _mrpController,
-      _sellingPriceController,
-      _costPriceController,
-      _skuController,
-      _barcodeController,
-      _lowStockThresholdController,
       _videoLinkController,
-      _scheduledPublishController,
-      _hsnCodeController,
-      _countryOfOriginController,
-      _shippingWeightController,
     ]) {
       controller.dispose();
     }
@@ -78,64 +175,198 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
   void _onDraftChanged() => setState(() {});
 
-  String _suggestSku(String name) {
-    final slug = slugify(name);
-    final firstWord = slug.split('-').firstOrNull ?? 'SKU';
-    final prefix = (firstWord.length >= 3 ? firstWord.substring(0, 3) : firstWord.padRight(3, 'x')).toUpperCase();
-    final suffix = 1000 + Random().nextInt(9000);
-    return '$prefix-$suffix';
+  Future<void> _loadCategoryForm() async {
+    final categoryUuid = _draft.subCategoryUuid ?? _draft.categoryUuid;
+    if (categoryUuid == null) return;
+    try {
+      final form = await getIt<ProductRemoteDataSource>().getCategoryForm(categoryUuid);
+      if (mounted) setState(() => _formData = form);
+    } catch (_) {
+      // non-fatal — proceed without spec step
+    }
   }
 
-  void _next() {
-    if (!_formKeys[_step].currentState!.validate()) return;
-    if (_step >= 4) return;
-    final nextStep = _step + 1;
-    if (nextStep == 2 && _skuController.text.trim().isEmpty && _nameController.text.trim().isNotEmpty) {
-      _skuController.text = _suggestSku(_nameController.text);
+  Future<void> _next() async {
+    if (_formKeys[_step].currentState?.validate() == false) return;
+
+    final active = _activeStepIndices;
+    final pos = active.indexOf(_step);
+    if (pos >= active.length - 1) return;
+
+    if (_step == 2 && _draft.variants.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Add at least one variant to continue')),
+      );
+      return;
     }
-    setState(() => _step = nextStep);
+
+    if (_step == 0) {
+      // Load form data when leaving Info step so Spec/Variant steps know their fields
+      await _loadCategoryForm();
+      if (!mounted) return;
+      if (widget.productId != null) await _patchStep(0);
+    } else if (_step == 1 && widget.productId != null) {
+      await _saveSpecifications();
+    } else if (widget.productId != null) {
+      await _patchStep(_step);
+    }
+
+    if (!mounted) return;
+    setState(() => _step = active[pos + 1]);
+  }
+
+  Future<void> _saveSpecifications() async {
+    if (_draft.specifications.isEmpty) return;
+    try {
+      await getIt<ProductRemoteDataSource>().saveSpecifications(
+        widget.productId!,
+        _draft.specifications,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save specifications: $e')),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<({String url, String id})?> _onFirstImageAdded(String imagePath) async {
+    if (widget.productId == null) return null;
+    try {
+      final result = await getIt<ProductRemoteDataSource>().uploadThumbnail(
+        widget.productId!,
+        imagePath,
+        altText: _nameController.text.trim(),
+      );
+      final url = result['url']?.toString();
+      final id = result['id']?.toString();
+      if (url == null || id == null) return null;
+      return (url: url, id: id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload thumbnail: $e')),
+        );
+      }
+      return null;
+    }
+  }
+
+  Future<List<({String url, String id})>> _onGalleryImagesAdded(List<String> imagePaths) async {
+    if (widget.productId == null) return [];
+    try {
+      final items = await getIt<ProductRemoteDataSource>().uploadGalleryWithIds(
+        widget.productId!,
+        imagePaths,
+      );
+      return items
+          .map((item) {
+            final url = item['url']?.toString();
+            final id = item['id']?.toString();
+            if (url == null || id == null) return null;
+            return (url: url, id: id);
+          })
+          .whereType<({String url, String id})>()
+          .toList();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload images: $e')),
+        );
+      }
+      return [];
+    }
+  }
+
+  Future<void> _onImageDeleted(String mediaId) async {
+    await getIt<ProductRemoteDataSource>().deleteMedia(mediaId);
+  }
+
+  Future<void> _onVariantSaved(VariantDraft variant) async {
+    if (widget.productId == null) return;
+    final ds = getIt<ProductRemoteDataSource>();
+    if (variant.uuid != null) {
+      await ds.updateVariant(widget.productId!, variant.uuid!, variant.toPayload());
+    } else {
+      final result = await ds.createVariant(widget.productId!, variant.toPayload());
+      variant.uuid = result['uuid']?.toString();
+    }
+  }
+
+  Future<void> _patchStep(int step) async {
+    if (_isSubmitting) return;
+    if (step == 1) return; // variants are saved individually on sheet Save
+    setState(() => _isSubmitting = true);
+    try {
+      final payload = _buildStepPayload(step);
+      if (payload.isNotEmpty) {
+        await getIt<ProductRemoteDataSource>().updateProduct(widget.productId!, payload);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save: $e')),
+        );
+      }
+      rethrow;
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Map<String, dynamic> _buildStepPayload(int step) {
+    return switch (step) {
+      0 => {
+          'title': _nameController.text.trim(),
+          if (_shortDescriptionController.text.trim().isNotEmpty)
+            'shortDescription': _shortDescriptionController.text.trim(),
+          if (_fullDescriptionController.text.trim().isNotEmpty)
+            'description': _fullDescriptionController.text.trim(),
+          if (_draft.subCategoryUuid != null || _draft.categoryUuid != null)
+            'categoryUuid': _draft.subCategoryUuid ?? _draft.categoryUuid,
+          if (_draft.brandUuid != null) 'brandUuid': _draft.brandUuid,
+        },
+      _ => {},
+    };
   }
 
   void _previous() {
-    if (_step > 0) setState(() => _step--);
+    final active = _activeStepIndices;
+    final pos = active.indexOf(_step);
+    if (pos > 0) setState(() => _step = active[pos - 1]);
   }
 
-  Future<void> _submit({required ProductStatus status}) async {
-    if (!_formKeys[_step].currentState!.validate()) return;
+  Future<void> _submit({required bool submitForReview}) async {
+    if (_formKeys[_step].currentState?.validate() == false) return;
     if (_isSubmitting) return;
-
-    final mrp = double.tryParse(_mrpController.text.trim());
-    final sellingPrice = double.tryParse(_sellingPriceController.text.trim());
-    final costPrice = double.tryParse(_costPriceController.text.trim());
-    final lowStockThreshold = int.tryParse(_lowStockThresholdController.text.trim()) ?? 10;
-
-    final payload = {
-      'product_name': _nameController.text.trim(),
-      'short_description': _shortDescriptionController.text.trim(),
-      'sub_category': _draft.subCategory ?? '',
-      'selling_price': sellingPrice ?? '',
-      'cost_price': costPrice ?? '',
-      'mrp': mrp ?? '',
-      'gst': _draft.gstSlab ?? '',
-      'sku': _skuController.text.trim(),
-      'barcode': _barcodeController.text.trim(),
-      'stock_quantity': _draft.trackInventory ? _draft.stockQty : '',
-      'low_stock_threshold': lowStockThreshold,
-      'featured': _draft.featured,
-      'hsn_code': _hsnCodeController.text.trim(),
-      'country_of_origin': _countryOfOriginController.text.trim(),
-      'shipping_weight': _shippingWeightController.text.trim(),
-      'images': '',
-    };
 
     setState(() => _isSubmitting = true);
 
     try {
-      await getIt<ProductRemoteDataSource>().addProduct(payload);
+      final ds = getIt<ProductRemoteDataSource>();
+
+      if (widget.productId == null) {
+        final payload = {
+          'product_name': _nameController.text.trim(),
+          'short_description': _shortDescriptionController.text.trim(),
+          'category': _draft.subCategoryUuid ?? _draft.categoryUuid ?? '',
+          'brand': _draft.brand ?? '',
+          'featured': _draft.featured,
+          'images': '',
+          'variants': _draft.variants.map((v) => v.toPayload()).toList(),
+        };
+        await ds.addProduct(payload);
+      }
+
+      if (submitForReview && widget.productId != null) {
+        await ds.submitProduct(widget.productId!);
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(status == ProductStatus.draft ? 'Saved as draft' : 'Product published')),
+        SnackBar(content: Text(submitForReview ? 'Product submitted for review' : 'Saved as draft')),
       );
       Navigator.of(context).pop();
     } catch (e) {
@@ -156,78 +387,80 @@ class _AddProductScreenState extends State<AddProductScreen> {
         backgroundColor: const Color(0xFF1B2A6B),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Add Product', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          widget.productId != null ? 'Edit Product' : 'Add Product',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(AppDimensions.md, AppDimensions.md, AppDimensions.md, AppDimensions.sm),
-            child: StepIndicator(
-              currentStep: _step,
-              totalSteps: 5,
-              stepLabels: _stepLabels,
-              onStepTapped: (step) => setState(() => _step = step),
+      body: _isLoadingInitial
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppDimensions.md, AppDimensions.md, AppDimensions.md, AppDimensions.sm,
+                  ),
+                  child: StepIndicator(
+                    currentStep: _displayStep,
+                    totalSteps: _activeStepIndices.length,
+                    stepLabels: _activeStepLabels,
+                    onStepTapped: (i) => setState(() => _step = _activeStepIndices[i]),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppDimensions.md),
+                    child: _buildStep(),
+                  ),
+                ),
+                _buildBottomBar(),
+              ],
             ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppDimensions.md),
-              child: _buildStep(),
-            ),
-          ),
-          _buildBottomBar(),
-        ],
-      ),
     );
   }
 
   Widget _buildStep() {
     return switch (_step) {
       0 => InfoStep(
-        formKey: _formKeys[0],
-        nameController: _nameController,
-        shortDescriptionController: _shortDescriptionController,
-        fullDescriptionController: _fullDescriptionController,
-        brandController: _brandController,
-        draft: _draft,
-        onDraftChanged: _onDraftChanged,
-      ),
-      1 => PricingStep(
-        formKey: _formKeys[1],
-        mrpController: _mrpController,
-        sellingPriceController: _sellingPriceController,
-        costPriceController: _costPriceController,
-        draft: _draft,
-        onDraftChanged: _onDraftChanged,
-      ),
-      2 => StockStep(
-        formKey: _formKeys[2],
-        skuController: _skuController,
-        barcodeController: _barcodeController,
-        lowStockThresholdController: _lowStockThresholdController,
-        draft: _draft,
-        onDraftChanged: _onDraftChanged,
-      ),
+          formKey: _formKeys[0],
+          nameController: _nameController,
+          shortDescriptionController: _shortDescriptionController,
+          fullDescriptionController: _fullDescriptionController,
+          draft: _draft,
+          onDraftChanged: _onDraftChanged,
+        ),
+      1 => SpecificationsStep(
+          formKey: _formKeys[1],
+          draft: _draft,
+          attributes: _formData?.specificationAttributes ?? [],
+        ),
+      2 => PricingStockStep(
+          formKey: _formKeys[2],
+          draft: _draft,
+          onDraftChanged: _onDraftChanged,
+          variantAttributes: _formData?.variantAttributes ?? [],
+          onVariantSaved: widget.productId != null ? _onVariantSaved : null,
+        ),
       3 => MediaStep(
-        formKey: _formKeys[3],
-        videoLinkController: _videoLinkController,
-        draft: _draft,
-        onDraftChanged: _onDraftChanged,
-      ),
+          formKey: _formKeys[3],
+          videoLinkController: _videoLinkController,
+          draft: _draft,
+          onDraftChanged: _onDraftChanged,
+          onFirstImageAdded: widget.productId != null ? _onFirstImageAdded : null,
+          onGalleryImagesAdded: widget.productId != null ? _onGalleryImagesAdded : null,
+          onImageDeleted: widget.productId != null ? _onImageDeleted : null,
+        ),
       _ => PublishStep(
-        formKey: _formKeys[4],
-        scheduledPublishController: _scheduledPublishController,
-        hsnCodeController: _hsnCodeController,
-        countryOfOriginController: _countryOfOriginController,
-        shippingWeightController: _shippingWeightController,
-        draft: _draft,
-        onDraftChanged: _onDraftChanged,
-      ),
+          formKey: _formKeys[4],
+          productName: _nameController.text,
+          shortDescription: _shortDescriptionController.text,
+          draft: _draft,
+        ),
     };
   }
 
   Widget _buildBottomBar() {
-    final isLastStep = _step == 4;
+    final isLastStep = _displayStep == _activeStepIndices.length - 1;
     return Container(
       padding: const EdgeInsets.all(AppDimensions.md),
       decoration: const BoxDecoration(
@@ -241,8 +474,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               onPressed: _isSubmitting
                   ? null
                   : isLastStep
-                  ? () => _submit(status: ProductStatus.draft)
-                  : (_step > 0 ? _previous : null),
+                      ? () => _submit(submitForReview: false)
+                      : (_step > 0 ? _previous : null),
               child: Text(isLastStep ? 'Save as draft' : 'Previous'),
             ),
           ),
@@ -250,14 +483,18 @@ class _AddProductScreenState extends State<AddProductScreen> {
           Expanded(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-              onPressed: _isSubmitting ? null : (isLastStep ? () => _submit(status: ProductStatus.active) : _next),
-              child: isLastStep && _isSubmitting
+              onPressed: _isSubmitting
+                  ? null
+                  : isLastStep
+                      ? () => _submit(submitForReview: true)
+                      : _next,
+              child: _isSubmitting
                   ? const SizedBox(
                       height: 18,
                       width: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : Text(isLastStep ? 'Publish' : 'Next'),
+                  : Text(isLastStep ? 'Submit' : 'Next'),
             ),
           ),
         ],

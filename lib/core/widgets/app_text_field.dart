@@ -5,6 +5,7 @@ class AppTextField extends StatelessWidget {
   final String label;
   final String? hint;
   final TextEditingController? controller;
+  final FocusNode? focusNode;
   final bool obscureText;
   final TextInputType keyboardType;
   final String? Function(String?)? validator;
@@ -20,6 +21,7 @@ class AppTextField extends StatelessWidget {
     required this.label,
     this.hint,
     this.controller,
+    this.focusNode,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.validator,
@@ -35,6 +37,7 @@ class AppTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,

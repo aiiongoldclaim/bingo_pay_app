@@ -84,8 +84,6 @@
 //   }
 // }
 
-
-
 // import 'package:bingo_pay/features/dashboard/presentation/screen/dashboard_screen.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get_it/get_it.dart';
@@ -203,8 +201,6 @@
 //   }
 // }
 
-
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -215,12 +211,14 @@ import '../../features/auth/presentation/screens/kyc/kyc_document_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/dashboard/presentation/screen/dashboard_screen.dart';
 
 import '../../features/dashboard/presentation/screen/vendor_shell.dart';
 import '../../features/more/presentation/screens/more_screen.dart';
 import '../../features/products/presentation/screens/add_product_screen.dart';
+import '../../features/products/presentation/screens/product_detail_screen.dart';
 import '../../features/products/presentation/screens/products_screen.dart';
 import '../../features/transactions/presentation/screens/add_order_screen.dart';
 import '../../features/transactions/presentation/screens/transaction_screen.dart';
@@ -249,6 +247,11 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.register,
           builder: (_, _) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.registerOtp,
+          builder: (_, state) =>
+              OtpVerificationScreen(args: state.extra as OtpScreenArgs),
         ),
         GoRoute(
           path: AppRoutes.forgotPassword,
@@ -321,10 +324,14 @@ class AppRouter {
           builder: (_, _) => const AddProductScreen(),
         ),
         GoRoute(
+          path: AppRoutes.vendorProductDetail,
+          builder: (context, state) =>
+              ProductDetailScreen(uuid: state.pathParameters['id']!),
+        ),
+        GoRoute(
           path: AppRoutes.vendorProductEdit,
-          builder: (context, state) => _PlaceholderPage(
-            'Edit Product ${state.pathParameters['id']}',
-          ),
+          builder: (context, state) =>
+              AddProductScreen(productId: state.pathParameters['id']!),
         ),
 
         // Add order stays outside bottom-nav shell (pushed on top, full-screen)
@@ -340,9 +347,8 @@ class AppRouter {
           routes: [
             GoRoute(
               path: ':id',
-              builder: (context, state) => _PlaceholderPage(
-                'Invoice ${state.pathParameters['id']}',
-              ),
+              builder: (context, state) =>
+                  _PlaceholderPage('Invoice ${state.pathParameters['id']}'),
             ),
           ],
         ),

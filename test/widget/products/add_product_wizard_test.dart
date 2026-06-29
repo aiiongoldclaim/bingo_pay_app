@@ -1,6 +1,7 @@
 import 'package:bingo_pay/core/di/injection.dart';
 import 'package:bingo_pay/core/router/app_routes.dart';
 import 'package:bingo_pay/features/products/data/datasources/product_remote_datasource.dart';
+import 'package:bingo_pay/features/products/data/models/category_model.dart';
 import 'package:bingo_pay/features/products/presentation/screens/add_product_screen.dart';
 import 'package:bingo_pay/features/products/presentation/screens/products_screen.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,12 @@ void main() {
     dataSource = MockProductRemoteDataSource();
     when(() => dataSource.getProducts()).thenAnswer((_) async => []);
     when(() => dataSource.addProduct(any())).thenAnswer((_) async {});
+    when(() => dataSource.getCategories()).thenAnswer(
+      (_) async => const [
+        CategoryModel(id: '1', uuid: 'uuid-1', name: 'Electronics', slug: 'electronics'),
+        CategoryModel(id: '2', uuid: 'uuid-2', name: 'Apparel', slug: 'apparel'),
+      ],
+    );
     getIt.registerSingleton<ProductRemoteDataSource>(dataSource);
   });
 
@@ -105,12 +112,11 @@ void main() {
     when(() => dataSource.getProducts()).thenAnswer(
       (_) async => [
         {
-          'product_name': 'Brand New Gadget',
-          'sku': 'NEW-0001',
-          'sub_category': 'Electronics',
-          'selling_price': 1999,
-          'stock_quantity': 10,
-          'low_stock_threshold': 5,
+          'title': 'Brand New Gadget',
+          'slug': 'brand-new-gadget',
+          'status': 'PUBLISHED',
+          'isPublished': true,
+          'category': {'name': 'Electronics'},
         },
       ],
     );

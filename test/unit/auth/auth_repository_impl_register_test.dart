@@ -1,8 +1,10 @@
 import 'package:bingo_pay/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:bingo_pay/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:bingo_pay/features/auth/data/models/register_otp_model.dart';
 import 'package:bingo_pay/features/auth/data/models/register_result_model.dart';
 import 'package:bingo_pay/features/auth/data/models/user_model.dart';
 import 'package:bingo_pay/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:bingo_pay/features/auth/domain/entities/register_otp_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -36,7 +38,7 @@ void main() {
   });
 
   group('registerVendor', () {
-    test('saves token with empty refreshToken and returns the user', () async {
+    test('returns otp info without saving any token yet', () async {
       when(() => remote.registerVendor(
             firstName: 'Acme',
             lastName: 'Owner',
@@ -51,9 +53,10 @@ void main() {
             panNumber: null,
             supportEmail: null,
             supportPhone: null,
-          )).thenAnswer((_) async => const RegisterResultModel(
-            accessToken: 'vendor-jwt',
-            user: vendorUser,
+          )).thenAnswer((_) async => const RegisterOtpModel(
+            otpSent: true,
+            email: 'owner@acme.com',
+            message: 'OTP sent to your email. Verify it to complete vendor registration.',
           ));
 
       final result = await repo.registerVendor(
@@ -67,9 +70,42 @@ void main() {
         businessName: 'Acme Pvt Ltd',
       );
 
+      expect(
+        result,
+        const Right(RegisterOtpEntity(
+          email: 'owner@acme.com',
+          message: 'OTP sent to your email. Verify it to complete vendor registration.',
+        )),
+      );
+      verifyNever(() => local.saveTokens(
+            accessToken: any(named: 'accessToken'),
+            refreshToken: any(named: 'refreshToken'),
+          ));
+      verifyNever(() => local.saveUser(any()));
+    });
+  });
+
+  group('verifyVendorOtp', () {
+    test('saves the access and refresh tokens and returns the user', () async {
+      when(() => remote.verifyVendorOtp(
+            email: 'owner@acme.com',
+            otp: '942653',
+          )).thenAnswer((_) async => const RegisterResultModel(
+            accessToken: 'vendor-jwt',
+            refreshToken: 'vendor-refresh-jwt',
+            user: vendorUser,
+          ));
+
+      final result = await repo.verifyVendorOtp(
+        email: 'owner@acme.com',
+        otp: '942653',
+      );
+
       expect(result, const Right(vendorUser));
-      verify(() => local.saveTokens(accessToken: 'vendor-jwt', refreshToken: ''))
-          .called(1);
+      verify(() => local.saveTokens(
+            accessToken: 'vendor-jwt',
+            refreshToken: 'vendor-refresh-jwt',
+          )).called(1);
       verify(() => local.saveUser(vendorUser)).called(1);
     });
   });

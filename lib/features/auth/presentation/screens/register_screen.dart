@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/slugify.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../domain/usecases/check_email_exists_usecase.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/country_picker.dart';
 import '../../../../core/widgets/step_indicator.dart';
+import 'otp_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -42,6 +45,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _supportEmailController = TextEditingController();
   final _supportPhoneController = TextEditingController();
 
+  final _emailFocusNode = FocusNode();
+  final _checkEmailExists = getIt<CheckEmailExistsUseCase>();
+  bool _checkingEmail = false;
+
   int _step = 0;
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
@@ -54,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _shopNameController.addListener(_onShopNameChanged);
+    _emailFocusNode.addListener(_onEmailFocusChanged);
     _loadCountries();
   }
 
@@ -119,9 +127,188 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _shopSlugController.text = slugify(_shopNameController.text);
   }
 
+  void _onEmailFocusChanged() {
+    if (_emailFocusNode.hasFocus) return;
+    final email = _emailController.text.trim();
+    if (email.isEmpty || Validators.email(email) != null) return;
+    _checkEmail(email);
+  }
+
+  Future<void> _checkEmail(String email) async {
+    setState(() => _checkingEmail = true);
+    final result = await _checkEmailExists(email);
+    if (!mounted) return;
+    setState(() => _checkingEmail = false);
+    result.match(
+      (failure) {},
+      (exists) {
+        if (exists) _showEmailExistsDialog(email);
+      },
+    );
+  }
+
+  // void _showEmailExistsDialog(String email) {
+  //   showDialog<void>(
+  //     context: context,
+  //     builder: (dialogContext) => AlertDialog(
+  //       title: const Text('Account already exists'),
+  //       content: Text(
+  //         'An account with $email already exists. Please log in instead.',
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.of(dialogContext).pop(),
+  //           child: const Text('Cancel'),
+  //         ),
+  //         FilledButton(
+  //           onPressed: () {
+  //             Navigator.of(dialogContext).pop();
+  //             context.go(AppRoutes.login);
+  //           },
+  //           child: const Text('Go to Login'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  void _showEmailExistsDialog(String email) {
+  showDialog<void>(
+    context: context,
+    barrierColor: Colors.black.withOpacity(0.6),
+    builder: (dialogContext) => Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Icon badge
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.deepOrange.shade300, Colors.deepOrange.shade500],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.deepOrange.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.mark_email_read_rounded,
+                color: Colors.white,
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Title
+            const Text(
+              'Account already exists',
+              style: TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1A1A1A),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+
+            // Subtitle
+            Text.rich(
+              TextSpan(
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: Colors.grey[600],
+                ),
+                children: [
+                  const TextSpan(text: 'An account with '),
+                  TextSpan(
+                    text: email,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ),
+                  const TextSpan(text: ' already exists. Please log in instead.'),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+
+            // Primary action
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A1A1A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  elevation: 0,
+                ),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  context.go(AppRoutes.login);
+                },
+                child: const Text(
+                  'Go to Login',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Secondary action
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
   @override
   void dispose() {
     _shopNameController.removeListener(_onShopNameChanged);
+    _emailFocusNode.removeListener(_onEmailFocusChanged);
+    _emailFocusNode.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
@@ -185,6 +372,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         listener: (context, state) {
           if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
+          } else if (state is AuthOtpRequired) {
+            context.push(
+              AppRoutes.registerOtp,
+              extra: OtpScreenArgs(email: state.email),
+            );
           }
         },
         child: SafeArea(
@@ -215,6 +407,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       firstNameController: _firstNameController,
                       lastNameController: _lastNameController,
                       emailController: _emailController,
+                      emailFocusNode: _emailFocusNode,
+                      checkingEmail: _checkingEmail,
                       phoneController: _phoneController,
                       passwordController: _passwordController,
                       confirmPasswordController: _confirmPasswordController,
@@ -302,6 +496,8 @@ class _PersonalDetailsFields extends StatelessWidget {
   final TextEditingController firstNameController;
   final TextEditingController lastNameController;
   final TextEditingController emailController;
+  final FocusNode emailFocusNode;
+  final bool checkingEmail;
   final TextEditingController phoneController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
@@ -319,6 +515,8 @@ class _PersonalDetailsFields extends StatelessWidget {
     required this.firstNameController,
     required this.lastNameController,
     required this.emailController,
+    required this.emailFocusNode,
+    required this.checkingEmail,
     required this.phoneController,
     required this.passwordController,
     required this.confirmPasswordController,
@@ -352,9 +550,20 @@ class _PersonalDetailsFields extends StatelessWidget {
         const SizedBox(height: 16),
         AppTextField(
           controller: emailController,
+          focusNode: emailFocusNode,
           label: 'Email',
           keyboardType: TextInputType.emailAddress,
           validator: Validators.email,
+          suffixIcon: checkingEmail
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : null,
         ),
         const SizedBox(height: 16),
         AppTextField(

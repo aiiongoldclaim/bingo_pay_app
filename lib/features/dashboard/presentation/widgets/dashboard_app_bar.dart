@@ -57,21 +57,21 @@ class DashboardAppBar extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          'Welcome, $greetingName!',
+                          'Hello, $greetingName!',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          shopName,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
+                        // const SizedBox(height: 2),
+                        // Text(
+                        //   shopName,
+                        //   style: const TextStyle(
+                        //     color: Colors.white70,
+                        //     fontSize: 14,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

@@ -1,10 +1,11 @@
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/kyc_entity.dart';
+import '../entities/register_otp_entity.dart';
 import '../entities/user_entity.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<Failure, UserEntity>> registerVendor({
+  Future<Either<Failure, RegisterOtpEntity>> registerVendor({
     required String firstName,
     required String lastName,
     required String email,
@@ -19,6 +20,17 @@ abstract interface class AuthRepository {
     String? supportEmail,
     String? supportPhone,
   });
+
+  Future<Either<Failure, UserEntity>> verifyVendorOtp({
+    required String email,
+    required String otp,
+  });
+
+  Future<Either<Failure, RegisterOtpEntity>> resendVendorOtp({
+    required String email,
+  });
+
+  Future<Either<Failure, bool>> checkEmailExists({required String email});
 
   Future<Either<Failure, UserEntity>> vendorLogin({
     required String identifier,

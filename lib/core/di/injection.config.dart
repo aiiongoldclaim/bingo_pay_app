@@ -26,6 +26,8 @@ import 'package:bingo_pay/features/auth/domain/repositories/auth_repository.dart
     as _i917;
 import 'package:bingo_pay/features/auth/domain/usecases/check_auth_status_usecase.dart'
     as _i308;
+import 'package:bingo_pay/features/auth/domain/usecases/check_email_exists_usecase.dart'
+    as _i80;
 import 'package:bingo_pay/features/auth/domain/usecases/forgot_password_usecase.dart'
     as _i878;
 import 'package:bingo_pay/features/auth/domain/usecases/get_kyc_status_usecase.dart'
@@ -34,6 +36,8 @@ import 'package:bingo_pay/features/auth/domain/usecases/logout_usecase.dart'
     as _i189;
 import 'package:bingo_pay/features/auth/domain/usecases/register_vendor_usecase.dart'
     as _i1029;
+import 'package:bingo_pay/features/auth/domain/usecases/resend_vendor_otp_usecase.dart'
+    as _i874;
 import 'package:bingo_pay/features/auth/domain/usecases/submit_kyc_personal_details_usecase.dart'
     as _i627;
 import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_document_usecase.dart'
@@ -42,6 +46,8 @@ import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_selfie_usecas
     as _i520;
 import 'package:bingo_pay/features/auth/domain/usecases/vendor_login_usecase.dart'
     as _i984;
+import 'package:bingo_pay/features/auth/domain/usecases/verify_vendor_otp_usecase.dart'
+    as _i367;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
 import 'package:bingo_pay/features/more/data/datasources/profile_remote_datasource.dart'
@@ -88,13 +94,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
     );
-    gh.factory<_i109.ProductRemoteDataSource>(
-      () => _i109.ProductRemoteDataSourceImpl(gh<_i382.AppsScriptClient>()),
-    );
     gh.factory<_i2.ProfileRemoteDataSource>(
       () => _i2.ProfileRemoteDataSourceImpl(
         gh<_i541.ApiClient>(),
         gh<_i481.SecureStorageService>(),
+        gh<_i460.SharedPreferences>(),
       ),
     );
     gh.factory<_i763.AuthLocalDataSource>(
@@ -106,6 +110,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
+    gh.factory<_i109.ProductRemoteDataSource>(
+      () => _i109.ProductRemoteDataSourceImpl(
+        gh<_i382.AppsScriptClient>(),
+        gh<_i541.ApiClient>(),
+      ),
+    );
     gh.factory<_i917.AuthRepository>(
       () => _i1061.AuthRepositoryImpl(
         gh<_i495.AuthRemoteDataSource>(),
@@ -114,6 +124,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i308.CheckAuthStatusUseCase>(
       () => _i308.CheckAuthStatusUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i80.CheckEmailExistsUseCase>(
+      () => _i80.CheckEmailExistsUseCase(gh<_i917.AuthRepository>()),
     );
     gh.factory<_i878.ForgotPasswordUseCase>(
       () => _i878.ForgotPasswordUseCase(gh<_i917.AuthRepository>()),
@@ -127,6 +140,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1029.RegisterVendorUseCase>(
       () => _i1029.RegisterVendorUseCase(gh<_i917.AuthRepository>()),
     );
+    gh.factory<_i874.ResendVendorOtpUseCase>(
+      () => _i874.ResendVendorOtpUseCase(gh<_i917.AuthRepository>()),
+    );
     gh.factory<_i627.SubmitKycPersonalDetailsUseCase>(
       () => _i627.SubmitKycPersonalDetailsUseCase(gh<_i917.AuthRepository>()),
     );
@@ -139,10 +155,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i984.VendorLoginUseCase>(
       () => _i984.VendorLoginUseCase(gh<_i917.AuthRepository>()),
     );
+    gh.factory<_i367.VerifyVendorOtpUseCase>(
+      () => _i367.VerifyVendorOtpUseCase(gh<_i917.AuthRepository>()),
+    );
     gh.factory<_i357.AuthBloc>(
       () => _i357.AuthBloc(
         checkAuthStatus: gh<_i308.CheckAuthStatusUseCase>(),
         registerVendor: gh<_i1029.RegisterVendorUseCase>(),
+        verifyVendorOtp: gh<_i367.VerifyVendorOtpUseCase>(),
+        resendVendorOtp: gh<_i874.ResendVendorOtpUseCase>(),
         vendorLogin: gh<_i984.VendorLoginUseCase>(),
         forgotPassword: gh<_i878.ForgotPasswordUseCase>(),
         logout: gh<_i189.LogoutUseCase>(),

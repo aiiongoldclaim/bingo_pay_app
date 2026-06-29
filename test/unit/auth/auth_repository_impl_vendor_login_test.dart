@@ -45,12 +45,13 @@ void main() {
   });
 
   group('vendorLogin', () {
-    test('saves token with empty refreshToken and returns the user', () async {
+    test('saves the access and refresh tokens and returns the user', () async {
       when(() => remote.vendorLogin(
             identifier: 'owner13@acme.com',
             password: 'Secret@123',
           )).thenAnswer((_) async => const VendorLoginResultModel(
             accessToken: 'vendor-login-jwt',
+            refreshToken: 'vendor-login-refresh-jwt',
             user: vendorUser,
           ));
 
@@ -62,7 +63,7 @@ void main() {
       expect(result, const Right(vendorUser));
       verify(() => local.saveTokens(
             accessToken: 'vendor-login-jwt',
-            refreshToken: '',
+            refreshToken: 'vendor-login-refresh-jwt',
           )).called(1);
       verify(() => local.saveUser(vendorUser)).called(1);
     });

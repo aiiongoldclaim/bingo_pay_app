@@ -2,6 +2,7 @@ class AppRoutes {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String register = '/register';
+  static const String registerOtp = '/register/otp';
   static const String registerKyc = '/register/kyc';
   static const String kycDocument = '/register/kyc/document';
   static const String kycSelfie = '/register/kyc/selfie';
@@ -11,6 +12,7 @@ class AppRoutes {
   static const String vendorHome = '/vendor/home';
   static const String vendorProducts = '/vendor/products';
   static const String vendorProductCreate = '/vendor/products/create';
+  static const String vendorProductDetail = '/vendor/products/:id';
   static const String vendorProductEdit = '/vendor/products/:id/edit';
   static const String vendorTransactions = '/vendor/transactions';
   static const String vendorTransactionDetail = '/vendor/transactions/:id';
@@ -23,11 +25,15 @@ class AppRoutes {
     splash,
     login,
     register,
+    registerOtp,
     registerKyc,
     kycDocument,
     kycSelfie,
     forgotPassword,
   ];
+
+  static String vendorProductDetailPath(String id) =>
+      vendorProductDetail.replaceFirst(':id', id);
 
   static String vendorProductEditPath(String id) =>
       vendorProductEdit.replaceFirst(':id', id);

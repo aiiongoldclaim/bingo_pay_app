@@ -26,6 +26,14 @@ class AuthAuthenticated extends AuthState {
   List<Object> get props => [user];
 }
 
+class AuthOtpRequired extends AuthState {
+  final String email;
+  final String message;
+  const AuthOtpRequired({required this.email, required this.message});
+  @override
+  List<Object> get props => [email, message];
+}
+
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
   @override

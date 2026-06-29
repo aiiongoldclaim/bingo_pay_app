@@ -5,18 +5,9 @@ part 'vendor_profile_model.g.dart';
 @JsonSerializable(createToJson: false)
 class VendorProfileModel {
   final VendorInfoModel vendor;
-  final Map<String, String> walletAddresses;
-  final List<BalanceModel> balances;
-  final double bigoldBalance;
-  final double usdtBalance;
+  final BingoldModel bingold;
 
-  const VendorProfileModel({
-    required this.vendor,
-    required this.walletAddresses,
-    required this.balances,
-    required this.bigoldBalance,
-    required this.usdtBalance,
-  });
+  const VendorProfileModel({required this.vendor, required this.bingold});
 
   factory VendorProfileModel.fromJson(Map<String, dynamic> json) =>
       _$VendorProfileModelFromJson(json);
@@ -27,12 +18,13 @@ class VendorInfoModel {
   final String uuid;
   final String shopName;
   final String shopSlug;
-  final String businessName;
-  final String? merchantCode;
   final String status;
-  final String kycStatus;
-  final String email;
-  final String phone;
+  final String? verificationStatus;
+  final String? kybStatus;
+  final String? businessName;
+  final String? merchantCode;
+  final String? email;
+  final String? phone;
   final String? description;
   final String? gstNumber;
   final String? panNumber;
@@ -43,12 +35,13 @@ class VendorInfoModel {
     required this.uuid,
     required this.shopName,
     required this.shopSlug,
-    required this.businessName,
-    this.merchantCode,
     required this.status,
-    required this.kycStatus,
-    required this.email,
-    required this.phone,
+    this.verificationStatus,
+    this.kybStatus,
+    this.businessName,
+    this.merchantCode,
+    this.email,
+    this.phone,
     this.description,
     this.gstNumber,
     this.panNumber,
@@ -58,6 +51,26 @@ class VendorInfoModel {
 
   factory VendorInfoModel.fromJson(Map<String, dynamic> json) =>
       _$VendorInfoModelFromJson(json);
+}
+
+@JsonSerializable(createToJson: false)
+class BingoldModel {
+  final String bingoldUuid;
+  final String kycStatus;
+  final String status;
+  final Map<String, String> walletAddresses;
+  final List<BalanceModel> balances;
+
+  const BingoldModel({
+    required this.bingoldUuid,
+    required this.kycStatus,
+    required this.status,
+    required this.walletAddresses,
+    required this.balances,
+  });
+
+  factory BingoldModel.fromJson(Map<String, dynamic> json) =>
+      _$BingoldModelFromJson(json);
 }
 
 @JsonSerializable(createToJson: false)

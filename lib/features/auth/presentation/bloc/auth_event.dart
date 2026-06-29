@@ -55,6 +55,21 @@ class VendorRegisterRequested extends AuthEvent {
       ];
 }
 
+class VerifyOtpRequested extends AuthEvent {
+  final String email;
+  final String otp;
+  const VerifyOtpRequested({required this.email, required this.otp});
+  @override
+  List<Object> get props => [email, otp];
+}
+
+class ResendOtpRequested extends AuthEvent {
+  final String email;
+  const ResendOtpRequested({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
 class ForgotPasswordRequested extends AuthEvent {
   final String email;
   const ForgotPasswordRequested({required this.email});

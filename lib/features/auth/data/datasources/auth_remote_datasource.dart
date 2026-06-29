@@ -3,11 +3,12 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../models/kyc_model.dart';
+import '../models/register_otp_model.dart';
 import '../models/register_result_model.dart';
 import '../models/vendor_login_result_model.dart';
 
 abstract interface class AuthRemoteDataSource {
-  Future<RegisterResultModel> registerVendor({
+  Future<RegisterOtpModel> registerVendor({
     required String firstName,
     required String lastName,
     required String email,
@@ -22,6 +23,15 @@ abstract interface class AuthRemoteDataSource {
     String? supportEmail,
     String? supportPhone,
   });
+
+  Future<RegisterResultModel> verifyVendorOtp({
+    required String email,
+    required String otp,
+  });
+
+  Future<RegisterOtpModel> resendVendorOtp({required String email});
+
+  Future<bool> checkUserExists({required String email});
 
   Future<VendorLoginResultModel> vendorLogin({
     required String identifier,
@@ -54,7 +64,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Dio get _dio => _apiClient.dio;
 
   @override
-  Future<RegisterResultModel> registerVendor({
+  Future<RegisterOtpModel> registerVendor({
     required String firstName,
     required String lastName,
     required String email,
@@ -87,11 +97,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'supportPhone': supportPhone,
       },
     );
+    return RegisterOtpModel.fromJson(
+      response.data['data'] as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<RegisterResultModel> verifyVendorOtp({
+    required String email,
+    required String otp,
+  }) async {
+    final response = await _dio.post(
+      ApiEndpoints.verifyVendorOtp,
+      data: {'email': email, 'otp': otp},
+    );
     return RegisterResultModel.fromVendorJson(
       response.data['data'] as Map<String, dynamic>,
-      firstName: firstName,
-      lastName: lastName,
     );
+  }
+
+  @override
+  Future<RegisterOtpModel> resendVendorOtp({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.resendVendorOtp,
+      data: {'email': email},
+    );
+    return RegisterOtpModel.fromResendJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<bool> checkUserExists({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.checkUserExists,
+      data: {'email': email},
+    );
+    final data = response.data['data'] as Map<String, dynamic>;
+    return data['exists'] as bool? ?? false;
   }
 
   @override

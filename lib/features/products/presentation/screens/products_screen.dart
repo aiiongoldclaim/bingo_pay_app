@@ -20,6 +20,7 @@ class ProductsScreen extends StatefulWidget {
 
 class _ProductsScreenState extends State<ProductsScreen> {
   ProductFilter _selectedFilter = ProductFilter.all;
+  bool _isGridView = false;
   late Future<List<Product>> _productsFuture;
 
   @override
@@ -50,7 +51,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F5F7),
-      appBar: ProductsAppBar(onSearchTap: () {}, onFilterTap: () {}),
+      appBar: ProductsAppBar(
+        onSearchTap: () {},
+        onFilterTap: () {},
+        isGridView: _isGridView,
+        onViewToggle: () => setState(() => _isGridView = !_isGridView),
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primary,
         onPressed: _openAddProduct,
@@ -98,16 +104,35 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
                 return RefreshIndicator(
                   onRefresh: _refresh,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDimensions.md,
-                      AppDimensions.sm,
-                      AppDimensions.md,
-                      AppDimensions.lg,
-                    ),
-                    itemCount: products.length,
-                    itemBuilder: (context, index) => ProductCard(product: products[index]),
-                  ),
+                  child: _isGridView
+                      ? GridView.builder(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppDimensions.md,
+                            AppDimensions.sm,
+                            AppDimensions.md,
+                            AppDimensions.lg,
+                          ),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: AppDimensions.sm,
+                            mainAxisSpacing: AppDimensions.sm,
+                            childAspectRatio: 0.75,
+                          ),
+                          itemCount: products.length,
+                          itemBuilder: (context, index) =>
+                              ProductCard(product: products[index], isGrid: true),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppDimensions.md,
+                            AppDimensions.sm,
+                            AppDimensions.md,
+                            AppDimensions.lg,
+                          ),
+                          itemCount: products.length,
+                          itemBuilder: (context, index) =>
+                              ProductCard(product: products[index]),
+                        ),
                 );
               },
             ),

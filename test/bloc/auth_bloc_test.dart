@@ -1,15 +1,18 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:bingo_pay/core/error/failures.dart';
+import 'package:bingo_pay/features/auth/domain/entities/register_otp_entity.dart';
 import 'package:bingo_pay/features/auth/domain/entities/user_entity.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/check_auth_status_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/forgot_password_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/get_kyc_status_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/register_vendor_usecase.dart';
+import 'package:bingo_pay/features/auth/domain/usecases/resend_vendor_otp_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/submit_kyc_personal_details_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_document_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_selfie_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/vendor_login_usecase.dart';
+import 'package:bingo_pay/features/auth/domain/usecases/verify_vendor_otp_usecase.dart';
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_event.dart';
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_state.dart';
@@ -19,6 +22,8 @@ import 'package:mocktail/mocktail.dart';
 
 class MockVendorLoginUseCase extends Mock implements VendorLoginUseCase {}
 class MockRegisterVendorUseCase extends Mock implements RegisterVendorUseCase {}
+class MockVerifyVendorOtpUseCase extends Mock implements VerifyVendorOtpUseCase {}
+class MockResendVendorOtpUseCase extends Mock implements ResendVendorOtpUseCase {}
 class MockForgotPasswordUseCase extends Mock implements ForgotPasswordUseCase {}
 class MockLogoutUseCase extends Mock implements LogoutUseCase {}
 class MockCheckAuthStatusUseCase extends Mock implements CheckAuthStatusUseCase {}
@@ -30,6 +35,8 @@ class MockGetKycStatusUseCase extends Mock implements GetKycStatusUseCase {}
 AuthBloc buildBloc({
   MockVendorLoginUseCase? vendorLogin,
   MockRegisterVendorUseCase? registerVendor,
+  MockVerifyVendorOtpUseCase? verifyVendorOtp,
+  MockResendVendorOtpUseCase? resendVendorOtp,
   MockCheckAuthStatusUseCase? checkAuth,
   MockLogoutUseCase? logout,
   MockForgotPasswordUseCase? forgotPassword,
@@ -38,6 +45,8 @@ AuthBloc buildBloc({
       checkAuthStatus: checkAuth ?? MockCheckAuthStatusUseCase(),
       vendorLogin: vendorLogin ?? MockVendorLoginUseCase(),
       registerVendor: registerVendor ?? MockRegisterVendorUseCase(),
+      verifyVendorOtp: verifyVendorOtp ?? MockVerifyVendorOtpUseCase(),
+      resendVendorOtp: resendVendorOtp ?? MockResendVendorOtpUseCase(),
       forgotPassword: forgotPassword ?? MockForgotPasswordUseCase(),
       logout: logout ?? MockLogoutUseCase(),
       kycPersonalDetails: MockKycPersonalDetailsUseCase(),
@@ -53,11 +62,17 @@ void main() {
       shopName: '', shopSlug: '', businessName: '',
     ));
     registerFallbackValue(const VendorLoginParams(identifier: '', password: ''));
+    registerFallbackValue(const VerifyVendorOtpParams(email: '', otp: ''));
   });
 
   const vendor = UserEntity(
     id: '2', email: 'owner@acme.com', name: 'Acme Owner',
     role: 'vendor', kycStatus: 'pending',
+  );
+
+  const otpInfo = RegisterOtpEntity(
+    email: 'owner@acme.com',
+    message: 'OTP sent to your email. Verify it to complete vendor registration.',
   );
 
   group('VendorLoginRequested', () {
@@ -95,11 +110,11 @@ void main() {
 
   group('VendorRegisterRequested', () {
     blocTest<AuthBloc, AuthState>(
-      'emits [AuthLoading, AuthAuthenticated] on success',
+      'emits [AuthLoading, AuthOtpRequired] on success',
       build: () {
         final mockRegister = MockRegisterVendorUseCase();
         when(() => mockRegister(any()))
-            .thenAnswer((_) async => const Right(vendor));
+            .thenAnswer((_) async => const Right(otpInfo));
         return buildBloc(registerVendor: mockRegister);
       },
       act: (bloc) => bloc.add(const VendorRegisterRequested(
@@ -108,7 +123,10 @@ void main() {
         shopName: 'Acme Store', shopSlug: 'acme-store',
         businessName: 'Acme Pvt Ltd',
       )),
-      expect: () => [const AuthLoading(), const AuthAuthenticated(vendor)],
+      expect: () => [
+        const AuthLoading(),
+        AuthOtpRequired(email: otpInfo.email, message: otpInfo.message),
+      ],
     );
 
     blocTest<AuthBloc, AuthState>(
@@ -125,6 +143,69 @@ void main() {
         shopName: 'Acme Store', shopSlug: 'acme-store',
         businessName: 'Acme Pvt Ltd',
       )),
+      expect: () => [const AuthLoading(), const AuthError(NetworkFailure())],
+    );
+  });
+
+  group('VerifyOtpRequested', () {
+    blocTest<AuthBloc, AuthState>(
+      'emits [AuthLoading, AuthAuthenticated] on success',
+      build: () {
+        final mockVerifyOtp = MockVerifyVendorOtpUseCase();
+        when(() => mockVerifyOtp(any()))
+            .thenAnswer((_) async => const Right(vendor));
+        return buildBloc(verifyVendorOtp: mockVerifyOtp);
+      },
+      act: (bloc) => bloc.add(const VerifyOtpRequested(
+        email: 'owner@acme.com', otp: '942653',
+      )),
+      expect: () => [const AuthLoading(), const AuthAuthenticated(vendor)],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'emits [AuthLoading, AuthError] on failure',
+      build: () {
+        final mockVerifyOtp = MockVerifyVendorOtpUseCase();
+        when(() => mockVerifyOtp(any()))
+            .thenAnswer((_) async => const Left(ValidationFailure(
+                  message: 'Invalid OTP',
+                  fieldErrors: {},
+                )));
+        return buildBloc(verifyVendorOtp: mockVerifyOtp);
+      },
+      act: (bloc) => bloc.add(const VerifyOtpRequested(
+        email: 'owner@acme.com', otp: '000000',
+      )),
+      expect: () => [
+        const AuthLoading(),
+        const AuthError(ValidationFailure(message: 'Invalid OTP', fieldErrors: {})),
+      ],
+    );
+  });
+
+  group('ResendOtpRequested', () {
+    blocTest<AuthBloc, AuthState>(
+      'emits [AuthLoading, AuthOtpRequired] on success',
+      build: () {
+        final mockResend = MockResendVendorOtpUseCase();
+        when(() => mockResend(any())).thenAnswer((_) async => const Right(otpInfo));
+        return buildBloc(resendVendorOtp: mockResend);
+      },
+      act: (bloc) => bloc.add(const ResendOtpRequested(email: 'owner@acme.com')),
+      expect: () => [
+        const AuthLoading(),
+        AuthOtpRequired(email: otpInfo.email, message: otpInfo.message),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'emits [AuthLoading, AuthError] on failure',
+      build: () {
+        final mockResend = MockResendVendorOtpUseCase();
+        when(() => mockResend(any())).thenAnswer((_) async => const Left(NetworkFailure()));
+        return buildBloc(resendVendorOtp: mockResend);
+      },
+      act: (bloc) => bloc.add(const ResendOtpRequested(email: 'owner@acme.com')),
       expect: () => [const AuthLoading(), const AuthError(NetworkFailure())],
     );
   });

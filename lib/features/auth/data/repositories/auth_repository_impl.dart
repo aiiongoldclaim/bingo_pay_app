@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/kyc_entity.dart';
+import '../../domain/entities/register_otp_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_datasource.dart';
@@ -17,7 +18,7 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._remote, this._local);
 
   @override
-  Future<Either<Failure, UserEntity>> registerVendor({
+  Future<Either<Failure, RegisterOtpEntity>> registerVendor({
     required String firstName,
     required String lastName,
     required String email,
@@ -48,9 +49,54 @@ class AuthRepositoryImpl implements AuthRepository {
         supportEmail: supportEmail,
         supportPhone: supportPhone,
       );
-      await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
+      return Right(
+        RegisterOtpEntity(email: result.email, message: result.message),
+      );
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> verifyVendorOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final result = await _remote.verifyVendorOtp(email: email, otp: otp);
+      await _local.saveTokens(
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      );
       await _local.saveUser(result.user);
+      await _local.saveVendorData(result.vendorData);
       return Right(result.user);
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, RegisterOtpEntity>> resendVendorOtp({
+    required String email,
+  }) async {
+    try {
+      final result = await _remote.resendVendorOtp(email: email);
+      return Right(
+        RegisterOtpEntity(email: result.email, message: result.message),
+      );
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> checkEmailExists({
+    required String email,
+  }) async {
+    try {
+      final exists = await _remote.checkUserExists(email: email);
+      return Right(exists);
     } catch (e) {
       return Left(ErrorHandler.mapErrorToFailure(e));
     }
@@ -66,8 +112,12 @@ class AuthRepositoryImpl implements AuthRepository {
         identifier: identifier,
         password: password,
       );
-      await _local.saveTokens(accessToken: result.accessToken, refreshToken: '');
+      await _local.saveTokens(
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      );
       await _local.saveUser(result.user);
+      await _local.saveVendorData(result.vendorData);
       return Right(result.user);
     } catch (e) {
       return Left(ErrorHandler.mapErrorToFailure(e));

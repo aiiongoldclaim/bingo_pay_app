@@ -42,6 +42,19 @@ class ImagePickerHelper {
     );
   }
 
+  static Future<List<XFile>> pickMultiple(
+    BuildContext context, {
+    int imageQuality = 80,
+  }) async {
+    if (Platform.isAndroid) {
+      // ignore: use_build_context_synchronously
+      final status = await PermissionHelper.request(context, Permission.photos);
+      if (!status.isGranted && !status.isLimited) return [];
+    }
+    if (!context.mounted) return [];
+    return await _picker.pickMultiImage(imageQuality: imageQuality);
+  }
+
   static Future<ImageSource?> _showSourceSheet(BuildContext context) {
     return showModalBottomSheet<ImageSource>(
       context: context,

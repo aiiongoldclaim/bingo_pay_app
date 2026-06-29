@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/failures.dart';
-import '../entities/user_entity.dart';
+import '../entities/register_otp_entity.dart';
 import '../repositories/auth_repository.dart';
 
 @injectable
@@ -10,7 +10,7 @@ class RegisterVendorUseCase {
   final AuthRepository _repository;
   const RegisterVendorUseCase(this._repository);
 
-  Future<Either<Failure, UserEntity>> call(VendorRegisterParams params) =>
+  Future<Either<Failure, RegisterOtpEntity>> call(VendorRegisterParams params) =>
       _repository.registerVendor(
         firstName: params.firstName,
         lastName: params.lastName,

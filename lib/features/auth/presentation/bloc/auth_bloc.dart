@@ -9,8 +9,10 @@ import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_vendor_usecase.dart';
 import '../../domain/usecases/submit_kyc_personal_details_usecase.dart';
 import '../../domain/usecases/upload_kyc_document_usecase.dart';
+import '../../domain/usecases/resend_vendor_otp_usecase.dart';
 import '../../domain/usecases/upload_kyc_selfie_usecase.dart';
 import '../../domain/usecases/vendor_login_usecase.dart';
+import '../../domain/usecases/verify_vendor_otp_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -19,6 +21,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
   final CheckAuthStatusUseCase _checkAuthStatus;
   final RegisterVendorUseCase _registerVendor;
+  final VerifyVendorOtpUseCase _verifyVendorOtp;
+  final ResendVendorOtpUseCase _resendVendorOtp;
   final VendorLoginUseCase _vendorLogin;
   final LogoutUseCase _logout;
   final UploadKycSelfieUseCase _kycSelfie;
@@ -26,6 +30,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
     required RegisterVendorUseCase registerVendor,
+    required VerifyVendorOtpUseCase verifyVendorOtp,
+    required ResendVendorOtpUseCase resendVendorOtp,
     required VendorLoginUseCase vendorLogin,
     required ForgotPasswordUseCase forgotPassword,
     required LogoutUseCase logout,
@@ -35,6 +41,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required GetKycStatusUseCase getKycStatus,
   }) : _checkAuthStatus = checkAuthStatus,
        _registerVendor = registerVendor,
+       _verifyVendorOtp = verifyVendorOtp,
+       _resendVendorOtp = resendVendorOtp,
        _vendorLogin = vendorLogin,
        _logout = logout,
        _kycSelfie = kycSelfie,
@@ -42,6 +50,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<VendorLoginRequested>(_onVendorLogin);
     on<VendorRegisterRequested>(_onVendorRegister);
+    on<VerifyOtpRequested>(_onVerifyOtp);
+    on<ResendOtpRequested>(_onResendOtp);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
     on<KycPersonalDetailsSubmitted>(_onKycPersonalDetails);
@@ -109,10 +119,41 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     ));
     result.match(
       (failure) => emit(AuthError(failure)),
+      (otpInfo) => emit(
+        AuthOtpRequired(email: otpInfo.email, message: otpInfo.message),
+      ),
+    );
+  }
+
+  Future<void> _onVerifyOtp(
+    VerifyOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _verifyVendorOtp(VerifyVendorOtpParams(
+      email: event.email,
+      otp: event.otp,
+    ));
+    result.match(
+      (failure) => emit(AuthError(failure)),
       (user) {
         _currentUser = user;
         emit(AuthAuthenticated(user));
       },
+    );
+  }
+
+  Future<void> _onResendOtp(
+    ResendOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _resendVendorOtp(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (otpInfo) => emit(
+        AuthOtpRequired(email: otpInfo.email, message: otpInfo.message),
+      ),
     );
   }
 
