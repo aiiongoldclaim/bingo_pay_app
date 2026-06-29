@@ -13,9 +13,11 @@ class RegisterResponseModel {
 
   factory RegisterResponseModel.fromJson(Map<String, dynamic> json) {
     return RegisterResponseModel(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: RegisterDataModel.fromJson(json['data'] as Map<String, dynamic>),
+      success: json['success'] as bool? ?? false,
+      message: json['message'] as String? ?? '',
+      data: RegisterDataModel.fromJson(
+        json['data'] as Map<String, dynamic>? ?? {},
+      ),
     );
   }
 }

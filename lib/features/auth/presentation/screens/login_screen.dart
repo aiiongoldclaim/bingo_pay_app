@@ -48,6 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             context.go(AppRoutes.home);
+          } else if (state is AuthOtpRequired) {
+            context.push(AppRoutes.registerOtp, extra: state.email);
           } else if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
           }

@@ -118,9 +118,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            _otpController.clear();
-            _otpFocusNode.requestFocus();
-
             AppSnackbar.showError(context, state.failure.message);
           } else if (state is OtpResendSent) {
             AppSnackbar.showSuccess(context, 'OTP resent to ${widget.email}');

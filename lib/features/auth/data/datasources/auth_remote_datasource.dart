@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
+import '../../../../core/error/exceptions.dart';
 import '../models/auth_result_model.dart';
 import '../models/kyc_model.dart';
 import '../models/register_response_model.dart';
@@ -14,12 +15,11 @@ abstract interface class AuthRemoteDataSource {
   });
 
   Future<RegisterResponseModel> register({
-    required String firstName,
-    required String lastName,
+    required String fullName,
     required String password,
     required String countryId,
     required String email,
-    required String phoneNumber,
+    required String phone,
   });
 
   Future<AuthResultModel> verifyOtp({
@@ -27,9 +27,13 @@ abstract interface class AuthRemoteDataSource {
     required String otp,
   });
 
+  Future<void> sendOtp({required String email});
+
   Future<void> resendOtp({required String email});
 
   Future<bool> checkEmailExists({required String email});
+
+  Future<String> logout();
 
   Future<void> forgotPassword({required String email});
 
@@ -61,38 +65,49 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
-    final response = await _dio.post(
-      ApiEndpoints.login,
-      data: {'email': email, 'password': password},
-    );
-    final data = response.data['data'] as Map<String, dynamic>;
-    final profile = data['profile'] as Map<String, dynamic>;
-    // The login response has no token field; use the profile's uuid as the
-    // stored session identifier instead.
-    return AuthResultModel(
-      token: profile['uuid'] as String,
-      user: UserModel.fromProfileJson(profile),
-    );
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.login,
+        data: {'email': email, 'password': password},
+      );
+      final inner = (response.data['data'] as Map<String, dynamic>)['data']
+          as Map<String, dynamic>;
+      final tokens = inner['tokens'] as Map<String, dynamic>;
+      final user = inner['user'] as Map<String, dynamic>;
+
+      return AuthResultModel(
+        token: tokens['accessToken'] as String,
+        refreshToken: tokens['refreshToken'] as String,
+        user: UserModel.fromVerifyOtpJson(user),
+      );
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      if (data is Map && data['emailVerified'] == false) {
+        throw EmailNotVerifiedException(
+          message: data['message'] as String? ??
+              'Please verify your email before logging in',
+        );
+      }
+      rethrow;
+    }
   }
 
   @override
   Future<RegisterResponseModel> register({
-    required String firstName,
-    required String lastName,
+    required String fullName,
     required String password,
     required String countryId,
     required String email,
-    required String phoneNumber,
+    required String phone,
   }) async {
     final response = await _dio.post(
       ApiEndpoints.register,
       data: {
-        'firstName': firstName,
-        'lastName': lastName,
+        'fullName': fullName,
         'password': password,
         'countryId': countryId,
         'email': email,
-        'phoneNumber': phoneNumber,
+        'phone': phone,
       },
     );
 
@@ -108,21 +123,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     final response = await _dio.post(
       ApiEndpoints.verifyOtp,
-      data: {
-        "email": email,
-        "otp": otp,
-        "type": "SignUp", // Required by backend
-        "tOtp": "",
-        "google2faSecret": "",
-        "token": "",
-      },
+      data: {'email': email, 'otp': otp},
     );
 
-    final data = response.data["data"] as Map<String, dynamic>;
+    final inner = (response.data['data'] as Map<String, dynamic>)['data']
+        as Map<String, dynamic>;
+    final tokens = inner['tokens'] as Map<String, dynamic>;
+    final user = inner['user'] as Map<String, dynamic>;
 
     return AuthResultModel(
-      token: data["token"] as String,
-      user: UserModel.fromProfileJson(data["profile"] as Map<String, dynamic>),
+      token: tokens['accessToken'] as String,
+      refreshToken: tokens['refreshToken'] as String,
+      user: UserModel.fromVerifyOtpJson(user),
+    );
+  }
+
+  @override
+  Future<void> sendOtp({required String email}) async {
+    await _dio.post(
+      ApiEndpoints.sendOtp,
+      data: {'email': email},
     );
   }
 
@@ -130,7 +150,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> resendOtp({required String email}) async {
     await _dio.post(
       ApiEndpoints.resendOtp,
-      data: {"email": email, "type": "SIGNUP"},
+      data: {'email': email},
     );
   }
 
@@ -140,8 +160,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiEndpoints.userExists,
       data: {'email': email},
     );
-    final data = response.data['data'] as Map<String, dynamic>;
-    return data['exists'] as bool? ?? false;
+    final outer = response.data['data'] as Map<String, dynamic>?;
+    final inner = outer?['data'] as Map<String, dynamic>?;
+    return inner?['exists'] as bool? ?? false;
+  }
+
+  @override
+  Future<String> logout() async {
+    final response = await _dio.post(ApiEndpoints.logout);
+    final data = response.data['data'] as Map<String, dynamic>?;
+    return data?['message'] as String? ?? 'Logged out successfully';
   }
 
   @override

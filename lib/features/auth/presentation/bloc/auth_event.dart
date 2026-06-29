@@ -19,23 +19,20 @@ class LoginRequested extends AuthEvent {
 }
 
 class RegisterRequested extends AuthEvent {
-  final String firstName;
-  final String lastName;
+  final String fullName;
   final String email;
   final String password;
   final String countryId;
-  final String phoneNumber;
+  final String phone;
   const RegisterRequested({
-    required this.firstName,
-    required this.lastName,
+    required this.fullName,
     required this.email,
     required this.password,
     required this.countryId,
-    required this.phoneNumber,
+    required this.phone,
   });
   @override
-  List<Object> get props =>
-      [firstName, lastName, email, password, countryId, phoneNumber];
+  List<Object> get props => [fullName, email, password, countryId, phone];
 }
 
 class OtpVerifyRequested extends AuthEvent {

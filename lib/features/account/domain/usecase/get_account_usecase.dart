@@ -9,6 +9,5 @@ class GetProfileUseCase {
   final AccountRepository _repository;
   const GetProfileUseCase(this._repository);
 
-  Future<Either<Failure, AccountEntity>> call({required String email}) =>
-      _repository.getProfile(email: email);
+  Future<Either<Failure, AccountEntity>> call() => _repository.getProfile();
 }

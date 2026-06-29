@@ -34,7 +34,7 @@ class _AppState extends State<App> {
     } else if (state is AuthAuthenticated) {
       _authDetermined = true;
       _router.updateAuthState(const RouteAuthState.authenticated());
-    } else if (state is AuthUnauthenticated) {
+    } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
       _authDetermined = true;
       _router.updateAuthState(const RouteAuthState.unauthenticated());
     }

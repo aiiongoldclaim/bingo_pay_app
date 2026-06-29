@@ -53,10 +53,24 @@ class EmailExistenceChecked extends AuthState {
   List<Object> get props => [email, exists];
 }
 
+class EmailExistenceCheckFailed extends AuthState {
+  final String email;
+  const EmailExistenceCheckFailed({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
   @override
   List<Object> get props => [];
+}
+
+class AuthLoggedOut extends AuthState {
+  final String message;
+  const AuthLoggedOut(this.message);
+  @override
+  List<Object> get props => [message];
 }
 
 class AuthError extends AuthState {

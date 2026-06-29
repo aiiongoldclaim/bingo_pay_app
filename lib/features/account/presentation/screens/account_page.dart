@@ -3,14 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../core/di/injection.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/router/route_guard.dart';
-import '../../../../core/storage/preferences_service.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../data/account_model/account_model.dart';
+import '../../../../core/widgets/app_snackbar.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../cubit/account_cubit.dart';
 import '../widgets/account_header.dart';
 import '../widgets/account_menu_list.dart';
@@ -31,7 +30,18 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AccountCubit, AccountState>(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoggedOut) {
+          AppSnackbar.showSuccess(context, state.message);
+          context.go(AppRoutes.login);
+        } else if (state is AuthUnauthenticated) {
+          context.go(AppRoutes.login);
+        } else if (state is AuthError) {
+          AppSnackbar.showError(context, state.failure.message);
+        }
+      },
+      child: BlocBuilder<AccountCubit, AccountState>(
       builder: (context, state) {
         // ── Loading / Initial ────────────────────────────────────────────
         if (state is AccountInitial || state is AccountLoading) {
@@ -91,63 +101,93 @@ class _AccountScreenState extends State<AccountScreen> {
         final loaded = state as AccountLoaded;
         final cubit = context.read<AccountCubit>();
 
-        return Scaffold(
-          backgroundColor: ThemeColors.blue,
-          body: RefreshIndicator(
-            onRefresh: cubit.refresh,
-            color: ThemeColors.blue,
-            backgroundColor: ThemeColors.white,
-            child: SingleChildScrollView(
-              // Enables pull-to-refresh even when content fits the screen.
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  // ── Blue gradient header (avatar, name, stats) ─────────
-                  AccountHeader(
-                    account: loaded.account,
-                    onEdit: cubit.onEditProfile,
-                    onWalletTap: () => context.push(AppRoutes.wallet),
-                  ),
-
-                  SizedBox(height: 2.5.h),
-
-                  // ── White menu card ───────────────────────────────────
-                  AccountMenuList(
-                    items: AccountMenuItem.items,
-                    onTap: (item) => context.push(item.route),
-                  ),
-
-                  SizedBox(height: 3.h),
-
-                  // ── Log out ───────────────────────────────────────────
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4.w),
-                    child: AppButton(
-                      label: 'LogOut',
-                      onPressed: () async {
-                        await getIt<PreferencesService>().clear();
-
-                        getIt<AppRouter>().updateAuthState(
-                          const RouteAuthState.unauthenticated(),
-                        );
-
-                        if (context.mounted) {
-                          context.go(AppRoutes.login);
-                        }
-                      },
-
-                      prefixIcon: Icons.logout_rounded,
-                      variant: AppButtonVariant.secondary,
+        return BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, authState) {
+            final isLoggingOut = authState is AuthLoading;
+            return Stack(
+              children: [
+                Scaffold(
+                  backgroundColor: ThemeColors.blue,
+                  body: RefreshIndicator(
+                    onRefresh: cubit.refresh,
+                    color: ThemeColors.blue,
+                    backgroundColor: ThemeColors.white,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        children: [
+                          AccountHeader(
+                            account: loaded.account,
+                            onEdit: cubit.onEditProfile,
+                            onWalletTap: () => context.push(AppRoutes.wallet),
+                          ),
+                          SizedBox(height: 2.5.h),
+                          AccountMenuList(
+                            items: AccountMenuItem.items,
+                            onTap: (item) => context.push(item.route),
+                          ),
+                          SizedBox(height: 3.h),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.w),
+                            child: AppButton(
+                              label: 'LogOut',
+                              isLoading: isLoggingOut,
+                              onPressed: isLoggingOut
+                                  ? null
+                                  : () => context
+                                      .read<AuthBloc>()
+                                      .add(const LogoutRequested()),
+                              prefixIcon: Icons.logout_rounded,
+                              variant: AppButtonVariant.secondary,
+                            ),
+                          ),
+                          SizedBox(height: 15.5.h),
+                        ],
+                      ),
                     ),
                   ),
+                ),
 
-                  SizedBox(height: 15.5.h),
-                ],
-              ),
-            ),
-          ),
+                // Full-screen loading overlay during logout
+                if (isLoggingOut)
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    child: Center(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 3.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: ThemeColors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(
+                              color: ThemeColors.blue,
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              'Logging out...',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                                color: ThemeColors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
         );
       },
+      ),
     );
   }
 }

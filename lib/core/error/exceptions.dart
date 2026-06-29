@@ -19,6 +19,11 @@ class ValidationException implements Exception {
   const ValidationException({required this.message, required this.fieldErrors});
 }
 
+class EmailNotVerifiedException implements Exception {
+  final String message;
+  const EmailNotVerifiedException({required this.message});
+}
+
 class CacheException implements Exception {
   final String message;
   const CacheException({required this.message});

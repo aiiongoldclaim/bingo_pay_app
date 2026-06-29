@@ -1,5 +1,3 @@
-// lib/features/account/domain/entity/account_entity.dart
-
 import 'package:equatable/equatable.dart';
 
 class CryptoBalance extends Equatable {
@@ -22,14 +20,7 @@ class CryptoBalance extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-    coin,
-    fullName,
-    address,
-    balance,
-    totalBalance,
-    iconUrl,
-  ];
+  List<Object?> get props => [coin, fullName, address, balance, totalBalance, iconUrl];
 }
 
 class WalletAddresses extends Equatable {
@@ -57,29 +48,29 @@ enum KycStatus {
   unknown;
 
   static KycStatus fromString(String value) => switch (value.toUpperCase()) {
-    'NOT_INITIATED' => KycStatus.notInitiated,
-    'PENDING' => KycStatus.pending,
-    'APPROVED' => KycStatus.approved,
-    'REJECTED' => KycStatus.rejected,
-    _ => KycStatus.unknown,
-  };
+        'NOT_INITIATED' => KycStatus.notInitiated,
+        'NONE' => KycStatus.notInitiated,
+        'PENDING' => KycStatus.pending,
+        'APPROVED' => KycStatus.approved,
+        'REJECTED' => KycStatus.rejected,
+        _ => KycStatus.unknown,
+      };
 
   String get label => switch (this) {
-    KycStatus.notInitiated => 'KYC Pending',
-    KycStatus.pending => 'KYC Under Review',
-    KycStatus.approved => 'KYC Verified',
-    KycStatus.rejected => 'KYC Rejected',
-    KycStatus.unknown => 'KYC Unknown',
-  };
+        KycStatus.notInitiated => 'KYC Pending',
+        KycStatus.pending => 'KYC Under Review',
+        KycStatus.approved => 'KYC Verified',
+        KycStatus.rejected => 'KYC Rejected',
+        KycStatus.unknown => 'KYC Unknown',
+      };
 
   bool get isVerified => this == KycStatus.approved;
 }
 
 class AccountEntity extends Equatable {
-  final int id;
+  final String id;
   final String uuid;
-  final String firstName;
-  final String lastName;
+  final String fullName;
   final String email;
   final String phone;
   final String? profileImageUrl;
@@ -95,27 +86,28 @@ class AccountEntity extends Equatable {
   const AccountEntity({
     required this.id,
     required this.uuid,
-    required this.firstName,
-    required this.lastName,
+    required this.fullName,
     required this.email,
     required this.phone,
     this.profileImageUrl,
     required this.kycStatus,
     required this.emailVerified,
     required this.phoneVerified,
-    required this.referralCode,
-    required this.bigoldBalance,
-    required this.usdtBalance,
-    required this.walletAddresses,
-    required this.balances,
+    this.referralCode = 0,
+    this.bigoldBalance = 0.0,
+    this.usdtBalance = 0.0,
+    this.walletAddresses =
+        const WalletAddresses(eth: '', usdt: '', busd: '', bnb: ''),
+    this.balances = const [],
   });
 
-  String get fullName => '$firstName $lastName'.trim();
-
   String get initials {
-    final f = firstName.isNotEmpty ? firstName[0].toUpperCase() : '';
-    final l = lastName.isNotEmpty ? lastName[0].toUpperCase() : '';
-    return '$f$l';
+    final parts = fullName.trim().split(' ');
+    if (parts.isEmpty || fullName.isEmpty) return '';
+    if (parts.length == 1) {
+      return parts[0].isNotEmpty ? parts[0][0].toUpperCase() : '';
+    }
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 
   double get displayBigoldBalance => bigoldBalance / 1e8;

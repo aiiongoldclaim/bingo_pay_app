@@ -5,7 +5,6 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/config/app_config.dart';
-import '../../../../core/storage/secure_storage_service.dart';
 import '../../../account/data/account_model/account_profile_response.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/product_model.dart';
@@ -23,17 +22,11 @@ class HomeCubit extends Cubit<HomeState> {
 
     // Fetch real profile data
     try {
-      final storage = GetIt.I<SecureStorageService>();
-      final email = await storage.getEmail();
-      if (email != null && email.isNotEmpty) {
-        final profileRes = await client.dio.post(
-          ApiEndpoints.profile,
-          data: {'email': email},
-        );
-        final profile = AccountResponseModel.fromJson(profileRes.data);
-        userName = profile.account.fullName;
-        bigoldBalance = profile.account.displayBigoldBalance;
-      }
+      final profileRes = await client.dio.get(ApiEndpoints.profile);
+      final profile = AccountResponseModel.fromJson(
+        profileRes.data as Map<String, dynamic>,
+      );
+      userName = profile.account.fullName;
     } catch (_) {}
 
     // Fetch products
@@ -63,8 +56,8 @@ class HomeCubit extends Cubit<HomeState> {
         userName: userName,
         bigoldBalance: bigoldBalance,
         categories: _staticCategories(),
-        flashDeals: ProductModel.flashDeals(),
-        recommended: ProductModel.recommended(),
+        flashDeals: [],
+        recommended: [],
       ));
     }
   }

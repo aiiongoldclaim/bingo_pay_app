@@ -11,12 +11,11 @@ abstract interface class AuthRepository {
   });
 
   Future<Either<Failure, RegisterEntity>> register({
-    required String firstName,
-    required String lastName,
+    required String fullName,
     required String password,
     required String countryId,
     required String email,
-    required String phoneNumber,
+    required String phone,
   });
 
   Future<Either<Failure, UserEntity>> verifyOtp({
@@ -24,13 +23,15 @@ abstract interface class AuthRepository {
     required String otp,
   });
 
+  Future<Either<Failure, Unit>> sendOtp({required String email});
+
   Future<Either<Failure, Unit>> resendOtp({required String email});
 
   Future<Either<Failure, bool>> checkEmailExists({required String email});
 
   Future<Either<Failure, Unit>> forgotPassword({required String email});
 
-  Future<Either<Failure, Unit>> logout();
+  Future<Either<Failure, String>> logout();
 
   Future<Either<Failure, UserEntity?>> getStoredUser();
 

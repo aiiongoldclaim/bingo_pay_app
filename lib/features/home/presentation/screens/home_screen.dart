@@ -15,6 +15,134 @@ import '../widgets/promo_banner.dart';
 import '../widgets/recommended_section.dart';
 import '../widgets/wallet_card.dart';
 
+class _EmptyProductsState extends StatelessWidget {
+  const _EmptyProductsState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+      child: Column(
+        children: [
+          // Icon badge
+          Container(
+            width: 22.w,
+            height: 22.w,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEEF2FF),
+              shape: BoxShape.circle,
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.storefront_outlined,
+                  size: 11.w,
+                  color: ThemeColors.blue,
+                ),
+                Positioned(
+                  bottom: 3.5.w,
+                  right: 3.5.w,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFA726),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.access_time_rounded, size: 3.w, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 2.5.h),
+
+          Text(
+            'No Products Right Now',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: ThemeColors.black,
+              letterSpacing: -0.3,
+            ),
+          ),
+
+          SizedBox(height: 1.h),
+
+          Text(
+            "We're stocking up with amazing deals.\nCheck back soon for exclusive offers!",
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.grey.shade500,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          SizedBox(height: 1.5.h),
+
+          // Decorative tags row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _Tag(label: '🔥 Hot Deals', color: const Color(0xFFFFF3E0)),
+              SizedBox(width: 2.w),
+              _Tag(label: '✨ New Arrivals', color: const Color(0xFFF3E5F5)),
+              SizedBox(width: 2.w),
+              _Tag(label: '🎁 Offers', color: const Color(0xFFE8F5E9)),
+            ],
+          ),
+
+          SizedBox(height: 3.h),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => context.read<HomeCubit>().loadHome(),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Refresh'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: ThemeColors.blue,
+                side: const BorderSide(color: ThemeColors.blue, width: 1.5),
+                padding: EdgeInsets.symmetric(vertical: 1.6.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Tag extends StatelessWidget {
+  const _Tag({required this.label, required this.color});
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.6.h),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -118,11 +246,14 @@ class HomeScreen extends StatelessWidget {
 
                                 CategorySection(categories: state.categories),
 
-                                if (state.flashDeals.isNotEmpty)
-                                  FlashDealSection(products: state.flashDeals),
-
-                                if (state.recommended.isNotEmpty)
-                                  RecommendedSection(products: state.recommended),
+                                if (state.flashDeals.isEmpty && state.recommended.isEmpty)
+                                  const _EmptyProductsState()
+                                else ...[
+                                  if (state.flashDeals.isNotEmpty)
+                                    FlashDealSection(products: state.flashDeals),
+                                  if (state.recommended.isNotEmpty)
+                                    RecommendedSection(products: state.recommended),
+                                ],
 
                                 SizedBox(height: 2.h),
                               ],

@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/error_handler.dart';
+import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/register_entity.dart';
@@ -24,9 +25,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final result = await _remote.login(email: email, password: password);
-      await _local.saveAccessToken(result.token);
+      await _local.saveTokens(
+        accessToken: result.token,
+        refreshToken: result.refreshToken,
+      );
       await _local.saveUser(result.user);
       return Right(result.user);
+    } on EmailNotVerifiedException {
+      rethrow;
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }
@@ -34,21 +40,19 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, RegisterEntity>> register({
-    required String firstName,
-    required String lastName,
+    required String fullName,
     required String password,
     required String countryId,
     required String email,
-    required String phoneNumber,
+    required String phone,
   }) async {
     try {
       final result = await _remote.register(
-        firstName: firstName,
-        lastName: lastName,
+        fullName: fullName,
         password: password,
         countryId: countryId,
         email: email,
-        phoneNumber: phoneNumber,
+        phone: phone,
       );
 
       return Right(result.data);
@@ -65,10 +69,23 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final result = await _remote.verifyOtp(email: email, otp: otp);
 
-      await _local.saveAccessToken(result.token);
+      await _local.saveTokens(
+        accessToken: result.token,
+        refreshToken: result.refreshToken,
+      );
       await _local.saveUser(result.user);
 
       return Right(result.user);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> sendOtp({required String email}) async {
+    try {
+      await _remote.sendOtp(email: email);
+      return const Right(unit);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }
@@ -107,10 +124,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> logout() async {
+  Future<Either<Failure, String>> logout() async {
+    String message = 'Logged out successfully';
+    try {
+      message = await _remote.logout();
+    } catch (_) {
+      // Best-effort — clear local storage even if API call fails
+    }
     try {
       await _local.clearAll();
-      return const Right(unit);
+      return Right(message);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }

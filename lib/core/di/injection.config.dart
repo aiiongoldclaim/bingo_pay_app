@@ -49,6 +49,8 @@ import 'package:bingo_pay/features/auth/domain/usecases/register_usecase.dart'
     as _i721;
 import 'package:bingo_pay/features/auth/domain/usecases/resend_otp_usecase.dart'
     as _i869;
+import 'package:bingo_pay/features/auth/domain/usecases/send_otp_usecase.dart'
+    as _i674;
 import 'package:bingo_pay/features/auth/domain/usecases/submit_kyc_personal_details_usecase.dart'
     as _i627;
 import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_document_usecase.dart'
@@ -170,6 +172,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i869.ResendOtpUseCase>(
       () => _i869.ResendOtpUseCase(gh<_i917.AuthRepository>()),
     );
+    gh.factory<_i674.SendOtpUseCase>(
+      () => _i674.SendOtpUseCase(gh<_i917.AuthRepository>()),
+    );
     gh.factory<_i627.SubmitKycPersonalDetailsUseCase>(
       () => _i627.SubmitKycPersonalDetailsUseCase(gh<_i917.AuthRepository>()),
     );
@@ -182,18 +187,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i99.VerifyOtpUseCase>(
       () => _i99.VerifyOtpUseCase(gh<_i917.AuthRepository>()),
     );
-    gh.factory<_i741.AccountCubit>(
-      () => _i741.AccountCubit(
-        gh<_i810.GetProfileUseCase>(),
-        gh<_i481.SecureStorageService>(),
-      ),
-    );
     gh.factory<_i357.AuthBloc>(
       () => _i357.AuthBloc(
         checkAuthStatus: gh<_i308.CheckAuthStatusUseCase>(),
         login: gh<_i368.LoginUseCase>(),
         register: gh<_i721.RegisterUseCase>(),
         verifyOtp: gh<_i99.VerifyOtpUseCase>(),
+        sendOtp: gh<_i674.SendOtpUseCase>(),
         resendOtp: gh<_i869.ResendOtpUseCase>(),
         forgotPassword: gh<_i878.ForgotPasswordUseCase>(),
         logout: gh<_i189.LogoutUseCase>(),
@@ -204,6 +204,9 @@ extension GetItInjectableX on _i174.GetIt {
         getKycStatus: gh<_i894.GetKycStatusUseCase>(),
         storage: gh<_i481.SecureStorageService>(),
       ),
+    );
+    gh.factory<_i741.AccountCubit>(
+      () => _i741.AccountCubit(gh<_i810.GetProfileUseCase>()),
     );
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),

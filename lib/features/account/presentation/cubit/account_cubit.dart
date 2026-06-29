@@ -45,7 +45,6 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import '../../../../core/storage/secure_storage_service.dart';
 import '../../domain/usecase/get_account_usecase.dart';
 import 'account_state.dart';
 
@@ -54,37 +53,15 @@ export 'account_state.dart';
 @injectable
 class AccountCubit extends Cubit<AccountState> {
   final GetProfileUseCase _getProfile;
-  final SecureStorageService _storage;
 
-  AccountCubit(this._getProfile, this._storage) : super(const AccountInitial());
+  AccountCubit(this._getProfile) : super(const AccountInitial());
 
   Future<void> loadProfile() async {
-    print('Account API Started');
-
     emit(const AccountLoading());
-
-    final email = await _storage.getEmail();
-
-    print('Email => $email');
-
-    if (email == null || email.isEmpty) {
-      emit(const AccountError('Email not found'));
-      return;
-    }
-
-    final result = await _getProfile(email: email);
-
-    print('API Result => $result');
-
+    final result = await _getProfile();
     result.fold(
-      (failure) {
-        print('Failure => ${failure.message}');
-        emit(AccountError(failure.message));
-      },
-      (account) {
-        print('Success => ${account.email}');
-        emit(AccountLoaded(account));
-      },
+      (failure) => emit(AccountError(failure.message)),
+      (account) => emit(AccountLoaded(account)),
     );
   }
 

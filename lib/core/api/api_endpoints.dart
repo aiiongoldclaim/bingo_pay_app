@@ -1,9 +1,10 @@
 class ApiEndpoints {
-  static const String login = '/api/bingold/bingopay/auth/login';
-  static const String register = '/api/bingold/bingopay/auth/register';
-  static const String verifyOtp = '/api/bingold/bingopay/auth/verify-otp';
-  static const String resendOtp = '/api/bingold/bingopay/auth/resend-otp';
-  static const String userExists = '/api/bingold/bingopay/auth/user-exists';
+  static const String login = '/api/v1/auth/login';
+  static const String register = '/api/v1/auth/register';
+  static const String verifyOtp = '/api/v1/auth/email/verify-otp';
+  static const String sendOtp = '/api/v1/auth/email/send-otp';
+  static const String resendOtp = '/api/v1/auth/email/resend-otp';
+  static const String userExists = '/api/v1/auth/user-exists';
   static const String refresh = '/auth/refresh';
   static const String forgotPassword = '/auth/forgot-password';
   static const String kycDocument = '/kyc/document';
@@ -16,6 +17,7 @@ class ApiEndpoints {
   static const String transactions = '/transactions';
   static const String invoices = '/invoices';
   static const String referral = '/referral';
-  static const String profile = '/api/bingold/bingopay/auth/profile';
+  static const String profile = '/api/v1/auth/profile';
+  static const String logout = '/api/v1/auth/logout';
   static const String scanner = '/api/bingold/bingopay/balance/operation';
 }

@@ -22,13 +22,12 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _countryIdController = TextEditingController(text: '91');
-  final _phoneNumberController = TextEditingController();
+  final _phoneController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
@@ -39,13 +38,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _countryIdController.dispose();
-    _phoneNumberController.dispose();
+    _phoneController.dispose();
     _emailDebounce?.cancel();
     super.dispose();
   }
@@ -74,12 +72,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
             RegisterRequested(
-              firstName: _firstNameController.text.trim(),
-              lastName: _lastNameController.text.trim(),
+              fullName: _fullNameController.text.trim(),
               email: _emailController.text.trim(),
               password: _passwordController.text,
               countryId: _countryIdController.text.trim(),
-              phoneNumber: _phoneNumberController.text.trim(),
+              phone: _phoneController.text.trim(),
             ),
           );
     }
@@ -104,6 +101,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _checkedEmail = state.email;
               _emailExists = state.exists;
             });
+          } else if (state is EmailExistenceCheckFailed) {
+            if (state.email != _emailController.text.trim()) return;
+            setState(() {
+              _checkingEmail = false;
+              _checkedEmail = null;
+              _emailExists = null;
+            });
           }
         },
         child: SafeArea(
@@ -122,14 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 32),
                   AppTextField(
-                    controller: _firstNameController,
-                    label: 'First Name',
-                    validator: Validators.name,
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextField(
-                    controller: _lastNameController,
-                    label: 'Last Name',
+                    controller: _fullNameController,
+                    label: 'Full Name',
                     validator: Validators.name,
                   ),
                   const SizedBox(height: 16),
@@ -190,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: AppTextField(
-                          controller: _phoneNumberController,
+                          controller: _phoneController,
                           label: 'Phone Number',
                           keyboardType: TextInputType.phone,
                           validator: (v) =>

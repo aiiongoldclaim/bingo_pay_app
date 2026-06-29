@@ -19,8 +19,7 @@ class UserModel extends UserEntity {
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
-  /// Maps the `profile` object returned by the register/login API
-  /// (snake_case fields) into a [UserModel].
+  /// Maps the `profile` object returned by the legacy login API (snake_case).
   factory UserModel.fromProfileJson(Map<String, dynamic> profile) =>
       UserModel(
         id: profile['uuid'] as String,
@@ -30,6 +29,17 @@ class UserModel extends UserEntity {
         kycStatus: profile['kyc_status'] as String? ?? 'not_required',
         emailVerified: profile['email_verified'] as bool? ?? false,
         phoneVerified: profile['phone_verified'] as bool? ?? false,
+      );
+
+  /// Maps the `user` object returned by the verify-otp API (camelCase).
+  factory UserModel.fromVerifyOtpJson(Map<String, dynamic> json) => UserModel(
+        id: json['uuid'] as String,
+        email: json['email'] as String,
+        name: json['fullName'] as String? ?? '',
+        kycStatus:
+            (json['kycStatus'] as String? ?? 'NONE').toLowerCase(),
+        emailVerified: json['isEmailVerified'] as bool? ?? false,
+        phoneVerified: json['isPhoneVerified'] as bool? ?? false,
       );
 
   UserModel copyWith({
