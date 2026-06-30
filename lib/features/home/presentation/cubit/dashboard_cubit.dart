@@ -55,7 +55,8 @@ class HomeCubit extends Cubit<HomeState> {
         queryParameters: {'page': 1, 'limit': 20},
       );
       final raw = response.data as Map<String, dynamic>;
-      final dataList = (raw['data'] as List<dynamic>?) ?? [];
+      final dataMap = raw['data'] as Map<String, dynamic>;
+      final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
       final products = dataList
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList();

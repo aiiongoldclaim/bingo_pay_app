@@ -21,15 +21,16 @@ class _EmptyProductsState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 0.h),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Icon badge
           Container(
-            width: 22.w,
-            height: 22.w,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEEF2FF),
+            width: 26.w,
+            height: 26.w,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEEF2FF),
               shape: BoxShape.circle,
             ),
             child: Stack(
@@ -37,19 +38,19 @@ class _EmptyProductsState extends StatelessWidget {
               children: [
                 Icon(
                   Icons.storefront_outlined,
-                  size: 11.w,
+                  size: 13.w,
                   color: ThemeColors.blue,
                 ),
                 Positioned(
                   bottom: 3.5.w,
                   right: 3.5.w,
                   child: Container(
-                    padding: const EdgeInsets.all(3),
+                    padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
                       color: Color(0xFFFFA726),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.access_time_rounded, size: 3.w, color: Colors.white),
+                    child: Icon(Icons.access_time_rounded, size: 3.5.w, color: Colors.white),
                   ),
                 ),
               ],
@@ -61,7 +62,7 @@ class _EmptyProductsState extends StatelessWidget {
           Text(
             'No Products Right Now',
             style: TextStyle(
-              fontSize: 18.sp,
+              fontSize: 19.sp,
               fontWeight: FontWeight.w700,
               color: ThemeColors.black,
               letterSpacing: -0.3,
@@ -73,14 +74,14 @@ class _EmptyProductsState extends StatelessWidget {
           Text(
             "We're stocking up with amazing deals.\nCheck back soon for exclusive offers!",
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 15.sp,
               color: Colors.grey.shade500,
               height: 1.6,
             ),
             textAlign: TextAlign.center,
           ),
 
-          SizedBox(height: 1.5.h),
+          SizedBox(height: 2.h),
 
           // Decorative tags row
           Row(
@@ -105,12 +106,12 @@ class _EmptyProductsState extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: ThemeColors.blue,
                 side: const BorderSide(color: ThemeColors.blue, width: 1.5),
-                padding: EdgeInsets.symmetric(vertical: 1.6.h),
+                padding: EdgeInsets.symmetric(vertical: 1.8.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
                 textStyle: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -137,7 +138,7 @@ class _Tag extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),
+        style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w500),
       ),
     );
   }
@@ -235,14 +236,15 @@ class HomeScreen extends StatelessWidget {
                               children: [
                                 SizedBox(height: 2.h),
 
-                                PromoBanner(
-                                  title: 'Festive Gold Days',
-                                  heading: 'Up to 60% Off\non everything',
-                                  buttonText: 'Shop the sale',
-                                  onTap: () {},
-                                ),
-
-                                SizedBox(height: 1.h),
+                                if (state.flashDeals.isNotEmpty || state.recommended.isNotEmpty) ...[
+                                  PromoBanner(
+                                    title: 'Festive Gold Days',
+                                    heading: 'Up to 60% Off\non everything',
+                                    buttonText: 'Shop the sale',
+                                    onTap: () {},
+                                  ),
+                                  SizedBox(height: 1.h),
+                                ],
 
                                 CategorySection(categories: state.categories),
 

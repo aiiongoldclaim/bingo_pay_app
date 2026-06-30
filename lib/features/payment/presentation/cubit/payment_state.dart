@@ -173,7 +173,7 @@ class PaymentMethodState {
       usdtBalance > 0 ? usdtBalance.toStringAsFixed(2) : '—';
 
   String get formattedBigoldBalance {
-    if (bigoldBalance <= 0) return '—';
+    if (bigoldBalance <= 0) return '0 Bigod';
     String s = bigoldBalance.toStringAsFixed(8);
     s = s.replaceAll(RegExp(r'0+$'), '');
     s = s.replaceAll(RegExp(r'\.$'), '');

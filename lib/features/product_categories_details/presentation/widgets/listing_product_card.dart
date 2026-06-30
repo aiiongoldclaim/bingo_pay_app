@@ -128,7 +128,7 @@ class ListingProductCard extends StatelessWidget {
                 children: [
                   Text(
                     product.brand,
-                    style: AppTextStyles.labelSmall.copyWith(
+                    style: AppTextStyles.labelMedium.copyWith(
                       color: ThemeColors.inkDim,
                       letterSpacing: 0.5,
                       fontWeight: FontWeight.w600,
@@ -154,42 +154,57 @@ class ListingProductCard extends StatelessWidget {
                   SizedBox(height: 0.5.h),
                   // Price row
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        product.price > 0
-                            ? '\$${_formatPrice(product.price)}'
-                            : 'N/A',
-                        style: AppTextStyles.titleMedium.copyWith(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.w800,
-                          color: ThemeColors.ink,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              product.price > 0
+                                  ? '\$${_formatPrice(product.price)}'
+                                  : 'N/A',
+                              style: AppTextStyles.titleMedium.copyWith(
+                                fontSize: 14.5.sp,
+                                fontWeight: FontWeight.w800,
+                                color: ThemeColors.ink,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (product.originalPrice != null &&
+                                product.originalPrice! > 0)
+                              Text(
+                                '\$${_formatPrice(product.originalPrice!)}',
+                                style: AppTextStyles.labelSmall.copyWith(
+                                  color: ThemeColors.inkDim,
+                                  fontSize: 14.sp,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
                         ),
                       ),
-                      if (product.originalPrice != null &&
-                          product.originalPrice! > 0) ...[
-                        SizedBox(width: 1.5.w),
-                        Text(
-                          '\$${_formatPrice(product.originalPrice!)}',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: ThemeColors.inkDim,
-                            fontSize: 15.sp,
-                            decoration: TextDecoration.lineThrough,
+                      if (discount != null)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 1.5.w,
+                            vertical: 0.3.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: ThemeColors.green.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '-$discount%',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: ThemeColors.green,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13.sp,
+                            ),
                           ),
                         ),
-                      ],
-                      if (discount != null) ...[
-                        Spacer(),
-                        Text(
-                          '$discount%',
-                          style: AppTextStyles.labelSmall.copyWith(
-                            color: ThemeColors.green,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15.sp,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ],
@@ -232,7 +247,7 @@ class _Badge extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 15.sp,
+          fontSize: 10.sp,
           fontWeight: FontWeight.w700,
           color: ThemeColors.white,
           letterSpacing: 0.2,
@@ -260,12 +275,12 @@ class _RatingPill extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(Icons.star, size: 15.sp, color: ThemeColors.white),
+              Icon(Icons.star, size: 13.sp, color: ThemeColors.white),
               SizedBox(width: 0.8.w),
               Text(
                 rating.toStringAsFixed(1),
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w700,
                   color: ThemeColors.white,
                 ),
@@ -277,7 +292,7 @@ class _RatingPill extends StatelessWidget {
           SizedBox(width: 1.5.w),
           Text(
             '(${count! >= 1000 ? '${(count! / 1000).toStringAsFixed(1)}k' : count})',
-            style: AppTextStyles.labelSmall.copyWith(color: ThemeColors.inkDim),
+            style: AppTextStyles.labelMedium.copyWith(color: ThemeColors.inkDim),
           ),
         ],
       ],

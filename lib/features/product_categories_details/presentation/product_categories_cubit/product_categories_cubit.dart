@@ -25,7 +25,8 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       );
 
       final raw = response.data as Map<String, dynamic>;
-      final dataList = (raw['data'] as List<dynamic>?) ?? [];
+      final dataMap = raw['data'] as Map<String, dynamic>;
+      final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
       final products = dataList
           .map((e) =>
               ListingProductModel.fromJson(e as Map<String, dynamic>))

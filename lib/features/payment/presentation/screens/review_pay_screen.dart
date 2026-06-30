@@ -677,7 +677,6 @@ class ReviewPayScreen extends StatelessWidget {
             ),
 
             body: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSizes.paddingMd),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

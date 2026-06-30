@@ -145,6 +145,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i507.GetCategoriesUseCase>(
       () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
     );
+    gh.factory<_i801.CategoriesCubit>(
+      () => _i801.CategoriesCubit(gh<_i507.GetCategoriesUseCase>()),
+    );
     gh.factory<_i917.AuthRepository>(
       () => _i1061.AuthRepositoryImpl(
         gh<_i495.AuthRemoteDataSource>(),

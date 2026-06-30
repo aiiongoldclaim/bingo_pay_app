@@ -40,8 +40,8 @@ class ProductDetailModel {
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) {
-    final data =
-        (json['data'] as Map<String, dynamic>?) ?? json;
+    final outer = json['data'] as Map<String, dynamic>;
+    final data = outer['data'] as Map<String, dynamic>;
 
     final mediaList = (data['media'] as List<dynamic>?) ?? [];
     final images = mediaList
