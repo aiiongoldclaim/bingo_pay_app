@@ -1,5 +1,6 @@
 import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/api/api_endpoints.dart';
+import 'package:bingo_pay/features/account/data/account_model/account_profile_response.dart';
 import 'package:bingo_pay/features/cart/data/models/cart_model.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:bingo_pay/core/api/interceptors/logging_interceptor.dart';
@@ -23,33 +24,26 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         ));
 
   static const _apiUrl =
-      'https://admin-blog.bingold.to/api/bingold/bingopay/balance/operation';
-  static const _apiKey = 'GTP_2026_PDA_V1_API_KEY_ASDF';
+      // 'https://admin-blog.bingold.to/api/bingold/bingopay/balance/operation';
+      'http://13.159.7.199:5001/api/v1/customers/bingopay/balance/operation';
+  static const _apiKey = 'mysecreate-key';
 
   void selectPaymentMethod(PaymentMethod method) {
     emit(state.copyWith(selectedMethod: method));
   }
 
   Future<void> loadWalletBalance(String email) async {
-    if (email.isEmpty) return;
     try {
       final client = GetIt.I<ApiClient>();
-      final response = await client.dio.post(
-        ApiEndpoints.profile,
-        data: {'email': email},
+      final response = await client.dio.get(ApiEndpoints.profile);
+      final profile = AccountResponseModel.fromJson(
+        response.data as Map<String, dynamic>,
       );
-      final data = response.data as Map<String, dynamic>;
-      final accountData = data['data'] as Map<String, dynamic>?;
-      if (accountData == null) return;
-
-      final rawBigold =
-          (accountData['bigoldBalance'] as num?)?.toDouble() ?? 0.0;
-      final usdt =
-          (accountData['usdtBalance'] as num?)?.toDouble() ?? 0.0;
+      final usdt = profile.account.usdtBalance;
 
       emit(state.copyWith(
         usdtBalance: usdt,
-        bigoldBalance: rawBigold / 1e8,
+        bigoldBalance: profile.account.bigoldBalance / 1e8,
         walletBalance: usdt,
       ));
     } catch (_) {

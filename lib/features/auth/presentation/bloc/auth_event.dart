@@ -50,6 +50,13 @@ class OtpResendRequested extends AuthEvent {
   List<Object> get props => [email];
 }
 
+class OtpSendRequested extends AuthEvent {
+  final String email;
+  const OtpSendRequested({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
 class EmailExistenceCheckRequested extends AuthEvent {
   final String email;
   const EmailExistenceCheckRequested({required this.email});

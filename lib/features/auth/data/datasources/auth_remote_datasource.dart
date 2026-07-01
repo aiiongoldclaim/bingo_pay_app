@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/email_existence_result.dart';
 import '../models/auth_result_model.dart';
 import '../models/kyc_model.dart';
 import '../models/register_response_model.dart';
@@ -31,7 +32,7 @@ abstract interface class AuthRemoteDataSource {
 
   Future<void> resendOtp({required String email});
 
-  Future<bool> checkEmailExists({required String email});
+  Future<EmailExistenceResult> checkEmailExists({required String email});
 
   Future<String> logout();
 
@@ -155,14 +156,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<bool> checkEmailExists({required String email}) async {
+  Future<EmailExistenceResult> checkEmailExists({
+    required String email,
+  }) async {
     final response = await _dio.post(
       ApiEndpoints.userExists,
       data: {'email': email},
     );
     final outer = response.data['data'] as Map<String, dynamic>?;
     final inner = outer?['data'] as Map<String, dynamic>?;
-    return inner?['exists'] as bool? ?? false;
+    return EmailExistenceResult(
+      exists: inner?['exists'] as bool? ?? false,
+      hasLocalProfile: inner?['hasLocalProfile'] as bool? ?? false,
+      localEntry: inner?['localEntry'] as bool? ?? false,
+      hasLocalPassword: inner?['hasLocalPassword'] as bool? ?? false,
+    );
   }
 
   @override

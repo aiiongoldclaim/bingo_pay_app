@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/sso_login_dialog.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -82,6 +83,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  void _showSsoDialog(String email) {
+    SsoLoginDialog.show(
+      context,
+      email: email,
+      onUseDifferentEmail: () => Navigator.of(context).pop(),
+      onSendOtp: () {
+        Navigator.of(context).pop();
+        context.read<AuthBloc>().add(OtpSendRequested(email: email));
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -101,6 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               _checkedEmail = state.email;
               _emailExists = state.exists;
             });
+            if (state.requiresSsoLogin) {
+              _showSsoDialog(state.email);
+            }
           } else if (state is EmailExistenceCheckFailed) {
             if (state.email != _emailController.text.trim()) return;
             setState(() {

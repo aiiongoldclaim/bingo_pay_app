@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:bingo_pay/core/error/failures.dart';
+import 'package:bingo_pay/features/auth/domain/entities/email_existence_result.dart';
 import 'package:bingo_pay/features/auth/domain/entities/user_entity.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/check_auth_status_usecase.dart';
 import 'package:bingo_pay/features/auth/domain/usecases/check_email_exists_usecase.dart';
@@ -274,14 +275,29 @@ void main() {
       'emits [EmailExistenceChecking, EmailExistenceChecked(exists: true)]',
       build: () {
         final mockCheck = MockCheckEmailExistsUseCase();
-        when(() => mockCheck(any())).thenAnswer((_) async => const Right(true));
+        when(() => mockCheck(any())).thenAnswer(
+          (_) async => const Right(
+            EmailExistenceResult(
+              exists: true,
+              hasLocalProfile: true,
+              localEntry: true,
+              hasLocalPassword: true,
+            ),
+          ),
+        );
         return buildBloc(checkEmailExists: mockCheck);
       },
       act: (bloc) =>
           bloc.add(const EmailExistenceCheckRequested(email: 'a@b.com')),
       expect: () => [
         const EmailExistenceChecking(),
-        const EmailExistenceChecked(email: 'a@b.com', exists: true),
+        const EmailExistenceChecked(
+          email: 'a@b.com',
+          exists: true,
+          hasLocalProfile: true,
+          localEntry: true,
+          hasLocalPassword: true,
+        ),
       ],
     );
 

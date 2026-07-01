@@ -12,6 +12,7 @@ import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
 import '../features/cart/data/services/cart_service.dart';
+import '../features/address/presentation/cubit/address_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
 
 class App extends StatefulWidget {
@@ -50,6 +51,9 @@ class _AppState extends State<App> {
         ),
         BlocProvider<CartCubit>(
           create: (_) => CartCubit(CartService()),
+        ),
+        BlocProvider<AddressCubit>(
+          create: (_) => getIt<AddressCubit>(),
         ),
       ],
       child: BlocListener<AuthBloc, AuthState>(

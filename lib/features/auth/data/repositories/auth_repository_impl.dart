@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/email_existence_result.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/register_entity.dart';
 import '../../domain/entities/user_entity.dart';
@@ -102,12 +103,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> checkEmailExists({
+  Future<Either<Failure, EmailExistenceResult>> checkEmailExists({
     required String email,
   }) async {
     try {
-      final exists = await _remote.checkEmailExists(email: email);
-      return Right(exists);
+      final result = await _remote.checkEmailExists(email: email);
+      return Right(result);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }

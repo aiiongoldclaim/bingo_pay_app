@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/failures.dart';
+import '../entities/email_existence_result.dart';
 import '../entities/kyc_entity.dart';
 import '../entities/register_entity.dart';
 import '../entities/user_entity.dart';
@@ -27,7 +28,9 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, Unit>> resendOtp({required String email});
 
-  Future<Either<Failure, bool>> checkEmailExists({required String email});
+  Future<Either<Failure, EmailExistenceResult>> checkEmailExists({
+    required String email,
+  });
 
   Future<Either<Failure, Unit>> forgotPassword({required String email});
 

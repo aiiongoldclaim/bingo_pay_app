@@ -17,7 +17,8 @@ class ApiEndpoints {
   static const String transactions = '/transactions';
   static const String invoices = '/invoices';
   static const String referral = '/referral';
-  static const String profile = '/api/v1/auth/profile';
+  static const String profile = '/api/v1/auth/bingold/profile';
   static const String logout = '/api/v1/auth/logout';
-  static const String scanner = '/api/bingold/bingopay/balance/operation';
+  // static const String scanner = '/api/bingold/bingopay/balance/operation';
+  static const String scanner = '/api/v1/customers/bingopay/balance/operation';
 }

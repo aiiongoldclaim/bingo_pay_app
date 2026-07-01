@@ -28,6 +28,10 @@ class AccountRepositoryImpl implements AccountRepository {
           kycStatus: p.kycStatus,
           emailVerified: p.emailVerified,
           phoneVerified: p.phoneVerified,
+          bigoldBalance: p.bigoldBalance,
+          usdtBalance: p.usdtBalance,
+          balances: p.balances,
+          walletAddresses: p.walletAddresses,
         ),
       );
     } on Exception catch (e) {

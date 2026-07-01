@@ -64,6 +64,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>(_onRegister);
     on<OtpVerifyRequested>(_onVerifyOtp);
     on<OtpResendRequested>(_onResendOtp);
+    on<OtpSendRequested>(_onSendOtp);
     on<EmailExistenceCheckRequested>(_onCheckEmailExists);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
@@ -198,6 +199,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  Future<void> _onSendOtp(
+    OtpSendRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _sendOtp(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (_) => emit(AuthOtpRequired(event.email)),
+    );
+  }
+
   Future<void> _onCheckEmailExists(
     EmailExistenceCheckRequested event,
     Emitter<AuthState> emit,
@@ -206,8 +219,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _checkEmailExists(event.email);
     result.match(
       (failure) => emit(EmailExistenceCheckFailed(email: event.email)),
-      (exists) =>
-          emit(EmailExistenceChecked(email: event.email, exists: exists)),
+      (r) => emit(
+        EmailExistenceChecked(
+          email: event.email,
+          exists: r.exists,
+          hasLocalProfile: r.hasLocalProfile,
+          localEntry: r.localEntry,
+          hasLocalPassword: r.hasLocalPassword,
+        ),
+      ),
     );
   }
 

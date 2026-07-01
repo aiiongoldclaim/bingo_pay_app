@@ -45,6 +45,7 @@ class HomeCubit extends Cubit<HomeState> {
         profileRes.data as Map<String, dynamic>,
       );
       userName = profile.account.fullName;
+      bigoldBalance = profile.account.bigoldBalance / 1e8;
     } catch (_) {}
 
     // Fetch products

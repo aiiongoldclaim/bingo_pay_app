@@ -25,6 +25,14 @@ import 'package:bingo_pay/features/account/domain/usecase/get_account_usecase.da
     as _i810;
 import 'package:bingo_pay/features/account/presentation/cubit/account_cubit.dart'
     as _i741;
+import 'package:bingo_pay/features/address/data/datasources/address_remote_datasources.dart'
+    as _i915;
+import 'package:bingo_pay/features/address/data/repositories/address_repository_impl.dart'
+    as _i279;
+import 'package:bingo_pay/features/address/domain/repositories/address_respository.dart'
+    as _i874;
+import 'package:bingo_pay/features/address/presentation/cubit/address_cubit.dart'
+    as _i456;
 import 'package:bingo_pay/features/auth/data/datasources/auth_local_datasource.dart'
     as _i763;
 import 'package:bingo_pay/features/auth/data/datasources/auth_remote_datasource.dart'
@@ -108,12 +116,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
     );
+    gh.factory<_i915.AddressRemoteDataSource>(
+      () => _i915.AddressRemoteDataSource(gh<_i541.ApiClient>()),
+    );
     gh.singleton<_i481.SecureStorageService>(
       () =>
           _i481.SecureStorageService(storage: gh<_i558.FlutterSecureStorage>()),
     );
+    gh.factory<_i874.AddressRepository>(
+      () => _i279.AddressRepositoryImpl(gh<_i915.AddressRemoteDataSource>()),
+    );
     gh.singleton<_i356.PreferencesService>(
       () => _i356.PreferencesService(gh<_i460.SharedPreferences>()),
+    );
+    gh.factory<_i456.AddressCubit>(
+      () => _i456.AddressCubit(gh<_i874.AddressRepository>()),
     );
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
@@ -144,9 +161,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i507.GetCategoriesUseCase>(
       () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
-    );
-    gh.factory<_i801.CategoriesCubit>(
-      () => _i801.CategoriesCubit(gh<_i507.GetCategoriesUseCase>()),
     );
     gh.factory<_i917.AuthRepository>(
       () => _i1061.AuthRepositoryImpl(
@@ -201,6 +215,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i99.VerifyOtpUseCase>(
       () => _i99.VerifyOtpUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i801.CategoriesCubit>(
+      () => _i801.CategoriesCubit(gh<_i507.GetCategoriesUseCase>()),
     );
     gh.factory<_i357.AuthBloc>(
       () => _i357.AuthBloc(

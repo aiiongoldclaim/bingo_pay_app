@@ -48,9 +48,28 @@ class EmailExistenceChecking extends AuthState {
 class EmailExistenceChecked extends AuthState {
   final String email;
   final bool exists;
-  const EmailExistenceChecked({required this.email, required this.exists});
+  final bool hasLocalProfile;
+  final bool localEntry;
+  // Not sent by backend yet (planned addition) — defaults to false, so it
+  // has no effect on requiresSsoLogin until the API starts returning it.
+  final bool hasLocalPassword;
+  const EmailExistenceChecked({
+    required this.email,
+    required this.exists,
+    this.hasLocalProfile = false,
+    this.localEntry = false,
+    this.hasLocalPassword = false,
+  });
+
+  /// True when the email belongs to an existing BinGold account with a
+  /// local profile and entry but no local password set — these users
+  /// should be sent to SSO login.
+  bool get requiresSsoLogin =>
+      exists && hasLocalProfile && localEntry && !hasLocalPassword;
+
   @override
-  List<Object> get props => [email, exists];
+  List<Object> get props =>
+      [email, exists, hasLocalProfile, localEntry, hasLocalPassword];
 }
 
 class EmailExistenceCheckFailed extends AuthState {
