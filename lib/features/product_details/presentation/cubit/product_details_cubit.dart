@@ -13,11 +13,11 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     emit(const ProductDetailLoading());
     try {
       final client = GetIt.I<ApiClient>();
-      final url =
-          '${AppConfig.categoriesApiBaseUrl}/api/v1/products/$uuid';
+      final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products/$uuid';
       final response = await client.dio.get(url);
       final product = ProductDetailModel.fromJson(
-          response.data as Map<String, dynamic>);
+        response.data as Map<String, dynamic>,
+      );
       emit(ProductDetailLoaded(product: product));
     } catch (e) {
       emit(ProductDetailError(e.toString()));
@@ -34,6 +34,19 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     final current = state;
     if (current is! ProductDetailLoaded) return;
     emit(current.copyWith(selectedColorIndex: index));
+  }
+
+  void incrementQuantity() {
+    final current = state;
+    if (current is! ProductDetailLoaded) return;
+    emit(current.copyWith(quantity: current.quantity + 1));
+  }
+
+  void decrementQuantity() {
+    final current = state;
+    if (current is! ProductDetailLoaded) return;
+    if (current.quantity <= 1) return;
+    emit(current.copyWith(quantity: current.quantity - 1));
   }
 
   void onAddToCart() {}

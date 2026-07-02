@@ -69,6 +69,24 @@ import 'package:bingo_pay/features/auth/domain/usecases/verify_otp_usecase.dart'
     as _i99;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
+import 'package:bingo_pay/features/cart/data/datasources/cart_remote_datasource.dart'
+    as _i882;
+import 'package:bingo_pay/features/cart/data/repositories/cart_repository_impl.dart'
+    as _i263;
+import 'package:bingo_pay/features/cart/domain/repositories/cart_repository.dart'
+    as _i939;
+import 'package:bingo_pay/features/cart/domain/usecases/add_cart_item_usecase.dart'
+    as _i439;
+import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart'
+    as _i15;
+import 'package:bingo_pay/features/cart/domain/usecases/get_cart_usecase.dart'
+    as _i92;
+import 'package:bingo_pay/features/cart/domain/usecases/remove_cart_item_usecase.dart'
+    as _i881;
+import 'package:bingo_pay/features/cart/domain/usecases/update_cart_item_quantity_usecase.dart'
+    as _i876;
+import 'package:bingo_pay/features/cart/presentation/cubit/cart_cubit.dart'
+    as _i728;
 import 'package:bingo_pay/features/categories/data/datasources/category_remote_datasource.dart'
     as _i298;
 import 'package:bingo_pay/features/categories/data/repositories/category_repository_impl.dart'
@@ -116,21 +134,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
     );
-    gh.factory<_i915.AddressRemoteDataSource>(
-      () => _i915.AddressRemoteDataSource(gh<_i541.ApiClient>()),
-    );
     gh.singleton<_i481.SecureStorageService>(
       () =>
           _i481.SecureStorageService(storage: gh<_i558.FlutterSecureStorage>()),
     );
-    gh.factory<_i874.AddressRepository>(
-      () => _i279.AddressRepositoryImpl(gh<_i915.AddressRemoteDataSource>()),
-    );
     gh.singleton<_i356.PreferencesService>(
       () => _i356.PreferencesService(gh<_i460.SharedPreferences>()),
-    );
-    gh.factory<_i456.AddressCubit>(
-      () => _i456.AddressCubit(gh<_i874.AddressRepository>()),
     );
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
@@ -141,11 +150,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
+    gh.factory<_i882.CartRemoteDataSource>(
+      () => _i882.CartRemoteDataSourceImpl(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i337.PaymentRemoteDataSource>(
       () => _i337.PaymentRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
     gh.factory<_i298.CategoryRemoteDataSource>(
       () => _i298.CategoryRemoteDataSourceImpl(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i915.AddressRemoteDataSource>(
+      () => _i915.AddressRemoteDataSource(gh<_i541.ApiClient>()),
     );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
@@ -156,11 +171,41 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i298.CategoryRepository>(
       () => _i611.CategoryRepositoryImpl(gh<_i298.CategoryRemoteDataSource>()),
     );
+    gh.factory<_i939.CartRepository>(
+      () => _i263.CartRepositoryImpl(gh<_i882.CartRemoteDataSource>()),
+    );
+    gh.factory<_i439.AddCartItemUseCase>(
+      () => _i439.AddCartItemUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i15.ClearCartUseCase>(
+      () => _i15.ClearCartUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i92.GetCartUseCase>(
+      () => _i92.GetCartUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i881.RemoveCartItemUseCase>(
+      () => _i881.RemoveCartItemUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i876.UpdateCartItemQuantityUseCase>(
+      () => _i876.UpdateCartItemQuantityUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i728.CartCubit>(
+      () => _i728.CartCubit(
+        gh<_i92.GetCartUseCase>(),
+        gh<_i439.AddCartItemUseCase>(),
+        gh<_i876.UpdateCartItemQuantityUseCase>(),
+        gh<_i881.RemoveCartItemUseCase>(),
+        gh<_i15.ClearCartUseCase>(),
+      ),
+    );
     gh.factory<_i758.PaymentRepository>(
       () => _i461.PaymentRepositoryImpl(gh<_i337.PaymentRemoteDataSource>()),
     );
     gh.factory<_i507.GetCategoriesUseCase>(
       () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
+    );
+    gh.factory<_i874.AddressRepository>(
+      () => _i279.AddressRepositoryImpl(gh<_i915.AddressRemoteDataSource>()),
     );
     gh.factory<_i917.AuthRepository>(
       () => _i1061.AuthRepositoryImpl(
@@ -173,6 +218,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i805.ProcessPaymentUseCase>(
       () => _i805.ProcessPaymentUseCase(gh<_i758.PaymentRepository>()),
+    );
+    gh.factory<_i456.AddressCubit>(
+      () => _i456.AddressCubit(gh<_i874.AddressRepository>()),
     );
     gh.factory<_i810.GetProfileUseCase>(
       () => _i810.GetProfileUseCase(gh<_i372.AccountRepository>()),

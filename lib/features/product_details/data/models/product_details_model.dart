@@ -18,6 +18,7 @@ class ProductDetailModel {
   final List<RatingBreakdown> ratingBreakdown;
   final DeliveryInfo deliveryInfo;
   final String? vendorEmail;
+  final String? variantUuid;
 
   const ProductDetailModel({
     required this.id,
@@ -37,6 +38,7 @@ class ProductDetailModel {
     this.ratingBreakdown = const [],
     required this.deliveryInfo,
     this.vendorEmail,
+    this.variantUuid,
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) {
@@ -101,6 +103,9 @@ class ProductDetailModel {
       colorOptions: const [],
       ratingBreakdown: const [],
       vendorEmail: vendor?['email'] as String?,
+      variantUuid: variants.isNotEmpty
+          ? (variants.first as Map<String, dynamic>)['uuid'] as String?
+          : null,
       deliveryInfo: const DeliveryInfo(
         deliveryLabel: 'Free Delivery',
         deliverySubtitle: 'Estimated 2–5 business days',

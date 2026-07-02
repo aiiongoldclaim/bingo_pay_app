@@ -299,9 +299,138 @@ import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
-import '../../../cart/data/models/cart_model.dart';
+import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
+
+class CouponAndNotesCard extends StatefulWidget {
+  const CouponAndNotesCard({super.key});
+
+  @override
+  State<CouponAndNotesCard> createState() => _CouponAndNotesCardState();
+}
+
+class _CouponAndNotesCardState extends State<CouponAndNotesCard> {
+  final _couponController = TextEditingController();
+  final _notesController = TextEditingController();
+  bool _couponApplied = false;
+
+  @override
+  void dispose() {
+    _couponController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _applyCoupon(BuildContext context) {
+    final code = _couponController.text.trim();
+    context.read<PaymentMethodCubit>().updateCouponCode(code);
+    setState(() => _couponApplied = code.isNotEmpty);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          code.isNotEmpty ? 'Coupon "$code" applied' : 'Coupon removed',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.paddingMd),
+      decoration: BoxDecoration(
+        color: ThemeColors.white,
+        borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Coupon Code', style: AppTextStyles.titleMedium),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _couponController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: 'Enter coupon code',
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    suffixIcon: _couponApplied
+                        ? const Icon(
+                            Icons.check_circle,
+                            color: ThemeColors.green,
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xFFDDE1E7)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xFFDDE1E7)),
+                    ),
+                  ),
+                  onChanged: (_) {
+                    if (_couponApplied) setState(() => _couponApplied = false);
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton(
+                onPressed: () => _applyCoupon(context),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ThemeColors.blue,
+                  side: const BorderSide(color: ThemeColors.blue),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text('Apply'),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSizes.paddingMd),
+          Text('Delivery Notes (optional)', style: AppTextStyles.titleMedium),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _notesController,
+            maxLines: 2,
+            maxLength: 200,
+            decoration: InputDecoration(
+              hintText: 'e.g. Leave at the door',
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFFDDE1E7)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFFDDE1E7)),
+              ),
+            ),
+            onChanged: (value) =>
+                context.read<PaymentMethodCubit>().updateNotes(value.trim()),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class ReviewPaymentCard extends StatelessWidget {
   const ReviewPaymentCard({
@@ -340,7 +469,8 @@ class ReviewPaymentCard extends StatelessWidget {
                 end: Alignment.centerRight,
               ),
               borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(AppSizes.radius2Xl)),
+                top: Radius.circular(AppSizes.radius2Xl),
+              ),
             ),
             child: Row(
               children: [
@@ -350,8 +480,11 @@ class ReviewPaymentCard extends StatelessWidget {
                     color: ThemeColors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(9),
                   ),
-                  child: const Icon(Icons.account_balance_wallet_outlined,
-                      size: 17, color: ThemeColors.white),
+                  child: const Icon(
+                    Icons.account_balance_wallet_outlined,
+                    size: 17,
+                    color: ThemeColors.white,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -363,21 +496,27 @@ class ReviewPaymentCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: ThemeColors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.lock_outline,
-                          size: 11, color: ThemeColors.white),
+                      const Icon(
+                        Icons.lock_outline,
+                        size: 11,
+                        color: ThemeColors.white,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'Secured',
-                        style: AppTextStyles.labelSmall
-                            .copyWith(color: ThemeColors.white),
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: ThemeColors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -392,9 +531,12 @@ class ReviewPaymentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('YOUR BALANCE',
-                    style: AppTextStyles.labelSmall
-                        .copyWith(color: ThemeColors.inkDim)),
+                Text(
+                  'YOUR BALANCE',
+                  style: AppTextStyles.labelSmall.copyWith(
+                    color: ThemeColors.inkDim,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 _BalanceRow(
                   icon: Icons.currency_bitcoin,
@@ -416,11 +558,12 @@ class _BalanceRow extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _BalanceRow(
-      {required this.icon,
-      required this.label,
-      required this.value,
-      required this.color});
+  const _BalanceRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -436,13 +579,17 @@ class _BalanceRow extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-            child: Text(label,
-                style: AppTextStyles.bodyMedium
-                    .copyWith(color: ThemeColors.inkMid))),
+          child: Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(color: ThemeColors.inkMid),
+          ),
+        ),
         Text(
           value,
           style: AppTextStyles.titleMedium.copyWith(
-              fontWeight: FontWeight.w700, color: ThemeColors.ink),
+            fontWeight: FontWeight.w700,
+            color: ThemeColors.ink,
+          ),
         ),
       ],
     );
@@ -462,7 +609,7 @@ class OrderSummaryCard extends StatelessWidget {
   });
 
   final String productName;
-  final List<CartItemModel> cartItems;
+  final List<CartItemEntity> cartItems;
   final String itemTotal;
   final String savings;
   final String delivery;
@@ -482,39 +629,49 @@ class OrderSummaryCard extends StatelessWidget {
         children: [
           // Cart items list
           if (cartItems.isNotEmpty) ...[
-            ...cartItems.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(item.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.bodyMedium),
-                            Text('Qty: ${item.quantity}',
-                                style: AppTextStyles.bodySmall
-                                    .copyWith(color: ThemeColors.inkDim)),
-                          ],
-                        ),
+            ...cartItems.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.product.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                          Text(
+                            'Qty: ${item.quantity}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: ThemeColors.inkDim,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        '\$${(item.priceValue * item.quantity).toStringAsFixed(0)}',
-                        style: AppTextStyles.bodyMedium,
-                      ),
-                    ],
-                  ),
-                )),
+                    ),
+                    Text(
+                      '\$${item.totalPrice.toStringAsFixed(0)}',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const Divider(height: 8),
             const SizedBox(height: 8),
           ] else if (productName.isNotEmpty) ...[
-            Text(productName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodySmall
-                    .copyWith(color: ThemeColors.inkDim)),
+            Text(
+              productName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: ThemeColors.inkDim,
+              ),
+            ),
             const Divider(height: 20),
           ],
 
@@ -626,7 +783,8 @@ class PayNowBottomBar extends StatelessWidget {
 }
 
 class ReviewPayScreen extends StatelessWidget {
-  const ReviewPayScreen({super.key});
+  final bool isCart;
+  const ReviewPayScreen({super.key, required this.isCart});
 
   @override
   Widget build(BuildContext context) {
@@ -695,6 +853,12 @@ class ReviewPayScreen extends StatelessWidget {
 
                   const SizedBox(height: AppSizes.paddingLg),
 
+                  // ── Coupon Code & Notes (Buy Now flow only) ────────────
+                  if (!state.isCartFlow) ...[
+                    const CouponAndNotesCard(),
+                    const SizedBox(height: AppSizes.paddingLg),
+                  ],
+
                   // ── Order Summary ─────────────────────────────────────
                   Text('Order summary', style: AppTextStyles.titleLarge),
                   const SizedBox(height: AppSizes.paddingSm),
@@ -749,24 +913,32 @@ class _ReviewAddressCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.location_on_outlined,
-                  size: 18, color: ThemeColors.blue),
+              const Icon(
+                Icons.location_on_outlined,
+                size: 18,
+                color: ThemeColors.blue,
+              ),
               const SizedBox(width: 6),
-              Text('DELIVERY ADDRESS',
-                  style: AppTextStyles.labelMedium
-                      .copyWith(color: ThemeColors.inkMid)),
+              Text(
+                'DELIVERY ADDRESS',
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: ThemeColors.inkMid,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
           Text(state.deliveryName, style: AppTextStyles.titleMedium),
           const SizedBox(height: 2),
-          Text(state.deliveryPhone,
-              style: AppTextStyles.bodySmall
-                  .copyWith(color: ThemeColors.inkDim)),
+          Text(
+            state.deliveryPhone,
+            style: AppTextStyles.bodySmall.copyWith(color: ThemeColors.inkDim),
+          ),
           const SizedBox(height: 4),
-          Text(fullAddress,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: ThemeColors.inkMid)),
+          Text(
+            fullAddress,
+            style: AppTextStyles.bodyMedium.copyWith(color: ThemeColors.inkMid),
+          ),
         ],
       ),
     );

@@ -50,7 +50,11 @@ class _EmptyProductsState extends StatelessWidget {
                       color: Color(0xFFFFA726),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.access_time_rounded, size: 3.5.w, color: Colors.white),
+                    child: Icon(
+                      Icons.access_time_rounded,
+                      size: 3.5.w,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -149,125 +153,126 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => HomeCubit()..loadHome(),
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: ThemeColors.blue,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
-        ),
-        child: Scaffold(
-          backgroundColor: AppColors.backgroundLight,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: ThemeColors.blue,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundLight,
 
-          body: SafeArea(
-            top: false,
-            child: BlocBuilder<HomeCubit, HomeState>(
-              builder: (context, state) {
-                if (state.status == HomeStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+        body: SafeArea(
+          top: false,
+          child: BlocBuilder<HomeCubit, HomeState>(
+            builder: (context, state) {
+              if (state.status == HomeStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    context.read<HomeCubit>().loadHome();
-                  },
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ── Gradient header ───────────────────────────────
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: ThemeColors.primaryGradient,
-                          ),
-                          child: Column(
-                            children: [
-                              HomeHeader(userName: state.userName),
+              return RefreshIndicator(
+                onRefresh: () async {
+                  context.read<HomeCubit>().loadHome();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ── Gradient header ───────────────────────────────
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: ThemeColors.primaryGradient,
+                        ),
+                        child: Column(
+                          children: [
+                            HomeHeader(userName: state.userName),
 
-                              WalletCard(
-                                bigoldBalance: state.formattedBigoldBalance,
-                              ),
+                            WalletCard(
+                              bigoldBalance: state.formattedBigoldBalance,
+                            ),
 
-                              SizedBox(height: 2.h),
+                            SizedBox(height: 2.h),
 
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 5.w),
-                                child: AppSearchBar(
-                                  hintText: 'Search products, brands...',
-                                  backgroundColor: ThemeColors.white,
-                                  prefixIcon: Icon(
-                                    Icons.search_sharp,
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 5.w),
+                              child: AppSearchBar(
+                                hintText: 'Search products, brands...',
+                                backgroundColor: ThemeColors.white,
+                                prefixIcon: Icon(
+                                  Icons.search_sharp,
+                                  color: ThemeColors.blue,
+                                  size: 20.sp,
+                                ),
+                                suffixIcon: IconButton(
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.mic_none_rounded,
                                     color: ThemeColors.blue,
                                     size: 20.sp,
                                   ),
-                                  suffixIcon: IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.mic_none_rounded,
-                                      color: ThemeColors.blue,
-                                      size: 20.sp,
-                                    ),
-                                  ),
                                 ),
                               ),
+                            ),
 
-                              // Buffer so rounded white card overlaps gradient
-                              SizedBox(height: 5.h),
+                            // Buffer so rounded white card overlaps gradient
+                            SizedBox(height: 5.h),
+                          ],
+                        ),
+                      ),
+
+                      // ── White content card (pulled up 24 px) ──────────
+                      Transform.translate(
+                        offset: const Offset(0, -24),
+                        child: Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(AppSizes.radiusMd),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 2.h),
+
+                              if (state.flashDeals.isNotEmpty ||
+                                  state.recommended.isNotEmpty) ...[
+                                PromoBanner(
+                                  title: 'Festive Gold Days',
+                                  heading: 'Up to 60% Off\non everything',
+                                  buttonText: 'Shop the sale',
+                                  onTap: () {},
+                                ),
+                                SizedBox(height: 1.h),
+                              ],
+
+                              CategorySection(categories: state.categories),
+
+                              if (state.flashDeals.isEmpty &&
+                                  state.recommended.isEmpty)
+                                const _EmptyProductsState()
+                              else ...[
+                                if (state.flashDeals.isNotEmpty)
+                                  FlashDealSection(products: state.flashDeals),
+                                if (state.recommended.isNotEmpty)
+                                  RecommendedSection(
+                                    products: state.recommended,
+                                  ),
+                              ],
+
+                              SizedBox(height: 2.h),
                             ],
                           ),
                         ),
-
-                        // ── White content card (pulled up 24 px) ──────────
-                        Transform.translate(
-                          offset: const Offset(0, -24),
-                          child: Container(
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(AppSizes.radiusMd),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 2.h),
-
-                                if (state.flashDeals.isNotEmpty || state.recommended.isNotEmpty) ...[
-                                  PromoBanner(
-                                    title: 'Festive Gold Days',
-                                    heading: 'Up to 60% Off\non everything',
-                                    buttonText: 'Shop the sale',
-                                    onTap: () {},
-                                  ),
-                                  SizedBox(height: 1.h),
-                                ],
-
-                                CategorySection(categories: state.categories),
-
-                                if (state.flashDeals.isEmpty && state.recommended.isEmpty)
-                                  const _EmptyProductsState()
-                                else ...[
-                                  if (state.flashDeals.isNotEmpty)
-                                    FlashDealSection(products: state.flashDeals),
-                                  if (state.recommended.isNotEmpty)
-                                    RecommendedSection(products: state.recommended),
-                                ],
-
-                                SizedBox(height: 2.h),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

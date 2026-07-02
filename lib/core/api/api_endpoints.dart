@@ -5,7 +5,7 @@ class ApiEndpoints {
   static const String sendOtp = '/api/v1/auth/email/send-otp';
   static const String resendOtp = '/api/v1/auth/email/resend-otp';
   static const String userExists = '/api/v1/auth/user-exists';
-  static const String refresh = '/auth/refresh';
+  static const String refresh = '/api/v1/auth/refresh';
   static const String forgotPassword = '/auth/forgot-password';
   static const String kycDocument = '/kyc/document';
   static const String kycSelfie = '/kyc/selfie';
@@ -21,4 +21,8 @@ class ApiEndpoints {
   static const String logout = '/api/v1/auth/logout';
   // static const String scanner = '/api/bingold/bingopay/balance/operation';
   static const String scanner = '/api/v1/customers/bingopay/balance/operation';
+  static const String cart = '/api/v1/cart';
+  static const String cartItems = '/api/v1/cart/items';
+  static const String cartClear = '/api/v1/cart/clear';
+  static const String orders = '/api/v1/orders';
 }

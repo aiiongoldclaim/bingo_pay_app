@@ -3,13 +3,13 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
-import '../../data/models/cart_model.dart';
+import '../../domain/entities/cart_item_entity.dart';
 
 class CartItemsCard extends StatelessWidget {
-  final List<CartItemModel> items;
-  final void Function(String productUuid) onIncrease;
-  final void Function(String productUuid) onDecrease;
-  final void Function(String productUuid) onDelete;
+  final List<CartItemEntity> items;
+  final void Function(CartItemEntity item) onIncrease;
+  final void Function(CartItemEntity item) onDecrease;
+  final void Function(CartItemEntity item) onDelete;
 
   const CartItemsCard({
     super.key,
@@ -41,9 +41,9 @@ class CartItemsCard extends StatelessWidget {
             children: [
               CartItemTile(
                 item: item,
-                onIncrease: () => onIncrease(item.productUuid),
-                onDecrease: () => onDecrease(item.productUuid),
-                onDelete: () => onDelete(item.productUuid),
+                onIncrease: () => onIncrease(item),
+                onDecrease: () => onDecrease(item),
+                onDelete: () => onDelete(item),
               ),
               if (index != items.length - 1)
                 Divider(height: 3.h, color: ThemeColors.line),
@@ -56,7 +56,7 @@ class CartItemsCard extends StatelessWidget {
 }
 
 class CartItemTile extends StatelessWidget {
-  final CartItemModel item;
+  final CartItemEntity item;
   final VoidCallback onIncrease;
   final VoidCallback onDecrease;
   final VoidCallback onDelete;
@@ -71,6 +71,8 @@ class CartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final thumbnail = item.product.thumbnail;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -81,17 +83,21 @@ class CartItemTile extends StatelessWidget {
             width: 20.w,
             height: 20.w,
             color: ThemeColors.surface2,
-            child: item.imageUrl != null
+            child: thumbnail != null
                 ? Image.network(
-                    item.imageUrl!,
+                    thumbnail,
                     fit: BoxFit.cover,
                     errorBuilder: (ctx, e, st) => Icon(
-                      item.icon,
+                      Icons.shopping_bag_outlined,
                       color: ThemeColors.blue,
                       size: 10.w,
                     ),
                   )
-                : Icon(item.icon, color: ThemeColors.blue, size: 10.w),
+                : Icon(
+                    Icons.shopping_bag_outlined,
+                    color: ThemeColors.blue,
+                    size: 10.w,
+                  ),
           ),
         ),
 
@@ -106,7 +112,7 @@ class CartItemTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      item.brand,
+                      item.vendor.shopName,
                       style: AppTextStyles.labelMedium.copyWith(
                         color: ThemeColors.inkDim,
                         fontWeight: FontWeight.w700,
@@ -125,7 +131,7 @@ class CartItemTile extends StatelessWidget {
               ),
 
               Text(
-                item.name,
+                item.product.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.titleMedium.copyWith(
@@ -139,7 +145,7 @@ class CartItemTile extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    item.price,
+                    '\$${item.unitPrice.toStringAsFixed(0)}',
                     style: AppTextStyles.titleLarge.copyWith(
                       fontWeight: FontWeight.w800,
                       fontSize: 15.sp,

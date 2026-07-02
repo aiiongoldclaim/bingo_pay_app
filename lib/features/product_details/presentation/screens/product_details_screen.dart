@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
-import '../../../cart/data/models/cart_model.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../payment/presentation/screens/payment_screen.dart';
 import '../cubit/product_details_cubit.dart';
@@ -90,17 +89,75 @@ class ProductDetailScreen extends StatelessWidget {
                 ),
               ),
 
+              /// QUANTITY SELECTOR
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                child: Row(
+                  children: [
+                    Text(
+                      'Quantity',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: ThemeColors.black,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1A1D4E),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () => context
+                                .read<ProductDetailCubit>()
+                                .decrementQuantity(),
+                            icon: const Icon(Icons.remove, color: Colors.white),
+                          ),
+                          Text(
+                            '${data.quantity}',
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => context
+                                .read<ProductDetailCubit>()
+                                .incrementQuantity(),
+                            icon: const Icon(Icons.add, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               /// BOTTOM BAR
               AppBottomActionBar(
                 price: product.price,
 
                 primaryLabel: 'Buy Now',
                 onPrimaryPressed: () {
+                  final variantUuid = product.variantUuid;
+                  if (variantUuid == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('This product is currently unavailable'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
                   final rawPrice = product.price
                       .replaceAll(RegExp(r'[$,]'), '')
                       .trim();
-                  final priceValue =
-                      double.tryParse(rawPrice) ?? 0.0;
+                  final priceValue = double.tryParse(rawPrice) ?? 0.0;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -108,7 +165,9 @@ class ProductDetailScreen extends StatelessWidget {
                         vendorEmail: product.vendorEmail,
                         productName: product.productName,
                         productPrice: priceValue,
-                        // productPrice: 350,
+                        variantUuid: variantUuid,
+                        quantity: data.quantity,
+                        isCart: false,
                       ),
                     ),
                   );
@@ -118,9 +177,20 @@ class ProductDetailScreen extends StatelessWidget {
                 secondaryLabel: 'Add Cart',
                 secondaryIcon: Icons.shopping_bag_outlined,
                 onSecondaryPressed: () {
+                  final variantUuid = product.variantUuid;
+                  if (variantUuid == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('This product is currently unavailable'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
                   context.read<CartCubit>().addItem(
-                        CartItemModel.fromProduct(product),
-                      );
+                    variantUuid: variantUuid,
+                    quantity: data.quantity,
+                  );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('${product.productName} added to cart'),

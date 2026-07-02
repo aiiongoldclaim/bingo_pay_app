@@ -1,20 +1,33 @@
-import '../../data/models/cart_model.dart';
+import 'package:equatable/equatable.dart';
 
-class CartState {
-  final List<CartItemModel> items;
+import '../../domain/entities/cart_entity.dart';
+import '../../domain/entities/cart_item_entity.dart';
+
+class CartState extends Equatable {
   final bool isLoading;
+  final CartEntity cart;
+  final String? error;
 
-  const CartState({this.items = const [], this.isLoading = false});
+  const CartState({
+    this.isLoading = false,
+    this.cart = const CartEntity.empty(),
+    this.error,
+  });
 
-  int get totalItems =>
-      items.fold(0, (sum, item) => sum + item.quantity);
+  List<CartItemEntity> get items => cart.items;
 
-  double get subtotal =>
-      items.fold(0.0, (sum, item) => sum + item.priceValue * item.quantity);
+  int get totalItems => cart.totalItems;
 
-  CartState copyWith({List<CartItemModel>? items, bool? isLoading}) =>
-      CartState(
-        items: items ?? this.items,
-        isLoading: isLoading ?? this.isLoading,
-      );
+  double get totalAmount => cart.totalAmount;
+
+  CartState copyWith({bool? isLoading, CartEntity? cart, String? error}) {
+    return CartState(
+      isLoading: isLoading ?? this.isLoading,
+      cart: cart ?? this.cart,
+      error: error,
+    );
+  }
+
+  @override
+  List<Object?> get props => [isLoading, cart, error];
 }

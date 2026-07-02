@@ -951,7 +951,7 @@ import '../../../address/domain/repositories/address_respository.dart';
 import '../../../address/presentation/screens/add_edit_address_screen.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../../cart/data/models/cart_model.dart';
+import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 import 'review_pay_screen.dart';
@@ -961,14 +961,20 @@ class PaymentScreen extends StatefulWidget {
   final String? vendorEmail;
   final String productName;
   final double productPrice;
-  final List<CartItemModel> cartItems;
+  final String? variantUuid;
+  final int quantity;
+  final List<CartItemEntity> cartItems;
+  final bool isCart;
 
   const PaymentScreen({
     super.key,
     this.vendorEmail,
     this.productName = '',
     this.productPrice = 0.0,
+    this.variantUuid,
+    this.quantity = 1,
     this.cartItems = const [],
+    required this.isCart,
   });
 
   @override
@@ -1001,10 +1007,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void _initPaymentCubit(String userEmail, bool isCart, double cartTotal) {
     _paymentCubit = PaymentMethodCubit(
-      productPrice: isCart ? cartTotal : widget.productPrice,
+      productPrice: cartTotal,
       productName: widget.productName,
       userEmail: userEmail,
       vendorEmail: widget.vendorEmail ?? '',
+      variantUuid: widget.variantUuid,
+      quantity: widget.quantity,
       cartItems: widget.cartItems,
     )..loadWalletBalance(userEmail);
   }
@@ -1043,13 +1051,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
       address: _selectedAddress!.addressLine1,
       city: _selectedAddress!.city,
       postal: _selectedAddress!.postalCode,
+      addressId: _selectedAddress!.id,
     );
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) =>
-            BlocProvider.value(value: cubit, child: const ReviewPayScreen()),
+            BlocProvider.value(value: cubit, child: ReviewPayScreen(isCart: widget.isCart)),
       ),
     );
   }
@@ -1065,11 +1074,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     final isCart = widget.cartItems.isNotEmpty;
     final cartTotal = isCart
-        ? widget.cartItems.fold<double>(
-            0.0,
-            (s, i) => s + i.priceValue * i.quantity,
-          )
-        : widget.productPrice;
+        ? widget.cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
+        : widget.productPrice * widget.quantity;
 
     if (!_paymentCubitInitialized) {
       _initPaymentCubit(userEmail, isCart, cartTotal);
@@ -1139,8 +1145,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         SizedBox(height: AppSizes.radiusSm),
                       ] else if (widget.productPrice > 0) ...[
                         _AmountBanner(
-                          productName: widget.productName,
-                          price: '\$${widget.productPrice.toStringAsFixed(0)}',
+                          productName: widget.quantity > 1
+                              ? '${widget.productName} × ${widget.quantity}'
+                              : widget.productName,
+                          price: '\$${cartTotal.toStringAsFixed(0)}',
                         ),
                         SizedBox(height: AppSizes.radiusSm),
                       ],
@@ -1930,7 +1938,7 @@ class _AmountBanner extends StatelessWidget {
 // ── Cart Summary Banner ─────────────────────────────────────────────────────
 
 class _CartSummaryBanner extends StatelessWidget {
-  final List<CartItemModel> items;
+  final List<CartItemEntity> items;
   final String total;
   const _CartSummaryBanner({required this.items, required this.total});
 
@@ -1980,7 +1988,7 @@ class _CartSummaryBanner extends StatelessWidget {
                   const SizedBox(width: 26),
                   Expanded(
                     child: Text(
-                      '${item.name} × ${item.quantity}',
+                      '${item.product.title} × ${item.quantity}',
                       style: AppTextStyles.bodySmall.copyWith(
                         color: ThemeColors.inkMid,
                       ),
@@ -1989,7 +1997,7 @@ class _CartSummaryBanner extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${(item.priceValue * item.quantity).toStringAsFixed(0)}',
+                    '\$${item.totalPrice.toStringAsFixed(0)}',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: ThemeColors.inkMid,
                     ),

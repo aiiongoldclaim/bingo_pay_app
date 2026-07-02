@@ -15,7 +15,7 @@ class CartBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, state) {
-        final totalStr = '\$${state.subtotal.toStringAsFixed(0)}';
+        final totalStr = '\$${state.totalAmount.toStringAsFixed(0)}';
         // final totalStr = '\$${500}';
 
         return Container(
@@ -59,6 +59,7 @@ class CartBottomBar extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (_) => PaymentScreen(
                                   cartItems: state.items,
+                                  isCart: true,
                                   productName:
                                       'Cart (${state.totalItems} items)',
                                 ),

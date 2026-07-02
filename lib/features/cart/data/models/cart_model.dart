@@ -1,86 +1,45 @@
-import 'package:flutter/material.dart';
+import 'cart_item_model.dart';
 
-import '../../../product_details/data/models/product_details_model.dart';
+class CartModel {
+  final int? cartId;
+  final String? cartUuid;
+  final int totalItems;
+  final double totalAmount;
+  final List<CartItemModel> items;
 
-class CartItemModel {
-  final String productUuid;
-  final String brand;
-  final String name;
-  final String price;       // display string e.g. "\$18,990"
-  final double priceValue;  // numeric for totals
-  final String? imageUrl;
-  final String? vendorEmail;
-  final int iconCodePoint;
-  final String iconFontFamily;
-  final int quantity;
-
-  const CartItemModel({
-    required this.productUuid,
-    required this.brand,
-    required this.name,
-    required this.price,
-    required this.priceValue,
-    this.imageUrl,
-    this.vendorEmail,
-    this.iconCodePoint = 0xe55b, // shopping_bag_outlined
-    this.iconFontFamily = 'MaterialIcons',
-    this.quantity = 1,
+  const CartModel({
+    this.cartId,
+    this.cartUuid,
+    required this.totalItems,
+    required this.totalAmount,
+    this.items = const [],
   });
 
-  IconData get icon =>
-      const IconData(0xe55b, fontFamily: 'MaterialIcons');
+  const CartModel.empty()
+    : cartId = null,
+      cartUuid = null,
+      totalItems = 0,
+      totalAmount = 0,
+      items = const [];
 
-  CartItemModel copyWith({int? quantity}) => CartItemModel(
-        productUuid: productUuid,
-        brand: brand,
-        name: name,
-        price: price,
-        priceValue: priceValue,
-        imageUrl: imageUrl,
-        vendorEmail: vendorEmail,
-        iconCodePoint: iconCodePoint,
-        iconFontFamily: iconFontFamily,
-        quantity: quantity ?? this.quantity,
-      );
-
-  Map<String, dynamic> toJson() => {
-        'productUuid': productUuid,
-        'brand': brand,
-        'name': name,
-        'price': price,
-        'priceValue': priceValue,
-        'imageUrl': imageUrl,
-        'vendorEmail': vendorEmail,
-        'iconCodePoint': iconCodePoint,
-        'iconFontFamily': iconFontFamily,
-        'quantity': quantity,
-      };
-
-  factory CartItemModel.fromJson(Map<String, dynamic> json) => CartItemModel(
-        productUuid: json['productUuid'] as String,
-        brand: json['brand'] as String,
-        name: json['name'] as String,
-        price: json['price'] as String,
-        priceValue: (json['priceValue'] as num).toDouble(),
-        imageUrl: json['imageUrl'] as String?,
-        vendorEmail: json['vendorEmail'] as String?,
-        iconCodePoint: json['iconCodePoint'] as int? ?? 0xe55b,
-        iconFontFamily:
-            json['iconFontFamily'] as String? ?? 'MaterialIcons',
-        quantity: json['quantity'] as int? ?? 1,
-      );
-
-  factory CartItemModel.fromProduct(ProductDetailModel product) {
-    final raw = product.price.replaceAll(RegExp(r'[$,]'), '').trim();
-    final value = double.tryParse(raw) ?? 0.0;
-    return CartItemModel(
-      productUuid: product.uuid ?? product.id,
-      brand: product.brand,
-      name: product.productName,
-      price: product.price.isNotEmpty ? product.price : '\$0',
-      priceValue: value,
-      imageUrl: product.images.isNotEmpty ? product.images.first : null,
-      vendorEmail: product.vendorEmail,
+  factory CartModel.fromJson(Map<String, dynamic> json) {
+    final rawItems = json['items'] as List<dynamic>? ?? const [];
+    return CartModel(
+      cartId: _asInt(json['cartId']),
+      cartUuid: json['cartUuid'] as String?,
+      totalItems: _asInt(json['totalItems']) ?? 0,
+      totalAmount: (json['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      items: rawItems
+          .map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
+}
+
+// The API sometimes returns numeric ids as JSON numbers and sometimes as
+// strings (e.g. "cartId": "1"), so ids are parsed defensively either way.
+int? _asInt(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }

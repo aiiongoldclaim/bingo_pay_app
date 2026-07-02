@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import '../widgets/cart_bottom_bar.dart';
@@ -26,8 +27,14 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CartCubit, CartState>(
-      builder: (context, state) {
+    return BlocListener<CartCubit, CartState>(
+      listenWhen: (previous, current) =>
+          current.error != null && current.error != previous.error,
+      listener: (context, state) {
+        AppSnackbar.showError(context, state.error!);
+      },
+      child: BlocBuilder<CartCubit, CartState>(
+        builder: (context, state) {
         final cubit = context.read<CartCubit>();
 
         return Scaffold(
@@ -111,13 +118,13 @@ class _CartPageState extends State<CartPage> {
                                   items: state.items,
                                   onIncrease: cubit.increaseQuantity,
                                   onDecrease: cubit.decreaseQuantity,
-                                  onDelete: cubit.removeItem,
+                                  onDelete: (item) => cubit.removeItem(item.id),
                                 ),
 
                                 const SizedBox(height: 16),
 
                                 PriceDetailsCard(
-                                  subtotal: state.subtotal,
+                                  subtotal: state.totalAmount,
                                   itemCount: state.totalItems,
                                 ),
 
@@ -131,7 +138,8 @@ class _CartPageState extends State<CartPage> {
             ],
           ),
         );
-      },
+        },
+      ),
     );
   }
 

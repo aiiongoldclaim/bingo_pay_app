@@ -1,4 +1,4 @@
-import '../../../cart/data/models/cart_model.dart';
+import '../../../cart/domain/entities/cart_item_entity.dart';
 
 enum PaymentStatus { initial, loading, success, failure }
 
@@ -25,14 +25,16 @@ class PaymentMethodState {
   // Product being purchased (single-item flow)
   final String productName;
   final double productPriceValue;
+  final String? variantUuid;
+  final int quantity;
 
   // Cart flow: non-empty = cart checkout
-  final List<CartItemModel> cartItems;
+  final List<CartItemEntity> cartItems;
 
   // Wallet & financials (from profile API)
-  final double walletBalance;   // kept for remaining-amount calc (usdtBalance)
+  final double walletBalance; // kept for remaining-amount calc (usdtBalance)
   final double usdtBalance;
-  final double bigoldBalance;   // displayBigoldBalance (already divided by 1e8)
+  final double bigoldBalance; // displayBigoldBalance (already divided by 1e8)
   final double itemTotal;
   final double savings;
   final double deliveryCharge;
@@ -45,6 +47,11 @@ class PaymentMethodState {
   final String deliveryAddress;
   final String deliveryCity;
   final String deliveryPostal;
+  final String deliveryAddressId;
+
+  // Order extras (Buy Now flow)
+  final String couponCode;
+  final String notes;
 
   // Success Screen Data
   final String orderId;
@@ -59,6 +66,8 @@ class PaymentMethodState {
     this.vendorEmail = '',
     this.productName = '',
     this.productPriceValue = 0.0,
+    this.variantUuid,
+    this.quantity = 1,
     this.cartItems = const [],
     this.walletBalance = 0.0,
     this.usdtBalance = 0.0,
@@ -73,34 +82,38 @@ class PaymentMethodState {
     this.deliveryAddress = '',
     this.deliveryCity = '',
     this.deliveryPostal = '',
+    this.deliveryAddressId = '',
+    this.couponCode = '',
+    this.notes = '',
     this.orderId = 'BG-48231',
     this.coinsEarned = 380,
-  })  : itemTotal = itemTotal ?? productPriceValue,
-        totalAmount = totalAmount ?? productPriceValue;
+  }) : itemTotal = itemTotal ?? productPriceValue,
+       totalAmount = totalAmount ?? productPriceValue;
 
   factory PaymentMethodState.initial({
     double productPrice = 0.0,
     String productName = '',
     String userEmail = '',
     String vendorEmail = '',
-    List<CartItemModel> cartItems = const [],
-  }) =>
-      PaymentMethodState(
-        selectedMethod: PaymentMethod.wallet,
-        userEmail: userEmail,
-        vendorEmail: vendorEmail,
-        productName: productName,
-        productPriceValue: productPrice,
-        cartItems: cartItems,
-        totalAmount: cartItems.isNotEmpty
-            ? cartItems.fold<double>(
-                0.0, (s, i) => s + i.priceValue * i.quantity)
-            : productPrice,
-        itemTotal: cartItems.isNotEmpty
-            ? cartItems.fold<double>(
-                0.0, (s, i) => s + i.priceValue * i.quantity)
-            : productPrice,
-      );
+    String? variantUuid,
+    int quantity = 1,
+    List<CartItemEntity> cartItems = const [],
+  }) => PaymentMethodState(
+    selectedMethod: PaymentMethod.wallet,
+    userEmail: userEmail,
+    vendorEmail: vendorEmail,
+    productName: productName,
+    productPriceValue: productPrice,
+    variantUuid: variantUuid,
+    quantity: quantity,
+    cartItems: cartItems,
+    totalAmount: cartItems.isNotEmpty
+        ? cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
+        : productPrice,
+    itemTotal: cartItems.isNotEmpty
+        ? cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
+        : productPrice,
+  );
 
   PaymentMethodState copyWith({
     PaymentMethod? selectedMethod,
@@ -112,7 +125,9 @@ class PaymentMethodState {
     String? vendorEmail,
     String? productName,
     double? productPriceValue,
-    List<CartItemModel>? cartItems,
+    String? variantUuid,
+    int? quantity,
+    List<CartItemEntity>? cartItems,
     double? walletBalance,
     double? usdtBalance,
     double? bigoldBalance,
@@ -126,12 +141,16 @@ class PaymentMethodState {
     String? deliveryAddress,
     String? deliveryCity,
     String? deliveryPostal,
+    String? deliveryAddressId,
+    String? couponCode,
+    String? notes,
     String? orderId,
     int? coinsEarned,
   }) {
     return PaymentMethodState(
-      selectedMethod:
-          clearSelectedMethod ? null : (selectedMethod ?? this.selectedMethod),
+      selectedMethod: clearSelectedMethod
+          ? null
+          : (selectedMethod ?? this.selectedMethod),
       status: status ?? this.status,
       isProcessing: isProcessing ?? this.isProcessing,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -139,6 +158,8 @@ class PaymentMethodState {
       vendorEmail: vendorEmail ?? this.vendorEmail,
       productName: productName ?? this.productName,
       productPriceValue: productPriceValue ?? this.productPriceValue,
+      variantUuid: variantUuid ?? this.variantUuid,
+      quantity: quantity ?? this.quantity,
       cartItems: cartItems ?? this.cartItems,
       walletBalance: walletBalance ?? this.walletBalance,
       usdtBalance: usdtBalance ?? this.usdtBalance,
@@ -153,6 +174,9 @@ class PaymentMethodState {
       deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       deliveryCity: deliveryCity ?? this.deliveryCity,
       deliveryPostal: deliveryPostal ?? this.deliveryPostal,
+      deliveryAddressId: deliveryAddressId ?? this.deliveryAddressId,
+      couponCode: couponCode ?? this.couponCode,
+      notes: notes ?? this.notes,
       orderId: orderId ?? this.orderId,
       coinsEarned: coinsEarned ?? this.coinsEarned,
     );
@@ -200,5 +224,4 @@ class PaymentMethodState {
         return 'Not selected';
     }
   }
-
 }

@@ -175,7 +175,7 @@ class InvoicePdfGenerator {
                                     crossAxisAlignment:
                                         pw.CrossAxisAlignment.start,
                                     children: [
-                                      pw.Text(item.name,
+                                      pw.Text(item.product.title,
                                           style: pw.TextStyle(
                                               font: boldFont, fontSize: 11)),
                                       pw.SizedBox(height: 2),
@@ -192,7 +192,7 @@ class InvoicePdfGenerator {
                                         font: baseFont, fontSize: 11)),
                                 pw.SizedBox(width: 40),
                                 pw.Text(
-                                    '\$${(item.priceValue * item.quantity).toStringAsFixed(0)}',
+                                    '\$${item.totalPrice.toStringAsFixed(0)}',
                                     style: pw.TextStyle(
                                         font: boldFont, fontSize: 11)),
                               ],

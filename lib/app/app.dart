@@ -11,7 +11,6 @@ import '../core/widgets/app_snackbar.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
-import '../features/cart/data/services/cart_service.dart';
 import '../features/address/presentation/cubit/address_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
 
@@ -50,7 +49,7 @@ class _AppState extends State<App> {
               getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
         ),
         BlocProvider<CartCubit>(
-          create: (_) => CartCubit(CartService()),
+          create: (_) => getIt<CartCubit>(),
         ),
         BlocProvider<AddressCubit>(
           create: (_) => getIt<AddressCubit>(),
