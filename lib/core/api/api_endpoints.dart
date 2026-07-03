@@ -14,7 +14,7 @@ class ApiEndpoints {
   static const String me = '/auth/me';
   static const String products = '/products';
   static const String categories = '/api/v1/categories';
-  static const String transactions = '/transactions';
+  static const String transactions = '/api/v1/transactions';
   static const String invoices = '/invoices';
   static const String referral = '/referral';
   static const String profile = '/api/v1/auth/bingold/profile';
@@ -25,4 +25,5 @@ class ApiEndpoints {
   static const String cartItems = '/api/v1/cart/items';
   static const String cartClear = '/api/v1/cart/clear';
   static const String orders = '/api/v1/orders';
+  static const String checkout = '/api/v1/checkout';
 }

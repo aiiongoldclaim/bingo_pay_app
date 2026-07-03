@@ -60,6 +60,8 @@ class _MenuItem extends StatelessWidget {
         return Icons.shopping_cart_outlined;
       case 'orders':
         return Icons.inventory_2_outlined;
+      case 'transactions':
+        return Icons.receipt_long_outlined;
       case 'wishlist':
         return Icons.favorite_border_rounded;
       case 'addresses':
@@ -154,10 +156,10 @@ class AccountMenuItem {
     ),
 
     AccountMenuItem(
-      title: 'My Orders',
-      subtitle: 'Track, return or buy again',
-      iconAsset: 'orders',
-      route: AppRoutes.orders,
+      title: 'Transactions',
+      subtitle: 'Payments & order history',
+      iconAsset: 'transactions',
+      route: AppRoutes.buyerTransactions,
     ),
 
     AccountMenuItem(

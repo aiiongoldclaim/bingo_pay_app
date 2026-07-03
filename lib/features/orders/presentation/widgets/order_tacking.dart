@@ -2,7 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:bingo_pay/core/theme/app_text_styles.dart';
-import '../../data/models/order_model.dart';
+
+enum TrackingStatus { completed, current, pending }
+
+class TrackingStep {
+  final String title;
+  final String subtitle;
+  final TrackingStatus stepStatus;
+  final bool isError;
+
+  const TrackingStep({
+    required this.title,
+    required this.subtitle,
+    required this.stepStatus,
+    this.isError = false,
+  });
+}
 
 class TrackingTimeline extends StatelessWidget {
   final List<TrackingStep> steps;
@@ -41,13 +56,19 @@ class _TrackingStepRow extends StatelessWidget {
     final isCurrent = step.stepStatus == TrackingStatus.current;
     final isPending = step.stepStatus == TrackingStatus.pending;
 
-    final dotColor = isDone
+    final dotColor = step.isError
+        ? ThemeColors.red
+        : isDone
         ? ThemeColors.green
         : isCurrent
         ? ThemeColors.blue
         : ThemeColors.line;
 
-    final lineColor = isDone ? ThemeColors.green : ThemeColors.line;
+    final lineColor = step.isError
+        ? ThemeColors.red
+        : isDone
+        ? ThemeColors.green
+        : ThemeColors.line;
 
     return IntrinsicHeight(
       child: Row(
@@ -64,15 +85,15 @@ class _TrackingStepRow extends StatelessWidget {
                   height: 4.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isDone || isCurrent ? dotColor : Colors.transparent,
-                    border: isPending
+                    color: (isDone || isCurrent || step.isError)
+                        ? dotColor
+                        : Colors.transparent,
+                    border: isPending && !step.isError
                         ? Border.all(color: ThemeColors.line, width: 1.5)
                         : null,
                   ),
-                  child: isCurrent
-                      ? null
-                      : isDone
-                      ? null
+                  child: step.isError
+                      ? const Icon(Icons.close, size: 10, color: ThemeColors.white)
                       : null,
                 ),
 
@@ -102,14 +123,18 @@ class _TrackingStepRow extends StatelessWidget {
                     step.title,
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: 15.sp,
-                      fontWeight: isPending ? FontWeight.bold : FontWeight.w600,
-                      color: isPending ? ThemeColors.black : ThemeColors.ink,
+                      fontWeight: isCurrent ? FontWeight.bold : FontWeight.w600,
+                      color: step.isError
+                          ? ThemeColors.red
+                          : isPending
+                          ? ThemeColors.inkDim
+                          : ThemeColors.ink,
                     ),
                   ),
                   Text(
                     step.subtitle,
                     style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 15.sp,
+                      fontSize: 13.sp,
                       color: ThemeColors.inkDim,
                     ),
                   ),

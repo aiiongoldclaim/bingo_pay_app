@@ -39,6 +39,7 @@ import '../../features/scanner/presentation/screens/payment_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
+import '../../features/transactions/presentation/screens/transactions_screen.dart';
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import '../di/injection.dart';
@@ -254,7 +255,7 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.buyerTransactions,
-              builder: (_, _) => const _PlaceholderPage('Transactions'),
+              builder: (_, _) => const TransactionsScreen(),
             ),
             GoRoute(
               path: AppRoutes.buyerTransactionDetail,

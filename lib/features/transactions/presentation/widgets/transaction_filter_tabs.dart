@@ -1,28 +1,19 @@
-// lib/features/orders/presentation/widgets/order_filter_tabs.dart
-
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:bingo_pay/core/theme/app_text_styles.dart';
 
-class OrderFilterTabs extends StatelessWidget {
+class TransactionFilterTabs extends StatelessWidget {
   final String activeFilter;
   final ValueChanged<String> onFilterChanged;
 
-  const OrderFilterTabs({
+  const TransactionFilterTabs({
     super.key,
     required this.activeFilter,
     required this.onFilterChanged,
   });
 
-  static const _filters = [
-    'All',
-    'Pending',
-    'Processing',
-    'Shipped',
-    'Delivered',
-    'Cancelled',
-  ];
+  static const _filters = ['All', 'Success', 'Pending', 'Failed'];
 
   @override
   Widget build(BuildContext context) {

@@ -79,6 +79,27 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     }
   }
 
+  // Cart flow: converts the server-side cart into an order. Only
+  // addressId + paymentMethod are accepted — the endpoint rejects any
+  // other field (e.g. couponCode/notes) with a 400.
+  Future<String?> _checkout() async {
+    if (state.deliveryAddressId.isEmpty) return null;
+
+    try {
+      final client = GetIt.I<ApiClient>();
+      final response = await client.dio.post(
+        ApiEndpoints.checkout,
+        data: {
+          'addressId': state.deliveryAddressId,
+          'paymentMethod': 'WALLET',
+        },
+      );
+      return _extractOrderId(response.data);
+    } catch (_) {
+      return null;
+    }
+  }
+
   String? _extractOrderId(dynamic raw) {
     if (raw is! Map<String, dynamic>) return null;
     final data = raw['data'];
@@ -235,12 +256,14 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         );
       }
 
-      // Record the order (Buy Now / single-product flow only — cart
-      // checkout order creation is not wired up yet). The wallet debit
-      // above has already succeeded by this point, so a failure here is
-      // swallowed rather than surfaced as a failed payment; it just falls
-      // back to the synthetic order id.
-      final realOrderId = state.isCartFlow ? null : await _createOrder();
+      // Cart flow hits /api/v1/checkout (converts the cart to an order);
+      // Buy Now flow hits /api/v1/orders. The wallet debit above has
+      // already succeeded by this point, so a failure here is swallowed
+      // rather than surfaced as a failed payment; it just falls back to
+      // the synthetic order id.
+      final realOrderId = state.isCartFlow
+          ? await _checkout()
+          : await _createOrder();
 
       emit(
         state.copyWith(

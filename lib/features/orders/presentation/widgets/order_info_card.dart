@@ -5,18 +5,9 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 
 class OrderInfoCard extends StatelessWidget {
-  const OrderInfoCard({
-    super.key,
-    required this.address,
-    required this.payment,
-    required this.invoiceNo,
-    this.onDownloadInvoice,
-  });
+  const OrderInfoCard({super.key, required this.tiles});
 
-  final String address;
-  final String payment;
-  final String invoiceNo;
-  final VoidCallback? onDownloadInvoice;
+  final List<OrderInfoTile> tiles;
 
   @override
   Widget build(BuildContext context) {
@@ -28,43 +19,19 @@ class OrderInfoCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _InfoTile(
-            icon: Icons.location_on_outlined,
-            title: 'Delivery address',
-            subtitle: address,
-          ),
-
-          Divider(height: 1, color: ThemeColors.line),
-
-          _InfoTile(
-            icon: Icons.account_balance_wallet_outlined,
-            title: 'Payment',
-            subtitle: payment,
-          ),
-
-          Divider(height: 1, color: ThemeColors.line),
-
-          _InfoTile(
-            icon: Icons.receipt_long_outlined,
-            title: 'Invoice',
-            subtitle: invoiceNo,
-            trailing: IconButton(
-              onPressed: onDownloadInvoice,
-              icon: Icon(
-                Icons.download_rounded,
-                color: ThemeColors.blue,
-                size: 18.sp,
-              ),
-            ),
-          ),
+          for (var i = 0; i < tiles.length; i++) ...[
+            tiles[i],
+            if (i != tiles.length - 1) Divider(height: 1, color: ThemeColors.line),
+          ],
         ],
       ),
     );
   }
 }
 
-class _InfoTile extends StatelessWidget {
-  const _InfoTile({
+class OrderInfoTile extends StatelessWidget {
+  const OrderInfoTile({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
@@ -93,18 +60,18 @@ class _InfoTile extends StatelessWidget {
                 Text(
                   title,
                   style: AppTextStyles.titleMedium.copyWith(
-                    fontSize: 15.sp,
+                    fontSize: 14.sp,
                     color: ThemeColors.black,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
 
-                SizedBox(height: 0.1.h),
+                SizedBox(height: 0.2.h),
 
                 Text(
                   subtitle,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: 15.sp,
+                    fontSize: 14.sp,
                     color: ThemeColors.inkDim,
                   ),
                 ),
@@ -112,7 +79,7 @@ class _InfoTile extends StatelessWidget {
             ),
           ),
 
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );

@@ -9,7 +9,7 @@ class OrdersLoading extends OrdersState {}
 class OrdersLoaded extends OrdersState {
   final List<OrderModel> all;
   final List<OrderModel> filtered;
-  final String activeFilter; // 'All' | 'In Transit' | 'Delivered' | 'Cancelled'
+  final String activeFilter; // 'All' | 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'
 
   OrdersLoaded({
     required this.all,
@@ -33,7 +33,8 @@ class OrderDetailLoading extends OrderDetailState {}
 
 class OrderDetailLoaded extends OrderDetailState {
   final OrderModel order;
-  OrderDetailLoaded(this.order);
+  final String? addressText;
+  OrderDetailLoaded(this.order, {this.addressText});
 }
 
 class OrderDetailError extends OrderDetailState {
