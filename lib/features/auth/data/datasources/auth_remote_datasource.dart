@@ -28,6 +28,15 @@ abstract interface class AuthRemoteDataSource {
     required String otp,
   });
 
+  Future<void> sendSsoLoginOtp({required String email});
+
+  Future<AuthResultModel> verifySsoLogin({
+    required String email,
+    required String otp,
+  });
+
+  Future<void> setPassword({required String password});
+
   Future<void> sendOtp({required String email});
 
   Future<void> resendOtp({required String email});
@@ -136,6 +145,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       token: tokens['accessToken'] as String,
       refreshToken: tokens['refreshToken'] as String,
       user: UserModel.fromVerifyOtpJson(user),
+    );
+  }
+
+  @override
+  Future<void> sendSsoLoginOtp({required String email}) async {
+    await _dio.post(
+      ApiEndpoints.bingoldLoginOtp,
+      data: {'email': email},
+    );
+  }
+
+  @override
+  Future<AuthResultModel> verifySsoLogin({
+    required String email,
+    required String otp,
+  }) async {
+    final response = await _dio.post(
+      ApiEndpoints.bingoldVerifyLogin,
+      data: {'email': email, 'otp': otp},
+    );
+
+    final inner = (response.data['data'] as Map<String, dynamic>)['data']
+        as Map<String, dynamic>;
+    final tokens = inner['tokens'] as Map<String, dynamic>;
+    final user = inner['user'] as Map<String, dynamic>;
+
+    return AuthResultModel(
+      token: tokens['accessToken'] as String,
+      refreshToken: tokens['refreshToken'] as String,
+      user: UserModel.fromVerifyOtpJson(user),
+    );
+  }
+
+  @override
+  Future<void> setPassword({required String password}) async {
+    await _dio.post(
+      ApiEndpoints.setPassword,
+      data: {'password': password},
     );
   }
 

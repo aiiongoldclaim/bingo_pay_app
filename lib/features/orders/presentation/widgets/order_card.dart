@@ -14,6 +14,8 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final previewImageUrl = order.previewImageUrl;
+
     return InkWell(
       onTap: onDetails,
       borderRadius: BorderRadius.circular(18),
@@ -45,12 +47,22 @@ class OrderCard extends StatelessWidget {
                     color: ThemeColors.blueSoft,
                     borderRadius: BorderRadius.circular(13),
                   ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.receipt_long_rounded,
-                    color: ThemeColors.blue,
-                    size: 18.sp,
-                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: previewImageUrl == null
+                      ? Icon(
+                          Icons.receipt_long_rounded,
+                          color: ThemeColors.blue,
+                          size: 18.sp,
+                        )
+                      : Image.network(
+                          previewImageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Icon(
+                            Icons.receipt_long_rounded,
+                            color: ThemeColors.blue,
+                            size: 18.sp,
+                          ),
+                        ),
                 ),
                 SizedBox(width: 3.w),
                 Expanded(
@@ -159,7 +171,11 @@ class _ActionButton extends StatelessWidget {
               ),
             ),
             SizedBox(width: 1.w),
-            Icon(Icons.arrow_forward_ios_rounded, size: 12.sp, color: ThemeColors.inkMid),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 12.sp,
+              color: ThemeColors.inkMid,
+            ),
           ],
         ),
       ),

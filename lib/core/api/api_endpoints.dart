@@ -19,6 +19,9 @@ class ApiEndpoints {
   static const String referral = '/referral';
   static const String profile = '/api/v1/auth/bingold/profile';
   static const String logout = '/api/v1/auth/logout';
+  static const String bingoldLoginOtp = '/api/v1/auth/bingold/login-otp';
+  static const String bingoldVerifyLogin = '/api/v1/auth/bingold/verify-login';
+  static const String setPassword = '/api/v1/auth/set-password';
   // static const String scanner = '/api/bingold/bingopay/balance/operation';
   static const String scanner = '/api/v1/customers/bingopay/balance/operation';
   static const String cart = '/api/v1/cart';

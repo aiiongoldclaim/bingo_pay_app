@@ -83,6 +83,44 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> sendSsoLoginOtp({required String email}) async {
+    try {
+      await _remote.sendSsoLoginOtp(email: email);
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> verifySsoLogin({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final result = await _remote.verifySsoLogin(email: email, otp: otp);
+      await _local.saveTokens(
+        accessToken: result.token,
+        refreshToken: result.refreshToken,
+      );
+      await _local.saveUser(result.user);
+      return Right(result.user);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> setPassword({required String password}) async {
+    try {
+      await _remote.setPassword(password: password);
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> sendOtp({required String email}) async {
     try {
       await _remote.sendOtp(email: email);

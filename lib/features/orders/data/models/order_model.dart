@@ -69,8 +69,8 @@ class OrderModel {
       items: rawItems == null
           ? const []
           : rawItems
-              .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
-              .toList(),
+                .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
+                .toList(),
     );
   }
 
@@ -100,14 +100,31 @@ class OrderModel {
 
   String get formattedTotal => formatAmount(totalAmount);
 
-  String formattedItemsLabel() => '$totalItems ${totalItems == 1 ? 'item' : 'items'}';
+  String formattedItemsLabel() =>
+      '$totalItems ${totalItems == 1 ? 'item' : 'items'}';
+
+  String? get previewImageUrl {
+    for (final item in items) {
+      final imageUrl = item.imageUrl;
+      if (imageUrl != null && imageUrl.isNotEmpty) return imageUrl;
+    }
+    return null;
+  }
 }
 
 class OrderItemModel {
   final String id;
   final String productTitle;
+  final String? productId;
+  final String? productUuid;
   final String? productSlug;
   final String? sku;
+  final String? imageUrl;
+  final String? brandName;
+  final String? vendorName;
+  final String? variantName;
+  final String? color;
+  final String? size;
   final int quantity;
   final double unitPrice;
   final double totalAmount;
@@ -115,19 +132,100 @@ class OrderItemModel {
   const OrderItemModel({
     required this.id,
     required this.productTitle,
+    this.productId,
+    this.productUuid,
     this.productSlug,
     this.sku,
+    this.imageUrl,
+    this.brandName,
+    this.vendorName,
+    this.variantName,
+    this.color,
+    this.size,
     required this.quantity,
     required this.unitPrice,
     required this.totalAmount,
   });
 
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
+    final product =
+        _asMap(json['product']) ??
+        _asMap(json['productDetails']) ??
+        _asMap(json['productData']);
+    final variant =
+        _asMap(json['variant']) ??
+        _asMap(json['productVariant']) ??
+        _asMap(json['variantDetails']);
+    final brand = _asMap(product?['brand']) ?? _asMap(json['brand']);
+    final vendor = _asMap(product?['vendor']) ?? _asMap(json['vendor']);
+    final variantAttributes =
+        _asMap(variant?['attributes']) ?? _asMap(json['variantAttributes']);
+
     return OrderItemModel(
       id: json['id']?.toString() ?? '',
-      productTitle: json['productTitle'] as String? ?? 'Product',
-      productSlug: json['productSlug'] as String?,
-      sku: json['sku'] as String?,
+      productId: _firstString([json['productId'], product?['id']]),
+      productUuid: _firstString([json['productUuid'], product?['uuid']]),
+      productTitle:
+          _firstString([
+            json['productTitle'],
+            json['title'],
+            json['name'],
+            product?['title'],
+            product?['name'],
+            product?['productName'],
+          ]) ??
+          'Product',
+      productSlug: _firstString([json['productSlug'], product?['slug']]),
+      sku: _firstString([json['sku'], variant?['sku']]),
+      imageUrl: _firstString([
+        json['imageUrl'],
+        json['imageURL'],
+        json['image'],
+        json['thumbnailUrl'],
+        json['thumbnailURL'],
+        json['thumbnail'],
+        json['productImageUrl'],
+        json['productImage'],
+        _extractMediaUrl(json),
+        _extractMediaUrl(product),
+        variant?['imageUrl'],
+        variant?['image'],
+      ]),
+      brandName: _firstString([
+        json['brandName'],
+        product?['brandName'],
+        brand?['name'],
+      ]),
+      vendorName: _firstString([
+        json['vendorName'],
+        json['sellerName'],
+        product?['vendorName'],
+        vendor?['businessName'],
+        vendor?['storeName'],
+        vendor?['name'],
+        vendor?['email'],
+      ]),
+      variantName: _firstString([
+        json['variantName'],
+        variant?['name'],
+        variant?['title'],
+      ]),
+      color: _firstString([
+        json['color'],
+        json['colorName'],
+        variant?['color'],
+        variant?['colorName'],
+        variantAttributes?['color'],
+        variantAttributes?['Color'],
+      ]),
+      size: _firstString([
+        json['size'],
+        json['sizeName'],
+        variant?['size'],
+        variant?['sizeName'],
+        variantAttributes?['size'],
+        variantAttributes?['Size'],
+      ]),
       quantity: _asInt(json['quantity']) ?? 1,
       unitPrice: _asDouble(json['unitPrice']),
       totalAmount: _asDouble(json['totalAmount']),
@@ -136,6 +234,27 @@ class OrderItemModel {
 
   String get formattedUnitPrice => formatAmount(unitPrice);
   String get formattedTotal => formatAmount(totalAmount);
+
+  String? get secondaryLabel {
+    final parts = [
+      if ((brandName ?? '').isNotEmpty) brandName!,
+      if ((vendorName ?? '').isNotEmpty) vendorName!,
+    ];
+    if (parts.isEmpty) return null;
+    return parts.join(' · ');
+  }
+
+  String get purchaseMetaLabel {
+    final parts = [
+      'Qty $quantity',
+      formattedUnitPrice,
+      if ((sku ?? '').isNotEmpty) 'SKU $sku',
+      if ((variantName ?? '').isNotEmpty) variantName!,
+      if ((color ?? '').isNotEmpty) color!,
+      if ((size ?? '').isNotEmpty) 'Size $size',
+    ];
+    return parts.join(' · ');
+  }
 }
 
 // ── Formatting helpers ──────────────────────────────────────────────────────
@@ -153,8 +272,18 @@ String titleCaseStatus(String value) {
 
 String _formatDate(DateTime date) {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   return '${date.day} ${months[date.month - 1]} ${date.year}';
 }
@@ -169,7 +298,10 @@ String formatDateTime(DateTime date) {
 String _formatPrice(double price) {
   return price
       .toStringAsFixed(0)
-      .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+      .replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (m) => '${m[1]},',
+      );
 }
 
 // ── JSON parsing helpers ────────────────────────────────────────────────────
@@ -190,5 +322,48 @@ double _asDouble(dynamic value) {
 
 DateTime? _asDate(dynamic value) {
   if (value is String && value.isNotEmpty) return DateTime.tryParse(value);
+  return null;
+}
+
+Map<String, dynamic>? _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) {
+    return value.map((key, value) => MapEntry(key.toString(), value));
+  }
+  return null;
+}
+
+List<dynamic>? _asList(dynamic value) => value is List ? value : null;
+
+String? _firstString(List<dynamic> values) {
+  for (final value in values) {
+    final string = value?.toString().trim();
+    if (string != null && string.isNotEmpty) return string;
+  }
+  return null;
+}
+
+String? _extractMediaUrl(Map<String, dynamic>? json) {
+  if (json == null) return null;
+
+  final media =
+      _asList(json['media']) ??
+      _asList(json['images']) ??
+      _asList(json['productMedia']);
+  if (media == null) return null;
+
+  for (final item in media) {
+    if (item is String && item.trim().isNotEmpty) return item.trim();
+
+    final mediaItem = _asMap(item);
+    final url = _firstString([
+      mediaItem?['url'],
+      mediaItem?['imageUrl'],
+      mediaItem?['thumbnailUrl'],
+      mediaItem?['path'],
+    ]);
+    if (url != null) return url;
+  }
+
   return null;
 }

@@ -35,12 +35,20 @@ class AppButton extends StatelessWidget {
       );
     }
 
+    final isDisabled = onPressed == null;
+    final effectiveTextColor = isDisabled
+        ? ThemeColors.inkDim
+        : (textColor ?? _textColor);
+    final effectiveIconColor = isDisabled
+        ? ThemeColors.inkDim
+        : (iconColor ?? _textColor);
+
     Widget child = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (prefixIcon != null) ...[
-          Icon(prefixIcon, size: 18.sp, color: iconColor ?? _textColor),
+          Icon(prefixIcon, size: 18.sp, color: effectiveIconColor),
           SizedBox(width: 2.w),
         ],
         Flexible(
@@ -49,7 +57,7 @@ class AppButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
-              color: textColor ?? _textColor,
+              color: effectiveTextColor,
             ),
             overflow: TextOverflow.ellipsis,
           ),
@@ -64,7 +72,8 @@ class AppButton extends StatelessWidget {
           height: 6.h,
           child: Container(
             decoration: BoxDecoration(
-              gradient: ThemeColors.primaryGradient,
+              gradient: isDisabled ? null : ThemeColors.primaryGradient,
+              color: isDisabled ? ThemeColors.line : null,
               borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             ),
             child: ElevatedButton(
@@ -90,7 +99,9 @@ class AppButton extends StatelessWidget {
           child: FilledButton(
             onPressed: onPressed,
             style: FilledButton.styleFrom(
-              backgroundColor: ThemeColors.white,
+              backgroundColor: isDisabled
+                  ? ThemeColors.line
+                  : ThemeColors.white,
               foregroundColor: ThemeColors.inkDim,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -108,7 +119,10 @@ class AppButton extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onPressed,
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: ThemeColors.inkDim),
+              backgroundColor: isDisabled ? ThemeColors.line : null,
+              side: BorderSide(
+                color: isDisabled ? ThemeColors.line : ThemeColors.inkDim,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               ),

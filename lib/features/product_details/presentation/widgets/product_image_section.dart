@@ -3,6 +3,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/custom_container.dart';
+import '../screens/product_image_viewer_screen.dart';
 
 class ProductImageSection extends StatefulWidget {
   const ProductImageSection({
@@ -91,18 +92,32 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                         });
                       },
                       itemBuilder: (_, index) {
-                        return Padding(
-                          padding: EdgeInsets.all(5.w),
-                          child: Image.network(
-                            widget.images[index],
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) {
-                              return Icon(
-                                widget.icon,
-                                size: 40.w,
-                                color: ThemeColors.blue,
-                              );
-                            },
+                        return GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductImageViewerScreen(
+                                images: widget.images,
+                                initialIndex: index,
+                              ),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(5.w),
+                            child: Hero(
+                              tag: widget.images[index],
+                              child: Image.network(
+                                widget.images[index],
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) {
+                                  return Icon(
+                                    widget.icon,
+                                    size: 40.w,
+                                    color: ThemeColors.blue,
+                                  );
+                                },
+                              ),
+                            ),
                           ),
                         );
                       },

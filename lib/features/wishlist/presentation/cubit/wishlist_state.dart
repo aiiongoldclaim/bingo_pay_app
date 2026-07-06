@@ -1,16 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../home/data/models/product_model.dart';
+import '../../data/models/wishlist_model.dart';
 
 class WishlistState extends Equatable {
-  final List<ProductModel> products;
+  final List<WishlistItem> items;
 
-  const WishlistState({this.products = const []});
+  const WishlistState({this.items = const []});
 
-  WishlistState copyWith({List<ProductModel>? products}) {
-    return WishlistState(products: products ?? this.products);
+  WishlistState copyWith({List<WishlistItem>? items}) {
+    return WishlistState(items: items ?? this.items);
   }
 
   @override
-  List<Object?> get props => [products];
+  List<Object?> get props => [items];
 }

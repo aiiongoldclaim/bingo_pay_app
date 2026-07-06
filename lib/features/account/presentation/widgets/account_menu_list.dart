@@ -164,9 +164,9 @@ class AccountMenuItem {
 
     AccountMenuItem(
       title: 'Wishlist',
-      subtitle: '24 saved items',
+      subtitle: 'Your saved items',
       iconAsset: 'wishlist',
-      route: '/wishlist',
+      route: AppRoutes.buyerWishlist,
     ),
 
     // AccountMenuItem(

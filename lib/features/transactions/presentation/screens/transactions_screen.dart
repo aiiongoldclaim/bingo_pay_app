@@ -140,8 +140,6 @@ class _TransactionsView extends StatelessWidget {
                     },
                   ),
           ),
-
-          SizedBox(height: 10.h),
         ],
       ),
     );

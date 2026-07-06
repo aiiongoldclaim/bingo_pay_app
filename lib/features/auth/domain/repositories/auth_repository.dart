@@ -24,6 +24,15 @@ abstract interface class AuthRepository {
     required String otp,
   });
 
+  Future<Either<Failure, Unit>> sendSsoLoginOtp({required String email});
+
+  Future<Either<Failure, UserEntity>> verifySsoLogin({
+    required String email,
+    required String otp,
+  });
+
+  Future<Either<Failure, Unit>> setPassword({required String password});
+
   Future<Either<Failure, Unit>> sendOtp({required String email});
 
   Future<Either<Failure, Unit>> resendOtp({required String email});

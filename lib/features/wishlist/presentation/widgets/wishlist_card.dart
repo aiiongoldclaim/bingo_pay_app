@@ -11,39 +11,26 @@ class WishlistCard extends StatelessWidget {
   const WishlistCard({
     super.key,
     required this.item,
-    required this.isSelected,
-    required this.isSelecting,
     required this.onTap,
-    required this.onLongPress,
     required this.onRemove,
-    required this.onAddToCart,
   });
 
   final WishlistItem item;
-  final bool isSelected;
-  final bool isSelecting;
   final VoidCallback onTap;
-  final VoidCallback onLongPress;
   final VoidCallback onRemove;
-  final VoidCallback onAddToCart;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      onLongPress: onLongPress,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         decoration: BoxDecoration(
           color: ThemeColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-          border: Border.all(
-            color: isSelected ? ThemeColors.blue : ThemeColors.line,
-            width: isSelected ? 2 : 1,
-          ),
+          border: Border.all(color: ThemeColors.line),
           boxShadow: [
             BoxShadow(
-              color: ThemeColors.ink.withOpacity(0.04),
+              color: ThemeColors.ink.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 3),
             ),
@@ -55,27 +42,25 @@ class WishlistCard extends StatelessWidget {
             // ── Image + overlays ──────────────────────────────────────────
             Stack(
               children: [
-                // Image area
                 ClipRRect(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(AppSizes.radiusLg - 1),
                     topRight: Radius.circular(AppSizes.radiusLg - 1),
                   ),
                   child: Container(
-                    height: 17.h,
+                    height: 14.h,
                     width: double.infinity,
-                    color: ThemeColors.accentSoft.withOpacity(0.4),
-                    child: item.imageUrl != null
+                    color: ThemeColors.accentSoft.withValues(alpha: 0.4),
+                    child: item.imageUrl != null && item.imageUrl!.isNotEmpty
                         ? Image.network(
                             item.imageUrl!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _PlaceholderIcon(),
+                            errorBuilder: (_, _, _) => const _PlaceholderIcon(),
                           )
-                        : _PlaceholderIcon(),
+                        : const _PlaceholderIcon(),
                   ),
                 ),
 
-                // Badge
                 if (item.badge != null)
                   Positioned(
                     top: 10,
@@ -83,7 +68,6 @@ class WishlistCard extends StatelessWidget {
                     child: _Badge(label: item.badge!),
                   ),
 
-                // Discount pill
                 if (item.discountPercent != null)
                   Positioned(
                     top: 10,
@@ -91,18 +75,27 @@ class WishlistCard extends StatelessWidget {
                     child: _DiscountPill(percent: item.discountPercent!),
                   ),
 
-                // Remove / select button
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: _TopRightButton(
-                    isSelecting: isSelecting,
-                    isSelected: isSelected,
-                    onRemove: onRemove,
+                  child: GestureDetector(
+                    onTap: onRemove,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        color: ThemeColors.surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.favorite,
+                        size: 16,
+                        color: ThemeColors.red,
+                      ),
+                    ),
                   ),
                 ),
 
-                // Out of stock overlay
                 if (!item.inStock)
                   Positioned.fill(
                     child: ClipRRect(
@@ -111,7 +104,7 @@ class WishlistCard extends StatelessWidget {
                         topRight: Radius.circular(AppSizes.radiusLg - 1),
                       ),
                       child: Container(
-                        color: ThemeColors.ink.withOpacity(0.45),
+                        color: ThemeColors.ink.withValues(alpha: 0.45),
                         alignment: Alignment.center,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -138,7 +131,7 @@ class WishlistCard extends StatelessWidget {
 
             // ── Info ──────────────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -149,28 +142,27 @@ class WishlistCard extends StatelessWidget {
                       letterSpacing: 0.8,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 2),
                   Text(
                     item.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.labelLarge,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   _RatingRow(rating: item.rating, count: item.reviewCount),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   _PriceRow(
-                    price: item.formattedPrice,
-                    original: item.formattedOriginal,
+                    price: item.price,
+                    original: item.originalPrice,
                     discountPercent: item.discountPercent,
                   ),
-                  const SizedBox(height: 10),
-                  // Add to cart button
+                  const SizedBox(height: 8),
                   SizedBox(
                     width: double.infinity,
-                    height: 36,
+                    height: 34,
                     child: ElevatedButton(
-                      onPressed: item.inStock ? onAddToCart : null,
+                      onPressed: item.inStock ? onTap : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ThemeColors.blue,
                         disabledBackgroundColor: ThemeColors.line,
@@ -183,7 +175,7 @@ class WishlistCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        item.inStock ? 'Add to cart' : 'Notify me',
+                        item.inStock ? 'View Product' : 'Out of stock',
                         style: AppTextStyles.labelMedium.copyWith(
                           color: ThemeColors.white,
                           fontWeight: FontWeight.w700,
@@ -204,6 +196,8 @@ class WishlistCard extends StatelessWidget {
 // ── Sub-widgets ───────────────────────────────────────────────────────────────
 
 class _PlaceholderIcon extends StatelessWidget {
+  const _PlaceholderIcon();
+
   @override
   Widget build(BuildContext context) => Center(
     child: Icon(Icons.inventory_2_outlined, size: 48, color: ThemeColors.line),
@@ -253,64 +247,9 @@ class _DiscountPill extends StatelessWidget {
   );
 }
 
-class _TopRightButton extends StatelessWidget {
-  const _TopRightButton({
-    required this.isSelecting,
-    required this.isSelected,
-    required this.onRemove,
-  });
-
-  final bool isSelecting;
-  final bool isSelected;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isSelecting) {
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 26,
-        height: 26,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected ? ThemeColors.blue : ThemeColors.surface,
-          border: Border.all(
-            color: isSelected ? ThemeColors.blue : ThemeColors.inkDim,
-            width: 2,
-          ),
-        ),
-        child: isSelected
-            ? const Icon(
-                Icons.check_rounded,
-                size: 14,
-                color: ThemeColors.white,
-              )
-            : null,
-      );
-    }
-
-    return GestureDetector(
-      onTap: onRemove,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: const BoxDecoration(
-          color: ThemeColors.surface,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.close_rounded,
-          size: 16,
-          color: ThemeColors.inkMid,
-        ),
-      ),
-    );
-  }
-}
-
 class _RatingRow extends StatelessWidget {
   const _RatingRow({required this.rating, required this.count});
-  final double rating;
+  final String rating;
   final int count;
 
   String _fmt(int n) => n >= 1000 ? '${(n / 1000).toStringAsFixed(1)}k' : '$n';
@@ -330,7 +269,7 @@ class _RatingRow extends StatelessWidget {
             const Icon(Icons.star_rounded, size: 11, color: ThemeColors.white),
             const SizedBox(width: 3),
             Text(
-              rating.toStringAsFixed(1),
+              rating,
               style: AppTextStyles.labelSmall.copyWith(
                 color: ThemeColors.white,
                 fontWeight: FontWeight.w700,
@@ -339,8 +278,10 @@ class _RatingRow extends StatelessWidget {
           ],
         ),
       ),
-      const SizedBox(width: 6),
-      Text('(${_fmt(count)})', style: AppTextStyles.bodySmall),
+      if (count > 0) ...[
+        const SizedBox(width: 6),
+        Text('(${_fmt(count)})', style: AppTextStyles.bodySmall),
+      ],
     ],
   );
 }
@@ -353,7 +294,7 @@ class _PriceRow extends StatelessWidget {
   });
 
   final String price;
-  final String original;
+  final String? original;
   final int? discountPercent;
 
   @override
@@ -365,9 +306,9 @@ class _PriceRow extends StatelessWidget {
         price,
         style: AppTextStyles.titleMedium.copyWith(fontWeight: FontWeight.w800),
       ),
-      if (original.isNotEmpty)
+      if (original != null && original!.isNotEmpty)
         Text(
-          original,
+          original!,
           style: AppTextStyles.bodySmall.copyWith(
             decoration: TextDecoration.lineThrough,
           ),

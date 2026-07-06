@@ -3,6 +3,8 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String registerOtp = '/register/otp';
+  static const String ssoLoginOtp = '/sso/otp';
+  static const String ssoSetPassword = '/sso/set-password';
   static const String registerKyc = '/register/kyc';
   static const String kycDocument = '/register/kyc/document';
   static const String kycSelfie = '/register/kyc/selfie';
@@ -58,6 +60,8 @@ class AppRoutes {
     login,
     register,
     registerOtp,
+    ssoLoginOtp,
+    ssoSetPassword,
     registerKyc,
     kycDocument,
     kycSelfie,

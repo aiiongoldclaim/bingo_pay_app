@@ -13,10 +13,13 @@ import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 import '../../domain/usecases/resend_otp_usecase.dart';
 import '../../domain/usecases/send_otp_usecase.dart';
+import '../../domain/usecases/send_sso_login_otp_usecase.dart';
+import '../../domain/usecases/set_password_usecase.dart';
 import '../../domain/usecases/submit_kyc_personal_details_usecase.dart';
 import '../../domain/usecases/upload_kyc_document_usecase.dart';
 import '../../domain/usecases/upload_kyc_selfie_usecase.dart';
 import '../../domain/usecases/verify_otp_usecase.dart';
+import '../../domain/usecases/verify_sso_login_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -33,6 +36,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ResendOtpUseCase _resendOtp;
   final LogoutUseCase _logoutUser;
   final CheckEmailExistsUseCase _checkEmailExists;
+  final SendSsoLoginOtpUseCase _sendSsoLoginOtp;
+  final VerifySsoLoginUseCase _verifySsoLogin;
+  final SetPasswordUseCase _setPassword;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
@@ -44,6 +50,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required ForgotPasswordUseCase forgotPassword,
     required LogoutUseCase logout,
     required CheckEmailExistsUseCase checkEmailExists,
+    required SendSsoLoginOtpUseCase sendSsoLoginOtp,
+    required VerifySsoLoginUseCase verifySsoLogin,
+    required SetPasswordUseCase setPassword,
     required SubmitKycPersonalDetailsUseCase kycPersonalDetails,
     required UploadKycDocumentUseCase kycDocument,
     required UploadKycSelfieUseCase kycSelfie,
@@ -58,6 +67,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _resendOtp = resendOtp,
        _logoutUser = logout,
        _checkEmailExists = checkEmailExists,
+       _sendSsoLoginOtp = sendSsoLoginOtp,
+       _verifySsoLogin = verifySsoLogin,
+       _setPassword = setPassword,
        super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<LoginRequested>(_onLogin);
@@ -65,6 +77,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<OtpVerifyRequested>(_onVerifyOtp);
     on<OtpResendRequested>(_onResendOtp);
     on<OtpSendRequested>(_onSendOtp);
+    on<SsoOtpSendRequested>(_onSendSsoLoginOtp);
+    on<SsoOtpVerifyRequested>(_onVerifySsoLogin);
+    on<SsoSetPasswordRequested>(_onSetSsoPassword);
     on<EmailExistenceCheckRequested>(_onCheckEmailExists);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
@@ -208,6 +223,56 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.match(
       (failure) => emit(AuthError(failure)),
       (_) => emit(AuthOtpRequired(event.email)),
+    );
+  }
+
+  Future<void> _onSendSsoLoginOtp(
+    SsoOtpSendRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _sendSsoLoginOtp(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (_) => emit(SsoOtpRequired(event.email)),
+    );
+  }
+
+  Future<void> _onVerifySsoLogin(
+    SsoOtpVerifyRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+
+    final result = await _verifySsoLogin(
+      VerifySsoLoginParams(email: event.email, otp: event.otp),
+    );
+
+    await result.fold(
+      (failure) async => emit(AuthError(failure)),
+      (user) async {
+        _currentUser = user;
+        await _storage.saveEmail(user.email);
+        if (emit.isDone) return;
+        emit(SsoSetPasswordRequired(user.email));
+      },
+    );
+  }
+
+  Future<void> _onSetSsoPassword(
+    SsoSetPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+
+    final result = await _setPassword(event.password);
+
+    await result.fold(
+      (failure) async => emit(AuthError(failure)),
+      (_) async {
+        if (_currentUser == null || emit.isDone) return;
+        emit(AuthAuthenticated(_currentUser!));
+      },
     );
   }
 

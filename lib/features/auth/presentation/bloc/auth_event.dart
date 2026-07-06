@@ -71,6 +71,28 @@ class ForgotPasswordRequested extends AuthEvent {
   List<Object> get props => [email];
 }
 
+class SsoOtpSendRequested extends AuthEvent {
+  final String email;
+  const SsoOtpSendRequested({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
+class SsoOtpVerifyRequested extends AuthEvent {
+  final String email;
+  final String otp;
+  const SsoOtpVerifyRequested({required this.email, required this.otp});
+  @override
+  List<Object> get props => [email, otp];
+}
+
+class SsoSetPasswordRequested extends AuthEvent {
+  final String password;
+  const SsoSetPasswordRequested({required this.password});
+  @override
+  List<Object> get props => [password];
+}
+
 class LogoutRequested extends AuthEvent {
   const LogoutRequested();
   @override

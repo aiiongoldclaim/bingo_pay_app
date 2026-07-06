@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -12,6 +15,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/auth_shell.dart';
 import '../widgets/sso_login_dialog.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -90,21 +94,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       onUseDifferentEmail: () => Navigator.of(context).pop(),
       onSendOtp: () {
         Navigator.of(context).pop();
-        context.read<AuthBloc>().add(OtpSendRequested(email: email));
+        context.read<AuthBloc>().add(SsoOtpSendRequested(email: email));
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: ThemeColors.background,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
           } else if (state is AuthOtpRequired) {
             context.push(AppRoutes.registerOtp, extra: state.email);
+          } else if (state is SsoOtpRequired) {
+            context.push(AppRoutes.ssoLoginOtp, extra: state.email);
           } else if (state is EmailExistenceChecking) {
             setState(() => _checkingEmail = true);
           } else if (state is EmailExistenceChecked) {
@@ -128,139 +134,184 @@ class _RegisterScreenState extends State<RegisterScreen> {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.symmetric(horizontal: 6.w),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 32),
-                  Text(
-                    'Create Account',
-                    style: theme.textTheme.headlineMedium,
-                    textAlign: TextAlign.center,
+                  SizedBox(height: 4.h),
+                  const AuthBrandHeader(
+                    title: 'Create Account',
+                    subtitle: 'Join BingoPay and start paying smarter',
                   ),
-                  const SizedBox(height: 32),
-                  AppTextField(
-                    controller: _fullNameController,
-                    label: 'Full Name',
-                    validator: Validators.name,
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextField(
-                    controller: _emailController,
-                    label: 'Email',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: Validators.email,
-                    onChanged: _onEmailChanged,
-                    suffixIcon: _checkingEmail
-                        ? const Padding(
-                            padding: EdgeInsets.all(12),
-                            child: SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            ),
-                          )
-                        : _emailExists == null ||
-                                _checkedEmail != _emailController.text.trim()
-                            ? null
-                            : Icon(
-                                _emailExists!
-                                    ? Icons.error_outline
-                                    : Icons.check_circle_outline,
-                                color: _emailExists!
-                                    ? AppColors.error
-                                    : AppColors.success,
-                              ),
-                  ),
-                  if (!_checkingEmail &&
-                      _emailExists == true &&
-                      _checkedEmail == _emailController.text.trim())
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, left: 4),
-                      child: Text(
-                        'This email is already registered',
-                        style: theme.textTheme.bodySmall
-                            ?.copyWith(color: AppColors.error),
-                      ),
-                    ),
-                  const SizedBox(height: 16),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  SizedBox(height: 3.h),
+                  AuthCard(
                     children: [
-                      SizedBox(
-                        width: 90,
-                        child: AppTextField(
-                          controller: _countryIdController,
-                          label: 'Code',
-                          keyboardType: TextInputType.number,
-                          validator: (v) =>
-                              Validators.required(v, fieldName: 'Code'),
+                      AppTextField(
+                        controller: _fullNameController,
+                        label: 'Full Name',
+                        validator: Validators.name,
+                        prefixIcon: const Icon(
+                          Icons.person_outline_rounded,
+                          color: ThemeColors.inkDim,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppTextField(
-                          controller: _phoneController,
-                          label: 'Phone Number',
-                          keyboardType: TextInputType.phone,
-                          validator: (v) =>
-                              Validators.required(v, fieldName: 'Phone number'),
+                      SizedBox(height: 2.h),
+                      AppTextField(
+                        controller: _emailController,
+                        label: 'Email',
+                        keyboardType: TextInputType.emailAddress,
+                        validator: Validators.email,
+                        onChanged: _onEmailChanged,
+                        prefixIcon: const Icon(
+                          Icons.mail_outline_rounded,
+                          color: ThemeColors.inkDim,
+                        ),
+                        suffixIcon: _checkingEmail
+                            ? const Padding(
+                                padding: EdgeInsets.all(12),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : _emailExists == null ||
+                                    _checkedEmail !=
+                                        _emailController.text.trim()
+                                ? null
+                                : Icon(
+                                    _emailExists!
+                                        ? Icons.error_outline
+                                        : Icons.check_circle_outline,
+                                    color: _emailExists!
+                                        ? AppColors.error
+                                        : AppColors.success,
+                                  ),
+                      ),
+                      if (!_checkingEmail &&
+                          _emailExists == true &&
+                          _checkedEmail == _emailController.text.trim())
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4, left: 4),
+                          child: Text(
+                            'This email is already registered',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ),
+                      SizedBox(height: 2.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 90,
+                            child: AppTextField(
+                              controller: _countryIdController,
+                              label: 'Code',
+                              keyboardType: TextInputType.number,
+                              validator: (v) =>
+                                  Validators.required(v, fieldName: 'Code'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: AppTextField(
+                              controller: _phoneController,
+                              label: 'Phone Number',
+                              keyboardType: TextInputType.phone,
+                              validator: (v) => Validators.required(
+                                v,
+                                fieldName: 'Phone number',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      AppTextField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        obscureText: _obscurePassword,
+                        validator: Validators.password,
+                        prefixIcon: const Icon(
+                          Icons.lock_outline_rounded,
+                          color: ThemeColors.inkDim,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: ThemeColors.inkDim,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      AppTextField(
+                        controller: _confirmPasswordController,
+                        label: 'Confirm Password',
+                        obscureText: _obscureConfirm,
+                        validator: (v) => Validators.confirmPassword(
+                          v,
+                          _passwordController.text,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline_rounded,
+                          color: ThemeColors.inkDim,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirm
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: ThemeColors.inkDim,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscureConfirm = !_obscureConfirm,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 1.h),
+                      BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) => AppButton(
+                          label: 'Create Account',
+                          onPressed: _submit,
+                          isLoading: state is AuthLoading,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  AppTextField(
-                    controller: _passwordController,
-                    label: 'Password',
-                    obscureText: _obscurePassword,
-                    validator: Validators.password,
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextField(
-                    controller: _confirmPasswordController,
-                    label: 'Confirm Password',
-                    obscureText: _obscureConfirm,
-                    validator: (v) =>
-                        Validators.confirmPassword(v, _passwordController.text),
-                    suffixIcon: IconButton(
-                      icon: Icon(_obscureConfirm
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined),
-                      onPressed: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) => AppButton(
-                      label: 'Create Account',
-                      onPressed: _submit,
-                      isLoading: state is AuthLoading,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 3.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Already have an account?'),
+                      Text(
+                        'Already have an account?',
+                        style: AppTextStyles.bodyMedium,
+                      ),
                       TextButton(
                         onPressed: () => context.go(AppRoutes.login),
-                        child: const Text('Sign In'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: ThemeColors.blue,
+                        ),
+                        child: Text(
+                          'Sign In',
+                          style: AppTextStyles.labelLarge.copyWith(
+                            color: ThemeColors.blue,
+                          ),
+                        ),
                       ),
                     ],
                   ),
+                  SizedBox(height: 3.h),
                 ],
               ),
             ),

@@ -24,6 +24,8 @@ import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_selfie_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/auth/presentation/screens/sso_otp_verification_screen.dart';
+import '../../features/auth/presentation/screens/sso_set_password_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
@@ -42,6 +44,7 @@ import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/transactions/presentation/screens/transactions_screen.dart';
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
+import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
 import '../di/injection.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
@@ -70,6 +73,16 @@ class AppRouter {
           path: AppRoutes.registerOtp,
           builder: (_, state) =>
               OtpVerificationScreen(email: state.extra as String? ?? ''),
+        ),
+        GoRoute(
+          path: AppRoutes.ssoLoginOtp,
+          builder: (_, state) =>
+              SsoOtpVerificationScreen(email: state.extra as String? ?? ''),
+        ),
+        GoRoute(
+          path: AppRoutes.ssoSetPassword,
+          builder: (_, state) =>
+              SsoSetPasswordScreen(email: state.extra as String? ?? ''),
         ),
         GoRoute(
           path: AppRoutes.forgotPassword,
@@ -276,7 +289,7 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.buyerWishlist,
-              builder: (_, _) => const _PlaceholderPage('Wishlist'),
+              builder: (_, _) => const WishlistScreen(),
             ),
             GoRoute(
               path: AppRoutes.buyerAddresses,

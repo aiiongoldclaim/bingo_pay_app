@@ -180,7 +180,9 @@ class _OrderDetailView extends StatelessWidget {
       steps.add(
         TrackingStep(
           title: 'Order cancelled',
-          subtitle: o.cancelledAt != null ? formatDateTime(o.cancelledAt!) : '—',
+          subtitle: o.cancelledAt != null
+              ? formatDateTime(o.cancelledAt!)
+              : '—',
           stepStatus: TrackingStatus.completed,
           isError: true,
         ),
@@ -194,7 +196,9 @@ class _OrderDetailView extends StatelessWidget {
         subtitle: o.paidAt != null
             ? formatDateTime(o.paidAt!)
             : 'Awaiting confirmation',
-        stepStatus: o.isPaid ? TrackingStatus.completed : TrackingStatus.current,
+        stepStatus: o.isPaid
+            ? TrackingStatus.completed
+            : TrackingStatus.current,
       ),
     );
 
@@ -204,7 +208,9 @@ class _OrderDetailView extends StatelessWidget {
         subtitle: o.deliveredAt != null
             ? formatDateTime(o.deliveredAt!)
             : 'Not yet delivered',
-        stepStatus: o.isDelivered ? TrackingStatus.completed : TrackingStatus.pending,
+        stepStatus: o.isDelivered
+            ? TrackingStatus.completed
+            : TrackingStatus.pending,
       ),
     );
 
@@ -330,25 +336,12 @@ class _OrderItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final skuSuffix = (item.sku?.isNotEmpty ?? false) ? ' · ${item.sku}' : '';
     return Padding(
       padding: EdgeInsets.all(4.w),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 13.w,
-            height: 13.w,
-            decoration: BoxDecoration(
-              color: ThemeColors.blueSoft,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.inventory_2_outlined,
-              color: ThemeColors.blue,
-              size: 18.sp,
-            ),
-          ),
+          _OrderItemImage(imageUrl: item.imageUrl),
 
           SizedBox(width: 3.w),
 
@@ -366,9 +359,24 @@ class _OrderItemTile extends StatelessWidget {
                     color: ThemeColors.ink,
                   ),
                 ),
-                SizedBox(height: 0.4.h),
+                if ((item.secondaryLabel ?? '').isNotEmpty) ...[
+                  SizedBox(height: 0.3.h),
+                  Text(
+                    item.secondaryLabel!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      fontSize: 12.sp,
+                      color: ThemeColors.inkMid,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                SizedBox(height: 0.5.h),
                 Text(
-                  'Qty ${item.quantity} × ${item.formattedUnitPrice}$skuSuffix',
+                  item.purchaseMetaLabel,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
                     fontSize: 13.sp,
                     color: ThemeColors.inkDim,
@@ -380,15 +388,62 @@ class _OrderItemTile extends StatelessWidget {
 
           SizedBox(width: 2.w),
 
-          Text(
-            item.formattedTotal,
-            style: AppTextStyles.titleMedium.copyWith(
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w700,
+          Padding(
+            padding: EdgeInsets.only(top: 0.2.h),
+            child: Text(
+              item.formattedTotal,
+              style: AppTextStyles.titleMedium.copyWith(
+                fontSize: 15.sp,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _OrderItemImage extends StatelessWidget {
+  final String? imageUrl;
+
+  const _OrderItemImage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final url = imageUrl;
+
+    return Container(
+      width: 15.w,
+      height: 15.w,
+      decoration: BoxDecoration(
+        color: ThemeColors.blueSoft,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias,
+      alignment: Alignment.center,
+      child: url == null || url.isEmpty
+          ? _OrderItemImageFallback()
+          : Image.network(
+              url,
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => _OrderItemImageFallback(),
+              loadingBuilder: (context, child, progress) =>
+                  progress == null ? child : _OrderItemImageFallback(),
+            ),
+    );
+  }
+}
+
+class _OrderItemImageFallback extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.inventory_2_outlined,
+      color: ThemeColors.blue,
+      size: 18.sp,
     );
   }
 }
@@ -425,17 +480,15 @@ class _PriceSummaryCard extends StatelessWidget {
           SizedBox(height: 1.2.h),
           _row(
             'Shipping',
-            order.shippingAmount > 0 ? formatAmount(order.shippingAmount) : 'Free',
+            order.shippingAmount > 0
+                ? formatAmount(order.shippingAmount)
+                : 'Free',
             valueColor: order.shippingAmount > 0 ? null : ThemeColors.green,
           ),
           SizedBox(height: 1.6.h),
           Divider(height: 1, color: ThemeColors.line),
           SizedBox(height: 1.6.h),
-          _row(
-            'Total',
-            order.formattedTotal,
-            isBold: true,
-          ),
+          _row('Total', order.formattedTotal, isBold: true),
         ],
       ),
     );

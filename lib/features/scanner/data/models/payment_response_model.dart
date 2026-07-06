@@ -16,7 +16,7 @@ class PaymentResponseModel {
   });
 
   factory PaymentResponseModel.fromJson(Map<String, dynamic> json) {
-    final result = json['data']['result']['data'];
+    final result = json['data']['raw']['data'];
 
     return PaymentResponseModel(
       transactionId: result['transactionId'] ?? '',

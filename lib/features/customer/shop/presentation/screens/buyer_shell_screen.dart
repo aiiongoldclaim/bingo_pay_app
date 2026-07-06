@@ -172,9 +172,21 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
     }
   }
 
+  // Only the actual bottom-nav tab roots get the nav bar + FAB — every other
+  // route inside this ShellRoute (transactions, cart, checkout, wallet,
+  // scanner, profile sub-pages, etc.) is a drill-down/pushed screen and
+  // should render full-screen without them.
+  static const _tabRootPaths = [
+    AppRoutes.home,
+    AppRoutes.categories,
+    AppRoutes.orders,
+    AppRoutes.account,
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final hideNav = widget.location.startsWith('/buyer/products');
+    final hideNav =
+        !_tabRootPaths.any((path) => widget.location.startsWith(path));
 
     return Scaffold(
       extendBody: true, // ← keep this

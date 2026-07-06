@@ -39,6 +39,25 @@ class OtpResendSent extends AuthState {
   List<Object> get props => [];
 }
 
+// Emitted both for the initial OTP send and for resends — the BinGold SSO
+// login-otp endpoint is the same call either way.
+class SsoOtpRequired extends AuthState {
+  final String email;
+  const SsoOtpRequired(this.email);
+  @override
+  List<Object> get props => [email];
+}
+
+// Emitted once BinGold SSO OTP verification succeeds — the session tokens
+// are already saved at this point, but the user still needs to set a local
+// password before landing on the dashboard.
+class SsoSetPasswordRequired extends AuthState {
+  final String email;
+  const SsoSetPasswordRequired(this.email);
+  @override
+  List<Object> get props => [email];
+}
+
 class EmailExistenceChecking extends AuthState {
   const EmailExistenceChecking();
   @override

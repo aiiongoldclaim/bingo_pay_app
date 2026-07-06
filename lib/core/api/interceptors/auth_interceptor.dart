@@ -1,5 +1,8 @@
 import 'package:dio/dio.dart';
 import '../api_endpoints.dart';
+import '../../di/injection.dart';
+import '../../router/app_router.dart';
+import '../../router/route_guard.dart';
 import '../../storage/secure_storage_service.dart';
 
 class AuthInterceptor extends Interceptor {
@@ -37,6 +40,7 @@ class AuthInterceptor extends Interceptor {
 
     final refreshToken = await _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {
+      await _forceLogout();
       handler.next(err);
       return;
     }
@@ -44,7 +48,7 @@ class AuthInterceptor extends Interceptor {
     try {
       final tokens = await _refreshTokens(err.requestOptions, refreshToken);
       if (tokens == null) {
-        await _storage.clearAll();
+        await _forceLogout();
         handler.next(err);
         return;
       }
@@ -60,9 +64,18 @@ class AuthInterceptor extends Interceptor {
       );
       handler.resolve(response);
     } catch (_) {
-      await _storage.clearAll();
+      await _forceLogout();
       handler.next(err);
     }
+  }
+
+  // Refresh failed (or there was no refresh token to try) — the session is
+  // dead, so drop stored tokens and flip the router's auth state. RouteGuard
+  // picks this up on the next redirect evaluation and sends the user to
+  // AppRoutes.login from wherever they currently are.
+  Future<void> _forceLogout() async {
+    await _storage.clearAll();
+    getIt<AppRouter>().updateAuthState(const RouteAuthState.unauthenticated());
   }
 
   Future<_TokenPair?> _refreshTokens(

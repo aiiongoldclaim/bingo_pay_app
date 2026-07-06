@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -14,34 +13,37 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_shell.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+/// Shown right after a BinGold SSO login OTP is verified — the user is
+/// signed in with a BinGold account but has no local password yet, so this
+/// screen collects one via `/api/v1/auth/set-password` before landing on
+/// the dashboard.
+class SsoSetPasswordScreen extends StatefulWidget {
+  final String email;
+  const SsoSetPasswordScreen({super.key, required this.email});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SsoSetPasswordScreen> createState() => _SsoSetPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
-            LoginRequested(
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-            ),
-          );
+        SsoSetPasswordRequested(password: _passwordController.text),
+      );
     }
   }
 
@@ -51,12 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: ThemeColors.background,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            context.go(AppRoutes.home);
-          } else if (state is AuthOtpRequired) {
-            context.push(AppRoutes.registerOtp, extra: state.email);
-          } else if (state is AuthError) {
+          if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
+          } else if (state is AuthAuthenticated) {
+            context.go(AppRoutes.home);
           }
         },
         child: SafeArea(
@@ -68,27 +68,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(height: 6.h),
-                  const AuthBrandHeader(
-                    title: 'Welcome Back',
-                    subtitle: 'Sign in to continue to BingoPay',
+                  AuthBrandHeader(
+                    title: 'Secure Your Account',
+                    subtitle:
+                        'Set a password for ${widget.email} to finish signing in',
                   ),
                   SizedBox(height: 4.h),
                   AuthCard(
                     children: [
                       AppTextField(
-                        controller: _emailController,
-                        label: 'Email',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: const Icon(
-                          Icons.mail_outline_rounded,
-                          color: ThemeColors.inkDim,
-                        ),
-                        // validator: Validators.email,
-                      ),
-                      SizedBox(height: 2.h),
-                      AppTextField(
                         controller: _passwordController,
-                        label: 'Password',
+                        label: 'New Password',
                         obscureText: _obscurePassword,
                         validator: Validators.password,
                         prefixIcon: const Icon(
@@ -107,53 +97,37 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () =>
-                              context.push(AppRoutes.forgotPassword),
-                          style: TextButton.styleFrom(
-                            foregroundColor: ThemeColors.blue,
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      SizedBox(height: 2.h),
+                      AppTextField(
+                        controller: _confirmPasswordController,
+                        label: 'Confirm Password',
+                        obscureText: _obscureConfirm,
+                        validator: (v) => Validators.confirmPassword(
+                          v,
+                          _passwordController.text,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline_rounded,
+                          color: ThemeColors.inkDim,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirm
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: ThemeColors.inkDim,
                           ),
-                          child: Text(
-                            'Forgot Password?',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: ThemeColors.blue,
-                            ),
+                          onPressed: () => setState(
+                            () => _obscureConfirm = !_obscureConfirm,
                           ),
                         ),
                       ),
                       SizedBox(height: 1.h),
                       BlocBuilder<AuthBloc, AuthState>(
                         builder: (context, state) => AppButton(
-                          label: 'Sign In',
+                          label: 'Continue',
                           onPressed: _submit,
                           isLoading: state is AuthLoading,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 3.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account?",
-                        style: AppTextStyles.bodyMedium,
-                      ),
-                      TextButton(
-                        onPressed: () => context.go(AppRoutes.register),
-                        style: TextButton.styleFrom(
-                          foregroundColor: ThemeColors.blue,
-                        ),
-                        child: Text(
-                          'Register',
-                          style: AppTextStyles.labelLarge.copyWith(
-                            color: ThemeColors.blue,
-                          ),
                         ),
                       ),
                     ],

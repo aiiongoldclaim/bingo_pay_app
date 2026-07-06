@@ -1,11 +1,14 @@
 import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/product_card.dart';
 import '../../../product_details/data/models/product_details_model.dart';
+import '../../../wishlist/data/models/wishlist_model.dart';
+import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_model.dart';
 
 class RecommendedSection extends StatelessWidget {
@@ -43,12 +46,34 @@ class RecommendedSection extends StatelessWidget {
             separatorBuilder: (_, __) => SizedBox(width: 3.w),
             itemBuilder: (context, index) {
               final product = products[index];
+              final wishlist = context.watch<WishlistCubit>();
+
               return ProductCard(
                 brand: product.brand,
                 productName: product.name,
                 price: product.price,
                 imageUrl: product.images.isNotEmpty ? product.images.first : '',
                 rating: product.rating,
+                initialFavourite: wishlist.isWishlisted(product.uuid),
+                onFavouriteChanged: product.uuid == null
+                    ? null
+                    : (_) => context.read<WishlistCubit>().toggle(
+                          WishlistItem(
+                            id: product.uuid!,
+                            brand: product.brand,
+                            name: product.name,
+                            price: product.price,
+                            originalPrice: product.oldPrice.isNotEmpty
+                                ? product.oldPrice
+                                : null,
+                            discountPercent:
+                                product.discount > 0 ? product.discount : null,
+                            imageUrl: product.images.isNotEmpty
+                                ? product.images.first
+                                : null,
+                            rating: product.rating,
+                          ),
+                        ),
                 onTap: product.uuid != null
                     ? () => context.push(
                           AppRoutes.productDetails,

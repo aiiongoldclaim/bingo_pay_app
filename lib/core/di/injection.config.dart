@@ -59,6 +59,10 @@ import 'package:bingo_pay/features/auth/domain/usecases/resend_otp_usecase.dart'
     as _i869;
 import 'package:bingo_pay/features/auth/domain/usecases/send_otp_usecase.dart'
     as _i674;
+import 'package:bingo_pay/features/auth/domain/usecases/send_sso_login_otp_usecase.dart'
+    as _i137;
+import 'package:bingo_pay/features/auth/domain/usecases/set_password_usecase.dart'
+    as _i100;
 import 'package:bingo_pay/features/auth/domain/usecases/submit_kyc_personal_details_usecase.dart'
     as _i627;
 import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_document_usecase.dart'
@@ -67,6 +71,8 @@ import 'package:bingo_pay/features/auth/domain/usecases/upload_kyc_selfie_usecas
     as _i520;
 import 'package:bingo_pay/features/auth/domain/usecases/verify_otp_usecase.dart'
     as _i99;
+import 'package:bingo_pay/features/auth/domain/usecases/verify_sso_login_usecase.dart'
+    as _i999;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
 import 'package:bingo_pay/features/cart/data/datasources/cart_remote_datasource.dart'
@@ -116,6 +122,8 @@ import 'package:bingo_pay/features/transactions/cubit/transactions_cubit.dart'
     as _i729;
 import 'package:bingo_pay/features/transactions/data/datasources/transactions_remote_datasource.dart'
     as _i97;
+import 'package:bingo_pay/features/wishlist/presentation/cubit/wishlist_cubit.dart'
+    as _i115;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
@@ -147,6 +155,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i356.PreferencesService>(
       () => _i356.PreferencesService(gh<_i460.SharedPreferences>()),
+    );
+    gh.factory<_i115.WishlistCubit>(
+      () => _i115.WishlistCubit(gh<_i460.SharedPreferences>()),
     );
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
@@ -277,6 +288,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i674.SendOtpUseCase>(
       () => _i674.SendOtpUseCase(gh<_i917.AuthRepository>()),
     );
+    gh.factory<_i137.SendSsoLoginOtpUseCase>(
+      () => _i137.SendSsoLoginOtpUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i100.SetPasswordUseCase>(
+      () => _i100.SetPasswordUseCase(gh<_i917.AuthRepository>()),
+    );
     gh.factory<_i627.SubmitKycPersonalDetailsUseCase>(
       () => _i627.SubmitKycPersonalDetailsUseCase(gh<_i917.AuthRepository>()),
     );
@@ -289,8 +306,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i99.VerifyOtpUseCase>(
       () => _i99.VerifyOtpUseCase(gh<_i917.AuthRepository>()),
     );
+    gh.factory<_i999.VerifySsoLoginUseCase>(
+      () => _i999.VerifySsoLoginUseCase(gh<_i917.AuthRepository>()),
+    );
     gh.factory<_i801.CategoriesCubit>(
       () => _i801.CategoriesCubit(gh<_i507.GetCategoriesUseCase>()),
+    );
+    gh.factory<_i741.AccountCubit>(
+      () => _i741.AccountCubit(gh<_i810.GetProfileUseCase>()),
+    );
+    gh.factory<_i631.PaymentCubit>(
+      () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
     );
     gh.factory<_i357.AuthBloc>(
       () => _i357.AuthBloc(
@@ -303,18 +329,15 @@ extension GetItInjectableX on _i174.GetIt {
         forgotPassword: gh<_i878.ForgotPasswordUseCase>(),
         logout: gh<_i189.LogoutUseCase>(),
         checkEmailExists: gh<_i80.CheckEmailExistsUseCase>(),
+        sendSsoLoginOtp: gh<_i137.SendSsoLoginOtpUseCase>(),
+        verifySsoLogin: gh<_i999.VerifySsoLoginUseCase>(),
+        setPassword: gh<_i100.SetPasswordUseCase>(),
         kycPersonalDetails: gh<_i627.SubmitKycPersonalDetailsUseCase>(),
         kycDocument: gh<_i343.UploadKycDocumentUseCase>(),
         kycSelfie: gh<_i520.UploadKycSelfieUseCase>(),
         getKycStatus: gh<_i894.GetKycStatusUseCase>(),
         storage: gh<_i481.SecureStorageService>(),
       ),
-    );
-    gh.factory<_i741.AccountCubit>(
-      () => _i741.AccountCubit(gh<_i810.GetProfileUseCase>()),
-    );
-    gh.factory<_i631.PaymentCubit>(
-      () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
     );
     return this;
   }

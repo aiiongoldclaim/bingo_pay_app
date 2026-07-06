@@ -13,6 +13,7 @@ import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
 import '../features/address/presentation/cubit/address_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
+import '../features/wishlist/presentation/cubit/wishlist_cubit.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -24,6 +25,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   final _connectivity = getIt<ConnectivityService>();
+  final _cartCubit = getIt<CartCubit>();
   bool _authDetermined = false;
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
@@ -34,6 +36,9 @@ class _AppState extends State<App> {
     } else if (state is AuthAuthenticated) {
       _authDetermined = true;
       _router.updateAuthState(const RouteAuthState.authenticated());
+      // Warm the cart in the background so "already in cart" checks and
+      // add-to-cart elsewhere don't need to wait on a fresh fetch.
+      _cartCubit.loadCart();
     } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
       _authDetermined = true;
       _router.updateAuthState(const RouteAuthState.unauthenticated());
@@ -48,11 +53,12 @@ class _AppState extends State<App> {
           create: (_) =>
               getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
         ),
-        BlocProvider<CartCubit>(
-          create: (_) => getIt<CartCubit>(),
-        ),
+        BlocProvider<CartCubit>.value(value: _cartCubit),
         BlocProvider<AddressCubit>(
           create: (_) => getIt<AddressCubit>(),
+        ),
+        BlocProvider<WishlistCubit>(
+          create: (_) => getIt<WishlistCubit>(),
         ),
       ],
       child: BlocListener<AuthBloc, AuthState>(

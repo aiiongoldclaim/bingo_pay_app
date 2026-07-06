@@ -16,19 +16,21 @@ class AppBottomActionBar extends StatelessWidget {
     this.secondaryIconColor,
     this.secondaryIcon,
     this.secondaryVariant = AppButtonVariant.outlined,
+    this.secondaryLoading = false,
   });
 
   final String? price;
 
   final String primaryLabel;
-  final VoidCallback onPrimaryPressed;
+  final VoidCallback? onPrimaryPressed;
 
   final String secondaryLabel;
-  final VoidCallback onSecondaryPressed;
+  final VoidCallback? onSecondaryPressed;
   final IconData? secondaryIcon;
   final AppButtonVariant secondaryVariant;
   final Color? secondaryTextColor;
   final Color? secondaryIconColor;
+  final bool secondaryLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +87,7 @@ class AppBottomActionBar extends StatelessWidget {
                 variant: secondaryVariant,
                 textColor: secondaryTextColor,
                 iconColor: secondaryIconColor,
+                isLoading: secondaryLoading,
                 onPressed: onSecondaryPressed,
               ),
             ),

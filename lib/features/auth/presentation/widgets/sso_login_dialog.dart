@@ -50,7 +50,7 @@ class SsoLoginDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
           boxShadow: [
             BoxShadow(
-              color: ThemeColors.ink.withValues(alpha: 0.28),
+              color: ThemeColors.blueDeep.withValues(alpha: 0.3),
               blurRadius: AppSizes.shadowBlurLg,
               offset: const Offset(0, 14),
             ),
@@ -76,7 +76,7 @@ class SsoLoginDialog extends StatelessWidget {
                   Text.rich(
                     TextSpan(
                       style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 12.5.sp,
+                        fontSize: 13.5.sp,
                       ),
                       children: [
                         const TextSpan(
@@ -86,7 +86,7 @@ class SsoLoginDialog extends StatelessWidget {
                           text: email,
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: ThemeColors.ink,
+                            color: ThemeColors.blue,
                           ),
                         ),
                         const TextSpan(
@@ -99,18 +99,15 @@ class SsoLoginDialog extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 3.h),
-                  _GoldButton(
+                  _PrimaryButton(
                     label: 'Send OTP to Sign In',
                     icon: Icons.mark_email_read_rounded,
                     onTap: onSendOtp,
                   ),
-                  SizedBox(height: .8.h),
-                  TextButton(
-                    onPressed: onUseDifferentEmail,
-                    style: TextButton.styleFrom(
-                      foregroundColor: ThemeColors.inkMid,
-                    ),
-                    child: const Text('Use a different email'),
+                  SizedBox(height: 1.2.h),
+                  _SecondaryButton(
+                    label: 'Use a different email',
+                    onTap: onUseDifferentEmail,
                   ),
                 ],
               ),
@@ -130,8 +127,8 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(4.w, 3.5.h, 4.w, 3.5.h),
-      decoration: BoxDecoration(gradient: ThemeColors.goldGradient),
+      padding: EdgeInsets.fromLTRB(4.w, 1.5.h, 4.w, 1.5.h),
+      decoration: BoxDecoration(gradient: ThemeColors.primaryGradient),
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -143,7 +140,7 @@ class _Header extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: ThemeColors.white.withValues(alpha: 0.18),
+                  color: ThemeColors.white.withValues(alpha: 0.16),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -161,27 +158,27 @@ class _Header extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: ThemeColors.white.withValues(alpha: 0.16),
+                  color: ThemeColors.white.withValues(alpha: 0.14),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: ThemeColors.white.withValues(alpha: 0.4),
+                    color: ThemeColors.white.withValues(alpha: 0.35),
                     width: 1.2,
                   ),
                 ),
                 alignment: Alignment.center,
                 child: const Icon(
-                  Icons.workspace_premium_rounded,
+                  Icons.verified_user_rounded,
                   color: ThemeColors.white,
-                  size: 28,
+                  size: 26,
                 ),
               ),
               SizedBox(height: 1.4.h),
               Text(
-                'BinGold SSO',
+                'BINGOLD SSO',
                 style: AppTextStyles.buttonText.copyWith(
-                  fontSize: 12.sp,
-                  letterSpacing: 1.4,
-                  color: ThemeColors.white.withValues(alpha: 0.92),
+                  fontSize: 14.5.sp,
+                  letterSpacing: 1.6,
+                  color: ThemeColors.white.withValues(alpha: 0.9),
                 ),
               ),
             ],
@@ -192,12 +189,12 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _GoldButton extends StatelessWidget {
+class _PrimaryButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
 
-  const _GoldButton({
+  const _PrimaryButton({
     required this.label,
     required this.icon,
     required this.onTap,
@@ -210,13 +207,13 @@ class _GoldButton extends StatelessWidget {
       height: 6.2.h,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: ThemeColors.goldGradient,
+          gradient: ThemeColors.primaryGradient,
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           boxShadow: [
             BoxShadow(
-              color: ThemeColors.accent.withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+              color: ThemeColors.blue.withValues(alpha: 0.32),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
@@ -235,6 +232,43 @@ class _GoldButton extends StatelessWidget {
                   style: AppTextStyles.buttonText.copyWith(fontSize: 14.5.sp),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SecondaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _SecondaryButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 6.2.h,
+      child: Material(
+        color: ThemeColors.surface2,
+        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+              border: Border.all(color: ThemeColors.line),
+            ),
+            child: Center(
+              child: Text(
+                label,
+                style: AppTextStyles.labelLarge.copyWith(
+                  color: ThemeColors.inkMid,
+                ),
+              ),
             ),
           ),
         ),

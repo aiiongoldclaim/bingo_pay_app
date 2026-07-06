@@ -19,6 +19,7 @@ class ProductDetailModel {
   final DeliveryInfo deliveryInfo;
   final String? vendorEmail;
   final String? variantUuid;
+  final int availableStock;
 
   const ProductDetailModel({
     required this.id,
@@ -39,6 +40,7 @@ class ProductDetailModel {
     required this.deliveryInfo,
     this.vendorEmail,
     this.variantUuid,
+    this.availableStock = 0,
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class ProductDetailModel {
     double price = 0.0;
     double oldPrice = 0.0;
     int discount = 0;
+    int availableStock = 0;
     if (variants.isNotEmpty) {
       final v = variants.first as Map<String, dynamic>;
       price = double.tryParse(v['salePrice']?.toString() ?? '') ??
@@ -69,6 +72,8 @@ class ProductDetailModel {
       if (oldPrice > 0 && price < oldPrice) {
         discount = (((oldPrice - price) / oldPrice) * 100).round();
       }
+      final inventory = v['inventory'] as Map<String, dynamic>?;
+      availableStock = (inventory?['availableStock'] as num?)?.toInt() ?? 0;
     }
 
     final avgRating =
@@ -106,6 +111,7 @@ class ProductDetailModel {
       variantUuid: variants.isNotEmpty
           ? (variants.first as Map<String, dynamic>)['uuid'] as String?
           : null,
+      availableStock: availableStock,
       deliveryInfo: const DeliveryInfo(
         deliveryLabel: 'Free Delivery',
         deliverySubtitle: 'Estimated 2–5 business days',

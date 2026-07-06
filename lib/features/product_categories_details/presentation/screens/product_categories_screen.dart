@@ -6,11 +6,42 @@ import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_container.dart';
+import '../../../wishlist/data/models/wishlist_model.dart';
+import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
+import '../../data/models/product_categories_model.dart';
 import '../product_categories_cubit/product_categories_cubit.dart';
 import '../product_categories_cubit/product_categories_state.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/listing_product_card.dart';
 import '../widgets/listing_results_bar.dart';
+
+String _formatListingPrice(double value) {
+  final s = value.truncate().toString();
+  final buf = StringBuffer();
+  for (int i = 0; i < s.length; i++) {
+    final fromEnd = s.length - i;
+    buf.write(s[i]);
+    final rem = fromEnd - 1;
+    if (rem == 3 || (rem > 3 && (rem - 3) % 2 == 0)) buf.write(',');
+  }
+  return buf.toString();
+}
+
+WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
+      id: product.uuid!,
+      brand: product.brand,
+      name: product.name,
+      price:
+          product.price > 0 ? '\$${_formatListingPrice(product.price)}' : 'N/A',
+      originalPrice: product.originalPrice != null && product.originalPrice! > 0
+          ? '\$${_formatListingPrice(product.originalPrice!)}'
+          : null,
+      discountPercent: product.discountPercent,
+      imageUrl: product.imageUrl,
+      rating: (product.rating ?? 0).toStringAsFixed(1),
+      reviewCount: product.ratingCount ?? 0,
+      badge: product.badge,
+    );
 
 class ProductListingScreen extends StatelessWidget {
   final String categoryName;
@@ -112,9 +143,13 @@ class _ProductListingView extends StatelessWidget {
                               index,
                             ) {
                               final product = state.filteredProducts[index];
+                              final wishlist = context.watch<WishlistCubit>();
 
                               return ListingProductCard(
-                                product: product,
+                                product: product.copyWith(
+                                  isFavourite:
+                                      wishlist.isWishlisted(product.uuid),
+                                ),
 
                                 onTap: product.uuid != null
                                     ? () => context.push(
@@ -122,8 +157,11 @@ class _ProductListingView extends StatelessWidget {
                                           extra: product.uuid,
                                         )
                                     : null,
-                                onFavouriteTap: () =>
-                                    cubit.toggleFavourite(product.id),
+                                onFavouriteTap: product.uuid == null
+                                    ? null
+                                    : () => context
+                                        .read<WishlistCubit>()
+                                        .toggle(_toWishlistItem(product)),
                               );
                             }, childCount: state.filteredProducts.length),
                           ),
@@ -137,21 +175,28 @@ class _ProductListingView extends StatelessWidget {
                               index,
                             ) {
                               final product = state.filteredProducts[index];
+                              final wishlist = context.watch<WishlistCubit>();
 
                               return Padding(
                                 padding: EdgeInsets.only(bottom: 2.h),
                                 child: SizedBox(
                                   height: 18.h,
                                   child: ListingProductCard(
-                                    product: product,
+                                    product: product.copyWith(
+                                      isFavourite:
+                                          wishlist.isWishlisted(product.uuid),
+                                    ),
                                     onTap: product.uuid != null
                                     ? () => context.push(
                                           AppRoutes.productDetails,
                                           extra: product.uuid,
                                         )
                                     : null,
-                                    onFavouriteTap: () =>
-                                        cubit.toggleFavourite(product.id),
+                                    onFavouriteTap: product.uuid == null
+                                        ? null
+                                        : () => context
+                                            .read<WishlistCubit>()
+                                            .toggle(_toWishlistItem(product)),
                                   ),
                                 ),
                               );

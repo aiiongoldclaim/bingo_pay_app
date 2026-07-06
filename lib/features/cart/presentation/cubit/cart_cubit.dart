@@ -35,10 +35,15 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> addItem({required String variantUuid, int quantity = 1}) async {
+    emit(state.copyWith(isAddingItem: true, error: null));
     final result = await _addItem(variantUuid: variantUuid, quantity: quantity);
     result.fold(
-      (failure) => emit(state.copyWith(error: failure.message)),
-      (cart) => emit(state.copyWith(cart: cart, error: null)),
+      (failure) => emit(
+        state.copyWith(isAddingItem: false, error: failure.message),
+      ),
+      (cart) => emit(
+        state.copyWith(isAddingItem: false, cart: cart, error: null),
+      ),
     );
   }
 

@@ -16,26 +16,22 @@ class ProductDetailLoading extends ProductDetailState {
 /// Loaded successfully — carries all display data + interaction state
 class ProductDetailLoaded extends ProductDetailState {
   final ProductDetailModel product;
-  final bool isFavourite;
   final int selectedColorIndex;
   final int quantity;
 
   const ProductDetailLoaded({
     required this.product,
-    this.isFavourite = false,
     this.selectedColorIndex = 0,
     this.quantity = 1,
   });
 
   ProductDetailLoaded copyWith({
     ProductDetailModel? product,
-    bool? isFavourite,
     int? selectedColorIndex,
     int? quantity,
   }) {
     return ProductDetailLoaded(
       product: product ?? this.product,
-      isFavourite: isFavourite ?? this.isFavourite,
       selectedColorIndex: selectedColorIndex ?? this.selectedColorIndex,
       quantity: quantity ?? this.quantity,
     );
@@ -44,7 +40,6 @@ class ProductDetailLoaded extends ProductDetailState {
   @override
   List<Object?> get props => [
     product,
-    isFavourite,
     selectedColorIndex,
     quantity,
   ];

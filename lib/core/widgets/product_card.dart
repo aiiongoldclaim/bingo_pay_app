@@ -58,6 +58,14 @@ class _ProductCardState extends State<ProductCard> {
     isFavourite = widget.initialFavourite;
   }
 
+  @override
+  void didUpdateWidget(covariant ProductCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialFavourite != oldWidget.initialFavourite) {
+      isFavourite = widget.initialFavourite;
+    }
+  }
+
   void _toggleFavourite() {
     setState(() {
       isFavourite = !isFavourite;

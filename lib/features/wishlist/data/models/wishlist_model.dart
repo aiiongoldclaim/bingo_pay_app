@@ -1,17 +1,17 @@
 // lib/features/wishlist/model/wishlist_model.dart
 
-import 'package:flutter/cupertino.dart';
-
+/// A saved product. Price/rating are pre-formatted display strings (as
+/// produced by the product's origin screen) rather than raw numbers, so no
+/// lossy re-parsing/re-formatting is needed when rendering the wishlist.
 class WishlistItem {
-  final String id;
+  final String id; // product uuid — used to open ProductDetailsScreen
   final String brand;
   final String name;
-  final double price;
-  final double? originalPrice;
+  final String price;
+  final String? originalPrice;
   final int? discountPercent;
   final String? imageUrl;
-  final IconData? icon;
-  final double rating;
+  final String rating;
   final int reviewCount;
   final bool inStock;
   final String? badge; // e.g. "BESTSELLER", "NEW"
@@ -24,24 +24,15 @@ class WishlistItem {
     this.originalPrice,
     this.discountPercent,
     this.imageUrl,
-    this.icon,
-    required this.rating,
-    required this.reviewCount,
+    this.rating = '0.0',
+    this.reviewCount = 0,
     this.inStock = true,
     this.badge,
   });
 
-  String get formattedPrice => '₹${_fmt(price)}';
-  String get formattedOriginal =>
-      originalPrice != null ? '₹${_fmt(originalPrice!)}' : '';
+  @override
+  bool operator ==(Object other) => other is WishlistItem && other.id == id;
 
-  static String _fmt(double v) {
-    final i = v.toInt();
-    if (i >= 1000) {
-      final t = i ~/ 1000;
-      final r = i % 1000;
-      return '$t,${r.toString().padLeft(3, '0')}';
-    }
-    return '$i';
-  }
+  @override
+  int get hashCode => id.hashCode;
 }

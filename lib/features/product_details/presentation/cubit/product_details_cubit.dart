@@ -24,12 +24,6 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     }
   }
 
-  void toggleFavourite() {
-    final current = state;
-    if (current is! ProductDetailLoaded) return;
-    emit(current.copyWith(isFavourite: !current.isFavourite));
-  }
-
   void selectColor(int index) {
     final current = state;
     if (current is! ProductDetailLoaded) return;
