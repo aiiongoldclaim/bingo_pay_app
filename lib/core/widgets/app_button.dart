@@ -30,8 +30,30 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLoading) {
       return SizedBox(
-        height: 6.h,
-        child: const Center(child: CircularProgressIndicator()),
+          width: double.infinity,
+          height: 6.h,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient:  ThemeColors.primaryGradient,
+              color:  ThemeColors.line ,
+              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+            ),
+            child: ElevatedButton(
+              onPressed: null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                ),
+              ),
+        child: const Center(child: CircularProgressIndicator(
+          color: Colors.white,
+        )),
+      )
+          )
       );
     }
 

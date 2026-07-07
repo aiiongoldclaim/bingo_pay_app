@@ -131,7 +131,8 @@ class _AccountScreenState extends State<AccountScreen> {
                             padding: EdgeInsets.symmetric(horizontal: 4.w),
                             child: AppButton(
                               label: 'LogOut',
-                              isLoading: isLoggingOut,
+                              // isLoading: isLoggingOut,
+                              isLoading: false,
                               onPressed: isLoggingOut
                                   ? null
                                   : () => context

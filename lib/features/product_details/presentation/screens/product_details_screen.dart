@@ -17,6 +17,7 @@ import '../widgets/product_color_section.dart';
 import '../widgets/product_highlights_section.dart';
 import '../widgets/product_image_section.dart';
 import '../widgets/product_info_section.dart';
+import '../widgets/product_details_shimmer.dart';
 import '../widgets/product_policies_section.dart';
 import '../widgets/product_rating_section.dart';
 
@@ -30,7 +31,7 @@ class ProductDetailScreen extends StatelessWidget {
       body: BlocBuilder<ProductDetailCubit, ProductDetailState>(
         builder: (context, state) {
           if (state is ProductDetailLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const ProductDetailsShimmer();
           }
 
           if (state is ProductDetailError) {

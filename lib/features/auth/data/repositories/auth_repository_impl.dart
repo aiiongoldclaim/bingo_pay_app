@@ -153,10 +153,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> forgotPassword({required String email}) async {
+  Future<Either<Failure, String>> forgotPassword({
+    required String email,
+  }) async {
     try {
-      await _remote.forgotPassword(email: email);
-      return const Right(unit);
+      final message = await _remote.forgotPassword(email: email);
+      return Right(message);
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }

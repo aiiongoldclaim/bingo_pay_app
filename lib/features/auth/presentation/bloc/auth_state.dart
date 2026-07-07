@@ -119,9 +119,10 @@ class AuthError extends AuthState {
 }
 
 class PasswordResetSent extends AuthState {
-  const PasswordResetSent();
+  final String message;
+  const PasswordResetSent(this.message);
   @override
-  List<Object> get props => [];
+  List<Object> get props => [message];
 }
 
 class KycLoading extends AuthState {

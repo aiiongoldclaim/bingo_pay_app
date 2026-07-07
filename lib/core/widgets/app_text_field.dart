@@ -18,6 +18,10 @@ class AppTextField extends StatelessWidget {
   final TextStyle? style;
   final TextAlign textAlign;
   final Color? cursorColor;
+  final AutovalidateMode? autovalidateMode;
+  final bool? isRequired;
+  /// Country Picker Widget
+  final Widget? prefix;
 
   const AppTextField({
     super.key,
@@ -37,6 +41,9 @@ class AppTextField extends StatelessWidget {
     this.style,
     this.textAlign = TextAlign.start,
     this.cursorColor,
+    this.autovalidateMode,
+    this.isRequired,
+    this.prefix,
   });
 
   @override

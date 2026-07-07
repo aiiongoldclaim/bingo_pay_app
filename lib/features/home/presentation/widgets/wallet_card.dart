@@ -52,6 +52,7 @@ class WalletCard extends StatelessWidget {
                   style: AppTextStyles.labelSmall.copyWith(
                     color: ThemeColors.white.withValues(alpha: 0.75),
                     fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
                     letterSpacing: 0.3,
                   ),
                 ),

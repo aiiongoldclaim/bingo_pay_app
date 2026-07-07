@@ -11,6 +11,7 @@ import '../cubit/dashboard_state.dart';
 import '../widgets/category_section.dart';
 import '../widgets/flashDealSection.dart';
 import '../widgets/home_header.dart';
+import '../widgets/home_shimmer.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/recommended_section.dart';
 import '../widgets/wallet_card.dart';
@@ -167,7 +168,7 @@ class HomeScreen extends StatelessWidget {
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
               if (state.status == HomeStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
+                return const HomeShimmer();
               }
 
               return RefreshIndicator(
@@ -205,13 +206,10 @@ class HomeScreen extends StatelessWidget {
                                   color: ThemeColors.blue,
                                   size: 20.sp,
                                 ),
-                                suffixIcon: IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.mic_none_rounded,
-                                    color: ThemeColors.blue,
-                                    size: 20.sp,
-                                  ),
+                                suffixIcon: Icon(
+                                  Icons.mic_none_rounded,
+                                  color: ThemeColors.blue,
+                                  size: 20.sp,
                                 ),
                               ),
                             ),

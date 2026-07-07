@@ -39,6 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SendSsoLoginOtpUseCase _sendSsoLoginOtp;
   final VerifySsoLoginUseCase _verifySsoLogin;
   final SetPasswordUseCase _setPassword;
+  final ForgotPasswordUseCase _forgotPassword;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
@@ -70,6 +71,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _sendSsoLoginOtp = sendSsoLoginOtp,
        _verifySsoLogin = verifySsoLogin,
        _setPassword = setPassword,
+       _forgotPassword = forgotPassword,
        super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
     on<LoginRequested>(_onLogin);
@@ -300,7 +302,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     ForgotPasswordRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const PasswordResetSent());
+    emit(const AuthLoading());
+    final result = await _forgotPassword(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (message) => emit(PasswordResetSent(message)),
+    );
   }
 
   Future<void> _onLogout(LogoutRequested event, Emitter<AuthState> emit) async {

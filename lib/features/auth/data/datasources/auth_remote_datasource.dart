@@ -45,7 +45,7 @@ abstract interface class AuthRemoteDataSource {
 
   Future<String> logout();
 
-  Future<void> forgotPassword({required String email});
+  Future<String> forgotPassword({required String email});
 
   Future<KycModel> submitKycPersonalDetails({
     required String name,
@@ -228,8 +228,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> forgotPassword({required String email}) async {
-    await _dio.post(ApiEndpoints.forgotPassword, data: {'email': email});
+  Future<String> forgotPassword({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.forgotPassword,
+      data: {'email': email},
+    );
+    final data = response.data['data'] as Map<String, dynamic>?;
+    return data?['message'] as String? ?? 'Password reset link sent successfully';
   }
 
   @override

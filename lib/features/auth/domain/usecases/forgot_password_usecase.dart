@@ -8,6 +8,6 @@ class ForgotPasswordUseCase {
   final AuthRepository _repository;
   const ForgotPasswordUseCase(this._repository);
 
-  Future<Either<Failure, Unit>> call(String email) =>
+  Future<Either<Failure, String>> call(String email) =>
       _repository.forgotPassword(email: email);
 }
