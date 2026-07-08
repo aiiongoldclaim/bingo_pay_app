@@ -20,6 +20,7 @@ class AppRoutes {
   static const String buyerWishlist = '/buyer/wishlist';
   static const String buyerAddresses = '/buyer/addresses';
   static const String buyerPayments = '/buyer/payments';
+  static const String help = '/help';
   static const String buyerCatalog = '/buyer/catalog';
   static const String categories = '/categories';
   static const String cart = '/cart';

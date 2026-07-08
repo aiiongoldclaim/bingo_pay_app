@@ -194,7 +194,7 @@ class AccountMenuItem {
       title: 'Help & Support',
       subtitle: 'FAQs, chat with us',
       iconAsset: 'help',
-      route: '/help',
+      route: AppRoutes.help,
     ),
   ];
 }

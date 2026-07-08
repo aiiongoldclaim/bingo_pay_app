@@ -45,6 +45,7 @@ import '../../features/transactions/presentation/screens/transactions_screen.dar
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
+import '../../features/account/presentation/screens/help_support_screen.dart';
 import '../di/injection.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
@@ -298,6 +299,10 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.buyerPayments,
               builder: (_, _) => const _PlaceholderPage('Payment Methods'),
+            ),
+            GoRoute(
+              path: AppRoutes.help,
+              builder: (_, _) => const HelpSupportScreen(),
             ),
           ],
         ),

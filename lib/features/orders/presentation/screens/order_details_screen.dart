@@ -79,8 +79,8 @@ class _OrderDetailView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// ── Hero ──
-          _HeroCard(order: o),
+          /// ── Header ──
+          _OrderHeader(order: o),
 
           SizedBox(height: 2.h),
 
@@ -218,111 +218,196 @@ class _OrderDetailView extends StatelessWidget {
   }
 }
 
-// ── Hero Card ─────────────────────────────────────────────────────────────────
+// ── Order Header ──────────────────────────────────────────────────────────────
 
-class _HeroCard extends StatelessWidget {
+class _OrderHeader extends StatelessWidget {
   final OrderModel order;
 
-  const _HeroCard({required this.order});
+  const _OrderHeader({required this.order});
 
   @override
   Widget build(BuildContext context) {
-    final icon = order.isCancelled
-        ? Icons.cancel_outlined
-        : order.isDelivered
-        ? Icons.check_circle_outline_rounded
-        : Icons.local_shipping_outlined;
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(5.w),
-      decoration: BoxDecoration(
-        gradient: ThemeColors.primaryGradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: ThemeColors.blue.withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _OrderPreviewImage(items: order.items, size: 22.w),
+        SizedBox(width: 4.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.7.h),
-                decoration: BoxDecoration(
-                  color: ThemeColors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 14.sp, color: ThemeColors.white),
-                    SizedBox(width: 1.5.w),
-                    Text(
-                      order.displayOrderStatus,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w700,
-                        color: ThemeColors.white,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      order.orderNumber,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.titleLarge.copyWith(
+                        fontSize: 17.sp,
+                        fontWeight: FontWeight.w800,
+                        color: ThemeColors.ink,
                       ),
                     ),
-                  ],
+                  ),
+                  SizedBox(width: 2.w),
+                  OrderStatusBadge(status: order.orderStatus),
+                ],
+              ),
+              SizedBox(height: 0.5.h),
+              Text(
+                '${order.formattedItemsLabel()} · ${order.shortDate}',
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontSize: 13.sp,
+                  color: ThemeColors.inkMid,
+                ),
+              ),
+              SizedBox(height: 1.5.h),
+              Text(
+                'Total',
+                style: AppTextStyles.bodySmall.copyWith(
+                  fontSize: 12.sp,
+                  color: ThemeColors.inkDim,
                 ),
               ),
               Text(
-                order.shortDate,
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: 12.sp,
-                  color: ThemeColors.white.withValues(alpha: 0.75),
+                order.formattedTotal,
+                style: AppTextStyles.titleLarge.copyWith(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w800,
+                  color: ThemeColors.ink,
                 ),
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
 
-          SizedBox(height: 2.h),
+// ── Order Preview Image (single item, or a collage when there are many) ───────
 
-          Text(
-            order.orderNumber,
-            style: AppTextStyles.headlineMedium.copyWith(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w800,
-              color: ThemeColors.white,
-            ),
-          ),
-          SizedBox(height: 0.4.h),
-          Text(
-            order.formattedItemsLabel(),
-            style: AppTextStyles.bodySmall.copyWith(
-              fontSize: 13.sp,
-              color: ThemeColors.white.withValues(alpha: 0.75),
-            ),
-          ),
+class _OrderPreviewImage extends StatelessWidget {
+  final List<OrderItemModel> items;
+  final double size;
 
-          SizedBox(height: 2.5.h),
+  const _OrderPreviewImage({required this.items, required this.size});
 
-          Text(
-            'Total',
-            style: AppTextStyles.bodySmall.copyWith(
-              fontSize: 12.sp,
-              color: ThemeColors.white.withValues(alpha: 0.75),
-            ),
-          ),
-          Text(
-            order.formattedTotal,
-            style: AppTextStyles.displayLarge.copyWith(
-              fontSize: 26.sp,
-              fontWeight: FontWeight.w800,
-              color: ThemeColors.white,
+  @override
+  Widget build(BuildContext context) {
+    final images = items
+        .map((e) => e.imageUrl)
+        .whereType<String>()
+        .where((url) => url.isNotEmpty)
+        .toList();
+
+    if (images.length <= 1) {
+      return _OrderItemImage(
+        imageUrl: images.isEmpty ? null : images.first,
+        size: size,
+      );
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: ThemeColors.blueSoft,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: _collageFor(images, items.length),
+    );
+  }
+
+  Widget _collageFor(List<String> images, int totalCount) {
+    Widget tile(String url) => Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (_, _, _) => const _OrderItemImageFallback(size: 14),
+    );
+
+    Widget gap({double width = 0, double height = 0}) => SizedBox(
+      width: width,
+      height: height,
+    );
+
+    if (images.length == 2) {
+      return Row(
+        children: [
+          Expanded(child: tile(images[0])),
+          gap(width: 1),
+          Expanded(child: tile(images[1])),
+        ],
+      );
+    }
+
+    if (images.length == 3) {
+      return Row(
+        children: [
+          Expanded(child: tile(images[0])),
+          gap(width: 1),
+          Expanded(
+            child: Column(
+              children: [
+                Expanded(child: tile(images[1])),
+                gap(height: 1),
+                Expanded(child: tile(images[2])),
+              ],
             ),
           ),
         ],
-      ),
+      );
+    }
+
+    final extraCount = totalCount - 4;
+    return Column(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(child: tile(images[0])),
+              gap(width: 1),
+              Expanded(child: tile(images[1])),
+            ],
+          ),
+        ),
+        gap(height: 1),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(child: tile(images[2])),
+              gap(width: 1),
+              Expanded(
+                child: extraCount > 0
+                    ? Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          tile(images[3]),
+                          Container(
+                            color: Colors.black.withValues(alpha: 0.55),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '+$extraCount',
+                              style: AppTextStyles.labelMedium.copyWith(
+                                color: ThemeColors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11.sp,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : tile(images[3]),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -406,16 +491,18 @@ class _OrderItemTile extends StatelessWidget {
 
 class _OrderItemImage extends StatelessWidget {
   final String? imageUrl;
+  final double? size;
 
-  const _OrderItemImage({required this.imageUrl});
+  const _OrderItemImage({required this.imageUrl, this.size});
 
   @override
   Widget build(BuildContext context) {
     final url = imageUrl;
+    final dimension = size ?? 15.w;
 
     return Container(
-      width: 15.w,
-      height: 15.w,
+      width: dimension,
+      height: dimension,
       decoration: BoxDecoration(
         color: ThemeColors.blueSoft,
         borderRadius: BorderRadius.circular(12),
@@ -423,28 +510,28 @@ class _OrderItemImage extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       alignment: Alignment.center,
       child: url == null || url.isEmpty
-          ? _OrderItemImageFallback()
+          ? _OrderItemImageFallback(size: dimension * 0.4)
           : Image.network(
               url,
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => _OrderItemImageFallback(),
+              errorBuilder: (_, _, _) => _OrderItemImageFallback(size: dimension * 0.4),
               loadingBuilder: (context, child, progress) =>
-                  progress == null ? child : _OrderItemImageFallback(),
+                  progress == null ? child : _OrderItemImageFallback(size: dimension * 0.4),
             ),
     );
   }
 }
 
 class _OrderItemImageFallback extends StatelessWidget {
+  final double size;
+
+  const _OrderItemImageFallback({this.size = 18});
+
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.inventory_2_outlined,
-      color: ThemeColors.blue,
-      size: 18.sp,
-    );
+    return Icon(Icons.inventory_2_outlined, color: ThemeColors.blue, size: size);
   }
 }
 

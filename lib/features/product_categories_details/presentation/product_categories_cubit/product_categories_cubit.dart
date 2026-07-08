@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../core/api/api_client.dart';
+import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/config/app_config.dart';
 import '../../data/models/product_categories_model.dart';
 import 'product_categories_state.dart';
@@ -14,23 +15,24 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       emit(const ProductListingLoading());
 
       final client = GetIt.I<ApiClient>();
-      final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products';
-      final response = await client.dio.get(
-        url,
-        queryParameters: {
-          if (categoryUuid.isNotEmpty) 'categoryUuid': categoryUuid,
-          'page': 1,
-          'limit': 20,
-        },
+
+      // Products are only ever attached to leaf/child categories, never to
+      // the top-level category shown on the Categories screen, so a plain
+      // categoryUuid filter on the tapped (top-level) category always comes
+      // back empty. Resolve the whole subtree and query every descendant too.
+      final categoryUuids = await _resolveCategoryUuids(client, categoryUuid);
+
+      final results = await Future.wait(
+        categoryUuids.map((uuid) => _fetchProducts(client, uuid)),
       );
 
-      final raw = response.data as Map<String, dynamic>;
-      final dataMap = raw['data'] as Map<String, dynamic>;
-      final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-      final products = dataList
-          .map((e) =>
-              ListingProductModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final seen = <String>{};
+      final products = <ListingProductModel>[];
+      for (final list in results) {
+        for (final product in list) {
+          if (seen.add(product.id)) products.add(product);
+        }
+      }
 
       emit(
         ProductListingLoaded(
@@ -41,6 +43,74 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       );
     } catch (e) {
       emit(ProductListingError(e.toString()));
+    }
+  }
+
+  Future<List<ListingProductModel>> _fetchProducts(
+    ApiClient client,
+    String categoryUuid,
+  ) async {
+    final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products';
+    final response = await client.dio.get(
+      url,
+      queryParameters: {
+        if (categoryUuid.isNotEmpty) 'categoryUuid': categoryUuid,
+        'page': 1,
+        'limit': 20,
+      },
+    );
+
+    final raw = response.data as Map<String, dynamic>;
+    final dataMap = raw['data'] as Map<String, dynamic>;
+    final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
+    return dataList
+        .map((e) => ListingProductModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<String>> _resolveCategoryUuids(
+    ApiClient client,
+    String categoryUuid,
+  ) async {
+    if (categoryUuid.isEmpty) return [''];
+
+    try {
+      final url =
+          '${AppConfig.categoriesApiBaseUrl}${ApiEndpoints.categories}';
+      final response = await client.dio.get(url);
+      final raw = response.data as Map<String, dynamic>;
+      final dataMap = raw['data'] as Map<String, dynamic>;
+      final categories = ((dataMap['data'] as List<dynamic>?) ?? [])
+          .cast<Map<String, dynamic>>();
+
+      final root = categories.firstWhere(
+        (c) => c['uuid'] == categoryUuid,
+        orElse: () => const <String, dynamic>{},
+      );
+      if (root.isEmpty) return [categoryUuid];
+
+      final childrenByParentId = <String, List<Map<String, dynamic>>>{};
+      for (final c in categories) {
+        final parentId = c['parentId'] as String?;
+        if (parentId != null) {
+          childrenByParentId.putIfAbsent(parentId, () => []).add(c);
+        }
+      }
+
+      final uuids = <String>[categoryUuid];
+      void collectDescendants(String id) {
+        for (final child in childrenByParentId[id] ?? const []) {
+          uuids.add(child['uuid'] as String);
+          collectDescendants(child['id'] as String);
+        }
+      }
+
+      collectDescendants(root['id'] as String);
+      return uuids;
+    } catch (_) {
+      // Fall back to filtering by just the tapped category if the
+      // category tree can't be resolved.
+      return [categoryUuid];
     }
   }
 

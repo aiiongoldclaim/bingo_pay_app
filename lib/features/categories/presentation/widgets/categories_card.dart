@@ -86,7 +86,7 @@ class _PlaceholderIcon extends StatelessWidget {
     return Container(
       color: color,
       alignment: Alignment.center,
-      child: Icon(icon, color: ThemeColors.accent, size: 22.sp),
+      child: Icon(icon, color: ThemeColors.accent, size: 25.sp),
     );
   }
 }

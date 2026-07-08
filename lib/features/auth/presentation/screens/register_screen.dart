@@ -501,6 +501,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return CountryPickerBottomSheet.getFlagEmoji(countryCode);
   }
 
+  Widget _buildPasswordRequirements() {
+    final value = _passwordController.text;
+    final requirements = <String, bool>{
+      'At least 8 characters': value.length >= 8,
+      'One uppercase letter (A-Z)': RegExp(r'[A-Z]').hasMatch(value),
+      'One lowercase letter (a-z)': RegExp(r'[a-z]').hasMatch(value),
+      'One number (0-9)': RegExp(r'[0-9]').hasMatch(value),
+      'One special character (!@#\$%...)':
+          RegExp(r'[!@#$%^&*(),.?":{}|<>_\-+=~`\[\];/\\]').hasMatch(value),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, left: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: requirements.entries
+            .map((entry) => _passwordRequirementRow(entry.key, entry.value))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _passwordRequirementRow(String label, bool met) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1.5),
+      child: Row(
+        children: [
+          Icon(
+            met ? Icons.check_circle : Icons.circle_outlined,
+            size: 14,
+            color: met ? AppColors.success : ThemeColors.inkDim,
+          ),
+          SizedBox(width: 1.5.w),
+          Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(
+              color: met ? AppColors.success : ThemeColors.inkDim,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -558,340 +602,358 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 });
               }
             },
-            child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 6.w),
-                    child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minHeight: constraints.maxHeight),
-                      child: IntrinsicHeight(
-                        child: Form(
-                          key: _formKey,
-                          autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.stretch,
-                            children: [
-                              SizedBox(height: 4.h),
-
-                              const AuthBrandHeader(
-                                title: 'Create Account',
-                                subtitle:
-                                    'Join BingoPay and start paying smarter',
-                              ),
-
-                              SizedBox(height: 3.h),
-
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.04),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color:
-                                        Colors.white.withOpacity(0.06),
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color:
-                                          Colors.black.withOpacity(0.25),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: Form(
+                        key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment.stretch,
+                          children: [
+                            SizedBox(height: 4.h),
+            
+                            const AuthBrandHeader(
+                              title: 'Create Account',
+                              subtitle:
+                                  'Join BingoPay and start paying smarter',
+                            ),
+            
+                            SizedBox(height: 3.h),
+            
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.04),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color:
+                                      Colors.white.withOpacity(0.06),
                                 ),
-                                child: AuthCard(
-                                  children: [
-                                    AppTextField(
-                                      controller:
-                                          _fullNameController,
-                                      label: 'Full Name',
-                                      validator: Validators.name,
-                                      prefixIcon: const Icon(
-                                          Icons.person_outline),
-                                    ),
-                                    SizedBox(height: 2.h),
-
-                                    AppTextField(
-                                      controller:
-                                          _emailController,
-                                      label: 'Email',
-                                      keyboardType:
-                                          TextInputType.emailAddress,
-                                      validator: Validators.email,
-                                      onChanged: _onEmailChanged,
-                                      prefixIcon: const Icon(
-                                          Icons.mail_outline),
-                                      suffixIcon: _checkingEmail
-                                          ? const Padding(
-                                              padding:
-                                                  EdgeInsets.all(12),
-                                              child: SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        strokeWidth:
-                                                            2),
-                                              ),
-                                            )
-                                          : _emailExists ==
-                                                      null ||
-                                                  _checkedEmail !=
-                                                      _emailController
-                                                          .text
-                                                          .trim()
-                                              ? null
-                                              : Icon(
-                                                  _emailExists!
-                                                      ? Icons
-                                                          .error_outline
-                                                      : Icons
-                                                          .check_circle_outline,
-                                                  color: _emailExists!
-                                                      ? AppColors
-                                                          .error
-                                                      : AppColors
-                                                          .success,
-                                                ),
-                                    ),
-
-                                    if (!_checkingEmail &&
-                                        _emailExists == true &&
-                                        _checkedEmail ==
-                                            _emailController.text
-                                                .trim())
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(
-                                                top: 4,
-                                                left: 4),
-                                        child: Text(
-                                          'This email is already registered',
-                                          style: AppTextStyles
-                                              .bodySmall
-                                              .copyWith(
-                                            color:
-                                                AppColors.error,
-                                          ),
-                                        ),
-                                      ),
-
-                                    SizedBox(height: 2.h),
-
-                                    // Row(
-                                    //   children: [
-                                    //     SizedBox(
-                                    //       width: 90,
-                                    //       child: AppTextField(
-                                    //         controller:
-                                    //             _countryIdController,
-                                    //         label: 'Code',
-                                    //         keyboardType:
-                                    //             TextInputType
-                                    //                 .number,
-                                    //         validator: (v) =>
-                                    //             Validators.required(
-                                    //                 v,
-                                    //                 fieldName:
-                                    //                     'Code'),
-                                    //       ),
-                                    //     ),
-                                    //     const SizedBox(width: 12),
-                                    //     Expanded(
-                                    //       child: AppTextField(
-                                    //         controller:
-                                    //             _phoneController,
-                                    //         label:
-                                    //             'Phone Number',
-                                    //         keyboardType:
-                                    //             TextInputType
-                                    //                 .phone,
-                                    //         validator: (v) =>
-                                    //             Validators.required(
-                                    //           v,
-                                    //           fieldName:
-                                    //               'Phone number',
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ],
-                                    // ),
-
-
-          
-            AppTextField(
-  label: "Phone Number",
-  hint: "Enter Phone Number",
-  controller: _phoneController,
-  keyboardType: TextInputType.phone,
-  validator: (value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Phone number is required';
-    }
-    final cleanVal = value.trim();
-    if (cleanVal.length < (_selectedCountry?.minLength ?? 10)) {
-      return 'Phone number must be at least ${_selectedCountry?.minLength ?? 10} digits';
-    }
-    if (cleanVal.length > (_selectedCountry?.maxLength ?? 10)) {
-      return 'Phone number must be at most ${_selectedCountry?.maxLength ?? 10} digits';
-    }
-    return null;
-  },
-  autovalidateMode: AutovalidateMode.onUserInteraction,
-  inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-    LengthLimitingTextInputFormatter(
-      _selectedCountry?.maxLength ?? 10,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        Colors.black.withOpacity(0.25),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 1),
+                                  ),
+                                ],
+                              ),
+                              child: AuthCard(
+                                children: [
+                                  AppTextField(
+                                    controller:
+                                        _fullNameController,
+                                    label: 'Full Name',
+                                    validator: Validators.name,
+                                    prefixIcon: const Icon(
+                                        Icons.person_outline),
+                                    inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s]")),
+  ],
+                                  ),
+                                  SizedBox(height: 2.h),
+            
+                                  AppTextField(
+                                    controller:
+                                        _emailController,
+                                    label: 'Email',
+                                    keyboardType:
+                                        TextInputType.emailAddress,
+                                    validator: Validators.email,
+                                    onChanged: _onEmailChanged,
+                                    inputFormatters: [
+    FilteringTextInputFormatter.allow(
+      RegExp(r'[a-zA-Z0-9@._\-]'),
     ),
   ],
-  prefixIcon: GestureDetector(
-    onTap: _showCountryPicker,
-    behavior: HitTestBehavior.opaque,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      margin: const EdgeInsets.only(right: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.5),
-            width: 1,
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _getFlagEmoji(_selectedCountry?.code ?? "IN"),
-            style: TextStyle(fontSize: 5.w),
-          ),
-          SizedBox(width: 2.w),
-          Text(
-            _selectedCountry?.dialCode ?? "+91",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14.sp,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-)
-,
-
-
-                                    SizedBox(height: 2.h),
-
-                                    AppTextField(
-                                      controller:
-                                          _passwordController,
-                                      label: 'Password',
-                                      obscureText:
-                                          _obscurePassword,
-                                      validator:
-                                          Validators.password,
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                            _obscurePassword
-                                                ? Icons
-                                                    .visibility
-                                                : Icons
-                                                    .visibility_off),
-                                        onPressed: () =>
-                                            setState(() =>
-                                                _obscurePassword =
-                                                    !_obscurePassword),
-                                      ),
-                                    ),
-
-                                    SizedBox(height: 2.h),
-
-                                    AppTextField(
-                                      controller:
-                                          _confirmPasswordController,
-                                      label:
-                                          'Confirm Password',
-                                      obscureText:
-                                          _obscureConfirm,
-                                      validator: (v) =>
-                                          Validators
-                                              .confirmPassword(
-                                        v,
-                                        _passwordController
-                                            .text,
-                                      ),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                            _obscureConfirm
-                                                ? Icons
-                                                    .visibility
-                                                : Icons
-                                                    .visibility_off),
-                                        onPressed: () =>
-                                            setState(() =>
-                                                _obscureConfirm =
-                                                    !_obscureConfirm),
-                                      ),
-                                    ),
-
-                                    SizedBox(height: 2.h),
-
-                                    BlocBuilder<AuthBloc,
-                                        AuthState>(
-                                      builder: (context,
-                                              state) =>
-                                          AppButton(
-                                        label:
-                                            'Create Account',
-                                        onPressed: _submit,
-                                        isLoading:
-                                            state is AuthLoading,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              SizedBox(height: 3.h),
-
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Already have an account?',
-                                    style: AppTextStyles
-                                        .bodyMedium,
+                                    prefixIcon: const Icon(
+                                        Icons.mail_outline),
+                                    suffixIcon: _checkingEmail
+                                        ? const Padding(
+                                            padding:
+                                                EdgeInsets.all(12),
+                                            child: SizedBox(
+                                              width: 16,
+                                              height: 16,
+                                              child:
+                                                  CircularProgressIndicator(
+                                                      strokeWidth:
+                                                          2),
+                                            ),
+                                          )
+                                        : _emailExists ==
+                                                    null ||
+                                                _checkedEmail !=
+                                                    _emailController
+                                                        .text
+                                                        .trim()
+                                            ? null
+                                            : Icon(
+                                                _emailExists!
+                                                    ? Icons
+                                                        .error_outline
+                                                    : Icons
+                                                        .check_circle_outline,
+                                                color: _emailExists!
+                                                    ? AppColors
+                                                        .error
+                                                    : AppColors
+                                                        .success,
+                                              ),
                                   ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        context.go(
-                                            AppRoutes.login),
-                                    child: Text(
-                                      'Sign In',
-                                      style: AppTextStyles
-                                          .labelLarge
-                                          .copyWith(
-                                              color:
-                                                  ThemeColors
-                                                      .blue),
+            
+                                  if (!_checkingEmail &&
+                                      _emailExists == true &&
+                                      _checkedEmail ==
+                                          _emailController.text
+                                              .trim())
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(
+                                              top: 4,
+                                              left: 4),
+                                      child: Text(
+                                        'This email is already registered',
+                                        style: AppTextStyles
+                                            .bodySmall
+                                            .copyWith(
+                                          color:
+                                              AppColors.error,
+                                        ),
+                                      ),
+                                    ),
+            
+                                  SizedBox(height: 2.h),
+            
+                                  // Row(
+                                  //   children: [
+                                  //     SizedBox(
+                                  //       width: 90,
+                                  //       child: AppTextField(
+                                  //         controller:
+                                  //             _countryIdController,
+                                  //         label: 'Code',
+                                  //         keyboardType:
+                                  //             TextInputType
+                                  //                 .number,
+                                  //         validator: (v) =>
+                                  //             Validators.required(
+                                  //                 v,
+                                  //                 fieldName:
+                                  //                     'Code'),
+                                  //       ),
+                                  //     ),
+                                  //     const SizedBox(width: 12),
+                                  //     Expanded(
+                                  //       child: AppTextField(
+                                  //         controller:
+                                  //             _phoneController,
+                                  //         label:
+                                  //             'Phone Number',
+                                  //         keyboardType:
+                                  //             TextInputType
+                                  //                 .phone,
+                                  //         validator: (v) =>
+                                  //             Validators.required(
+                                  //           v,
+                                  //           fieldName:
+                                  //               'Phone number',
+                                  //         ),
+                                  //       ),
+                                  //     ),
+                                  //   ],
+                                  // ),
+            
+            
+                      
+                        AppTextField(
+              label: "Phone Number",
+              hint: "Enter Phone Number",
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Phone number is required';
+                }
+                final cleanVal = value.trim();
+                if (cleanVal.length < (_selectedCountry?.minLength ?? 10)) {
+                  return 'Phone number must be at least ${_selectedCountry?.minLength ?? 10} digits';
+                }
+                if (cleanVal.length > (_selectedCountry?.maxLength ?? 10)) {
+                  return 'Phone number must be at most ${_selectedCountry?.maxLength ?? 10} digits';
+                }
+                return null;
+              },
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                LengthLimitingTextInputFormatter(
+                  _selectedCountry?.maxLength ?? 10,
+                ),
+              ],
+              prefixIcon: GestureDetector(
+                onTap: _showCountryPicker,
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  margin: const EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(
+                        color: Theme.of(context).dividerColor.withOpacity(0.5),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _getFlagEmoji(_selectedCountry?.code ?? "IN"),
+                        style: TextStyle(fontSize: 5.w),
+                      ),
+                      SizedBox(width: 2.w),
+                      Text(
+                        _selectedCountry?.dialCode ?? "+91",
+                        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+            ,
+            
+            
+                                  SizedBox(height: 2.h),
+            
+                                  AppTextField(
+                                    controller:
+                                        _passwordController,
+                                    label: 'Password',
+                                    obscureText:
+                                        _obscurePassword,
+                                    validator:
+                                        Validators.password,
+                                    onChanged: (_) => setState(() {}),
+                                    inputFormatters: [
+    FilteringTextInputFormatter.deny(RegExp(r"\s")), // no spaces
+  ],
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                          _obscurePassword
+                                              ? Icons
+                                                  .visibility
+                                              : Icons
+                                                  .visibility_off),
+                                      onPressed: () =>
+                                          setState(() =>
+                                              _obscurePassword =
+                                                  !_obscurePassword),
+                                    ),
+                                  ),
+
+                                  if (_passwordController.text.isNotEmpty) ...[
+                                    SizedBox(height: 1.h),
+                                    _buildPasswordRequirements(),
+                                  ],
+
+                                  SizedBox(height: 2.h),
+            
+                                  AppTextField(
+                                    controller:
+                                        _confirmPasswordController,
+                                    label:
+                                        'Confirm Password',
+                                    obscureText:
+                                        _obscureConfirm,
+                                    inputFormatters: [
+    FilteringTextInputFormatter.deny(RegExp(r"\s")), // no spaces
+  ],
+                                    validator: (v) =>
+                                        Validators
+                                            .confirmPassword(
+                                      v,
+                                      _passwordController
+                                          .text,
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                          _obscureConfirm
+                                              ? Icons
+                                                  .visibility
+                                              : Icons
+                                                  .visibility_off),
+                                      onPressed: () =>
+                                          setState(() =>
+                                              _obscureConfirm =
+                                                  !_obscureConfirm),
+                                    ),
+                                  ),
+            
+                                  SizedBox(height: 2.h),
+            
+                                  BlocBuilder<AuthBloc,
+                                      AuthState>(
+                                    builder: (context,
+                                            state) =>
+                                        AppButton(
+                                      label:
+                                          'Create Account',
+                                      onPressed: _submit,
+                                      isLoading:
+                                          state is AuthLoading,
                                     ),
                                   ),
                                 ],
                               ),
-
-                              SizedBox(height: 3.h),
-                            ],
-                          ),
+                            ),
+            
+                            SizedBox(height: 3.h),
+            
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Already have an account?',
+                                  style: AppTextStyles
+                                      .bodyMedium,
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      context.go(
+                                          AppRoutes.login),
+                                  child: Text(
+                                    'Sign In',
+                                    style: AppTextStyles
+                                        .labelLarge
+                                        .copyWith(
+                                            color:
+                                                ThemeColors
+                                                    .blue),
+                                  ),
+                                ),
+                              ],
+                            ),
+            
+                            SizedBox(height: 3.h),
+                          ],
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
         ],

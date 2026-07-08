@@ -6,7 +6,7 @@ class ApiEndpoints {
   static const String resendOtp = '/api/v1/auth/email/resend-otp';
   static const String userExists = '/api/v1/auth/user-exists';
   static const String refresh = '/api/v1/auth/refresh';
-  static const String forgotPassword = '/auth/forgot-password';
+  static const String forgotPassword = '/api/v1/auth/forgot-password';
   static const String kycDocument = '/kyc/document';
   static const String kycSelfie = '/kyc/selfie';
   static const String kycStatus = '/kyc/status';

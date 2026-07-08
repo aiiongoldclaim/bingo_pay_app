@@ -81,8 +81,8 @@ class _ProductListingView extends StatelessWidget {
             onAction1: () {
               context.push(AppRoutes.search);
             },
-            actionIcon2: Icons.delete,
-            onAction2: () {},
+            // actionIcon2: Icons.delete,
+            // onAction2: () {},
           ),
 
           body: Column(

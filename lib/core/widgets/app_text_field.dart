@@ -55,6 +55,7 @@ class AppTextField extends StatelessWidget {
       validator: validator,
       onChanged: onChanged,
       enabled: enabled,
+      inputFormatters: inputFormatters,
       maxLines: obscureText ? 1 : maxLines,
       decoration: InputDecoration(
         labelText: label,

@@ -47,7 +47,8 @@ class AccountHeader extends StatelessWidget {
 
             _WalletCard(
               formattedBalance: _formatBalance(account.displayBigoldBalance),
-              onTap: onWalletTap,
+              // onTap: onWalletTap,
+              onTap: () {},
             ),
 
             SizedBox(height: 3.h),
@@ -219,7 +220,7 @@ class _WalletCard extends StatelessWidget {
                   children: [
                     Text(
                       'Bingold Wallet',
-                      style: AppTextStyles.labelSmall.copyWith(
+                      style: AppTextStyles.labelMedium.copyWith(
                         color: ThemeColors.white.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.3,
