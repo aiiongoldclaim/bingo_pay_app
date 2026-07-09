@@ -39,6 +39,16 @@ class OtpResendSent extends AuthState {
   List<Object> get props => [];
 }
 
+// Emitted while the BinGold SSO login-otp request is in flight. Kept
+// separate from AuthLoading so screens with their own submit buttons (e.g.
+// Create Account) don't show a loading state for an action triggered from
+// the SSO dialog on top of them.
+class SsoOtpSending extends AuthState {
+  const SsoOtpSending();
+  @override
+  List<Object> get props => [];
+}
+
 // Emitted both for the initial OTP send and for resends — the BinGold SSO
 // login-otp endpoint is the same call either way.
 class SsoOtpRequired extends AuthState {

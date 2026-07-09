@@ -347,7 +347,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       controller: _passwordController,
                                       label: 'Password',
                                       obscureText: _obscurePassword,
-                                      validator: Validators.password,
+                                      validator: (v) => Validators.required(
+                                        v,
+                                        fieldName: 'Password',
+                                      ),
                                       prefixIcon: const Icon(Icons.lock),
                                       suffixIcon: IconButton(
                                         icon: Icon(

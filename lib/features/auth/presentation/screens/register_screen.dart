@@ -434,7 +434,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: email,
       onUseDifferentEmail: () => Navigator.of(context).pop(),
       onSendOtp: () {
-        Navigator.of(context).pop();
         context.read<AuthBloc>().add(SsoOtpSendRequested(email: email));
       },
     );

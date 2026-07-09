@@ -27,6 +27,7 @@ class _AppState extends State<App> {
   final _connectivity = getIt<ConnectivityService>();
   final _cartCubit = getIt<CartCubit>();
   bool _authDetermined = false;
+  bool? _wasConnected;
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
     if (state is AuthLoading) {
@@ -76,9 +77,13 @@ class _AppState extends State<App> {
                   darkTheme: AppTheme.dark,
                   routerConfig: _router.router,
                   builder: (context, child) {
-                    if (!isConnected) {
+                    if (_wasConnected != isConnected) {
+                      _wasConnected = isConnected;
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (context.mounted) {
+                        if (!context.mounted) return;
+                        if (isConnected) {
+                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                        } else {
                           AppSnackbar.showOfflineBanner(context);
                         }
                       });

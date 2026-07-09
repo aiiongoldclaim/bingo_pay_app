@@ -5,12 +5,11 @@ import 'package:injectable/injectable.dart';
 class ConnectivityService {
   final Connectivity _connectivity;
 
+  late final Stream<bool> isConnected = _connectivity.onConnectivityChanged
+      .map((results) => results.any((r) => r != ConnectivityResult.none))
+      .distinct()
+      .asBroadcastStream();
+
   ConnectivityService({Connectivity? connectivity})
       : _connectivity = connectivity ?? Connectivity();
-
-  Stream<bool> get isConnected => _connectivity.onConnectivityChanged.map(
-        (results) => results.any(
-          (r) => r != ConnectivityResult.none,
-        ),
-      );
 }

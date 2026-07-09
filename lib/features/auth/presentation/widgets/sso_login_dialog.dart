@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_state.dart';
 
 /// Premium confirmation dialog shown when the entered email belongs to an
 /// existing BinGold account with no local password — the user must verify
@@ -40,87 +43,98 @@ class SsoLoginDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 6.w),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: ThemeColors.white,
-          borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
-          boxShadow: [
-            BoxShadow(
-              color: ThemeColors.blueDeep.withValues(alpha: 0.3),
-              blurRadius: AppSizes.shadowBlurLg,
-              offset: const Offset(0, 14),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _Header(onClose: onUseDifferentEmail),
-            Padding(
-              padding: EdgeInsets.fromLTRB(6.w, 3.h, 6.w, 4.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Welcome back!',
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      fontSize: 19.sp,
-                    ),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listenWhen: (previous, current) => current is SsoOtpRequired,
+      listener: (context, state) => Navigator.of(context).pop(),
+      builder: (context, state) {
+        final isSending = state is SsoOtpSending;
+        return PopScope(
+          canPop: !isSending,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.symmetric(horizontal: 6.w),
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: ThemeColors.white,
+                borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+                boxShadow: [
+                  BoxShadow(
+                    color: ThemeColors.blueDeep.withValues(alpha: 0.3),
+                    blurRadius: AppSizes.shadowBlurLg,
+                    offset: const Offset(0, 14),
                   ),
-                  SizedBox(height: 1.2.h),
-                  Text.rich(
-                    TextSpan(
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontSize: 13.5.sp,
-                      ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _Header(onClose: isSending ? null : onUseDifferentEmail),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(6.w, 3.h, 6.w, 4.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const TextSpan(
-                          text: 'An account for ',
-                        ),
-                        TextSpan(
-                          text: email,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: ThemeColors.blue,
+                        Text(
+                          'Welcome back!',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.headlineMedium.copyWith(
+                            fontSize: 19.sp,
                           ),
                         ),
-                        const TextSpan(
-                          text:
-                              ' already exists with BinGold. Verify with a '
-                              'one-time code to sign in securely.',
+                        SizedBox(height: 1.2.h),
+                        Text.rich(
+                          TextSpan(
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontSize: 13.5.sp,
+                            ),
+                            children: [
+                              const TextSpan(
+                                text: 'An account for ',
+                              ),
+                              TextSpan(
+                                text: email,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: ThemeColors.blue,
+                                ),
+                              ),
+                              const TextSpan(
+                                text:
+                                    ' already exists with BinGold. Verify with a '
+                                    'one-time code to sign in securely.',
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 3.h),
+                        _PrimaryButton(
+                          label: 'Send OTP to Sign In',
+                          icon: Icons.mark_email_read_rounded,
+                          isLoading: isSending,
+                          onTap: isSending ? null : onSendOtp,
+                        ),
+                        SizedBox(height: 1.2.h),
+                        _SecondaryButton(
+                          label: 'Use a different email',
+                          onTap: isSending ? null : onUseDifferentEmail,
                         ),
                       ],
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 3.h),
-                  _PrimaryButton(
-                    label: 'Send OTP to Sign In',
-                    icon: Icons.mark_email_read_rounded,
-                    onTap: onSendOtp,
-                  ),
-                  SizedBox(height: 1.2.h),
-                  _SecondaryButton(
-                    label: 'Use a different email',
-                    onTap: onUseDifferentEmail,
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
 class _Header extends StatelessWidget {
-  final VoidCallback onClose;
+  final VoidCallback? onClose;
   const _Header({required this.onClose});
 
   @override
@@ -192,12 +206,14 @@ class _Header extends StatelessWidget {
 class _PrimaryButton extends StatelessWidget {
   final String label;
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool isLoading;
 
   const _PrimaryButton({
     required this.label,
     required this.icon,
     required this.onTap,
+    this.isLoading = false,
   });
 
   @override
@@ -222,17 +238,30 @@ class _PrimaryButton extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(AppSizes.radiusMd),
             onTap: onTap,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 18, color: ThemeColors.white),
-                SizedBox(width: 2.w),
-                Text(
-                  label,
-                  style: AppTextStyles.buttonText.copyWith(fontSize: 14.5.sp),
-                ),
-              ],
-            ),
+            child: isLoading
+                ? const Center(
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: ThemeColors.white,
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(icon, size: 18, color: ThemeColors.white),
+                      SizedBox(width: 2.w),
+                      Text(
+                        label,
+                        style: AppTextStyles.buttonText.copyWith(
+                          fontSize: 14.5.sp,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -242,7 +271,7 @@ class _PrimaryButton extends StatelessWidget {
 
 class _SecondaryButton extends StatelessWidget {
   final String label;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _SecondaryButton({required this.label, required this.onTap});
 

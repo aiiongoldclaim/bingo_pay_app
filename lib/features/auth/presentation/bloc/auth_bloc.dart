@@ -232,7 +232,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     SsoOtpSendRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
+    emit(const SsoOtpSending());
     final result = await _sendSsoLoginOtp(event.email);
     result.match(
       (failure) => emit(AuthError(failure)),
