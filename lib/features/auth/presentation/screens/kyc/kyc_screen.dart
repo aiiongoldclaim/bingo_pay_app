@@ -93,6 +93,8 @@ class _KycScreenState extends State<KycScreen> {
                         AppTextField(
                           controller: _nameController,
                           label: 'Full Legal Name',
+                          isRequired: true,
+                          hint: 'Enter your full legal name',
                           validator: Validators.name,
                         ),
                         const SizedBox(height: 16),
@@ -100,7 +102,17 @@ class _KycScreenState extends State<KycScreen> {
                           onTap: _pickDate,
                           child: InputDecorator(
                             decoration: const InputDecoration(
-                              labelText: 'Date of Birth',
+                              label: Text.rich(
+                                TextSpan(
+                                  text: 'Date of Birth',
+                                  children: [
+                                    TextSpan(
+                                      text: ' *',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               suffixIcon: Icon(Icons.calendar_today_outlined),
                             ),
                             child: Text(
@@ -119,6 +131,8 @@ class _KycScreenState extends State<KycScreen> {
                         AppTextField(
                           controller: _addressController,
                           label: 'Residential Address',
+                          isRequired: true,
+                          hint: 'Enter your residential address',
                           maxLines: 3,
                           validator: (v) =>
                               Validators.required(v, fieldName: 'Address'),

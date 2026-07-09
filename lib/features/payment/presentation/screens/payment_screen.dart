@@ -1250,10 +1250,11 @@ class _AddressSelectionSection extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    if (cubit.state is AddressError) {
+    final state = cubit.state;
+    if (state is AddressError) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to delete address')));
+      ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
       return;
     }
 

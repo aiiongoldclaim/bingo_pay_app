@@ -56,20 +56,56 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> _changeQuantity(int itemId, int quantity) async {
+    emit(state.copyWith(pendingItemIds: {...state.pendingItemIds, itemId}));
     final result = await _updateQuantity(itemId: itemId, quantity: quantity);
     result.fold(
-      (failure) => emit(state.copyWith(error: failure.message)),
-      (cart) => emit(state.copyWith(cart: cart, error: null)),
+      (failure) => emit(state.copyWith(
+        error: failure.message,
+        pendingItemIds: _withoutPending(itemId),
+      )),
+      (cart) => emit(state.copyWith(
+        cart: cart,
+        error: null,
+        pendingItemIds: _withoutPending(itemId),
+      )),
     );
   }
 
   Future<void> removeItem(int itemId) async {
+    emit(state.copyWith(pendingItemIds: {...state.pendingItemIds, itemId}));
     final result = await _removeItem(itemId: itemId);
     await result.fold(
-      (failure) async => emit(state.copyWith(error: failure.message)),
-      (_) => loadCart(),
+      (failure) async => emit(state.copyWith(
+        error: failure.message,
+        pendingItemIds: _withoutPending(itemId),
+      )),
+      (_) => _refreshCartSilently(settledItemId: itemId),
     );
   }
+
+  // Re-fetches the cart without flipping `isLoading`, so a single item
+  // update/removal doesn't blow away the whole list with a full-screen
+  // spinner — only that item's row shows a busy state while in flight.
+  Future<void> _refreshCartSilently({int? settledItemId}) async {
+    final result = await _getCart();
+    final pendingItemIds = settledItemId == null
+        ? state.pendingItemIds
+        : _withoutPending(settledItemId);
+    result.fold(
+      (failure) => emit(state.copyWith(
+        error: failure.message,
+        pendingItemIds: pendingItemIds,
+      )),
+      (cart) => emit(state.copyWith(
+        cart: cart,
+        error: null,
+        pendingItemIds: pendingItemIds,
+      )),
+    );
+  }
+
+  Set<int> _withoutPending(int itemId) =>
+      {...state.pendingItemIds}..remove(itemId);
 
   Future<void> clearCart() async {
     final result = await _clearCart();

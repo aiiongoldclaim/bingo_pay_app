@@ -335,6 +335,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     AppTextField(
                                       controller: _emailController,
                                       label: 'Email',
+                                      isRequired: true,
+                                      hint: 'Enter your email',
                                       keyboardType:
                                           TextInputType.emailAddress,
                                       prefixIcon: const Icon(Icons.mail),
@@ -346,6 +348,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     AppTextField(
                                       controller: _passwordController,
                                       label: 'Password',
+                                      isRequired: true,
+                                      hint: 'Enter your password',
                                       obscureText: _obscurePassword,
                                       validator: (v) => Validators.required(
                                         v,
@@ -411,7 +415,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: () =>
                                       context.go(AppRoutes.register),
                                   child: Text(
-                                    'Register',
+                                    'Sign Up',
                                     style: AppTextStyles.labelLarge
                                         .copyWith(
                                       color: ThemeColors.blue,

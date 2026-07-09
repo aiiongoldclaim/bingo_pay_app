@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../theme/theme_colors.dart';
+
 class AppTextField extends StatelessWidget {
   final String label;
   final String? hint;
@@ -48,21 +50,47 @@ class AppTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      onChanged: onChanged,
-      enabled: enabled,
-      inputFormatters: inputFormatters,
-      maxLines: obscureText ? 1 : maxLines,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        suffixIcon: suffixIcon,
-        prefixIcon: prefixIcon,
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label.isNotEmpty) ...[
+          Text.rich(
+            TextSpan(
+              text: label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: ThemeColors.inkMid,
+              ),
+              children: isRequired == true
+                  ? const [
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ]
+                  : null,
+            ),
+          ),
+          const SizedBox(height: 6),
+        ],
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          validator: validator,
+          onChanged: onChanged,
+          enabled: enabled,
+          inputFormatters: inputFormatters,
+          maxLines: obscureText ? 1 : maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            suffixIcon: suffixIcon,
+            prefixIcon: prefixIcon,
+          ),
+        ),
+      ],
     );
   }
 }

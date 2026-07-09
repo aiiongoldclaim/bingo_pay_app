@@ -130,13 +130,13 @@
 //   }
 // }
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/utils/validators.dart';
 import '../../domain/entities/address_entity.dart';
 import '../cubit/address_cubit.dart';
 
@@ -146,11 +146,12 @@ class AddEditAddressScreen extends StatefulWidget {
   const AddEditAddressScreen({super.key, this.existingAddress});
 
   @override
-  State<AddEditAddressScreen> createState() =>
-      _AddEditAddressScreenState();
+  State<AddEditAddressScreen> createState() => _AddEditAddressScreenState();
 }
 
 class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   late TextEditingController nameCtrl;
   late TextEditingController phoneCtrl;
   late TextEditingController addressCtrl;
@@ -188,14 +189,55 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
 
   bool get isEdit => widget.existingAddress?.id.isNotEmpty == true;
 
+  bool _hasUnsavedChanges() {
+    final data = widget.existingAddress;
+    return nameCtrl.text != (data?.fullName ?? '') ||
+        phoneCtrl.text != (data?.phoneNumber ?? '') ||
+        addressCtrl.text != (data?.addressLine1 ?? '') ||
+        cityCtrl.text != (data?.city ?? '') ||
+        stateCtrl.text != (data?.state ?? '') ||
+        postalCtrl.text != (data?.postalCode ?? '') ||
+        isDefault != (data?.isDefaultAddress ?? false);
+  }
+
+  void _showDiscardConfirmation() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Discard changes?'),
+        content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Keep Editing'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+            },
+            child: const Text('Discard', style: TextStyle(color: ThemeColors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: ThemeColors.white,
-        statusBarIconBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
+    return PopScope(
+      canPop: !_hasUnsavedChanges(),
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _hasUnsavedChanges()) {
+          _showDiscardConfirmation();
+        }
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: ThemeColors.white,
+          statusBarIconBrightness: Brightness.dark,
+        ),
+        child: Scaffold(
         backgroundColor: const Color(0xFFF5F7FB),
 
         appBar: AppBar(
@@ -215,121 +257,164 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-
-                    /// 📦 ADDRESS CARD (MATCHING PAYMENT SCREEN)
-                    _cardContainer(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          /// HEADER
-                          _gradientHeader(
-                            title: "Delivery Address",
-                            icon: Icons.location_on_outlined,
-                          ),
-
-                          /// FIELDS
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-
-                                _Field(
-                                  controller: nameCtrl,
-                                  label: "Full Name",
-                                  hint: "Enter full name",
-                                  icon: Icons.person_outline,
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                _Field(
-                                  controller: phoneCtrl,
-                                  label: "Phone",
-                                  hint: "10 digit number",
-                                  icon: Icons.phone_android,
-                                  keyboardType: TextInputType.phone,
-                                  maxLength: 10,
-                                  digitsOnly: true,
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                _Field(
-                                  controller: addressCtrl,
-                                  label: "Address",
-                                  hint: "House / Street / Area",
-                                  icon: Icons.home_outlined,
-                                  maxLines: 2,
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _Field(
-                                        controller: cityCtrl,
-                                        label: "City",
-                                        hint: "City",
-                                        icon: Icons.location_city,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _Field(
-                                        controller: stateCtrl,
-                                        label: "State",
-                                        hint: "MH, DL...",
-                                        icon: Icons.map_outlined,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 14),
-
-                                _Field(
-                                  controller: postalCtrl,
-                                  label: "PIN Code",
-                                  hint: "6 digit code",
-                                  icon: Icons.pin_drop_outlined,
-                                  keyboardType: TextInputType.number,
-                                  maxLength: 6,
-                                  digitsOnly: true,
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                /// DEFAULT SWITCH
-                                Row(
-                                  children: [
-                                    const Icon(Icons.star_border),
-                                    const SizedBox(width: 10),
-                                    const Expanded(
-                                      child: Text(
-                                        "Set as default address",
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                    ),
-                                    Switch(
-                                      value: isDefault,
-                                      onChanged: (v) =>
-                                          setState(() => isDefault = v),
-                                    )
-                                  ],
-                                ),
-                              ],
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+                  child: Column(
+                    children: [
+                      /// 📦 ADDRESS CARD (MATCHING PAYMENT SCREEN)
+                      _cardContainer(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /// HEADER
+                            _gradientHeader(
+                              title: "Delivery Address",
+                              icon: Icons.location_on_outlined,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
 
-                    const SizedBox(height: 100),
-                  ],
+                            /// FIELDS
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  _Field(
+                                    controller: nameCtrl,
+                                    label: "Full Name",
+                                    hint: "Enter full name",
+                                    icon: Icons.person_outline,
+                                    validator: Validators.name,
+                                  ),
+
+                                  const SizedBox(height: 14),
+
+                                  _Field(
+                                    controller: phoneCtrl,
+                                    label: "Phone",
+                                    hint: "10 digit number",
+                                    icon: Icons.phone_android,
+                                    keyboardType: TextInputType.phone,
+                                    maxLength: 10,
+                                    digitsOnly: true,
+                                    validator: (v) {
+                                      final value = v?.trim() ?? '';
+                                      if (value.isEmpty) {
+                                        return 'Phone number is required';
+                                      }
+                                      if (value.length != 10) {
+                                        return 'Enter a valid 10 digit number';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+
+                                  const SizedBox(height: 14),
+
+                                  _Field(
+                                    controller: addressCtrl,
+                                    label: "Address",
+                                    hint: "House / Street / Area",
+                                    icon: Icons.home_outlined,
+                                    maxLines: 2,
+                                    validator: (v) => Validators.required(
+                                      v,
+                                      fieldName: 'Address',
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 14),
+
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _Field(
+                                          controller: cityCtrl,
+                                          label: "City",
+                                          hint: "City",
+                                          icon: Icons.location_city,
+                                          validator: (v) => Validators.required(
+                                            v,
+                                            fieldName: 'City',
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: _Field(
+                                          controller: stateCtrl,
+                                          label: "State",
+                                          hint: "MH, DL...",
+                                          icon: Icons.map_outlined,
+                                          lettersOnly: true,
+                                          validator: (v) {
+                                            final value = v?.trim() ?? '';
+                                            if (value.isEmpty) {
+                                              return 'State is required';
+                                            }
+                                            if (RegExp(
+                                              r'[0-9]',
+                                            ).hasMatch(value)) {
+                                              return 'State cannot contain numbers';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 14),
+
+                                  _Field(
+                                    controller: postalCtrl,
+                                    label: "PIN Code",
+                                    hint: "6 digit code",
+                                    icon: Icons.pin_drop_outlined,
+                                    keyboardType: TextInputType.number,
+                                    maxLength: 6,
+                                    digitsOnly: true,
+                                    validator: (v) {
+                                      final value = v?.trim() ?? '';
+                                      if (value.isEmpty) {
+                                        return 'PIN code is required';
+                                      }
+                                      if (value.length != 6) {
+                                        return 'Enter a valid 6 digit PIN code';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+
+                                  const SizedBox(height: 16),
+
+                                  /// DEFAULT SWITCH
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.star_border),
+                                      const SizedBox(width: 10),
+                                      const Expanded(
+                                        child: Text(
+                                          "Set as default address",
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                      ),
+                                      Switch(
+                                        value: isDefault,
+                                        onChanged: (v) =>
+                                            setState(() => isDefault = v),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -338,6 +423,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
             _bottomButton(context),
           ],
         ),
+      ),
       ),
     );
   }
@@ -376,9 +462,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
           const SizedBox(width: 10),
           Text(
             title,
-            style: AppTextStyles.titleMedium.copyWith(
-              color: Colors.white,
-            ),
+            style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
           ),
         ],
       ),
@@ -386,55 +470,57 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
   }
 
   /// 🔹 SUBMIT BUTTON
-Widget _bottomButton(BuildContext context) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: ThemeColors.white,
-      boxShadow: [
-        BoxShadow(
-          color: ThemeColors.ink.withValues(alpha: 0.05),
-          blurRadius: 10,
-        )
-      ],
-    ),
-    child: SafeArea(
-      child: GestureDetector(
-        onTap: _submit,
-        child: Container(
-          height: 54,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color(0xFF1A1D4E), // same as header
-                Color(0xFF2B2FA8),
+  Widget _bottomButton(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ThemeColors.white,
+        boxShadow: [
+          BoxShadow(
+            color: ThemeColors.ink.withValues(alpha: 0.05),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: GestureDetector(
+          onTap: _submit,
+          child: Container(
+            height: 54,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF1A1D4E), // same as header
+                  Color(0xFF2B2FA8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: ThemeColors.blue.withValues(alpha: 0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
               ],
             ),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: ThemeColors.blue.withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+            alignment: Alignment.center,
+            child: Text(
+              isEdit ? "Update Address" : "Save Address",
+              style: AppTextStyles.titleMedium.copyWith(
+                color: ThemeColors.white,
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            isEdit ? "Update Address" : "Save Address",
-            style: AppTextStyles.titleMedium.copyWith(
-              color: ThemeColors.white,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     final address = AddressEntity(
       id: widget.existingAddress?.id ?? "",
       fullName: nameCtrl.text.trim(),
@@ -451,9 +537,9 @@ Widget _bottomButton(BuildContext context) {
 
     if (isEdit) {
       context.read<AddressCubit>().updateAddressDetails(
-            widget.existingAddress!.id,
-            address,
-          );
+        widget.existingAddress!.id,
+        address,
+      );
     } else {
       context.read<AddressCubit>().submitNewAddress(address);
     }
@@ -471,6 +557,8 @@ class _Field extends StatelessWidget {
   final int? maxLength;
   final TextInputType? keyboardType;
   final bool digitsOnly;
+  final bool lettersOnly;
+  final String? Function(String?)? validator;
 
   const _Field({
     required this.controller,
@@ -481,6 +569,8 @@ class _Field extends StatelessWidget {
     this.maxLength,
     this.keyboardType,
     this.digitsOnly = false,
+    this.lettersOnly = false,
+    this.validator,
   });
 
   @override
@@ -502,8 +592,11 @@ class _Field extends StatelessWidget {
           maxLines: maxLines,
           maxLength: maxLength,
           keyboardType: keyboardType,
+          validator: validator,
           inputFormatters: digitsOnly
               ? [FilteringTextInputFormatter.digitsOnly]
+              : lettersOnly
+              ? [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))]
               : [],
           decoration: InputDecoration(
             hintText: hint,
@@ -512,8 +605,10 @@ class _Field extends StatelessWidget {
             filled: true,
             fillColor: const Color(0xFFF7F9FC),
 
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 14,
+            ),
 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -531,10 +626,7 @@ class _Field extends StatelessWidget {
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: ThemeColors.blue,
-                width: 1.5,
-              ),
+              borderSide: BorderSide(color: ThemeColors.blue, width: 1.5),
             ),
           ),
         ),

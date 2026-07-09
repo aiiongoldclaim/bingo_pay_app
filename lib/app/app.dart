@@ -7,7 +7,7 @@ import '../core/network/connectivity_service.dart';
 import '../core/router/app_router.dart';
 import '../core/router/route_guard.dart';
 import '../core/theme/app_theme.dart';
-import '../core/widgets/app_snackbar.dart';
+import '../core/widgets/no_internet_screen.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
@@ -27,7 +27,6 @@ class _AppState extends State<App> {
   final _connectivity = getIt<ConnectivityService>();
   final _cartCubit = getIt<CartCubit>();
   bool _authDetermined = false;
-  bool? _wasConnected;
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
     if (state is AuthLoading) {
@@ -73,22 +72,22 @@ class _AppState extends State<App> {
                 return MaterialApp.router(
                   title: 'Bingo Pay',
                   theme: AppTheme.light,
+                  themeMode: ThemeMode.light,
                   debugShowCheckedModeBanner: false,
                   darkTheme: AppTheme.dark,
                   routerConfig: _router.router,
                   builder: (context, child) {
-                    if (_wasConnected != isConnected) {
-                      _wasConnected = isConnected;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (!context.mounted) return;
-                        if (isConnected) {
-                          ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                        } else {
-                          AppSnackbar.showOfflineBanner(context);
-                        }
-                      });
-                    }
-                    return child ?? const SizedBox.shrink();
+                    // Stacked above the entire app (every screen, dialog,
+                    // and route) so losing connectivity blocks interaction
+                    // everywhere, not just on the screen it happened on.
+                    // It clears itself the instant isConnected flips back
+                    // to true — no manual retry needed.
+                    return Stack(
+                      children: [
+                        child ?? const SizedBox.shrink(),
+                        if (!isConnected) const NoInternetScreen(),
+                      ],
+                    );
                   },
                 );
               },

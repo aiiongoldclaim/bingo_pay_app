@@ -158,6 +158,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     AppTextField(
                                       controller: _emailController,
                                       label: 'Email',
+                                      isRequired: true,
+                                      hint: 'Enter your email',
                                       keyboardType:
                                           TextInputType.emailAddress,
                                       validator: Validators.email,
@@ -191,7 +193,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                         TextButton(
                                           onPressed: () => Navigator.of(context).pop(),
                                           child: Text(
-                                            'Back to login',
+                                            'Back to Sign In',
                                             style: TextStyle(
                                               color: ThemeColors.blue,
                                               fontWeight: FontWeight.w600,

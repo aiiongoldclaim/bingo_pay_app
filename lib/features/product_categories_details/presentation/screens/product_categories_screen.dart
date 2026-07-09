@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
+import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
@@ -122,9 +123,12 @@ class _ProductListingView extends StatelessWidget {
                       ),
 
                       if (state.filteredProducts.isEmpty)
-                        const SliverFillRemaining(
-                          child: Center(
-                            child: Text('No products match your filters.'),
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _EmptyProductsState(
+                            hasActiveFilters: state.selectedPriceFilter != null ||
+                                state.selectedRatingFilter != null,
+                            onClearFilters: cubit.clearFilters,
                           ),
                         )
                       else if (state.viewMode == ViewMode.grid)
@@ -215,6 +219,73 @@ class _ProductListingView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _EmptyProductsState extends StatelessWidget {
+  const _EmptyProductsState({
+    required this.hasActiveFilters,
+    this.onClearFilters,
+  });
+
+  final bool hasActiveFilters;
+  final VoidCallback? onClearFilters;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: EdgeInsets.all(5.w),
+              decoration: const BoxDecoration(
+                color: ThemeColors.blueSoft,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasActiveFilters
+                    ? Icons.filter_alt_off_outlined
+                    : Icons.inventory_2_outlined,
+                size: 32,
+                color: ThemeColors.blue,
+              ),
+            ),
+            SizedBox(height: 2.h),
+            Text(
+              hasActiveFilters ? 'No matching products' : 'No products yet',
+              style: AppTextStyles.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 1.h),
+            Text(
+              hasActiveFilters
+                  ? 'Try adjusting or clearing your filters to see more results.'
+                  : 'This category is currently empty. Check back later for new arrivals.',
+              style: AppTextStyles.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            if (hasActiveFilters && onClearFilters != null) ...[
+              SizedBox(height: 2.5.h),
+              OutlinedButton(
+                onPressed: onClearFilters,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ThemeColors.blue,
+                  side: const BorderSide(color: ThemeColors.blue),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.2.h),
+                ),
+                child: const Text('Clear filters'),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

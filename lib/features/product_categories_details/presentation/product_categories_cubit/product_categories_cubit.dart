@@ -190,6 +190,18 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     emit(s.copyWith(filteredProducts: filtered, selectedRatingFilter: label));
   }
 
+  void clearFilters() {
+    final s = state;
+    if (s is! ProductListingLoaded) return;
+    emit(
+      s.copyWith(
+        filteredProducts: s.products,
+        clearPriceFilter: true,
+        clearRatingFilter: true,
+      ),
+    );
+  }
+
   void toggleFavourite(String productId) {
     final s = state;
     if (s is! ProductListingLoaded) return;

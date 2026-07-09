@@ -649,6 +649,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     controller:
                                         _fullNameController,
                                     label: 'Full Name',
+                                    isRequired: true,
+                                    hint: 'Enter your full name',
                                     validator: Validators.name,
                                     prefixIcon: const Icon(
                                         Icons.person_outline),
@@ -662,6 +664,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     controller:
                                         _emailController,
                                     label: 'Email',
+                                    isRequired: true,
+                                    hint: 'Enter your email',
                                     keyboardType:
                                         TextInputType.emailAddress,
                                     validator: Validators.email,
@@ -773,6 +777,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       
                         AppTextField(
               label: "Phone Number",
+              isRequired: true,
               hint: "Enter Phone Number",
               controller: _phoneController,
               keyboardType: TextInputType.phone,
@@ -839,6 +844,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     controller:
                                         _passwordController,
                                     label: 'Password',
+                                    isRequired: true,
+                                    hint: 'Create a password',
                                     obscureText:
                                         _obscurePassword,
                                     validator:
@@ -873,6 +880,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         _confirmPasswordController,
                                     label:
                                         'Confirm Password',
+                                    isRequired: true,
+                                    hint: 'Re-enter your password',
                                     obscureText:
                                         _obscureConfirm,
                                     inputFormatters: [

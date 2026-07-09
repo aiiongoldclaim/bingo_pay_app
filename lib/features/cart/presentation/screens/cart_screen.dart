@@ -116,6 +116,7 @@ class _CartPageState extends State<CartPage> {
 
                                 CartItemsCard(
                                   items: state.items,
+                                  pendingItemIds: state.pendingItemIds,
                                   onIncrease: cubit.increaseQuantity,
                                   onDecrease: cubit.decreaseQuantity,
                                   onDelete: (item) => cubit.removeItem(item.id),

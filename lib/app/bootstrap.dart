@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_flavor/flutter_flavor.dart';
@@ -8,6 +9,12 @@ import 'app_bloc_observer.dart';
 
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Lock to portrait regardless of the device's rotation-lock setting or
+  // physical orientation — the app has no landscape layouts.
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   await configureDependencies(FlavorConfig.instance.name ?? 'prod');
   Bloc.observer = AppBlocObserver();
   runApp(

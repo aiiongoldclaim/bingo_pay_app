@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/error/error_handler.dart';
 import '../../domain/entities/address_entity.dart';
 import '../../domain/repositories/address_respository.dart';
 import 'address_state.dart';
@@ -11,6 +13,20 @@ class AddressCubit extends Cubit<AddressState> {
 
   AddressCubit(this.repository) : super(AddressInitial());
 
+  // The repository throws the raw exception from the API layer (DioException
+  // wrapping a ServerException/AuthException/etc via ErrorInterceptor).
+  // Unwrap it with the same ErrorHandler the rest of the app uses so the
+  // real reason (e.g. "Address not found", "Unauthorized") reaches the UI
+  // instead of always showing the same generic fallback string.
+  String _describe(Object error, String fallback) {
+    if (error is Exception) {
+      final message = ErrorHandler.mapExceptionToFailure(error).message;
+      if (message.isNotEmpty) return message;
+    }
+    debugPrint('AddressCubit error: $error');
+    return fallback;
+  }
+
   Future<void> loadUserAddresses() async {
     emit(AddressLoading());
 
@@ -18,7 +34,7 @@ class AddressCubit extends Cubit<AddressState> {
       final addresses = await repository.fetchAllAddresses();
       emit(AddressListLoaded(addresses));
     } catch (e) {
-      emit(AddressError("Failed to load addresses"));
+      emit(AddressError(_describe(e, "Failed to load addresses")));
     }
   }
 
@@ -29,7 +45,7 @@ class AddressCubit extends Cubit<AddressState> {
       await repository.createNewAddress(address);
       await loadUserAddresses();
     } catch (e) {
-      emit(AddressError("Failed to add address"));
+      emit(AddressError(_describe(e, "Failed to add address")));
     }
   }
 
@@ -43,7 +59,7 @@ class AddressCubit extends Cubit<AddressState> {
       await repository.updateExistingAddress(addressId, address);
       await loadUserAddresses();
     } catch (e) {
-      emit(AddressError("Failed to update address"));
+      emit(AddressError(_describe(e, "Failed to update address")));
     }
   }
 
@@ -54,7 +70,7 @@ class AddressCubit extends Cubit<AddressState> {
       await repository.deleteAddressById(addressId);
       await loadUserAddresses();
     } catch (e) {
-      emit(AddressError("Failed to delete address"));
+      emit(AddressError(_describe(e, "Failed to delete address")));
     }
   }
 }

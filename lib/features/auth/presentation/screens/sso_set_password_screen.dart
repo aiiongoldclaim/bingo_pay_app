@@ -168,6 +168,8 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                         AppTextField(
                           controller: _passwordController,
                           label: 'New Password',
+                          isRequired: true,
+                          hint: 'Create a password',
                           obscureText: _obscurePassword,
                           validator: Validators.password,
                           onChanged: (_) => setState(() {}),
@@ -195,6 +197,8 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                         AppTextField(
                           controller: _confirmPasswordController,
                           label: 'Confirm Password',
+                          isRequired: true,
+                          hint: 'Re-enter your password',
                           obscureText: _obscureConfirm,
                           validator: (v) => Validators.confirmPassword(
                             v,
