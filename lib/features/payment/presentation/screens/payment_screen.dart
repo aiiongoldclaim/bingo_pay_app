@@ -1971,13 +1971,7 @@ class _CartSummaryBanner extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                total,
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: ThemeColors.blue,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              
             ],
           ),
           const SizedBox(height: 8),
@@ -2006,6 +2000,36 @@ class _CartSummaryBanner extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+          SizedBox(height: 8),
+          Divider(color: ThemeColors.ink.withValues(alpha: 0.2), thickness: 1),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  // Icon(
+                  //   Icons.wallet_outlined,
+                  //   size: 18,
+                  //   color: ThemeColors.blue,
+                  // ),
+                  const SizedBox(width: 26),
+                  Text(
+                    'Total: ',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: ThemeColors.ink,
+                    )
+                  ),
+                ],
+              ),
+              Text(
+                    total,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      color: ThemeColors.blue,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+            ],
           ),
         ],
       ),

@@ -226,7 +226,7 @@ class CartItemTile extends StatelessWidget {
                     const Spacer(),
                     // Quantity controls
                     Container(
-                      height: 4.5.h,
+                      height: 4.h,
                       decoration: BoxDecoration(
                         color: const Color(0xFF1A1D4E),
                         borderRadius: BorderRadius.circular(14),

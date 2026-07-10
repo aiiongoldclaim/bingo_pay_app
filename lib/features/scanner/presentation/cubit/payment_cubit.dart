@@ -49,6 +49,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/error_handler.dart';
+import '../../../../core/utils/logger.dart';
 import '../../domain/usecases/process_payment_usecase.dart';
 import 'payment_state.dart';
 
@@ -64,12 +65,12 @@ class PaymentCubit extends Cubit<PaymentState> {
     required double amount,
     required String reference,
   }) async {
-    print("============ PAYMENT CUBIT ============");
+    AppLogger.log("============ PAYMENT CUBIT ============");
 
-    print(customerEmail);
-    print(merchantEmail);
-    print(amount);
-    print(reference);
+    AppLogger.log(customerEmail);
+    AppLogger.log(merchantEmail);
+    AppLogger.log(amount.toString());
+    AppLogger.log(reference);
 
     try {
       emit(PaymentLoading());
@@ -81,11 +82,11 @@ class PaymentCubit extends Cubit<PaymentState> {
         reference: reference,
       );
 
-      print("Payment Success");
+      AppLogger.log("Payment Success");
 
       emit(PaymentSuccess());
     } catch (e) {
-      print(e);
+      AppLogger.logError("Payment failed", e);
 
       if (e is Exception) {
         final failure = ErrorHandler.mapExceptionToFailure(e);

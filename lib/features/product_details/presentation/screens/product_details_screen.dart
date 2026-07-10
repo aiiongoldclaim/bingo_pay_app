@@ -41,7 +41,11 @@ class ProductDetailScreen extends StatelessWidget {
           final data = state as ProductDetailLoaded;
           final product = state.product;
           final wishlist = context.watch<WishlistCubit>();
+          final cartState = context.watch<CartCubit>();
           final isOutOfStock = product.availableStock <= 0;
+          final isInCart = cartState.state.items.any(
+            (item) => item.variant.uuid == product.variantUuid,
+          );
 
           return Column(
             children: [
@@ -82,7 +86,14 @@ class ProductDetailScreen extends StatelessWidget {
                       SizedBox(height: 1.h),
 
                       /// PRODUCT INFO
-                      ProductInfoSection(product: product),
+                      ProductInfoSection(
+                        product: product,
+                        quantity: data.quantity,
+                        onIncrementQuantity: () =>
+                            context.read<ProductDetailCubit>().incrementQuantity(),
+                        onDecrementQuantity: () =>
+                            context.read<ProductDetailCubit>().decrementQuantity(),
+                      ),
 
                       /// COLORS
                       ProductColorSection(
@@ -114,55 +125,6 @@ class ProductDetailScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                     ],
                   ),
-                ),
-              ),
-
-              /// QUANTITY SELECTOR
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-                child: Row(
-                  children: [
-                    Text(
-                      'Quantity',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        color: ThemeColors.black,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1A1D4E),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () => context
-                                .read<ProductDetailCubit>()
-                                .decrementQuantity(),
-                            icon: const Icon(Icons.remove, color: Colors.white),
-                          ),
-                          Text(
-                            '${data.quantity}',
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => context
-                                .read<ProductDetailCubit>()
-                                .incrementQuantity(),
-                            icon: const Icon(Icons.add, color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ),
               ),
 
@@ -208,11 +170,16 @@ class ProductDetailScreen extends StatelessWidget {
                         },
                   secondaryTextColor: ThemeColors.black,
                   secondaryIconColor: ThemeColors.black,
-                  secondaryLabel: 'Add Cart',
+                  secondaryLabel: isInCart ? 'Go to Cart' : 'Add Cart',
                   secondaryIcon: Icons.shopping_bag_outlined,
                   onSecondaryPressed: isOutOfStock
                       ? null
                       : () async {
+                          if (isInCart) {
+                            context.push(AppRoutes.cart);
+                            return;
+                          }
+
                           final variantUuid = product.variantUuid;
                           if (variantUuid == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -227,20 +194,6 @@ class ProductDetailScreen extends StatelessWidget {
                           }
 
                           final cartCubit = context.read<CartCubit>();
-                          // CartCubit is kept warm from app start (loaded once on
-                          // auth) and refreshed after every add/remove, so this
-                          // reflects the real cart without an extra round-trip here.
-                          final alreadyInCart = cartCubit.state.items.any(
-                            (item) => item.variant.uuid == variantUuid,
-                          );
-                          if (alreadyInCart) {
-                            AppSnackbar.showWarning(
-                              context,
-                              '${product.productName} is already in your cart',
-                            );
-                            return;
-                          }
-
                           await cartCubit.addItem(
                             variantUuid: variantUuid,
                             quantity: data.quantity,

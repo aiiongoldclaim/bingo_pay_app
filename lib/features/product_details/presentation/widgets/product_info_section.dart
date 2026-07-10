@@ -9,8 +9,17 @@ import '../../data/models/product_details_model.dart';
 
 class ProductInfoSection extends StatelessWidget {
   final ProductDetailModel product;
+  final int quantity;
+  final VoidCallback onIncrementQuantity;
+  final VoidCallback onDecrementQuantity;
 
-  const ProductInfoSection({super.key, required this.product});
+  const ProductInfoSection({
+    super.key,
+    required this.product,
+    required this.quantity,
+    required this.onIncrementQuantity,
+    required this.onDecrementQuantity,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +41,7 @@ class ProductInfoSection extends StatelessWidget {
                   fontSize: 16.sp,
                 ),
               ),
+              if(product.rating.isNotEmpty && product.reviewCount.isNotEmpty && product.rating != "0.0" && product.reviewCount != "0")
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: .2.h),
                 decoration: BoxDecoration(
@@ -49,7 +59,7 @@ class ProductInfoSection extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      " • ${product.reviewCount}",
+                      " • (${product.reviewCount} reviews)",
                       style: AppTextStyles.labelLarge.copyWith(
                         color: ThemeColors.white,
                       ),
@@ -68,58 +78,96 @@ class ProductInfoSection extends StatelessWidget {
             ),
           ),
 
-          if (product.availableStock <= 0)
-            Padding(
-              padding: EdgeInsets.only(top: .6.h),
-              child: _StockPill(
-                icon: Icons.error_outline_rounded,
-                label: 'Out of Stock',
-                color: ThemeColors.red,
-              ),
-            )
-          else if (product.availableStock <= 3)
-            Padding(
-              padding: EdgeInsets.only(top: .6.h),
-              child: _StockPill(
-                icon: Icons.local_fire_department_rounded,
-                label: 'Only ${product.availableStock} left',
-                color: ThemeColors.amber,
-              ),
-            ),
-
           Row(
             children: [
-              Text(
-                '${product.price}',
-                style: AppTextStyles.headlineMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-
-              SizedBox(width: 2.w),
-
-              Text(
-                '${product.oldPrice}',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  decoration: TextDecoration.lineThrough,
-                  color: ThemeColors.inkDim,
-                ),
-              ),
-
-              SizedBox(width: 2.w),
-
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: .3.h),
-                decoration: BoxDecoration(
-                  color: ThemeColors.greenSoft,
-                  borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-                ),
-                child: Text(
-                  '${product.discount}% OFF',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: ThemeColors.green,
-                    fontWeight: FontWeight.bold,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (product.availableStock <= 0)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: .6.h),
+                      child: _StockPill(
+                        icon: Icons.error_outline_rounded,
+                        label: 'Out of Stock',
+                        color: ThemeColors.red,
+                      ),
+                    )
+                  else if (product.availableStock <= 3)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: .6.h),
+                      child: _StockPill(
+                        icon: Icons.local_fire_department_rounded,
+                        label: 'Only ${product.availableStock} left',
+                        color: ThemeColors.amber,
+                      ),
+                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '${product.price}',
+                        style: AppTextStyles.headlineMedium.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      Text(
+                        '${product.oldPrice}',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          decoration: TextDecoration.lineThrough,
+                          color: ThemeColors.inkDim,
+                        ),
+                      ),
+                      SizedBox(width: 2.w),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: .3.h),
+                        decoration: BoxDecoration(
+                          color: ThemeColors.greenSoft,
+                          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
+                        ),
+                        child: Text(
+                          '${product.discount}% OFF',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: ThemeColors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                ],
+              ),
+              const Spacer(),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1D4E),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: onDecrementQuantity,
+                      icon: const Icon(Icons.remove, color: Colors.white),
+                      iconSize: 18.sp,
+                      padding: EdgeInsets.all(0.5.h),
+                      constraints: BoxConstraints(minWidth: 3.5.h, minHeight: 2.8.h),
+                    ),
+                    Text(
+                      quantity.toString(),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: onIncrementQuantity,
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      iconSize: 18.sp,
+                      padding: EdgeInsets.all(0.5.h),
+                      constraints: BoxConstraints(minWidth: 3.5.h, minHeight: 2.8.h),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -40,6 +40,7 @@ class _BuyerDashboardScreenState extends State<BuyerDashboardScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
+          // resizeToAvoidBottomInset: false,
           body: SafeArea(
             child: state.isLoading
                 ? const Center(child: AppLoader())

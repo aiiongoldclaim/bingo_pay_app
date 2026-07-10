@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/utils/logger.dart';
 import '../repositories/payment_repository.dart';
 
 @injectable
@@ -14,18 +15,18 @@ class ProcessPaymentUseCase {
     required double amount,
     required String reference,
   }) async {
-    print("============= PROCESS PAYMENT =============");
-    print("Customer Email : $customerEmail");
-    print("Merchant Email : $merchantEmail");
-    print("Amount         : $amount");
+    AppLogger.log("============= PROCESS PAYMENT =============");
+    AppLogger.log("Customer Email : $customerEmail");
+    AppLogger.log("Merchant Email : $merchantEmail");
+    AppLogger.log("Amount         : $amount");
 
     final deductReference = "${reference}_D";
     final addReference = "${reference}_A";
 
-    print("Deduct Reference : $deductReference");
-    print("Add Reference    : $addReference");
+    AppLogger.log("Deduct Reference : $deductReference");
+    AppLogger.log("Add Reference    : $addReference");
 
-    print("============= DEDUCT API =============");
+    AppLogger.log("============= DEDUCT API =============");
 
     await _repository.deductBalance(
       email: customerEmail,
@@ -34,9 +35,9 @@ class ProcessPaymentUseCase {
       description: 'Marketplace purchase settlement',
     );
 
-    print("Deduct API Success");
+    AppLogger.log("Deduct API Success");
 
-    print("============= ADD API =============");
+    AppLogger.log("============= ADD API =============");
 
     await _repository.addBalance(
       email: merchantEmail,
@@ -45,8 +46,8 @@ class ProcessPaymentUseCase {
       description: 'Marketplace purchase settlement',
     );
 
-    print("Add API Success");
+    AppLogger.log("Add API Success");
 
-    print("============= PAYMENT COMPLETED =============");
+    AppLogger.log("============= PAYMENT COMPLETED =============");
   }
 }

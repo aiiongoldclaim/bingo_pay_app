@@ -13,11 +13,20 @@ class AddressRemoteDataSource {
 
   Future<List<AddressModel>> getAllAddresses() async {
     final response = await _client.dio.get('$baseUrl/addresses');
-    final data = response.data;
-    final addressesJson = data is Map<String, dynamic> ? data['data'] : data;
+    final responseData = response.data;
 
-    if (addressesJson is! List) {
+    if (responseData is! Map<String, dynamic>) {
       throw const FormatException('Invalid addresses response');
+    }
+
+    final dataWrapper = responseData['data'];
+    if (dataWrapper is! Map<String, dynamic>) {
+      throw const FormatException('Invalid data wrapper in addresses response');
+    }
+
+    final addressesJson = dataWrapper['data'];
+    if (addressesJson is! List) {
+      throw const FormatException('Invalid addresses list in response');
     }
 
     return addressesJson.map((e) => AddressModel.fromJson(e)).toList();

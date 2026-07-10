@@ -61,7 +61,7 @@ class _OrderDetailView extends StatelessWidget {
           context,
           'Our support team will reach out to you shortly.',
         ),
-        secondaryLabel: 'Copy Order #',
+        secondaryLabel: 'Copy Order ID',
         secondaryIcon: Icons.copy_rounded,
         onSecondaryPressed: () {
           Clipboard.setData(ClipboardData(text: order.orderNumber));
