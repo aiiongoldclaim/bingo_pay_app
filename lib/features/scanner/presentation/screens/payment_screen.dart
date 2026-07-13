@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
@@ -12,7 +11,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_text_field.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 
@@ -62,15 +60,86 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
     setState(() {
       _selectedCurrency = value;
       _amountController.text = amount.toStringAsFixed(value == "USD" ? 2 : 8);
+    });
+  }
 
-      _amountController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _amountController.text.length),
+  String get _displayName {
+    final name = widget.merchantName;
+    if (name != null && name.trim().isNotEmpty) return name.trim();
+    return _deriveNameFromEmail(widget.merchantEmail);
+  }
+
+  String _deriveNameFromEmail(String email) {
+    final namePart = email.split('@').first;
+    final words = namePart
+        .replaceAll(RegExp(r'[._\-0-9]+'), ' ')
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty);
+    if (words.isEmpty) return email;
+    return words
+        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
+        .join(' ');
+  }
+
+  String _initials(String name) {
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) {
+      return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+    }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  // ---- keypad handlers ----
+
+  void _onKeypadDigit(String digit) {
+    final next = _amountController.text + digit;
+
+    if (next.contains('.')) {
+      final decimals = next.split('.').last;
+      if (decimals.length > 2) return;
+    }
+
+    final amount = double.tryParse(next);
+    if (amount != null && amount > _maxAmount) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("You cannot fill amount more than \$100,000"),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _amountController.text = next);
+  }
+
+  void _onKeypadDecimal() {
+    if (_amountController.text.contains('.')) return;
+    setState(() {
+      _amountController.text = _amountController.text.isEmpty
+          ? "0."
+          : "${_amountController.text}.";
+    });
+  }
+
+  void _onKeypadBackspace() {
+    if (_amountController.text.isEmpty) return;
+    setState(() {
+      _amountController.text = _amountController.text.substring(
+        0,
+        _amountController.text.length - 1,
       );
     });
   }
 
   Future<void> _pay() async {
     final customerEmail = await getIt<SecureStorageService>().getEmail();
+    if (!mounted) return;
 
     if (customerEmail == null) {
       ScaffoldMessenger.of(
@@ -124,7 +193,7 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
           context.push(
             AppRoutes.transferSuccess,
             extra: {
-              "merchantName": widget.merchantName,
+              "merchantName": _displayName,
               "amount": double.parse(_amountController.text),
               "reference": DateTime.now().millisecondsSinceEpoch.toString(),
             },
@@ -139,13 +208,13 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
       },
       child: Scaffold(
         backgroundColor: ThemeColors.white,
-        body: Padding(
-          padding: const EdgeInsets.all(AppSizes.paddingXs),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SafeArea(
-                child: Align(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSizes.paddingXs),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     splashRadius: AppSizes.radius2Xl,
@@ -157,61 +226,63 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
-              ),
-              CircleAvatar(
-                radius: 8.w,
-                backgroundColor: AppColors.accentSoft,
-                child: Text(
-                  widget.merchantEmail.substring(0, 2).toUpperCase(),
-                  style: AppTextStyles.titleLarge.copyWith(fontSize: 18.sp),
-                ),
-              ),
 
-              SizedBox(height: 2.h),
-
-              Text(
-                widget.merchantName?.isNotEmpty == true
-                    ? widget.merchantName!
-                    : widget.merchantEmail,
-                style: AppTextStyles.headlineMedium.copyWith(fontSize: 21.sp),
-                textAlign: TextAlign.center,
-              ),
-
-              SizedBox(height: .7.h),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.verified,
-                    color: AppColors.blue,
-                    size: AppSizes.iconSm,
+                CircleAvatar(
+                  radius: 8.w,
+                  backgroundColor: AppColors.accentSoft,
+                  child: Text(
+                    _initials(_displayName),
+                    style: AppTextStyles.titleLarge.copyWith(fontSize: 18.sp),
                   ),
-                  SizedBox(width: 1.w),
-                  Text("Verified Merchant", style: AppTextStyles.bodyMedium),
-                ],
-              ),
-              SizedBox(height: 5.h),
+                ),
 
-              _amountSection(),
+                SizedBox(height: 2.h),
 
-              const Spacer(),
+                Text(
+                  _displayName,
+                  style: AppTextStyles.headlineMedium.copyWith(fontSize: 21.sp),
+                  textAlign: TextAlign.center,
+                ),
 
-              BlocBuilder<PaymentCubit, PaymentState>(
-                builder: (context, state) {
-                  final loading = state is PaymentLoading;
+                SizedBox(height: .7.h),
 
-                  return SizedBox(
-                    width: double.infinity,
-                    child: AppButton(
-                      label: loading ? "Processing..." : "Pay Now",
-                      isLoading: loading,
-                      onPressed: loading ? null : _pay,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.verified,
+                      color: AppColors.blue,
+                      size: AppSizes.iconSm,
                     ),
-                  );
-                },
-              ),
-            ],
+                    SizedBox(width: 1.w),
+                    Text("Verified Merchant", style: AppTextStyles.bodyMedium),
+                  ],
+                ),
+
+                Expanded(child: Center(child: _amountSection())),
+
+                BlocBuilder<PaymentCubit, PaymentState>(
+                  builder: (context, state) {
+                    final loading = state is PaymentLoading;
+                    final disabled = loading || _isOverLimit;
+
+                    return SizedBox(
+                      width: double.infinity,
+                      child: AppButton(
+                        label: loading ? "Processing..." : "Proceed",
+                        prefixIcon: loading ? null : Icons.verified_rounded,
+                        isLoading: loading,
+                        onPressed: disabled ? null : _pay,
+                      ),
+                    );
+                  },
+                ),
+
+                SizedBox(height: 2.h),
+
+                _keypad(),
+              ],
+            ),
           ),
         ),
       ),
@@ -219,96 +290,193 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
   }
 
   Widget _amountSection() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    final symbol = _selectedCurrency == "USD" ? "\$" : "BIGOD";
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: 45.w,
-          child: AppTextField(
-            label: "",
-            controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textAlign: TextAlign.center,
-            cursorColor: ThemeColors.ink,
-
-            style: AppTextStyles.displayLarge.copyWith(
-              fontSize: 50.sp,
-              fontWeight: FontWeight.bold,
-              color: ThemeColors.black,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 1.8.h, right: 1.w),
+              child: Text(
+                symbol,
+                style: AppTextStyles.displayLarge.copyWith(
+                  fontSize: symbol == "\$" ? 22.sp : 14.sp,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}\$')),
-            ],
-
-            onChanged: (value) {
-              final amount = double.tryParse(value);
-
-              if (amount != null && amount > _maxAmount) {
-                _amountController.text = _maxAmount.toStringAsFixed(2);
-
-                _amountController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: _amountController.text.length),
-                );
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Maximum amount is \$100,000")),
-                );
-              }
-            },
-
-            decoration: InputDecoration(
-              hintText: "0",
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  _amountController.text.isEmpty ? "0" : _amountController.text,
+                  style: AppTextStyles.displayLarge.copyWith(
+                    fontSize: 35.sp,
+                    fontWeight: FontWeight.bold,
+                    color: _amountController.text.isEmpty
+                        ? Colors.grey[400]
+                        : ThemeColors.black,
+                  ),
+                ),
+              ),
             ),
-          ),
-          // TextField(
-          //   controller: _amountController,
-          //   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          //   textAlign: TextAlign.center,
-          //   cursorColor: AppColors.black,
-          //   style: AppTextStyles.displayLarge.copyWith(
-          //     fontSize: 35.sp,
-          //     fontWeight: FontWeight.w700,
-          //     color: AppColors.black,
-          //
-          //   ),
-          //   decoration: InputDecoration(
-          //     hintText: "0",
-          //     hintStyle: AppTextStyles.displayLarge.copyWith(
-          //       fontSize: 40.sp,
-          //       fontWeight: FontWeight.w700,
-          //       color: Colors.grey.shade300,
-          //     ),
-          //     border: InputBorder.none,
-          //     enabledBorder: InputBorder.none,
-          //     focusedBorder: InputBorder.none,
-          //     isDense: true,
-          //     contentPadding: EdgeInsets.zero,
-          //   ),
-          // ),
+          ],
         ),
 
-        SizedBox(width: 3.w),
+        if (_isOverLimit)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
+            child: Text(
+              "You can only send upto \$${_maxAmount.toStringAsFixed(1)} at a time.\nPlease enter a lower amount.",
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: Colors.red,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
 
-        DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _selectedCurrency,
-            icon: const Icon(Icons.keyboard_arrow_down_rounded),
-            style: AppTextStyles.titleMedium.copyWith(color: ThemeColors.ink),
-            items: const [
-              DropdownMenuItem(value: "USD", child: Text("USD")),
-              DropdownMenuItem(value: "BIGOD", child: Text("BIGOD")),
-            ],
-            onChanged: _changeCurrency,
+        SizedBox(height: 1.5.h),
+
+        GestureDetector(
+          onTap: () =>
+              _changeCurrency(_selectedCurrency == "USD" ? "BIGOD" : "USD"),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 3.5.w, vertical: 0.7.h),
+            decoration: BoxDecoration(
+              color: AppColors.accentSoft,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _selectedCurrency,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(width: 1.5.w),
+                Icon(
+                  Icons.swap_horiz_rounded,
+                  size: 16.sp,
+                  color: AppColors.blue,
+                ),
+                SizedBox(width: 1.5.w),
+                Text(
+                  _selectedCurrency == "USD" ? "BIGOD" : "USD",
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        SizedBox(height: 0.8.h),
+
+        Text(
+          _convertedAmountLabel,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
           ),
         ),
       ],
+    );
+  }
+
+  bool get _isOverLimit {
+    final amount = double.tryParse(_amountController.text) ?? 0;
+    return amount > _maxAmount;
+  }
+
+  String get _convertedAmountLabel {
+    final amount = double.tryParse(_amountController.text) ?? 0;
+    if (_selectedCurrency == "USD") {
+      return "≈ ${(amount * _usdToBigod).toStringAsFixed(8)} BIGOD";
+    } else {
+      return "≈ \$${(amount / _usdToBigod).toStringAsFixed(2)} USD";
+    }
+  }
+
+  Widget _keypad() {
+    Widget row(List<Widget> keys) => Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.8.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: keys,
+      ),
+    );
+
+    return Column(
+      children: [
+        row([
+          _keyButton("1", onTap: () => _onKeypadDigit("1")),
+          _keyButton("2", onTap: () => _onKeypadDigit("2")),
+          _keyButton("3", onTap: () => _onKeypadDigit("3")),
+        ]),
+        row([
+          _keyButton("4", onTap: () => _onKeypadDigit("4")),
+          _keyButton("5", onTap: () => _onKeypadDigit("5")),
+          _keyButton("6", onTap: () => _onKeypadDigit("6")),
+        ]),
+        row([
+          _keyButton("7", onTap: () => _onKeypadDigit("7")),
+          _keyButton("8", onTap: () => _onKeypadDigit("8")),
+          _keyButton("9", onTap: () => _onKeypadDigit("9")),
+        ]),
+        row([
+          _keyButton(".", onTap: _onKeypadDecimal),
+          _keyButton("0", onTap: () => _onKeypadDigit("0")),
+          _keyButton(
+            "",
+            icon: Icons.backspace_outlined,
+            background: Colors.black87,
+            iconColor: Colors.white,
+            onTap: _onKeypadBackspace,
+          ),
+        ]),
+      ],
+    );
+  }
+
+  Widget _keyButton(
+    String label, {
+    required VoidCallback onTap,
+    Color background = const Color(0xFFF2F2F5),
+    Color textColor = Colors.black,
+    IconData? icon,
+    Color? iconColor,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: 20.w,
+        height: 7.h,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: icon != null
+            ? Icon(icon, color: iconColor ?? Colors.black, size: 18.sp)
+            : Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+      ),
     );
   }
 }

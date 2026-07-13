@@ -259,7 +259,7 @@ class _OrderHeader extends StatelessWidget {
               Text(
                 '${order.formattedItemsLabel()} · ${order.shortDate}',
                 style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: 13.sp,
+                  fontSize: 14.sp,
                   color: ThemeColors.inkMid,
                 ),
               ),
@@ -267,7 +267,7 @@ class _OrderHeader extends StatelessWidget {
               Text(
                 'Total',
                 style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: 12.sp,
+                  fontSize: 13.sp,
                   color: ThemeColors.inkDim,
                 ),
               ),
@@ -463,7 +463,7 @@ class _OrderItemTile extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
-                    fontSize: 13.sp,
+                    fontSize: 14.sp,
                     color: ThemeColors.inkDim,
                   ),
                 ),

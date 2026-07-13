@@ -24,6 +24,10 @@ class ErrorHandler {
           message: e.message,
           fieldErrors: e.fieldErrors,
         ),
+      RateLimitException e => RateLimitFailure(
+          message: e.message,
+          retryAfterSeconds: e.retryAfterSeconds,
+        ),
       CacheException e => CacheFailure(message: e.message),
       _ => UnknownFailure(exception.toString()),
     };

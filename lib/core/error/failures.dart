@@ -49,3 +49,15 @@ class ValidationFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure([super.message = 'An unexpected error occurred']);
 }
+
+class RateLimitFailure extends Failure {
+  final int? retryAfterSeconds;
+
+  const RateLimitFailure({
+    required String message,
+    this.retryAfterSeconds,
+  }) : super(message);
+
+  @override
+  List<Object?> get props => [message, retryAfterSeconds];
+}

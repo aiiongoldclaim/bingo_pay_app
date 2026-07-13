@@ -1117,7 +1117,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     return AppBottomActionBar(
                       primaryLabel: 'Continue to Pay',
                       secondaryLabel: 'Cancel',
-                      secondaryIcon: Icons.close,
+                      // secondaryIcon: Icons.close,
                       onPrimaryPressed: () => _onContinue(
                         context,
                         context.read<PaymentMethodCubit>(),
@@ -1513,6 +1513,7 @@ class AddressCard extends StatelessWidget {
                       Text(
                         address.phoneNumber,
                         style: AppTextStyles.bodySmall.copyWith(
+                          fontSize: 13,
                           color: ThemeColors.inkMid,
                         ),
                       ),
@@ -1520,6 +1521,7 @@ class AddressCard extends StatelessWidget {
                       Text(
                         _formatAddress(address),
                         style: AppTextStyles.bodySmall.copyWith(
+                          fontSize: 13,
                           color: ThemeColors.inkMid,
                         ),
                         maxLines: 2,

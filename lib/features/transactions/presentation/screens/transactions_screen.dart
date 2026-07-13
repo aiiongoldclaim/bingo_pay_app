@@ -104,7 +104,7 @@ class _TransactionsView extends StatelessWidget {
               child: Text(
                 '${state.all.length} ${state.all.length == 1 ? 'transaction' : 'transactions'}',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13.sp,
+                  fontSize: 14.sp,
                   color: ThemeColors.inkDim,
                   fontWeight: FontWeight.w600,
                 ),

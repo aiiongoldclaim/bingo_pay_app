@@ -64,7 +64,7 @@ class TransactionCard extends StatelessWidget {
           ],
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 11.w,
@@ -83,38 +83,14 @@ class TransactionCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          transaction.displayGateway,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.titleMedium.copyWith(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 2.5.w,
-                          vertical: 0.4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: config.bg,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          transaction.displayStatus,
-                          style: AppTextStyles.labelSmall.copyWith(
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w700,
-                            color: config.text,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    transaction.displayGateway,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.titleMedium.copyWith(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: 0.5.h),
                   Text(
@@ -124,7 +100,7 @@ class TransactionCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       color: ThemeColors.inkDim,
                     ),
                   ),
@@ -132,14 +108,42 @@ class TransactionCard extends StatelessWidget {
               ),
             ),
 
-            SizedBox(width: 2.w),
+            SizedBox(width: 3.w),
 
-            Text(
-              transaction.formattedAmount,
-              style: AppTextStyles.titleMedium.copyWith(
-                fontSize: 15.sp,
-                fontWeight: FontWeight.bold,
-              ),
+            /// Amount stacked above the status pill, both right-aligned —
+            /// keeps the badge from colliding with the amount and gives the
+            /// row a clean, balanced trailing edge.
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  transaction.formattedAmount,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 0.8.h),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.5.w,
+                    vertical: 0.4.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: config.bg,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    transaction.displayStatus,
+                    style: AppTextStyles.labelSmall.copyWith(
+                      fontSize: 12.5.sp,
+                      fontWeight: FontWeight.w700,
+                      color: config.text,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

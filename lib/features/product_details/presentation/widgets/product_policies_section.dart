@@ -75,7 +75,7 @@ class ProductPoliciesSection extends StatelessWidget {
               Text(
                 subtitle,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13.sp,
+                  fontSize: 14.sp,
                   color: ThemeColors.inkDim,
                 ),
               ),

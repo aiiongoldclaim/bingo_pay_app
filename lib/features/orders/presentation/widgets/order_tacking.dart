@@ -134,7 +134,7 @@ class _TrackingStepRow extends StatelessWidget {
                   Text(
                     step.subtitle,
                     style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       color: ThemeColors.inkDim,
                     ),
                   ),

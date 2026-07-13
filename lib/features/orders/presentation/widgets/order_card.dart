@@ -111,7 +111,7 @@ class OrderCard extends StatelessWidget {
                   child: Text(
                     order.displayPaymentMethod,
                     style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       color: ThemeColors.inkMid,
                       fontWeight: FontWeight.w600,
                     ),

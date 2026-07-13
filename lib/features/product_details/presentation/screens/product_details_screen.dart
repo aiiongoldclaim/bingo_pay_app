@@ -89,8 +89,18 @@ class ProductDetailScreen extends StatelessWidget {
                       ProductInfoSection(
                         product: product,
                         quantity: data.quantity,
-                        onIncrementQuantity: () =>
-                            context.read<ProductDetailCubit>().incrementQuantity(),
+                        onIncrementQuantity: () {
+                          if (data.quantity >= product.availableStock) {
+                            AppSnackbar.showWarning(
+                              context,
+                              'Should not more quantity than available stock',
+                            );
+                            return;
+                          }
+                          context
+                              .read<ProductDetailCubit>()
+                              .incrementQuantity();
+                        },
                         onDecrementQuantity: () =>
                             context.read<ProductDetailCubit>().decrementQuantity(),
                       ),

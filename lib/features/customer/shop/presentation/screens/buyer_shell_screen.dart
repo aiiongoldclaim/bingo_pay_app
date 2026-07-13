@@ -195,13 +195,13 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
         child: widget.child,
       ),
 
-      // ── Floating QR button (replaces the old Positioned one) ────────────
-      floatingActionButton: hideNav
-          ? null
-          : QrFab(
-              selected: _selectedIndex == 2,
-              onTap: () => _onTap(context, 2),
-            ),
+      // // ── Floating QR button (replaces the old Positioned one) ────────────
+      // floatingActionButton: hideNav
+      //     ? null
+      //     : QrFab(
+      //         selected: _selectedIndex == 2,
+      //         onTap: () => _onTap(context, 2),
+      //       ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.centerDocked, // ← sits in the gap
       // ── Glass bottom nav ─────────────────────────────────────────────────

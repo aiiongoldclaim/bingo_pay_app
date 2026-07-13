@@ -172,7 +172,6 @@
 //   }
 // }
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -188,6 +187,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/helpers/email_qr_code.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -337,11 +337,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
       _isScanned = false;
     } catch (_) {
-      _isScanned = false;
+      if (!mounted) return;
 
-      // ScaffoldMessenger.of(
-      //   context,
-      // ).showSnackBar(const SnackBar(content: Text("Invalid QR Code")));
+      AppSnackbar.showError(
+        context,
+        "Invalid QR code. Please scan a valid Bingo Vender's payment QR.",
+      );
+
+      // Guard against instant re-triggering while the error snackbar is up
+      // (e.g. the live camera keeps decoding the same bad QR frame-by-frame).
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) _isScanned = false;
     }
   }
 

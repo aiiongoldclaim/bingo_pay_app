@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/error/error_handler.dart';
 import '../../data/models/product_categories_model.dart';
 import 'product_categories_state.dart';
 
@@ -42,7 +43,10 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         ),
       );
     } catch (e) {
-      emit(ProductListingError(e.toString()));
+      final errorMessage = e is Exception
+          ? ErrorHandler.mapExceptionToFailure(e).message
+          : e.toString();
+      emit(ProductListingError(errorMessage));
     }
   }
 
