@@ -22,6 +22,7 @@ class OrderModel {
   // Only populated by the order-detail endpoint (GET /orders/{id}) — the
   // list endpoint (GET /orders) returns order summaries with no line items.
   final List<OrderItemModel> items;
+  final OrderTrackingModel? tracking;
 
   const OrderModel({
     required this.id,
@@ -43,10 +44,12 @@ class OrderModel {
     this.deliveredAt,
     this.cancelledAt,
     this.items = const [],
+    this.tracking,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final rawItems = json['items'] as List<dynamic>?;
+    final trackingData = _asMap(json['tracking']);
     return OrderModel(
       id: json['id']?.toString() ?? '',
       uuid: json['uuid'] as String? ?? '',
@@ -71,6 +74,7 @@ class OrderModel {
           : rawItems
                 .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
                 .toList(),
+      tracking: trackingData != null ? OrderTrackingModel.fromJson(trackingData) : null,
     );
   }
 
@@ -254,6 +258,45 @@ class OrderItemModel {
       if ((size ?? '').isNotEmpty) 'Size $size',
     ];
     return parts.join(' · ');
+  }
+}
+
+class OrderTrackingModel {
+  final String currentStatus;
+  final List<OrderTrackingStepModel> timeline;
+
+  const OrderTrackingModel({
+    required this.currentStatus,
+    required this.timeline,
+  });
+
+  factory OrderTrackingModel.fromJson(Map<String, dynamic> json) {
+    final rawTimeline = json['timeline'] as List<dynamic>?;
+    return OrderTrackingModel(
+      currentStatus: (json['currentStatus'] as String?) ?? 'PENDING',
+      timeline: rawTimeline == null
+          ? const []
+          : rawTimeline
+                .map((e) => OrderTrackingStepModel.fromJson(e as Map<String, dynamic>))
+                .toList(),
+    );
+  }
+}
+
+class OrderTrackingStepModel {
+  final String status;
+  final bool completed;
+
+  const OrderTrackingStepModel({
+    required this.status,
+    required this.completed,
+  });
+
+  factory OrderTrackingStepModel.fromJson(Map<String, dynamic> json) {
+    return OrderTrackingStepModel(
+      status: (json['status'] as String?) ?? '',
+      completed: (json['completed'] as bool?) ?? false,
+    );
   }
 }
 

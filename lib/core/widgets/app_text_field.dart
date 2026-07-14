@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sizer/sizer.dart';
 
 import '../theme/theme_colors.dart';
 
@@ -86,6 +87,10 @@ class AppTextField extends StatelessWidget {
           maxLines: obscureText ? 1 : maxLines,
           decoration: InputDecoration(
             hintText: hint,
+            hintStyle:  TextStyle(
+              fontSize: 14.sp,
+              color: ThemeColors.inkMid,
+            ),
             suffixIcon: suffixIcon,
             prefixIcon: prefixIcon,
           ),

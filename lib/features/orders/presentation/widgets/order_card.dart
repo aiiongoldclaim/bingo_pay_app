@@ -82,8 +82,8 @@ class OrderCard extends StatelessWidget {
                       Text(
                         '${order.shortDate} · ${order.formattedItemsLabel()}',
                         style: AppTextStyles.bodySmall.copyWith(
-                          fontSize: 13.sp,
-                          color: ThemeColors.inkDim,
+                          fontSize: 13.5.sp,
+                          color: ThemeColors.inkMid
                         ),
                       ),
                     ],

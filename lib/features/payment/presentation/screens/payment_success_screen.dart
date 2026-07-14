@@ -48,7 +48,8 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
         return PopScope(
           canPop: false,
           child: Scaffold(
-            backgroundColor: const Color(0xFF1A1D4E),
+            // backgroundColor: const Color(0xFF1A1D4E),
+            backgroundColor: const Color(0xFF2B2FA8),
             bottomNavigationBar: AppBottomActionBar(
               primaryLabel: 'Go to Home',
               secondaryLabel: _generatingPdf ? 'Generating…' : 'Invoice',

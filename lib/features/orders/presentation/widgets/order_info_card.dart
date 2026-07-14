@@ -72,7 +72,7 @@ class OrderInfoTile extends StatelessWidget {
                   subtitle,
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: 14.sp,
-                    color: ThemeColors.inkDim,
+                    color: ThemeColors.inkMid,
                   ),
                 ),
               ],

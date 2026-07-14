@@ -61,20 +61,25 @@ class _OrdersView extends StatelessWidget {
       scrolledUnderElevation: 0,
       centerTitle: false,
 
-      leading: Container(
-        decoration: BoxDecoration(
-          color: ThemeColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: ThemeColors.line),
-        ),
-        child: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 18.sp,
-            color: ThemeColors.ink,
+      leading: Row(
+        children: [
+          const Spacer(),
+          Container(
+            decoration: BoxDecoration(
+              color: ThemeColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: ThemeColors.line),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18.sp,
+                color: ThemeColors.ink,
+              ),
+              onPressed: () => context.pop(),
+            ),
           ),
-          onPressed: () => context.pop(),
-        ),
+        ],
       ),
 
       title: Text(
@@ -102,9 +107,9 @@ class _OrdersView extends StatelessWidget {
               child: Text(
                 '${state.all.length} ${state.all.length == 1 ? 'order' : 'orders'}',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: 13.sp,
-                  color: ThemeColors.inkDim,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 15.sp,
+                  color: ThemeColors.inkMid,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

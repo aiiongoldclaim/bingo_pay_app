@@ -37,37 +37,58 @@ class _OrderDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeColors.background,
-      appBar: CustomAppBar(title: 'Order ${order.orderNumber}'),
-
-      body: BlocBuilder<OrderDetailCubit, OrderDetailState>(
-        builder: (context, state) {
-          if (state is OrderDetailLoading || state is OrderDetailInitial) {
-            return const Center(
-              child: CircularProgressIndicator(color: ThemeColors.blue),
-            );
-          }
-          if (state is OrderDetailLoaded) {
-            return _buildBody(context, state.order, state.addressText);
-          }
-          return const SizedBox.shrink();
-        },
-      ),
-
-      bottomNavigationBar: AppBottomActionBar(
-        primaryLabel: 'Need Help',
-        onPrimaryPressed: () => AppSnackbar.showSuccess(
-          context,
-          'Our support team will reach out to you shortly.',
-        ),
-        secondaryLabel: 'Copy Order ID',
-        secondaryIcon: Icons.copy_rounded,
-        onSecondaryPressed: () {
-          Clipboard.setData(ClipboardData(text: order.orderNumber));
-          AppSnackbar.showSuccess(context, 'Order number copied');
-        },
-      ),
+    return BlocBuilder<OrderDetailCubit, OrderDetailState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: ThemeColors.background,
+          appBar: CustomAppBar(
+            title: 'Order ${order.orderNumber}',
+            actionIcon1: state is OrderDetailLoading
+                ? null
+                : Icons.refresh_rounded,
+            onAction1: state is OrderDetailLoading
+                ? null
+                : () {
+                    final cubit = context.read<OrderDetailCubit>();
+                    cubit.loadOrder(order);
+                  },
+          ),
+          body: BlocBuilder<OrderDetailCubit, OrderDetailState>(
+            builder: (context, state) {
+              if (state is OrderDetailLoading || state is OrderDetailInitial) {
+                return const Center(
+                  child: CircularProgressIndicator(color: ThemeColors.blue),
+                );
+              }
+              if (state is OrderDetailLoaded) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    final cubit = context.read<OrderDetailCubit>();
+                    await cubit.loadOrder(order);
+                  },
+                  color: ThemeColors.blue,
+                  backgroundColor: ThemeColors.surface,
+                  child: _buildBody(context, state.order, state.addressText),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          bottomNavigationBar: AppBottomActionBar(
+            primaryLabel: 'Need Help',
+            onPrimaryPressed: () => AppSnackbar.showSuccess(
+              context,
+              'Our support team will reach out to you shortly.',
+            ),
+            secondaryLabel: 'Copy Order ID',
+            secondaryIcon: Icons.copy_rounded,
+            onSecondaryPressed: () {
+              Clipboard.setData(ClipboardData(text: order.orderNumber));
+              AppSnackbar.showSuccess(context, 'Order number copied');
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -168,6 +189,12 @@ class _OrderDetailView extends StatelessWidget {
   }
 
   List<TrackingStep> _buildTimeline(OrderModel o) {
+    // Use API-provided tracking data if available
+    if (o.tracking != null && o.tracking!.timeline.isNotEmpty) {
+      return _buildTimelineFromTracking(o);
+    }
+
+    // Fallback to building from timestamps
     final steps = <TrackingStep>[
       TrackingStep(
         title: 'Order placed',
@@ -216,6 +243,50 @@ class _OrderDetailView extends StatelessWidget {
 
     return steps;
   }
+
+  List<TrackingStep> _buildTimelineFromTracking(OrderModel o) {
+    final tracking = o.tracking!;
+    final steps = <TrackingStep>[];
+
+    for (int i = 0; i < tracking.timeline.length; i++) {
+      final step = tracking.timeline[i];
+      final isCompleted = step.completed;
+      final isCurrent = !isCompleted && step.status == tracking.currentStatus;
+
+      steps.add(
+        TrackingStep(
+          title: _formatStatusTitle(step.status),
+          subtitle: isCompleted
+              ? 'Completed'
+              : isCurrent
+              ? 'In progress'
+              : 'Pending',
+          stepStatus: isCompleted
+              ? TrackingStatus.completed
+              : isCurrent
+              ? TrackingStatus.current
+              : TrackingStatus.pending,
+          isError: o.isCancelled && step.status == 'CANCELLED',
+        ),
+      );
+    }
+
+    return steps;
+  }
+
+  String _formatStatusTitle(String status) {
+    const statusTitles = {
+      'PENDING': 'Order pending',
+      'CONFIRMED': 'Order confirmed',
+      'PROCESSING': 'Processing',
+      'PACKED': 'Packed',
+      'SHIPPED': 'Shipped',
+      'OUT_FOR_DELIVERY': 'Out for delivery',
+      'DELIVERED': 'Delivered',
+      'CANCELLED': 'Cancelled',
+    };
+    return statusTitles[status] ?? titleCaseStatus(status);
+  }
 }
 
 // ── Order Header ──────────────────────────────────────────────────────────────
@@ -252,23 +323,29 @@ class _OrderHeader extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 2.w),
-                  OrderStatusBadge(status: order.orderStatus),
+                  // OrderStatusBadge(status: order.orderStatus),
                 ],
               ),
               SizedBox(height: 0.5.h),
-              Text(
-                '${order.formattedItemsLabel()} · ${order.shortDate}',
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: 14.sp,
-                  color: ThemeColors.inkMid,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${order.formattedItemsLabel()} · ${order.shortDate}',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      fontSize: 14.sp,
+                      color: ThemeColors.inkMid,
+                    ),
+                  ),
+                  OrderStatusBadge(status: order.orderStatus),
+                ],
               ),
               SizedBox(height: 1.5.h),
               Text(
                 'Total',
                 style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: 13.sp,
-                  color: ThemeColors.inkDim,
+                  fontSize: 14.sp,
+                  color: ThemeColors.inkMid,
                 ),
               ),
               Text(
@@ -464,7 +541,7 @@ class _OrderItemTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
                     fontSize: 14.sp,
-                    color: ThemeColors.inkDim,
+                    color: ThemeColors.inkMid,
                   ),
                 ),
               ],

@@ -101,7 +101,7 @@ class TransactionCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodySmall.copyWith(
                       fontSize: 14.sp,
-                      color: ThemeColors.inkDim,
+                      color: ThemeColors.inkMid,
                     ),
                   ),
                 ],
@@ -137,7 +137,7 @@ class TransactionCard extends StatelessWidget {
                   child: Text(
                     transaction.displayStatus,
                     style: AppTextStyles.labelSmall.copyWith(
-                      fontSize: 12.5.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: config.text,
                     ),

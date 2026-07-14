@@ -87,7 +87,7 @@ class InvoiceCard extends StatelessWidget {
                       ),
                       Text(
                         'Tax Invoice',
-                        style: AppTextStyles.bodySmall.copyWith(
+                        style: AppTextStyles.bodyMedium.copyWith(
                             color: Colors.white.withValues(alpha: 0.75)),
                       ),
                     ],
@@ -98,13 +98,13 @@ class InvoiceCard extends StatelessWidget {
                   children: [
                     Text(
                       'INV-${orderId.replaceAll('BG-', '')}',
-                      style: AppTextStyles.labelMedium
+                      style: AppTextStyles.labelLarge
                           .copyWith(color: Colors.white),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       dateStr,
-                      style: AppTextStyles.bodySmall.copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                           color: Colors.white.withValues(alpha: 0.75)),
                     ),
                   ],
@@ -134,15 +134,15 @@ class InvoiceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('BILLED TO',
-                          style: AppTextStyles.labelSmall
-                              .copyWith(color: ThemeColors.inkDim)),
+                          style: AppTextStyles.labelMedium
+                              .copyWith(color: ThemeColors.inkMid)),
                       const SizedBox(height: 4),
                       Text(customerName,
                           style: AppTextStyles.titleMedium),
                       if (customerAddress.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(customerAddress,
-                            style: AppTextStyles.bodySmall
+                            style: AppTextStyles.bodyMedium
                                 .copyWith(color: ThemeColors.inkMid)),
                       ],
                     ],
@@ -152,11 +152,15 @@ class InvoiceCard extends StatelessWidget {
             ),
           ),
 
-          Divider(height: 1, color: ThemeColors.inkDim.withValues(alpha: 0.12)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingMd),
+            child: Divider(height: 1, color: ThemeColors.inkMid.withValues(alpha: 0.25)),
+          ),
 
           // ── Item ────────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.all(AppSizes.paddingMd),
+            // padding: const EdgeInsets.all(AppSizes.paddingMd),
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingMd, vertical: AppSizes.paddingX),
             child: InvoiceItemTile(
               title: productName.isNotEmpty ? productName : 'Product',
               subtitle: 'Qty 1 • incl. GST',
@@ -168,7 +172,8 @@ class InvoiceCard extends StatelessWidget {
 
           // ── Summary ─────────────────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.all(AppSizes.paddingX),
+            // padding: const EdgeInsets.all(AppSizes.paddingX),
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingMd, vertical: AppSizes.paddingSm),
             child: Column(
               children: [
                 if (deliveryCharge > 0) ...[
@@ -180,8 +185,8 @@ class InvoiceCard extends StatelessWidget {
                   const SizedBox(height: 8),
                 ],
                 Divider(
-                    height: 24,
-                    color: ThemeColors.inkDim.withValues(alpha: 0.12)),
+                    height: 1,
+                    color: ThemeColors.inkMid.withValues(alpha: 0.25)),
                 _summaryRow('Amount paid', totalAmount, isBold: true),
               ],
             ),

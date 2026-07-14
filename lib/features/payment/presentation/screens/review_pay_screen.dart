@@ -326,14 +326,17 @@ class _CouponAndNotesCardState extends State<CouponAndNotesCard> {
     final code = _couponController.text.trim();
     context.read<PaymentMethodCubit>().updateCouponCode(code);
     setState(() => _couponApplied = code.isNotEmpty);
-    ScaffoldMessenger.of(context).showSnackBar(
+    if(code.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           code.isNotEmpty ? 'Coupon "$code" applied' : 'Coupon removed',
         ),
         duration: const Duration(seconds: 2),
+        backgroundColor: ThemeColors.green,
       ),
     );
+    }
   }
 
   @override
@@ -508,13 +511,13 @@ class ReviewPaymentCard extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.lock_outline,
-                        size: 11,
+                        size: 15,
                         color: ThemeColors.white,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Secured',
-                        style: AppTextStyles.labelSmall.copyWith(
+                        style: AppTextStyles.labelLarge.copyWith(
                           color: ThemeColors.white,
                         ),
                       ),
@@ -533,13 +536,13 @@ class ReviewPaymentCard extends StatelessWidget {
               children: [
                 Text(
                   'YOUR BALANCE',
-                  style: AppTextStyles.labelSmall.copyWith(
-                    color: ThemeColors.inkDim,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: ThemeColors.inkMid,
                   ),
                 ),
                 const SizedBox(height: 12),
                 _BalanceRow(
-                  icon: Icons.currency_bitcoin,
+                  icon: Icons.account_balance_wallet_outlined,
                   label: 'Bigod Balance',
                   value: bigoldBalance,
                   color: const Color(0xFFF7A928),
@@ -633,6 +636,7 @@ class OrderSummaryCard extends StatelessWidget {
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
@@ -642,12 +646,12 @@ class OrderSummaryCard extends StatelessWidget {
                             item.product.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.bodyMedium,
+                            style: AppTextStyles.bodyLarge,
                           ),
                           Text(
                             'Qty: ${item.quantity}',
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: ThemeColors.inkDim,
+                              color: ThemeColors.inkMid,
                             ),
                           ),
                         ],
@@ -655,7 +659,7 @@ class OrderSummaryCard extends StatelessWidget {
                     ),
                     Text(
                       '\$${item.totalPrice.toStringAsFixed(0)}',
-                      style: AppTextStyles.bodyMedium,
+                      style: AppTextStyles.bodyLarge,
                     ),
                   ],
                 ),
@@ -668,8 +672,8 @@ class OrderSummaryCard extends StatelessWidget {
               productName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: ThemeColors.inkDim,
+              style: AppTextStyles.bodyLarge.copyWith(
+                color: ThemeColors.inkMid,
               ),
             ),
             const Divider(height: 20),
@@ -835,14 +839,14 @@ class ReviewPayScreen extends StatelessWidget {
             ),
 
             body: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSizes.paddingMd),
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingMd, vertical: 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Delivery Address ──────────────────────────────────
                   if (state.deliveryName.isNotEmpty) ...[
                     _ReviewAddressCard(state: state),
-                    const SizedBox(height: AppSizes.paddingLg),
+                    const SizedBox(height: AppSizes.paddingMd),
                   ],
 
                   // ── Paying With ───────────────────────────────────────
@@ -851,12 +855,12 @@ class ReviewPayScreen extends StatelessWidget {
                     bigoldBalance: state.formattedBigoldBalance,
                   ),
 
-                  const SizedBox(height: AppSizes.paddingLg),
+                  const SizedBox(height: AppSizes.paddingMd),
 
                   // ── Coupon Code & Notes (Buy Now flow only) ────────────
                   if (!state.isCartFlow) ...[
                     const CouponAndNotesCard(),
-                    const SizedBox(height: AppSizes.paddingLg),
+                    const SizedBox(height: AppSizes.paddingSm),
                   ],
 
                   // ── Order Summary ─────────────────────────────────────
@@ -881,7 +885,7 @@ class ReviewPayScreen extends StatelessWidget {
 
                   const SizedBox(height: AppSizes.paddingLg),
                   const SecurePaymentInfo(),
-                  const SizedBox(height: 120),
+                  const SizedBox(height: 60),
                 ],
               ),
             ),
@@ -932,7 +936,7 @@ class _ReviewAddressCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             state.deliveryPhone,
-            style: AppTextStyles.bodySmall.copyWith(color: ThemeColors.inkDim),
+            style: AppTextStyles.bodyMedium.copyWith(color: ThemeColors.inkMid),
           ),
           const SizedBox(height: 4),
           Text(

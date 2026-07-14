@@ -106,7 +106,7 @@ class _SuccessHeaderState extends State<SuccessHeader>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 44, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 22),
       child: Column(
         children: [
           // ── Animated check circle ──────────────────────────────────
@@ -218,9 +218,10 @@ class _SuccessHeaderState extends State<SuccessHeader>
 
                   Text(
                     'Order #${widget.orderId}',
-                    style: AppTextStyles.bodyMedium.copyWith(
+                    style: AppTextStyles.bodyLarge.copyWith(
                       color: ThemeColors.white.withValues(alpha: 0.65),
                       letterSpacing: 0.3,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
