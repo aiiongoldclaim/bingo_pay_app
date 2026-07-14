@@ -72,7 +72,15 @@ class ProductListingLoaded extends ProductListingState {
 
 class ProductListingError extends ProductListingState {
   final String message;
-  const ProductListingError(this.message);
+  final bool isRateLimited;
+  final int? retryAfterSeconds;
+
+  const ProductListingError({
+    required this.message,
+    this.isRateLimited = false,
+    this.retryAfterSeconds,
+  });
+
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, isRateLimited, retryAfterSeconds];
 }

@@ -5,13 +5,32 @@ import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/error/error_handler.dart';
+import '../../../../core/error/failures.dart';
 import '../../data/models/product_categories_model.dart';
 import 'product_categories_state.dart';
 
 class ProductListingCubit extends Cubit<ProductListingState> {
   ProductListingCubit() : super(const ProductListingLoading());
 
+  String? _lastCategoryName;
+  String? _lastCategoryUuid;
+
   Future<void> loadCategory(String categoryName, String categoryUuid) async {
+    _lastCategoryName = categoryName;
+    _lastCategoryUuid = categoryUuid;
+    await _loadCategoryInternal(categoryName, categoryUuid);
+  }
+
+  Future<void> retryLoadCategory() async {
+    if (_lastCategoryName != null && _lastCategoryUuid != null) {
+      await _loadCategoryInternal(_lastCategoryName!, _lastCategoryUuid!);
+    }
+  }
+
+  Future<void> _loadCategoryInternal(
+    String categoryName,
+    String categoryUuid,
+  ) async {
     try {
       emit(const ProductListingLoading());
 
@@ -23,9 +42,21 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       // back empty. Resolve the whole subtree and query every descendant too.
       final categoryUuids = await _resolveCategoryUuids(client, categoryUuid);
 
-      final results = await Future.wait(
-        categoryUuids.map((uuid) => _fetchProducts(client, uuid)),
-      );
+      final results = <List<ListingProductModel>>[];
+      for (final uuid in categoryUuids) {
+        try {
+          final products = await _fetchProducts(client, uuid);
+          results.add(products);
+        } catch (e) {
+          // If rate limited, stop and re-throw
+          final failure = e is Exception
+              ? ErrorHandler.mapExceptionToFailure(e)
+              : null;
+          if (failure is RateLimitFailure) rethrow;
+          // Otherwise continue with other categories
+          continue;
+        }
+      }
 
       final seen = <String>{};
       final products = <ListingProductModel>[];
@@ -43,10 +74,20 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         ),
       );
     } catch (e) {
-      final errorMessage = e is Exception
-          ? ErrorHandler.mapExceptionToFailure(e).message
-          : e.toString();
-      emit(ProductListingError(errorMessage));
+      final failure = e is Exception
+          ? ErrorHandler.mapExceptionToFailure(e)
+          : null;
+
+      if (failure is RateLimitFailure) {
+        emit(ProductListingError(
+          message: failure.message,
+          isRateLimited: true,
+          retryAfterSeconds: failure.retryAfterSeconds,
+        ));
+      } else {
+        final errorMessage = failure?.message ?? e.toString();
+        emit(ProductListingError(message: errorMessage));
+      }
     }
   }
 

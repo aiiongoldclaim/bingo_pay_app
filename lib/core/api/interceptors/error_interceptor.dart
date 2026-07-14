@@ -68,7 +68,7 @@ class ErrorInterceptor extends Interceptor {
       401 => 'Unauthorized. Please log in again.',
       403 => 'Access denied.',
       404 => 'The requested resource was not found.',
-      429 => 'Too many requests. Please try again later.',
+      429 => 'High server load. Please wait a moment and try again.',
       500 => 'Server error. Please try again later.',
       502 => 'Bad gateway. Please try again later.',
       503 => 'Service unavailable. Please try again later.',
