@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,18 +20,56 @@ class ImagePickerHelper {
 
     if (!context.mounted) return null;
 
-    final permission =
-        source == ImageSource.camera ? Permission.camera : Permission.photos;
+    return pickFrom(
+      context,
+      source,
+      imageQuality: imageQuality,
+      preferredCameraDevice: preferredCameraDevice,
+    );
+  }
 
-    // ignore: use_build_context_synchronously
-    final status = await PermissionHelper.request(context, permission);
-    if (!status.isGranted && !status.isLimited) return null;
+  /// Picks directly from [source] without showing the camera/gallery chooser
+  /// sheet — for callers that already present their own source selection UI.
+  static Future<XFile?> pickFrom(
+    BuildContext context,
+    ImageSource source, {
+    int imageQuality = 80,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+  }) async {
+    // Camera always needs an explicit permission check on all platforms.
+    // Gallery on iOS uses PHPickerViewController (iOS 14+) which handles its own
+    // access without requiring a prior permission request — checking Permission.photos
+    // here would incorrectly return permanentlyDenied and open Settings instead of
+    // showing the picker. On Android, explicit storage permission is still required.
+    if (source == ImageSource.camera) {
+      final status = await PermissionHelper.request(context, Permission.camera);
+      if (!status.isGranted && !status.isLimited) return null;
+    } else if (Platform.isAndroid) {
+      if (!context.mounted) return null;
+      final status = await PermissionHelper.request(context, Permission.photos);
+      if (!status.isGranted && !status.isLimited) return null;
+    }
+
+    if (!context.mounted) return null;
 
     return _picker.pickImage(
       source: source,
       imageQuality: imageQuality,
       preferredCameraDevice: preferredCameraDevice,
     );
+  }
+
+  static Future<List<XFile>> pickMultiple(
+    BuildContext context, {
+    int imageQuality = 80,
+  }) async {
+    if (Platform.isAndroid) {
+      // ignore: use_build_context_synchronously
+      final status = await PermissionHelper.request(context, Permission.photos);
+      if (!status.isGranted && !status.isLimited) return [];
+    }
+    if (!context.mounted) return [];
+    return await _picker.pickMultiImage(imageQuality: imageQuality);
   }
 
   static Future<ImageSource?> _showSourceSheet(BuildContext context) {

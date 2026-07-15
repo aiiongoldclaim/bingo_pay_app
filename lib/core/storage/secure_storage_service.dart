@@ -7,7 +7,7 @@ class SecureStorageService {
   final FlutterSecureStorage _storage;
 
   const SecureStorageService({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   Future<void> saveAccessToken(String token) =>
       _storage.write(key: AppConstants.accessTokenKey, value: token);
@@ -18,17 +18,44 @@ class SecureStorageService {
   Future<void> saveUserId(String userId) =>
       _storage.write(key: AppConstants.userIdKey, value: userId);
 
+  Future<void> saveBingoldUuid(String bingoldUuid) =>
+      _storage.write(key: AppConstants.bingoldUuidKey, value: bingoldUuid);
+
+  Future<void> saveVendorUuid(String vendorUuid) =>
+      _storage.write(key: AppConstants.vendorUuidKey, value: vendorUuid);
+
   Future<String?> getAccessToken() =>
       _storage.read(key: AppConstants.accessTokenKey);
 
   Future<String?> getRefreshToken() =>
       _storage.read(key: AppConstants.refreshTokenKey);
 
-  Future<String?> getUserId() =>
-      _storage.read(key: AppConstants.userIdKey);
+  Future<String?> getUserId() => _storage.read(key: AppConstants.userIdKey);
+  Future<String?> getBingoldUuid() =>
+      _storage.read(key: AppConstants.bingoldUuidKey);
+
+  Future<String?> getVendorUuid() =>
+      _storage.read(key: AppConstants.vendorUuidKey);
 
   Future<bool> hasAccessToken() async =>
       (await _storage.read(key: AppConstants.accessTokenKey)) != null;
+
+  Future<void> saveTempAccessToken(String token) =>
+      _storage.write(key: AppConstants.tempAccessTokenKey, value: token);
+
+  Future<void> saveTempRefreshToken(String token) =>
+      _storage.write(key: AppConstants.tempRefreshTokenKey, value: token);
+
+  Future<String?> getTempAccessToken() =>
+      _storage.read(key: AppConstants.tempAccessTokenKey);
+
+  Future<String?> getTempRefreshToken() =>
+      _storage.read(key: AppConstants.tempRefreshTokenKey);
+
+  Future<void> clearTempTokens() async {
+    await _storage.delete(key: AppConstants.tempAccessTokenKey);
+    await _storage.delete(key: AppConstants.tempRefreshTokenKey);
+  }
 
   Future<void> clearAll() => _storage.deleteAll();
 }

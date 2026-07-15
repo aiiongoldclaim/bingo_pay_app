@@ -7,6 +7,7 @@ import 'app.dart';
 import 'app_bloc_observer.dart';
 
 Future<void> bootstrap() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies(FlavorConfig.instance.name ?? 'prod');
   Bloc.observer = AppBlocObserver();

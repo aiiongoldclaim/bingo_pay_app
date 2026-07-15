@@ -1,11 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../core/di/injection.dart';
 import '../core/network/connectivity_service.dart';
 import '../core/router/app_router.dart';
 import '../core/router/route_guard.dart';
 import '../core/theme/app_theme.dart';
-import '../core/widgets/app_snackbar.dart';
+import '../core/widgets/offline_screen.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
@@ -17,19 +20,44 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+/// The observer is registered in initState — before the Router mounts — so
+/// it sees system back presses first: while offline, back exits the app
+/// instead of popping the (hidden) route below the offline screen.
+class _AppState extends State<App> with WidgetsBindingObserver {
   final _router = getIt<AppRouter>();
   final _connectivity = getIt<ConnectivityService>();
+  StreamSubscription<bool>? _connectivitySub;
+  bool _isConnected = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _connectivitySub = _connectivity.isConnected.listen((connected) {
+      if (connected != _isConnected) {
+        setState(() => _isConnected = connected);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<bool> didPopRoute() async {
+    if (_isConnected) return false;
+    await SystemNavigator.pop();
+    return true;
+  }
 
   void _onAuthStateChanged(BuildContext context, AuthState state) {
-    if (state is AuthLoading) {
-      _router.updateAuthState(const RouteAuthState.loading());
-    } else if (state is AuthAuthenticated) {
+    if (state is AuthAuthenticated) {
       _router.updateAuthState(
-        RouteAuthState.authenticated(
-          role: state.user.isVendor ? UserRole.vendor : UserRole.buyer,
-          isKycPending: state.user.isKycPending,
-        ),
+        RouteAuthState.authenticated(kybStatus: state.user.effectiveKybStatus),
       );
     } else if (state is AuthUnauthenticated) {
       _router.updateAuthState(const RouteAuthState.unauthenticated());
@@ -43,24 +71,22 @@ class _AppState extends State<App> {
           getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
-        child: StreamBuilder<bool>(
-          stream: _connectivity.isConnected,
-          builder: (context, snapshot) {
-            final isConnected = snapshot.data ?? true;
-            return MaterialApp.router(
-              title: 'Bingo Pay',
-              theme: AppTheme.light,
-              debugShowCheckedModeBanner: false,
-              darkTheme: AppTheme.dark,
-              routerConfig: _router.router,
-              builder: (context, child) {
-                if (!isConnected) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (context.mounted) AppSnackbar.showOfflineBanner(context);
-                  });
-                }
-                return child ?? const SizedBox.shrink();
-              },
+        child: MaterialApp.router(
+          title: 'Bingo Pay',
+          theme: AppTheme.light,
+          debugShowCheckedModeBanner: false,
+          darkTheme: AppTheme.dark,
+          routerConfig: _router.router,
+          builder: (context, child) {
+            // While offline, a full-screen glass page covers the app. The
+            // route stack underneath is never touched, so the user lands
+            // back exactly where they were once connectivity returns.
+            return Stack(
+              children: [
+                child ?? const SizedBox.shrink(),
+                if (!_isConnected)
+                  const Positioned.fill(child: OfflineScreen()),
+              ],
             );
           },
         ),

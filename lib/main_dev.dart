@@ -7,7 +7,8 @@ void main() async {
     name: 'dev',
     color: Colors.green,
     variables: const {
-      'apiBaseUrl': 'https://dev-api.bingopay.com/v1',
+      'apiBaseUrl': 'http://13.159.7.199:5001',
+      'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',
       'appName': 'Bingo Pay DEV',
       'enableLogging': true,
       'enableAnalytics': false,

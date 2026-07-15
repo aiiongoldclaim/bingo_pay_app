@@ -2,36 +2,63 @@ import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
-import '../models/auth_response_model.dart';
+import '../../domain/usecases/submit_vendor_kyc_usecase.dart';
+import '../models/bingold_verify_login_result_model.dart';
 import '../models/kyc_model.dart';
+import '../models/register_otp_model.dart';
+import '../models/register_result_model.dart';
+import '../models/user_existence_model.dart';
+import '../models/vendor_login_result_model.dart';
 
 abstract interface class AuthRemoteDataSource {
-  Future<AuthResponseModel> login({
+  Future<RegisterOtpModel> registerVendor({
+    required String fullName,
     required String email,
+    required String phone,
+    required String password,
+    required String shopName,
+    required String shopSlug,
+    required String businessName,
+    String? description,
+    String? gstNumber,
+    String? panNumber,
+    String? supportEmail,
+    String? supportPhone,
+  });
+
+  Future<RegisterResultModel> verifyVendorOtp({
+    required String email,
+    required String otp,
+  });
+
+  Future<RegisterOtpModel> resendVendorOtp({required String email});
+
+  Future<UserExistenceModel> checkUserExists({required String email});
+
+  Future<VendorLoginResultModel> vendorLogin({
+    required String identifier,
     required String password,
   });
 
-  Future<AuthResponseModel> register({
+  Future<RegisterOtpModel> bingoldLoginOtp({required String email});
+
+  Future<BingoldVerifyLoginResultModel> bingoldVerifyLogin({
     required String email,
+    required String otp,
+  });
+
+  Future<void> setPassword({
+    required String accessToken,
     required String password,
-    required String name,
-    required String role,
   });
 
   Future<void> forgotPassword({required String email});
 
-  Future<KycModel> submitKycPersonalDetails({
-    required String name,
-    required String dateOfBirth,
-    required String address,
+  Future<KycModel> submitVendorKyc({
+    required String vendorUuid,
+    required String kybMode,
+    required List<KycDocumentSubmission> documents,
   });
-
-  Future<KycModel> uploadKycDocument({
-    required String filePath,
-    required String documentType,
-  });
-
-  Future<KycModel> uploadKycSelfie({required String filePath});
 
   Future<KycModel> getKycStatus();
 }
@@ -44,31 +71,130 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Dio get _dio => _apiClient.dio;
 
   @override
-  Future<AuthResponseModel> login({
+  Future<RegisterOtpModel> registerVendor({
+    required String fullName,
     required String email,
+    required String phone,
     required String password,
+    required String shopName,
+    required String shopSlug,
+    required String businessName,
+    String? description,
+    String? gstNumber,
+    String? panNumber,
+    String? supportEmail,
+    String? supportPhone,
   }) async {
     final response = await _dio.post(
-      ApiEndpoints.login,
-      data: {'email': email, 'password': password},
+      ApiEndpoints.registerVendor,
+      data: {
+        'fullName': fullName,
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'countryId': '91',
+        'shopName': shopName,
+        'shopSlug': shopSlug,
+        'businessName': businessName,
+        'description': description,
+        'gstNumber': gstNumber,
+        'panNumber': panNumber,
+        'supportEmail': supportEmail,
+        'supportPhone': supportPhone,
+      },
     );
-    return AuthResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    final outer = response.data['data'] as Map<String, dynamic>;
+    return RegisterOtpModel.fromJson(outer['data'] as Map<String, dynamic>);
   }
 
   @override
-  Future<AuthResponseModel> register({
+  Future<RegisterResultModel> verifyVendorOtp({
     required String email,
-    required String password,
-    required String name,
-    required String role,
+    required String otp,
   }) async {
     final response = await _dio.post(
-      ApiEndpoints.register,
-      data: {'email': email, 'password': password, 'name': name, 'role': role},
+      ApiEndpoints.verifyVendorOtp,
+      data: {'email': email, 'otp': otp},
     );
-    return AuthResponseModel.fromJson(
-        response.data['data'] as Map<String, dynamic>);
+    final outer = response.data['data'] as Map<String, dynamic>;
+    return RegisterResultModel.fromVendorJson(outer['data'] as Map<String, dynamic>);
+  }
+
+  @override
+  Future<RegisterOtpModel> resendVendorOtp({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.resendVendorOtp,
+      data: {'email': email},
+    );
+    return RegisterOtpModel.fromResendJson(
+      response.data['data'] as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<UserExistenceModel> checkUserExists({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.checkUserExists,
+      data: {'email': email},
+    );
+    final outer = response.data['data'] as Map<String, dynamic>;
+    final inner = outer['data'] as Map<String, dynamic>;
+    return UserExistenceModel.fromJson(inner);
+  }
+
+  @override
+  Future<VendorLoginResultModel> vendorLogin({
+    required String identifier,
+    required String password,
+  }) async {
+    final response = await _dio.post(
+      ApiEndpoints.vendorLogin,
+      data: {'identifier': identifier, 'password': password},
+    );
+    final outer = response.data['data'] as Map<String, dynamic>;
+    final inner = outer['data'] as Map<String, dynamic>;
+    return VendorLoginResultModel.fromJson(inner);
+  }
+
+  @override
+  Future<RegisterOtpModel> bingoldLoginOtp({required String email}) async {
+    final response = await _dio.post(
+      ApiEndpoints.bingoldLoginOtp,
+      data: {'email': email},
+    );
+    final outer = response.data['data'] as Map<String, dynamic>;
+    final inner = outer['data'] as Map<String, dynamic>;
+    return RegisterOtpModel(
+      otpSent: true,
+      email: inner['email'] as String,
+      message: outer['message'] as String? ?? '',
+    );
+  }
+
+  @override
+  Future<BingoldVerifyLoginResultModel> bingoldVerifyLogin({
+    required String email,
+    required String otp,
+  }) async {
+    final response = await _dio.post(
+      ApiEndpoints.bingoldVerifyLogin,
+      data: {'email': email, 'otp': otp},
+    );
+    final outer = response.data['data'] as Map<String, dynamic>;
+    final inner = outer['data'] as Map<String, dynamic>;
+    return BingoldVerifyLoginResultModel.fromJson(inner);
+  }
+
+  @override
+  Future<void> setPassword({
+    required String accessToken,
+    required String password,
+  }) async {
+    await _dio.post(
+      ApiEndpoints.setPassword,
+      data: {'password': password},
+      options: Options(headers: {'Authorization': 'Bearer $accessToken'}),
+    );
   }
 
   @override
@@ -77,38 +203,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<KycModel> submitKycPersonalDetails({
-    required String name,
-    required String dateOfBirth,
-    required String address,
+  Future<KycModel> submitVendorKyc({
+    required String vendorUuid,
+    required String kybMode,
+    required List<KycDocumentSubmission> documents,
   }) async {
     final response = await _dio.post(
-      ApiEndpoints.kycPersonalDetails,
-      data: {'name': name, 'dateOfBirth': dateOfBirth, 'address': address},
+      ApiEndpoints.vendorKyc(vendorUuid),
+      data: {
+        'kybMode': kybMode,
+        'documents': documents.map((d) => d.toJson()).toList(),
+      },
+      options: Options(headers: {'x-api-key': 'mysecreate-key'}),
     );
-    return KycModel.fromJson(response.data['data'] as Map<String, dynamic>);
-  }
-
-  @override
-  Future<KycModel> uploadKycDocument({
-    required String filePath,
-    required String documentType,
-  }) async {
-    final formData = FormData.fromMap({
-      'document': await MultipartFile.fromFile(filePath),
-      'documentType': documentType,
-    });
-    final response = await _dio.post(ApiEndpoints.kycDocument, data: formData);
-    return KycModel.fromJson(response.data['data'] as Map<String, dynamic>);
-  }
-
-  @override
-  Future<KycModel> uploadKycSelfie({required String filePath}) async {
-    final formData = FormData.fromMap({
-      'selfie': await MultipartFile.fromFile(filePath),
-    });
-    final response = await _dio.post(ApiEndpoints.kycSelfie, data: formData);
-    return KycModel.fromJson(response.data['data'] as Map<String, dynamic>);
+    final outer = response.data['data'] as Map<String, dynamic>;
+    final inner = outer['data'] as Map<String, dynamic>;
+    return KycModel.fromJson(inner);
   }
 
   @override

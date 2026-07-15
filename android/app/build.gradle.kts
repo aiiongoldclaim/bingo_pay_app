@@ -1,12 +1,13 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.bingosg.bingo_pay"
-    compileSdk = flutter.compileSdkVersion
+    //compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
+
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -14,12 +15,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
 
     defaultConfig {
-        applicationId = "com.bingosg.bingo_pay"
+        applicationId = "com.bingosg.bingo_pay_vendor"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -53,6 +51,12 @@ android {
         }
     }
 }
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
 
 flutter {
     source = "../.."

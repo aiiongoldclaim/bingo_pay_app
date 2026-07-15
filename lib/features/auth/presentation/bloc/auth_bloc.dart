@@ -1,58 +1,92 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/api/session_expiry_notifier.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/get_kyc_status_usecase.dart';
-import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
-import '../../domain/usecases/register_usecase.dart';
-import '../../domain/usecases/submit_kyc_personal_details_usecase.dart';
-import '../../domain/usecases/upload_kyc_document_usecase.dart';
-import '../../domain/usecases/upload_kyc_selfie_usecase.dart';
+import '../../domain/usecases/register_vendor_usecase.dart';
+import '../../domain/usecases/set_password_usecase.dart';
+import '../../domain/usecases/submit_vendor_kyc_usecase.dart';
+import '../../domain/usecases/resend_vendor_otp_usecase.dart';
+import '../../domain/usecases/bingold_login_otp_usecase.dart';
+import '../../domain/usecases/bingold_verify_login_usecase.dart';
+import '../../domain/usecases/vendor_login_usecase.dart';
+import '../../domain/usecases/verify_vendor_otp_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  UserEntity? _currentUser;
   final CheckAuthStatusUseCase _checkAuthStatus;
-  final LoginUseCase _login;
-  final RegisterUseCase _register;
+  final RegisterVendorUseCase _registerVendor;
+  final VerifyVendorOtpUseCase _verifyVendorOtp;
+  final ResendVendorOtpUseCase _resendVendorOtp;
+  final BinGoldLoginOtpUseCase _bingoldLoginOtp;
+  final BinGoldVerifyLoginUseCase _bingoldVerifyLogin;
+  final SetPasswordUseCase _setPassword;
+  final VendorLoginUseCase _vendorLogin;
   final ForgotPasswordUseCase _forgotPassword;
   final LogoutUseCase _logout;
-  final SubmitKycPersonalDetailsUseCase _kycPersonalDetails;
-  final UploadKycDocumentUseCase _kycDocument;
-  final UploadKycSelfieUseCase _kycSelfie;
+  final SubmitVendorKycUseCase _submitVendorKyc;
   final GetKycStatusUseCase _getKycStatus;
+  StreamSubscription<void>? _sessionExpirySubscription;
 
   AuthBloc({
     required CheckAuthStatusUseCase checkAuthStatus,
-    required LoginUseCase login,
-    required RegisterUseCase register,
+    required RegisterVendorUseCase registerVendor,
+    required VerifyVendorOtpUseCase verifyVendorOtp,
+    required ResendVendorOtpUseCase resendVendorOtp,
+    required BinGoldLoginOtpUseCase bingoldLoginOtp,
+    required BinGoldVerifyLoginUseCase bingoldVerifyLogin,
+    required SetPasswordUseCase setPassword,
+    required VendorLoginUseCase vendorLogin,
     required ForgotPasswordUseCase forgotPassword,
     required LogoutUseCase logout,
-    required SubmitKycPersonalDetailsUseCase kycPersonalDetails,
-    required UploadKycDocumentUseCase kycDocument,
-    required UploadKycSelfieUseCase kycSelfie,
+    required SubmitVendorKycUseCase submitVendorKyc,
     required GetKycStatusUseCase getKycStatus,
-  })  : _checkAuthStatus = checkAuthStatus,
-        _login = login,
-        _register = register,
-        _forgotPassword = forgotPassword,
-        _logout = logout,
-        _kycPersonalDetails = kycPersonalDetails,
-        _kycDocument = kycDocument,
-        _kycSelfie = kycSelfie,
-        _getKycStatus = getKycStatus,
-        super(const AuthInitial()) {
+    required SessionExpiryNotifier sessionExpiryNotifier,
+  }) : _checkAuthStatus = checkAuthStatus,
+       _registerVendor = registerVendor,
+       _verifyVendorOtp = verifyVendorOtp,
+       _resendVendorOtp = resendVendorOtp,
+       _bingoldLoginOtp = bingoldLoginOtp,
+       _bingoldVerifyLogin = bingoldVerifyLogin,
+       _setPassword = setPassword,
+       _vendorLogin = vendorLogin,
+       _forgotPassword = forgotPassword,
+       _logout = logout,
+       _submitVendorKyc = submitVendorKyc,
+       _getKycStatus = getKycStatus,
+       super(const AuthInitial()) {
     on<CheckAuthStatusRequested>(_onCheckAuthStatus);
-    on<LoginRequested>(_onLogin);
-    on<RegisterRequested>(_onRegister);
+    on<VendorLoginRequested>(_onVendorLogin);
+    on<VendorRegisterRequested>(_onVendorRegister);
+    on<VerifyOtpRequested>(_onVerifyOtp);
+    on<ResendOtpRequested>(_onResendOtp);
+    on<BinGoldLoginOtpRequested>(_onBinGoldLoginOtp);
+    on<BinGoldVerifyLoginRequested>(_onBinGoldVerifyLogin);
+    on<SetPasswordRequested>(_onSetPassword);
     on<ForgotPasswordRequested>(_onForgotPassword);
     on<LogoutRequested>(_onLogout);
-    on<KycPersonalDetailsSubmitted>(_onKycPersonalDetails);
-    on<KycDocumentUploaded>(_onKycDocument);
-    on<KycSelfieUploaded>(_onKycSelfie);
+    on<KycDocumentsSubmitted>(_onKycDocumentsSubmitted);
     on<KycStatusPolled>(_onKycStatusPoll);
+
+    _sessionExpirySubscription = sessionExpiryNotifier.onSessionExpired.listen((
+      _,
+    ) {
+      if (state is AuthAuthenticated) add(const LogoutRequested());
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _sessionExpirySubscription?.cancel();
+    return super.close();
   }
 
   Future<void> _onCheckAuthStatus(
@@ -61,45 +95,135 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
     final result = await _checkAuthStatus();
-    result.fold(
-      (_) => emit(const AuthUnauthenticated()),
-      (user) => user != null
-          ? emit(AuthAuthenticated(user))
-          : emit(const AuthUnauthenticated()),
-    );
+    final user = result.match((failure) => null, (user) => user);
+    if (user == null) {
+      emit(const AuthUnauthenticated());
+      return;
+    }
+    // A vendor who hasn't finished KYB verification yet shouldn't stay
+    // logged in across a full app restart (killed + reopened) — force them
+    // back to the login screen instead of silently resuming on the KYC
+    // screen every time. Only fully approved vendors keep a persistent
+    // session.
+    if (user.effectiveKybStatus != 'approved') {
+      await _logout();
+      emit(const AuthUnauthenticated());
+      return;
+    }
+    _currentUser = user;
+    emit(AuthAuthenticated(user));
   }
 
-  Future<void> _onLogin(
-    LoginRequested event,
+  Future<void> _onVendorLogin(
+    VendorLoginRequested event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await _login(
-      LoginParams(email: event.email, password: event.password),
+    final result = await _vendorLogin(
+      VendorLoginParams(identifier: event.identifier, password: event.password),
     );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (user) => emit(AuthAuthenticated(user)),
-    );
+    result.match((failure) => emit(AuthError(failure)), (user) {
+      _currentUser = user;
+      emit(AuthAuthenticated(user));
+    });
   }
 
-  Future<void> _onRegister(
-    RegisterRequested event,
+  Future<void> _onVendorRegister(
+    VendorRegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-    final result = await _register(
-      RegisterParams(
+    final result = await _registerVendor(
+      VendorRegisterParams(
+        fullName: event.fullName,
         email: event.email,
+        phone: event.phone,
         password: event.password,
-        name: event.name,
-        role: event.role,
+        shopName: event.shopName,
+        shopSlug: event.shopSlug,
+        businessName: event.businessName,
+        description: event.description,
+        gstNumber: event.gstNumber,
+        panNumber: event.panNumber,
+        supportEmail: event.supportEmail,
+        supportPhone: event.supportPhone,
       ),
     );
-    result.fold(
+    result.match(
       (failure) => emit(AuthError(failure)),
-      (user) => emit(AuthAuthenticated(user)),
+      (otpInfo) =>
+          emit(AuthOtpRequired(email: otpInfo.email, message: otpInfo.message)),
     );
+  }
+
+  Future<void> _onVerifyOtp(
+    VerifyOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _verifyVendorOtp(
+      VerifyVendorOtpParams(email: event.email, otp: event.otp),
+    );
+    result.match((failure) => emit(AuthError(failure)), (user) {
+      _currentUser = user;
+      emit(AuthAuthenticated(user));
+    });
+  }
+
+  Future<void> _onResendOtp(
+    ResendOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _resendVendorOtp(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (otpInfo) =>
+          emit(AuthOtpRequired(email: otpInfo.email, message: otpInfo.message)),
+    );
+  }
+
+  Future<void> _onBinGoldLoginOtp(
+    BinGoldLoginOtpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _bingoldLoginOtp(event.email);
+    result.match(
+      (failure) => emit(AuthError(failure)),
+      (otpInfo) =>
+          emit(AuthOtpRequired(email: otpInfo.email, message: otpInfo.message)),
+    );
+  }
+
+  Future<void> _onBinGoldVerifyLogin(
+    BinGoldVerifyLoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _bingoldVerifyLogin(
+      BinGoldVerifyLoginParams(email: event.email, otp: event.otp),
+    );
+    result.match((failure) => emit(AuthError(failure)), (loginResult) {
+      if (loginResult.requiresPasswordSetup) {
+        emit(AuthPasswordSetupRequired(email: event.email));
+        return;
+      }
+      _currentUser = loginResult.user;
+      emit(AuthAuthenticated(loginResult.user));
+    });
+  }
+
+  Future<void> _onSetPassword(
+    SetPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await _setPassword(event.password);
+    result.match((failure) => emit(AuthError(failure)), (user) {
+      _currentUser = user;
+      emit(AuthAuthenticated(user));
+    });
   }
 
   Future<void> _onForgotPassword(
@@ -108,65 +232,46 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
     final result = await _forgotPassword(event.email);
-    result.fold(
+    result.match(
       (failure) => emit(AuthError(failure)),
       (_) => emit(const PasswordResetSent()),
     );
   }
 
-  Future<void> _onLogout(
-    LogoutRequested event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onLogout(LogoutRequested event, Emitter<AuthState> emit) async {
     await _logout();
+    _currentUser = null;
     emit(const AuthUnauthenticated());
   }
 
-  Future<void> _onKycPersonalDetails(
-    KycPersonalDetailsSubmitted event,
+  Future<void> _onKycDocumentsSubmitted(
+    KycDocumentsSubmitted event,
     Emitter<AuthState> emit,
   ) async {
     emit(const KycLoading());
-    final result = await _kycPersonalDetails(
-      KycPersonalDetailsParams(
-        name: event.name,
-        dateOfBirth: event.dateOfBirth,
-        address: event.address,
-      ),
+    final result = await _submitVendorKyc(
+      SubmitVendorKycParams(documents: event.documents),
     );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (kyc) => emit(KycStepCompleted(kyc: kyc, step: 0)),
-    );
-  }
+    result.match((failure) => emit(AuthError(failure)), (kyc) {
+      emit(KycSubmitted(kyc));
 
-  Future<void> _onKycDocument(
-    KycDocumentUploaded event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(const KycLoading());
-    final result = await _kycDocument(
-      KycDocumentParams(
-        filePath: event.filePath,
-        documentType: event.documentType,
-      ),
-    );
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (kyc) => emit(KycStepCompleted(kyc: kyc, step: 1)),
-    );
-  }
-
-  Future<void> _onKycSelfie(
-    KycSelfieUploaded event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(const KycLoading());
-    final result = await _kycSelfie(event.filePath);
-    result.fold(
-      (failure) => emit(AuthError(failure)),
-      (kyc) => emit(KycSubmitted(kyc)),
-    );
+      // Update the authenticated user's KYC status and notify the router
+      if (_currentUser != null) {
+        final updatedUser = UserEntity(
+          id: _currentUser!.id,
+          email: _currentUser!.email,
+          name: _currentUser!.name,
+          role: _currentUser!.role,
+          kycStatus: kyc.status,
+          kybStatus: _currentUser!.kybStatus,
+          shopName: _currentUser!.shopName,
+          merchantCode: _currentUser!.merchantCode,
+          businessName: _currentUser!.businessName,
+        );
+        _currentUser = updatedUser;
+        emit(AuthAuthenticated(updatedUser));
+      }
+    });
   }
 
   Future<void> _onKycStatusPoll(
@@ -174,9 +279,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final result = await _getKycStatus();
-    result.fold(
-      (_) {},
-      (kyc) => emit(KycSubmitted(kyc)),
-    );
+    // A failed poll keeps the current state — the next poll retries.
+    result.match((_) {}, (kyc) {
+      emit(KycSubmitted(kyc));
+
+      if (_currentUser != null && _currentUser!.kycStatus != kyc.status) {
+        final updatedUser = UserEntity(
+          id: _currentUser!.id,
+          email: _currentUser!.email,
+          name: _currentUser!.name,
+          role: _currentUser!.role,
+          kycStatus: kyc.status,
+          kybStatus: _currentUser!.kybStatus,
+          shopName: _currentUser!.shopName,
+          merchantCode: _currentUser!.merchantCode,
+          businessName: _currentUser!.businessName,
+        );
+        _currentUser = updatedUser;
+        emit(AuthAuthenticated(updatedUser));
+      }
+    });
   }
 }

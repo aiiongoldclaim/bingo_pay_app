@@ -11,6 +11,10 @@ class UserModel extends UserEntity {
     required super.name,
     required super.role,
     required super.kycStatus,
+    super.kybStatus,
+    super.shopName,
+    super.merchantCode,
+    super.businessName,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
