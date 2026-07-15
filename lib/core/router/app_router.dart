@@ -143,6 +143,18 @@ class AppRouter {
           },
         ),
 
+        // Deep link routes for product sharing
+        GoRoute(
+          path: '/products/:id',
+          builder: (context, state) {
+            final productId = state.pathParameters['id'] ?? '';
+            return BlocProvider(
+              create: (_) => ProductDetailCubit()..loadProduct(productId),
+              child: const ProductDetailScreen(),
+            );
+          },
+        ),
+
         GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
 
         GoRoute(

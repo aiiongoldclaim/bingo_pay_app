@@ -63,14 +63,14 @@ class AppSearchBar extends StatelessWidget {
         onTap: onTap,
         textInputAction: TextInputAction.search,
         style: TextStyle(
-          fontSize: 13.sp,
+          fontSize: 16.sp,
           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
         ),
         decoration: InputDecoration(
           hintText: hintText,
 
           hintStyle: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 16.sp,
             color: isDark
                 ? AppColors.textSecondaryDark
                 : AppColors.textSecondary,

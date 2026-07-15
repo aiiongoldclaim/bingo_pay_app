@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
@@ -36,9 +37,10 @@ class RecentSearchesSection extends StatelessWidget {
             children: [
               Text(
                 'RECENT',
-                style: AppTextStyles.labelSmall.copyWith(
+                style: AppTextStyles.labelLarge.copyWith(
                   letterSpacing: 1.2,
-                  color: ThemeColors.inkDim,
+                  fontSize: 15.sp,
+                  color: ThemeColors.inkMid,
                 ),
               ),
               GestureDetector(
@@ -47,6 +49,7 @@ class RecentSearchesSection extends StatelessWidget {
                   'Clear',
                   style: AppTextStyles.labelLarge.copyWith(
                     color: ThemeColors.blue,
+                    fontSize: 15.sp,
                   ),
                 ),
               ),

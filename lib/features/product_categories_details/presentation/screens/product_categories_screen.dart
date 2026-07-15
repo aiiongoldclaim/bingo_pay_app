@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_container.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
@@ -125,8 +126,11 @@ class _ProductListingView extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: ListingResultsBar(
                           count: state.filteredProducts.length,
-                          viewMode: state.viewMode,
-                          onToggleView: cubit.toggleViewMode,
+                          // viewMode: state.viewMode,
+                          viewMode: ViewMode.grid,
+                          // onToggleView: cubit.toggleViewMode,
+                          // onToggleView: cubit.toggleViewMode,
+                          onToggleView: () {},
                         ),
                       ),
 
@@ -171,9 +175,18 @@ class _ProductListingView extends StatelessWidget {
                                     : null,
                                 onFavouriteTap: product.uuid == null
                                     ? null
-                                    : () => context
-                                        .read<WishlistCubit>()
-                                        .toggle(_toWishlistItem(product)),
+                                    : () async {
+                                        final cubit = context.read<WishlistCubit>();
+                                        final buildContext = context;
+                                        final wasWishlisted = cubit.isWishlisted(product.uuid);
+                                        await cubit.toggle(_toWishlistItem(product));
+                                        if (!wasWishlisted && buildContext.mounted) {
+                                          AppSnackbar.showSuccess(
+                                            buildContext,
+                                            'Product added to Wishlist successfully.',
+                                          );
+                                        }
+                                      },
                               );
                             }, childCount: state.filteredProducts.length),
                           ),
@@ -206,9 +219,18 @@ class _ProductListingView extends StatelessWidget {
                                     : null,
                                     onFavouriteTap: product.uuid == null
                                         ? null
-                                        : () => context
-                                            .read<WishlistCubit>()
-                                            .toggle(_toWishlistItem(product)),
+                                        : () async {
+                                            final cubit = context.read<WishlistCubit>();
+                                            final buildContext = context;
+                                            final wasWishlisted = cubit.isWishlisted(product.uuid);
+                                            await cubit.toggle(_toWishlistItem(product));
+                                            if (!wasWishlisted && buildContext.mounted) {
+                                              AppSnackbar.showSuccess(
+                                                buildContext,
+                                                'Product added to Wishlist successfully.',
+                                              );
+                                            }
+                                          },
                                   ),
                                 ),
                               );

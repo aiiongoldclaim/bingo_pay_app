@@ -205,7 +205,9 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Discard changes?'),
-        content: const Text('You have unsaved changes. Are you sure you want to discard them?'),
+        content: const Text(
+          'You have unsaved changes. Are you sure you want to discard them?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -216,7 +218,10 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
               Navigator.pop(ctx);
               Navigator.pop(context);
             },
-            child: const Text('Discard', style: TextStyle(color: ThemeColors.red)),
+            child: const Text(
+              'Discard',
+              style: TextStyle(color: ThemeColors.red),
+            ),
           ),
         ],
       ),
@@ -238,192 +243,196 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
           statusBarIconBrightness: Brightness.dark,
         ),
         child: Scaffold(
-        backgroundColor: const Color(0xFFF5F7FB),
+          backgroundColor: const Color(0xFFF5F7FB),
 
-        appBar: AppBar(
-          backgroundColor: ThemeColors.white,
-          elevation: 0,
-          foregroundColor: ThemeColors.ink,
-          title: Text(
-            isEdit ? "Edit Address" : "Add Address",
-            style: AppTextStyles.titleMedium.copyWith(
-              fontWeight: FontWeight.w600,
+          appBar: AppBar(
+            backgroundColor: ThemeColors.white,
+            elevation: 0,
+            foregroundColor: ThemeColors.ink,
+            title: Text(
+              isEdit ? "Edit Address" : "Add Address",
+              style: AppTextStyles.titleLarge.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-        ),
 
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-                  child: Column(
-                    children: [
-                      /// 📦 ADDRESS CARD (MATCHING PAYMENT SCREEN)
-                      _cardContainer(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /// HEADER
-                            _gradientHeader(
-                              title: "Delivery Address",
-                              icon: Icons.location_on_outlined,
-                            ),
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+                    child: Column(
+                      children: [
+                        /// 📦 ADDRESS CARD (MATCHING PAYMENT SCREEN)
+                        _cardContainer(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              /// HEADER
+                              _gradientHeader(
+                                title: "Delivery Address",
+                                icon: Icons.location_on_outlined,
+                              ),
 
-                            /// FIELDS
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  _Field(
-                                    controller: nameCtrl,
-                                    label: "Full Name",
-                                    hint: "Enter full name",
-                                    icon: Icons.person_outline,
-                                    validator: Validators.name,
-                                  ),
-
-                                  const SizedBox(height: 14),
-
-                                  _Field(
-                                    controller: phoneCtrl,
-                                    label: "Phone",
-                                    hint: "10 digit number",
-                                    icon: Icons.phone_android,
-                                    keyboardType: TextInputType.phone,
-                                    maxLength: 10,
-                                    digitsOnly: true,
-                                    validator: (v) {
-                                      final value = v?.trim() ?? '';
-                                      if (value.isEmpty) {
-                                        return 'Phone number is required';
-                                      }
-                                      if (value.length != 10) {
-                                        return 'Enter a valid 10 digit number';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-
-                                  const SizedBox(height: 14),
-
-                                  _Field(
-                                    controller: addressCtrl,
-                                    label: "Address",
-                                    hint: "House / Street / Area",
-                                    icon: Icons.home_outlined,
-                                    maxLines: 2,
-                                    validator: (v) => Validators.required(
-                                      v,
-                                      fieldName: 'Address',
+                              /// FIELDS
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    _Field(
+                                      controller: nameCtrl,
+                                      label: "Full Name",
+                                      hint: "Enter full name",
+                                      icon: Icons.person_outline,
+                                      validator: Validators.name,
                                     ),
-                                  ),
 
-                                  const SizedBox(height: 14),
+                                    const SizedBox(height: 14),
 
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _Field(
-                                          controller: cityCtrl,
-                                          label: "City",
-                                          hint: "City",
-                                          icon: Icons.location_city,
-                                          validator: (v) => Validators.required(
-                                            v,
-                                            fieldName: 'City',
+                                    _Field(
+                                      controller: phoneCtrl,
+                                      label: "Phone",
+                                      hint: "10 digit number",
+                                      icon: Icons.phone_android,
+                                      keyboardType: TextInputType.phone,
+                                      maxLength: 10,
+                                      digitsOnly: true,
+                                      validator: (v) {
+                                        final value = v?.trim() ?? '';
+                                        if (value.isEmpty) {
+                                          return 'Phone number is required';
+                                        }
+                                        if (value.length != 10) {
+                                          return 'Enter a valid 10 digit number';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+
+                                    const SizedBox(height: 14),
+
+                                    _Field(
+                                      controller: addressCtrl,
+                                      label: "Address",
+                                      hint: "House / Street / Area",
+                                      icon: Icons.home_outlined,
+                                      maxLines: 2,
+                                      validator: (v) => Validators.required(
+                                        v,
+                                        fieldName: 'Address',
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 14),
+
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          flex: 1,
+                                          child: _Field(
+                                            controller: cityCtrl,
+                                            label: "City",
+                                            hint: "City",
+                                            icon: Icons.location_city,
+                                            validator: (v) =>
+                                                Validators.required(
+                                                  v,
+                                                  fieldName: 'City',
+                                                ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: _Field(
-                                          controller: stateCtrl,
-                                          label: "State",
-                                          hint: "MH, DL...",
-                                          icon: Icons.map_outlined,
-                                          lettersOnly: true,
-                                          validator: (v) {
-                                            final value = v?.trim() ?? '';
-                                            if (value.isEmpty) {
-                                              return 'State is required';
-                                            }
-                                            if (RegExp(
-                                              r'[0-9]',
-                                            ).hasMatch(value)) {
-                                              return 'State cannot contain numbers';
-                                            }
-                                            return null;
-                                          },
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          flex: 1,
+                                          child: _Field(
+                                            controller: stateCtrl,
+                                            label: "State",
+                                            hint: "State",
+                                            icon: Icons.map_outlined,
+                                            lettersOnly: true,
+                                            validator: (v) {
+                                              final value = v?.trim() ?? '';
+                                              if (value.isEmpty) {
+                                                return 'State is required';
+                                              }
+                                              if (RegExp(
+                                                r'[0-9]',
+                                              ).hasMatch(value)) {
+                                                return 'State cannot contain numbers';
+                                              }
+                                              return null;
+                                            },
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
 
-                                  const SizedBox(height: 14),
+                                    const SizedBox(height: 14),
 
-                                  _Field(
-                                    controller: postalCtrl,
-                                    label: "PIN Code",
-                                    hint: "6 digit code",
-                                    icon: Icons.pin_drop_outlined,
-                                    keyboardType: TextInputType.number,
-                                    maxLength: 6,
-                                    digitsOnly: true,
-                                    validator: (v) {
-                                      final value = v?.trim() ?? '';
-                                      if (value.isEmpty) {
-                                        return 'PIN code is required';
-                                      }
-                                      if (value.length != 6) {
-                                        return 'Enter a valid 6 digit PIN code';
-                                      }
-                                      return null;
-                                    },
-                                  ),
+                                    _Field(
+                                      controller: postalCtrl,
+                                      label: "PIN Code",
+                                      hint: "6 digit code",
+                                      icon: Icons.pin_drop_outlined,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: 6,
+                                      digitsOnly: true,
+                                      validator: (v) {
+                                        final value = v?.trim() ?? '';
+                                        if (value.isEmpty) {
+                                          return 'PIN code is required';
+                                        }
+                                        if (value.length != 6) {
+                                          return 'Enter a valid 6 digit PIN code';
+                                        }
+                                        return null;
+                                      },
+                                    ),
 
-                                  const SizedBox(height: 16),
+                                    const SizedBox(height: 16),
 
-                                  /// DEFAULT SWITCH
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.star_border),
-                                      const SizedBox(width: 10),
-                                      const Expanded(
-                                        child: Text(
-                                          "Set as default address",
-                                          style: TextStyle(fontSize: 14),
+                                    /// DEFAULT SWITCH
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.star_border),
+                                        const SizedBox(width: 10),
+                                        const Expanded(
+                                          child: Text(
+                                            "Set as default address",
+                                            style: TextStyle(fontSize: 14),
+                                          ),
                                         ),
-                                      ),
-                                      Switch(
-                                        value: isDefault,
-                                        onChanged: (v) =>
-                                            setState(() => isDefault = v),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        Switch(
+                                          value: isDefault,
+                                          onChanged: (v) =>
+                                              setState(() => isDefault = v),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 100),
-                    ],
+                        const SizedBox(height: 100),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            /// 🔥 BOTTOM BUTTON (MATCH STYLE)
-            _bottomButton(context),
-          ],
+              /// 🔥 BOTTOM BUTTON (MATCH STYLE)
+              _bottomButton(context),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -576,13 +585,29 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
+        // Text(
+        //   label,
+        //   style: AppTextStyles.bodyMedium.copyWith(
+        //     fontWeight: FontWeight.w500,
+        //     color: ThemeColors.ink.withValues(alpha: 0.9),
+        //   ),
+        // ),
+        Text.rich(
+          TextSpan(
+            text: label,
+            style: AppTextStyles.bodyMedium.copyWith(
             fontWeight: FontWeight.w500,
-            color: ThemeColors.ink.withValues(alpha: 0.7),
+            color: ThemeColors.ink.withValues(alpha: 0.9),
+          ),
+            children: const [
+              TextSpan(
+                text: ' *',
+                style: TextStyle(color: Colors.red),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 6),
@@ -593,6 +618,7 @@ class _Field extends StatelessWidget {
           maxLength: maxLength,
           keyboardType: keyboardType,
           validator: validator,
+
           inputFormatters: digitsOnly
               ? [FilteringTextInputFormatter.digitsOnly]
               : lettersOnly
@@ -610,6 +636,10 @@ class _Field extends StatelessWidget {
               vertical: 14,
             ),
 
+            hintStyle: AppTextStyles.bodyMedium.copyWith(
+              color: ThemeColors.ink.withValues(alpha: 0.7),
+            ),
+
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
@@ -620,7 +650,7 @@ class _Field extends StatelessWidget {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: ThemeColors.ink.withValues(alpha: 0.15),
+                color: ThemeColors.ink.withValues(alpha: 0.6),
               ),
             ),
 

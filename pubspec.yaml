@@ -48,6 +48,7 @@ dependencies:
   # native analyzeImage (Vision API) is hard-unsupported on the iOS Simulator.
   zxing2: ^0.2.4
   image: ^4.9.1
+  share_plus: ^12.0.2
 
 
 

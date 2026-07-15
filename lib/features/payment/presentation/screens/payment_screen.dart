@@ -1118,10 +1118,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       primaryLabel: 'Continue to Pay',
                       secondaryLabel: 'Cancel',
                       // secondaryIcon: Icons.close,
-                      onPrimaryPressed: () => _onContinue(
+                      onPrimaryPressed: 
+                      _selectedAddress != null ? 
+                      () => _onContinue(
                         context,
                         context.read<PaymentMethodCubit>(),
-                      ),
+                      ) 
+                      : null
+                      ,
                       onSecondaryPressed: () => Navigator.pop(context),
                     );
                   },
@@ -1502,7 +1506,7 @@ class AddressCard extends StatelessWidget {
                               ),
                               child: Text(
                                 'Default',
-                                style: AppTextStyles.labelSmall.copyWith(
+                                style: AppTextStyles.labelMedium.copyWith(
                                   color: ThemeColors.blue,
                                 ),
                               ),
@@ -1531,7 +1535,7 @@ class AddressCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           'Deliver to this address',
-                          style: AppTextStyles.labelSmall.copyWith(
+                          style: AppTextStyles.labelMedium.copyWith(
                             color: ThemeColors.blue,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1546,7 +1550,7 @@ class AddressCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.edit_outlined,
-                        size: 18,
+                        size: 20,
                         color: Color(0xFFADB5BD),
                       ),
                       onPressed: onEdit,
@@ -1557,7 +1561,7 @@ class AddressCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.delete_outline_rounded,
-                        size: 18,
+                        size: 20,
                         color: ThemeColors.red,
                       ),
                       onPressed: onDelete,
@@ -1643,18 +1647,46 @@ class EmptyAddressWidget extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 14),
-        ElevatedButton.icon(
-          onPressed: onAddPressed,
-          icon: const Icon(Icons.add, size: 18),
-          label: const Text('Add Address'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: ThemeColors.blue,
-            foregroundColor: ThemeColors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+        // ElevatedButton.icon(
+        //   onPressed: onAddPressed,
+        //   icon: const Icon(Icons.add, size: 18),
+        //   label: const Text('Add Address'),
+        //   style: ElevatedButton.styleFrom(
+        //     backgroundColor: ThemeColors.blue,
+        //     foregroundColor: ThemeColors.white,
+        //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(10),
+        //     ),
+        //   ),
+        Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onAddPressed,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: ThemeColors.blue.withValues(alpha: 0.4)),
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              
+              Text(
+                'Add Address',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: ThemeColors.blue,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    
         ),
       ],
     );
@@ -1823,13 +1855,13 @@ class _WalletInfoCard extends StatelessWidget {
                     children: [
                       const Icon(
                         Icons.lock_outline,
-                        size: 11,
+                        size: 15,
                         color: ThemeColors.white,
                       ),
                       const SizedBox(width: 4),
                       Text(
                         'Secured',
-                        style: AppTextStyles.labelSmall.copyWith(
+                        style: AppTextStyles.labelMedium.copyWith(
                           color: ThemeColors.white,
                         ),
                       ),
@@ -1986,7 +2018,7 @@ class _CartSummaryBanner extends StatelessWidget {
                   Expanded(
                     child: Text(
                       '${item.product.title} × ${item.quantity}',
-                      style: AppTextStyles.bodySmall.copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: ThemeColors.inkMid,
                       ),
                       maxLines: 1,
@@ -1995,7 +2027,7 @@ class _CartSummaryBanner extends StatelessWidget {
                   ),
                   Text(
                     '\$${item.totalPrice.toStringAsFixed(0)}',
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: AppTextStyles.bodyMedium.copyWith(
                       color: ThemeColors.inkMid,
                     ),
                   ),

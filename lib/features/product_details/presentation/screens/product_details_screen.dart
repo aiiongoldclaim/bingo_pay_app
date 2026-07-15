@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/product_share_service.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
@@ -59,29 +60,47 @@ class ProductDetailScreen extends StatelessWidget {
                         images: product.images,
                         isFavourite: wishlist.isWishlisted(product.uuid),
                         onBack: () => Navigator.pop(context),
-                        onShare: () {},
+                        onShare: () async {
+                          if (product.uuid != null) {
+                            await ProductShareService.shareProduct(
+                              productId: product.uuid!,
+                              productName: product.productName,
+                              productPrice: product.price,
+                            );
+                          }
+                        },
                         onToggleFavourite: product.uuid == null
                             ? () {}
-                            : () => context.read<WishlistCubit>().toggle(
-                                WishlistItem(
-                                  id: product.uuid!,
-                                  brand: product.brand,
-                                  name: product.productName,
-                                  price: product.price,
-                                  originalPrice: product.oldPrice.isNotEmpty
-                                      ? product.oldPrice
-                                      : null,
-                                  discountPercent: product.discount > 0
-                                      ? product.discount
-                                      : null,
-                                  imageUrl: product.images.isNotEmpty
-                                      ? product.images.first
-                                      : null,
-                                  rating: product.rating,
-                                  reviewCount:
-                                      int.tryParse(product.reviewCount) ?? 0,
-                                ),
-                              ),
+                            : () async {
+                                final cubit = context.read<WishlistCubit>();
+                                final wasWishlisted = cubit.isWishlisted(product.uuid);
+                                await cubit.toggle(
+                                  WishlistItem(
+                                    id: product.uuid!,
+                                    brand: product.brand,
+                                    name: product.productName,
+                                    price: product.price,
+                                    originalPrice: product.oldPrice.isNotEmpty
+                                        ? product.oldPrice
+                                        : null,
+                                    discountPercent: product.discount > 0
+                                        ? product.discount
+                                        : null,
+                                    imageUrl: product.images.isNotEmpty
+                                        ? product.images.first
+                                        : null,
+                                    rating: product.rating,
+                                    reviewCount:
+                                        int.tryParse(product.reviewCount) ?? 0,
+                                  ),
+                                );
+                                if (!wasWishlisted && context.mounted) {
+                                  AppSnackbar.showSuccess(
+                                    context,
+                                    'Product added to Wishlist successfully.',
+                                  );
+                                }
+                              },
                       ),
                       SizedBox(height: 1.h),
 

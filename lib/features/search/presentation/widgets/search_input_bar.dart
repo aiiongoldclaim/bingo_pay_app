@@ -54,19 +54,23 @@ class _SearchInputBarState extends State<SearchInputBar> {
     return Padding(
       padding: EdgeInsets.all(4.w),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          GestureDetector(
-            onTap: widget.onBack,
-            child: Container(
-              padding: EdgeInsets.all(2.w),
-              decoration: BoxDecoration(
-                color: ThemeColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: ThemeColors.line),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: ThemeColors.ink,
+          SizedBox(
+            height: 5.6.h,
+            child: GestureDetector(
+              onTap: widget.onBack,
+              child: Container(
+                padding: EdgeInsets.all(2.w),
+                decoration: BoxDecoration(
+                  color: ThemeColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: ThemeColors.line),
+                ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: ThemeColors.ink,
+                ),
               ),
             ),
           ),
@@ -77,30 +81,35 @@ class _SearchInputBarState extends State<SearchInputBar> {
             child: ValueListenableBuilder<TextEditingValue>(
               valueListenable: _controller,
               builder: (_, value, __) {
-                return AppSearchBar(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  autofocus: true,
-                  hintText: widget.hint,
-                  onChanged: (value) {
-                    debugPrint('Typing: $value');
-                    widget.onChanged(value);
-                  },
-                  onSubmitted: widget.onSubmit,
-
-                  suffixIcon: value.text.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(
-                            Icons.close_rounded,
-                            color: ThemeColors.inkDim,
-                          ),
-                          onPressed: () {
-                            _controller.clear();
-                            widget.onChanged('');
-                            widget.onClear?.call();
-                          },
-                        ),
+                return Column(
+                  children: [
+                    SizedBox(height: 1.h),
+                    AppSearchBar(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      autofocus: true,
+                      hintText: widget.hint,
+                      onChanged: (value) {
+                        debugPrint('Typing: $value');
+                        widget.onChanged(value);
+                      },
+                      onSubmitted: widget.onSubmit,
+                    
+                      suffixIcon: value.text.isEmpty
+                          ? null
+                          : IconButton(
+                              icon: const Icon(
+                                Icons.close_rounded,
+                                color: ThemeColors.inkDim,
+                              ),
+                              onPressed: () {
+                                _controller.clear();
+                                widget.onChanged('');
+                                widget.onClear?.call();
+                              },
+                            ),
+                    ),
+                  ],
                 );
               },
             ),

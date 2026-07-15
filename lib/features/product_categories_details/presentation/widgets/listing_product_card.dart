@@ -46,6 +46,7 @@ class ListingProductCard extends StatelessWidget {
               offset: const Offset(0, 2),
             ),
           ],
+          border: Border.all(color: ThemeColors.inkDim, width: 0.5),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

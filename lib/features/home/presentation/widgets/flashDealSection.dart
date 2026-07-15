@@ -7,6 +7,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/product_card.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
@@ -87,7 +88,10 @@ class FlashDealSection extends StatelessWidget {
                 initialFavourite: wishlist.isWishlisted(product.uuid),
                 onFavouriteChanged: product.uuid == null
                     ? null
-                    : (_) => context.read<WishlistCubit>().toggle(
+                    : (isAdded) async {
+                        final cubit = context.read<WishlistCubit>();
+                        final buildContext = context;
+                        await cubit.toggle(
                           WishlistItem(
                             id: product.uuid!,
                             brand: product.brand,
@@ -103,7 +107,14 @@ class FlashDealSection extends StatelessWidget {
                                 : null,
                             rating: product.rating,
                           ),
-                        ),
+                        );
+                        if (isAdded && buildContext.mounted) {
+                          AppSnackbar.showSuccess(
+                            buildContext,
+                            'Product added to Wishlist successfully.',
+                          );
+                        }
+                      },
                 onTap: product.uuid != null
                     ? () => context.push(
                           AppRoutes.productDetails,

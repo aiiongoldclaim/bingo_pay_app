@@ -4,6 +4,8 @@ import '../constants/app_sizes.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/theme_colors.dart';
 
+typedef AsyncValueChanged<T> = Future<void> Function(T value);
+
 class ProductCard extends StatefulWidget {
   const ProductCard({
     super.key,
@@ -26,7 +28,7 @@ class ProductCard extends StatefulWidget {
   final double? width;
   final VoidCallback? onTap;
   final bool initialFavourite;
-  final ValueChanged<bool>? onFavouriteChanged;
+  final AsyncValueChanged<bool>? onFavouriteChanged;
 
   @override
   State<ProductCard> createState() => _ProductCardState();
@@ -66,12 +68,13 @@ class _ProductCardState extends State<ProductCard> {
     }
   }
 
-  void _toggleFavourite() {
+  Future<void> _toggleFavouriteAsync() async {
+    final newState = !isFavourite;
     setState(() {
-      isFavourite = !isFavourite;
+      isFavourite = newState;
     });
 
-    widget.onFavouriteChanged?.call(isFavourite);
+    await widget.onFavouriteChanged?.call(newState);
   }
 
   @override
@@ -130,7 +133,7 @@ class _ProductCardState extends State<ProductCard> {
                       top: 10.sp,
                       right: 10.sp,
                       child: GestureDetector(
-                        onTap: _toggleFavourite,
+                        onTap: _toggleFavouriteAsync,
                         child: Container(
                           padding: const EdgeInsets.all(AppSizes.radiusXs),
                           decoration: BoxDecoration(
