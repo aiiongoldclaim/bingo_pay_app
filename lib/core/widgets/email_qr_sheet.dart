@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../security/email_qr_codec.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 
 Future<void> showEmailQrSheet(BuildContext context, {required String email}) {
@@ -33,16 +34,17 @@ class _EmailQrSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppDimensions.md),
               decoration: BoxDecoration(
+                // QR codes need a light background to stay scannable in dark mode.
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: context.colors.border),
               ),
               child: QrImageView(data: payload, size: 220),
             ),
             const SizedBox(height: AppDimensions.sm),
             Text(
               "Your Bingold Wallet QR code. Share this with your customers to receive payments directly into your wallet.",
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
             ),
           ],
         ),

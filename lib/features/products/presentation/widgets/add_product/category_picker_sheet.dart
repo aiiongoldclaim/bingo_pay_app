@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/di/injection.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/error/error_messages.dart';
 import '../../../data/datasources/product_remote_datasource.dart';
 import '../../../data/models/category_model.dart';
 import '../../models/product_category_data.dart';
@@ -55,7 +57,7 @@ class _ParentCategoryPickerContentState extends State<_ParentCategoryPickerConte
               if (snapshot.hasError) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: Text('Failed to load: ${snapshot.error}'),
+                  child: Text('Failed to load: ${friendlyErrorMessage(snapshot.error)}'),
                 );
               }
               final categories = snapshot.data ?? [];
@@ -70,9 +72,9 @@ class _ParentCategoryPickerContentState extends State<_ParentCategoryPickerConte
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (cat.children.isNotEmpty)
-                              const Icon(Icons.chevron_right, color: Colors.grey),
+                              Icon(Icons.chevron_right, color: context.colors.textMuted),
                             if (cat.uuid == widget.selectedId)
-                              const Icon(Icons.check, color: Colors.blue),
+                              const Icon(Icons.check, color: AppColors.primary),
                           ],
                         ),
                         onTap: () => Navigator.of(context).pop(cat),
@@ -127,7 +129,7 @@ Future<String?> _showOptionPicker(
           for (final option in options)
             ListTile(
               title: Text(option),
-              trailing: option == selected ? const Icon(Icons.check, color: Colors.blue) : null,
+              trailing: option == selected ? const Icon(Icons.check, color: AppColors.primary) : null,
               onTap: () => Navigator.of(context).pop(option),
             ),
         ],

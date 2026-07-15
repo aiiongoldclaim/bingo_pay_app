@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../models/dashboard_mock_data.dart';
+import '../../../../core/widgets/glass/glass_card.dart';
+import '../../../transactions/presentation/models/order_mock_data.dart';
 
 const List<Color> _avatarPalette = [
   Color(0xFF1A73E8),
@@ -15,10 +17,18 @@ const List<Color> _avatarPalette = [
 Color _avatarColorFor(String name) => _avatarPalette[name.hashCode.abs() % _avatarPalette.length];
 
 class RecentOrdersSection extends StatelessWidget {
-  final List<RecentOrder> orders;
+  final List<Order> orders;
+
+  /// Product image lookup, keyed by lowercase product title.
+  final Map<String, String> productImages;
   final VoidCallback onSeeAllTap;
 
-  const RecentOrdersSection({super.key, required this.orders, required this.onSeeAllTap});
+  const RecentOrdersSection({
+    super.key,
+    required this.orders,
+    this.productImages = const {},
+    required this.onSeeAllTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,41 +53,54 @@ class RecentOrdersSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppDimensions.sm),
-        for (final order in orders) _RecentOrderTile(order: order),
+        for (final order in orders)
+          _RecentOrderTile(
+            order: order,
+            imageUrl: order.items.isEmpty
+                ? null
+                : productImages[order.items.first.productName.toLowerCase()],
+          ),
       ],
     );
   }
 }
 
 class _RecentOrderTile extends StatelessWidget {
-  final RecentOrder order;
+  final Order order;
+  final String? imageUrl;
 
-  const _RecentOrderTile({required this.order});
+  const _RecentOrderTile({required this.order, this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
-    final (bg, fg, label) = switch (order.status) {
-      OrderStatus.pending => (const Color(0xFFFCEFD9), const Color(0xFFB36B00), 'Pending'),
-      OrderStatus.confirmed => (const Color(0xFFDDEBFB), const Color(0xFF1A5DAB), 'Confirmed'),
-      OrderStatus.delivered => (const Color(0xFFE2F0DA), const Color(0xFF4C7A2D), 'Delivered'),
+    final colors = context.colors;
+    final (bg, fg) = switch (order.status) {
+      OrderStatus.pending => (colors.warningTint, colors.warningFg),
+      OrderStatus.confirmed => (colors.infoTint, colors.infoFg),
+      OrderStatus.processing => (colors.infoTint, colors.infoFg),
+      OrderStatus.shipped => (colors.purpleTint, colors.purpleFg),
+      OrderStatus.delivered => (colors.successTint, colors.successFg),
     };
-    final initial = order.customerName.isNotEmpty ? order.customerName[0].toUpperCase() : '?';
+    final label = order.status.label;
+    final firstItem = order.items.isNotEmpty ? order.items.first : null;
+    final productLine = firstItem == null
+        ? 'No items'
+        : '${firstItem.productName} × ${firstItem.quantity}'
+            '${order.items.length > 1 ? '  +${order.items.length - 1} more' : ''}';
+    final avatarName = firstItem?.productName ?? '?';
+    final initial = avatarName.isNotEmpty ? avatarName[0].toUpperCase() : '?';
 
-    return Container(
+    return GlassCard(
       margin: const EdgeInsets.only(bottom: AppDimensions.sm + 4),
       padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
-        ],
-      ),
+      radius: AppDimensions.radiusXl,
       child: Row(
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundColor: _avatarColorFor(order.customerName),
+            backgroundColor: _avatarColorFor(avatarName),
+            // foregroundImage falls back to the initial below if it fails to load.
+            foregroundImage: imageUrl == null ? null : NetworkImage(imageUrl!),
             child: Text(initial, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
           ),
           const SizedBox(width: 12),
@@ -85,9 +108,14 @@ class _RecentOrderTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('#${order.orderId} · ${order.timeAgo}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                Text('#${order.orderId} · ${order.timeAgo}', style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
                 const SizedBox(height: 4),
-                Text(order.customerName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(
+                  productLine,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),

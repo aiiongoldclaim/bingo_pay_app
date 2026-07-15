@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../domain/usecases/submit_vendor_kyc_usecase.dart';
 
 sealed class AuthEvent extends Equatable {
   const AuthEvent();
@@ -19,8 +20,7 @@ class VendorLoginRequested extends AuthEvent {
 }
 
 class VendorRegisterRequested extends AuthEvent {
-  final String firstName;
-  final String lastName;
+  final String fullName;
   final String email;
   final String phone;
   final String password;
@@ -33,8 +33,7 @@ class VendorRegisterRequested extends AuthEvent {
   final String? supportEmail;
   final String? supportPhone;
   const VendorRegisterRequested({
-    required this.firstName,
-    required this.lastName,
+    required this.fullName,
     required this.email,
     required this.phone,
     required this.password,
@@ -49,7 +48,7 @@ class VendorRegisterRequested extends AuthEvent {
   });
   @override
   List<Object?> get props => [
-        firstName, lastName, email, phone, password,
+        fullName, email, phone, password,
         shopName, shopSlug, businessName,
         description, gstNumber, panNumber, supportEmail, supportPhone,
       ];
@@ -70,6 +69,28 @@ class ResendOtpRequested extends AuthEvent {
   List<Object> get props => [email];
 }
 
+class BinGoldLoginOtpRequested extends AuthEvent {
+  final String email;
+  const BinGoldLoginOtpRequested({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
+class BinGoldVerifyLoginRequested extends AuthEvent {
+  final String email;
+  final String otp;
+  const BinGoldVerifyLoginRequested({required this.email, required this.otp});
+  @override
+  List<Object> get props => [email, otp];
+}
+
+class SetPasswordRequested extends AuthEvent {
+  final String password;
+  const SetPasswordRequested({required this.password});
+  @override
+  List<Object> get props => [password];
+}
+
 class ForgotPasswordRequested extends AuthEvent {
   final String email;
   const ForgotPasswordRequested({required this.email});
@@ -83,35 +104,11 @@ class LogoutRequested extends AuthEvent {
   List<Object> get props => [];
 }
 
-class KycPersonalDetailsSubmitted extends AuthEvent {
-  final String name;
-  final String dateOfBirth;
-  final String address;
-  const KycPersonalDetailsSubmitted({
-    required this.name,
-    required this.dateOfBirth,
-    required this.address,
-  });
+class KycDocumentsSubmitted extends AuthEvent {
+  final List<KycDocumentSubmission> documents;
+  const KycDocumentsSubmitted({required this.documents});
   @override
-  List<Object> get props => [name, dateOfBirth, address];
-}
-
-class KycDocumentUploaded extends AuthEvent {
-  final String filePath;
-  final String documentType;
-  const KycDocumentUploaded({
-    required this.filePath,
-    required this.documentType,
-  });
-  @override
-  List<Object> get props => [filePath, documentType];
-}
-
-class KycSelfieUploaded extends AuthEvent {
-  final String filePath;
-  const KycSelfieUploaded({required this.filePath});
-  @override
-  List<Object> get props => [filePath];
+  List<Object> get props => [documents];
 }
 
 class KycStatusPolled extends AuthEvent {

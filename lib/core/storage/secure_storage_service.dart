@@ -40,5 +40,22 @@ class SecureStorageService {
   Future<bool> hasAccessToken() async =>
       (await _storage.read(key: AppConstants.accessTokenKey)) != null;
 
+  Future<void> saveTempAccessToken(String token) =>
+      _storage.write(key: AppConstants.tempAccessTokenKey, value: token);
+
+  Future<void> saveTempRefreshToken(String token) =>
+      _storage.write(key: AppConstants.tempRefreshTokenKey, value: token);
+
+  Future<String?> getTempAccessToken() =>
+      _storage.read(key: AppConstants.tempAccessTokenKey);
+
+  Future<String?> getTempRefreshToken() =>
+      _storage.read(key: AppConstants.tempRefreshTokenKey);
+
+  Future<void> clearTempTokens() async {
+    await _storage.delete(key: AppConstants.tempAccessTokenKey);
+    await _storage.delete(key: AppConstants.tempRefreshTokenKey);
+  }
+
   Future<void> clearAll() => _storage.deleteAll();
 }

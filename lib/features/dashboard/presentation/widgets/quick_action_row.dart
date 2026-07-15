@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/glass/glass_card.dart';
 
 class QuickAction {
   final IconData icon;
@@ -43,19 +44,11 @@ class _QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+    return GlassCard(
+      radius: AppDimensions.radiusXl,
+      padding: const EdgeInsets.symmetric(vertical: AppDimensions.md),
       onTap: action.onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: AppDimensions.md),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Column(
+      child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
@@ -73,7 +66,6 @@ class _QuickActionCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

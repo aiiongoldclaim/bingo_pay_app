@@ -20,20 +20,37 @@ class ImagePickerHelper {
 
     if (!context.mounted) return null;
 
+    return pickFrom(
+      context,
+      source,
+      imageQuality: imageQuality,
+      preferredCameraDevice: preferredCameraDevice,
+    );
+  }
+
+  /// Picks directly from [source] without showing the camera/gallery chooser
+  /// sheet — for callers that already present their own source selection UI.
+  static Future<XFile?> pickFrom(
+    BuildContext context,
+    ImageSource source, {
+    int imageQuality = 80,
+    CameraDevice preferredCameraDevice = CameraDevice.rear,
+  }) async {
     // Camera always needs an explicit permission check on all platforms.
     // Gallery on iOS uses PHPickerViewController (iOS 14+) which handles its own
     // access without requiring a prior permission request — checking Permission.photos
     // here would incorrectly return permanentlyDenied and open Settings instead of
     // showing the picker. On Android, explicit storage permission is still required.
     if (source == ImageSource.camera) {
-      // ignore: use_build_context_synchronously
       final status = await PermissionHelper.request(context, Permission.camera);
       if (!status.isGranted && !status.isLimited) return null;
     } else if (Platform.isAndroid) {
-      // ignore: use_build_context_synchronously
+      if (!context.mounted) return null;
       final status = await PermissionHelper.request(context, Permission.photos);
       if (!status.isGranted && !status.isLimited) return null;
     }
+
+    if (!context.mounted) return null;
 
     return _picker.pickImage(
       source: source,

@@ -5,19 +5,25 @@ import '../storage/secure_storage_service.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/error_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
+import 'session_expiry_notifier.dart';
 
 @singleton
 class ApiClient {
   late final Dio dio;
 
-  ApiClient(SecureStorageService storage) {
+  ApiClient(
+    SecureStorageService storage,
+    SessionExpiryNotifier sessionExpiryNotifier,
+  ) {
     dio = Dio(
       BaseOptions(
         baseUrl: AppConfig.apiBaseUrl,
-        connectTimeout:
-            const Duration(seconds: AppConfig.connectTimeoutSeconds),
-        receiveTimeout:
-            const Duration(seconds: AppConfig.receiveTimeoutSeconds),
+        connectTimeout: const Duration(
+          seconds: AppConfig.connectTimeoutSeconds,
+        ),
+        receiveTimeout: const Duration(
+          seconds: AppConfig.receiveTimeoutSeconds,
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -27,9 +33,9 @@ class ApiClient {
     );
 
     dio.interceptors.addAll([
-      LoggingInterceptor(),
       AuthInterceptor(storage),
-      ErrorInterceptor(),
+      LoggingInterceptor(),
+      ErrorInterceptor(sessionExpiryNotifier),
     ]);
   }
 }

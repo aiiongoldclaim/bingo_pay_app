@@ -19,13 +19,14 @@ class TapSelectField extends FormField<String> {
          initialValue: value,
          validator: required ? (v) => (v == null || v.isEmpty) ? '$label is required' : null : null,
          builder: (state) {
+           final colors = state.context.colors;
            return Column(
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
                Text.rich(
                  TextSpan(
                    text: label,
-                   style: const TextStyle(fontSize: 14, color: Colors.black87),
+                   style: TextStyle(fontSize: 14, color: colors.textPrimary),
                    children: required
                        ? const [TextSpan(text: ' *', style: TextStyle(color: AppColors.error))]
                        : null,
@@ -46,7 +47,7 @@ class TapSelectField extends FormField<String> {
                  child: Container(
                    padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 16),
                    decoration: BoxDecoration(
-                     color: enabled ? Colors.white : const Color(0xFFF1F0EC),
+                     color: enabled ? colors.card : colors.inputFill,
                      borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                      border: state.hasError ? Border.all(color: AppColors.error) : null,
                    ),
@@ -57,11 +58,11 @@ class TapSelectField extends FormField<String> {
                            state.value ?? hint,
                            style: TextStyle(
                              fontSize: 15,
-                             color: state.value != null ? Colors.black87 : Colors.grey[500],
+                             color: state.value != null ? colors.textPrimary : colors.textMuted,
                            ),
                          ),
                        ),
-                       Icon(Icons.chevron_right, color: Colors.grey[400]),
+                       Icon(Icons.chevron_right, color: colors.textMuted),
                      ],
                    ),
                  ),

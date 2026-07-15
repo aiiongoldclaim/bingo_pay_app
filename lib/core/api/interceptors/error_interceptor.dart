@@ -1,9 +1,17 @@
 import 'package:dio/dio.dart';
 import '../../error/exceptions.dart';
+import '../session_expiry_notifier.dart';
 
 class ErrorInterceptor extends Interceptor {
+  final SessionExpiryNotifier _sessionExpiryNotifier;
+
+  ErrorInterceptor(this._sessionExpiryNotifier);
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401) {
+      _sessionExpiryNotifier.notify();
+    }
     final exception = _mapDioError(err);
     handler.reject(
       DioException(

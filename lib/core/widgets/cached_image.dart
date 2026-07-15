@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+
 class CachedImage extends StatelessWidget {
   final String? url;
   final double? width;
@@ -25,8 +27,8 @@ class CachedImage extends StatelessWidget {
         Container(
           width: width,
           height: height,
-          color: Colors.grey.shade100,
-          child: Icon(Icons.image_outlined, color: Colors.grey.shade400),
+          color: context.colors.inputFill,
+          child: Icon(Icons.image_outlined, color: context.colors.textMuted),
         );
 
     if (url == null || url!.isEmpty) return fallback;
@@ -36,12 +38,12 @@ class CachedImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      placeholder: (_, __) =>
+      placeholder: (_, _) =>
           placeholder ??
           Container(
             width: width,
             height: height,
-            color: Colors.grey.shade100,
+            color: context.colors.inputFill,
             child: const Center(
               child: SizedBox(
                 width: 20,
@@ -50,7 +52,7 @@ class CachedImage extends StatelessWidget {
               ),
             ),
           ),
-      errorWidget: (_, __, ___) => fallback,
+      errorWidget: (_, _, _) => fallback,
     );
   }
 }

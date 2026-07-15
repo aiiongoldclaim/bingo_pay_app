@@ -9,7 +9,7 @@ enum UploadFolder {
   profileImage('profileimage'),
   bannerImage('bannerimage'),
   categoryImage('categoryimage'),
-  kycDocument('kycdocument');
+  kycDocument('kycDocument');
 
   const UploadFolder(this.folderName);
   final String folderName;
@@ -83,7 +83,16 @@ class UploadService {
       data: formData,
       options: Options(contentType: 'multipart/form-data'),
     );
-    final data = response.data['data'] as Map<String, dynamic>;
+    final outer = response.data['data'] as Map<String, dynamic>;
+    final data = outer['data'] as Map<String, dynamic>;
     return UploadResult.fromJson(data);
+  }
+
+  /// Deletes a previously uploaded file by its Cloudinary public id.
+  Future<void> deleteFile(String publicId) async {
+    await _apiClient.dio.delete(
+      ApiEndpoints.uploads,
+      data: {'public_id': publicId},
+    );
   }
 }

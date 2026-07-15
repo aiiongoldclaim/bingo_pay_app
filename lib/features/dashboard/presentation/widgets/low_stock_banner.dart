@@ -17,7 +17,7 @@ class LowStockBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.warningTint,
+          color: context.colors.warningTint,
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         ),
         child: Row(
@@ -25,25 +25,28 @@ class LowStockBanner extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: const BoxDecoration(color: Color(0xFFF8DDB0), shape: BoxShape.circle),
-              child: const Icon(Icons.inventory_2_outlined, color: Color(0xFFB36B00), size: 18),
+              decoration: BoxDecoration(
+                color: context.colors.warningFg.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.inventory_2_outlined, color: context.colors.warningFg, size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
                   children: [
                     TextSpan(text: '$count products are running low on stock. '),
-                    const TextSpan(
+                    TextSpan(
                       text: 'Manage inventory',
-                      style: TextStyle(color: Color(0xFFB36B00), fontWeight: FontWeight.w600),
+                      style: TextStyle(color: context.colors.warningFg, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFFB36B00)),
+            Icon(Icons.chevron_right, color: context.colors.warningFg),
           ],
         ),
       ),

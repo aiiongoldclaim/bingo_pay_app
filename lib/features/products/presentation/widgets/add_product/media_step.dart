@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../../../core/error/error_messages.dart';
 import '../../../../../core/helpers/image_picker_helper.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
@@ -20,6 +21,8 @@ class MediaStep extends StatefulWidget {
   final Future<List<({String url, String id})>> Function(List<String> imagePaths)? onGalleryImagesAdded;
   // Called when user confirms deletion of an uploaded image.
   final Future<void> Function(String mediaId)? onImageDeleted;
+  // Called when user taps the primary image to replace it. Returns (url, id) on success.
+  final Future<({String url, String id})?> Function(String imagePath)? onReplaceFirstImage;
 
   const MediaStep({
     super.key,
@@ -30,6 +33,7 @@ class MediaStep extends StatefulWidget {
     this.onFirstImageAdded,
     this.onGalleryImagesAdded,
     this.onImageDeleted,
+    this.onReplaceFirstImage,
   });
 
   @override
@@ -39,6 +43,7 @@ class MediaStep extends StatefulWidget {
 class _MediaStepState extends State<MediaStep> {
   bool _isUploadingThumbnail = false;
   bool _isUploadingGallery = false;
+  bool _isReplacingThumbnail = false;
 
   Future<void> _addImage(BuildContext context) async {
     final isFirst = widget.draft.imagePaths.isEmpty;
@@ -88,6 +93,24 @@ class _MediaStepState extends State<MediaStep> {
     }
   }
 
+  Future<void> _replaceThumbnail(BuildContext context) async {
+    if (widget.onReplaceFirstImage == null || _isReplacingThumbnail) return;
+    final picked = await ImagePickerHelper.pick(context);
+    if (picked == null) return;
+
+    setState(() => _isReplacingThumbnail = true);
+    final result = await widget.onReplaceFirstImage!(picked.path);
+    setState(() => _isReplacingThumbnail = false);
+
+    if (result != null) {
+      final oldUrl = widget.draft.imagePaths[0];
+      widget.draft.imageMediaIds.remove(oldUrl);
+      widget.draft.imagePaths[0] = result.url;
+      widget.draft.imageMediaIds[result.url] = result.id;
+      widget.onDraftChanged();
+    }
+  }
+
   Future<void> _confirmDelete(BuildContext context, int index) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -110,7 +133,7 @@ class _MediaStepState extends State<MediaStep> {
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete image: $e')),
+            SnackBar(content: Text('Failed to delete image: ${friendlyErrorMessage(e)}')),
           );
         }
         return;
@@ -150,13 +173,13 @@ class _MediaStepState extends State<MediaStep> {
                 children: [
                   Text.rich(
                     TextSpan(
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
                       children: [
                         const TextSpan(text: 'Product images'),
                         const TextSpan(text: ' *', style: TextStyle(color: AppColors.error)),
-                        const TextSpan(
+                        TextSpan(
                           text: ' (max $kMaxProductImages)',
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(color: context.colors.textMuted),
                         ),
                       ],
                     ),
@@ -184,10 +207,16 @@ class _MediaStepState extends State<MediaStep> {
                           onTap: isUploading ? null : () => _addImage(context),
                         );
                       }
+                      if (index == 0 && _isReplacingThumbnail) {
+                        return const _LoadingSlot(label: 'Replacing…');
+                      }
                       return _ImageSlot(
                         path: draft.imagePaths[index],
                         isPrimary: index == 0,
-                        onLongPress: () => _confirmDelete(context, index),
+                        onRemove: () => _confirmDelete(context, index),
+                        onTap: index == 0 && widget.onReplaceFirstImage != null
+                            ? () => _replaceThumbnail(context)
+                            : null,
                       );
                     },
                   ),
@@ -200,17 +229,17 @@ class _MediaStepState extends State<MediaStep> {
                   ],
                   const SizedBox(height: 8),
                   Text(
-                    '${draft.imagePaths.length} of $kMaxProductImages added · tap to add more · long-press to delete',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    '${draft.imagePaths.length} of $kMaxProductImages added · tap to add more',
+                    style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                   ),
                 ],
               );
             },
           ),
           const SizedBox(height: AppDimensions.lg),
-          const Text(
+          Text(
             'Product video (optional)',
-            style: TextStyle(fontSize: 14, color: Colors.black87),
+            style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           ),
           const SizedBox(height: AppDimensions.sm),
           TextFormField(
@@ -232,7 +261,7 @@ class _LoadingSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: context.colors.inputFill,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
       child: Stack(
@@ -264,16 +293,22 @@ class _LoadingSlot extends StatelessWidget {
 class _ImageSlot extends StatelessWidget {
   final String path;
   final bool isPrimary;
-  final VoidCallback onLongPress;
+  final VoidCallback onRemove;
+  final VoidCallback? onTap;
 
-  const _ImageSlot({required this.path, required this.isPrimary, required this.onLongPress});
+  const _ImageSlot({
+    required this.path,
+    required this.isPrimary,
+    required this.onRemove,
+    this.onTap,
+  });
 
   bool get _isUrl => path.startsWith('http://') || path.startsWith('https://');
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: onLongPress,
+      onTap: onTap,
       child: Stack(
         children: [
           ClipRRect(
@@ -310,6 +345,21 @@ class _ImageSlot extends StatelessWidget {
                 ),
               ),
             ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: Container(
+                padding: const EdgeInsets.all(3),
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 14, color: Colors.white),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -329,9 +379,9 @@ class _AddImageSlot extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          border: Border.all(color: Colors.grey[400]!, style: BorderStyle.solid),
+          border: Border.all(color: context.colors.textMuted, style: BorderStyle.solid),
         ),
-        child: Icon(Icons.add_photo_alternate_outlined, color: Colors.grey[500]),
+        child: Icon(Icons.add_photo_alternate_outlined, color: context.colors.textMuted),
       ),
     );
   }

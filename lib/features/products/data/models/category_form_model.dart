@@ -38,6 +38,40 @@ class FormAttribute {
     required this.options,
   });
 
+  /// Whether this attribute has predefined values to pick from.
+  /// Some backend attributes are labeled fieldType TEXT despite having
+  /// options attached, so option presence (not fieldType) drives the UI.
+  bool get hasOptions => options.isNotEmpty;
+
+  static const _numericNameHints = [
+    'weight',
+    'capacity',
+    'warranty',
+    'cores',
+    'count',
+    'quantity',
+    'length',
+    'width',
+    'height',
+    'thickness',
+    'diameter',
+    'depth',
+    'age',
+    'mileage',
+    'wattage',
+    'voltage',
+    'frequency',
+    'battery',
+  ];
+
+  /// Heuristic for fields with no predefined options: guesses whether the
+  /// value should be entered on a numeric keyboard based on the attribute
+  /// name, since the backend has no dedicated NUMBER fieldType.
+  bool get isNumeric {
+    final lower = name.toLowerCase();
+    return _numericNameHints.any(lower.contains);
+  }
+
   factory FormAttribute.fromJson(Map<String, dynamic> json) => FormAttribute(
         id: json['id'].toString(),
         uuid: json['uuid'] as String? ?? '',

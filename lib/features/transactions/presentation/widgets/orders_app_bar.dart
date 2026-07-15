@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-class OrdersAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback onSearchTap;
-  final VoidCallback onFilterTap;
+import '../../../../core/theme/app_colors.dart';
 
-  const OrdersAppBar({super.key, required this.onSearchTap, required this.onFilterTap});
+class OrdersAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const OrdersAppBar({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -12,19 +11,19 @@ class OrdersAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xFF1B2A6B),
+      backgroundColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
       centerTitle: false,
-      title: const Text(
+      title: Text(
         'Orders',
-        style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: context.colors.textPrimary,
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.4,
+        ),
       ),
-      actions: [
-        IconButton(icon: const Icon(Icons.search, color: Colors.white), onPressed: onSearchTap),
-        IconButton(icon: const Icon(Icons.tune, color: Colors.white), onPressed: onFilterTap),
-        const SizedBox(width: 4),
-      ],
     );
   }
 }

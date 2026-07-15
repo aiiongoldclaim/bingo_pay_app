@@ -1,18 +1,9 @@
 import 'package:flutter/material.dart';
 
-class ProductsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final VoidCallback onSearchTap;
-  final VoidCallback onFilterTap;
-  final bool isGridView;
-  final VoidCallback onViewToggle;
+import '../../../../core/theme/app_colors.dart';
 
-  const ProductsAppBar({
-    super.key,
-    required this.onSearchTap,
-    required this.onFilterTap,
-    required this.isGridView,
-    required this.onViewToggle,
-  });
+class ProductsAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const ProductsAppBar({super.key});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -20,24 +11,19 @@ class ProductsAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xFF1B2A6B),
+      backgroundColor: Colors.transparent,
       elevation: 0,
       automaticallyImplyLeading: false,
       centerTitle: false,
-      title: const Text(
+      title: Text(
         'Products',
-        style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-      actions: [
-        IconButton(icon: const Icon(Icons.search, color: Colors.white), onPressed: onSearchTap),
-        IconButton(icon: const Icon(Icons.tune, color: Colors.white), onPressed: onFilterTap),
-        IconButton(
-          icon: Icon(isGridView ? Icons.view_list_outlined : Icons.grid_view_outlined, color: Colors.white),
-          tooltip: isGridView ? 'List view' : 'Grid view',
-          onPressed: onViewToggle,
+        style: TextStyle(
+          color: context.colors.textPrimary,
+          fontSize: 24,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.4,
         ),
-        const SizedBox(width: 4),
-      ],
+      ),
     );
   }
 }

@@ -34,6 +34,13 @@ class AuthOtpRequired extends AuthState {
   List<Object> get props => [email, message];
 }
 
+class AuthPasswordSetupRequired extends AuthState {
+  final String email;
+  const AuthPasswordSetupRequired({required this.email});
+  @override
+  List<Object> get props => [email];
+}
+
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
   @override
@@ -57,14 +64,6 @@ class KycLoading extends AuthState {
   const KycLoading();
   @override
   List<Object> get props => [];
-}
-
-class KycStepCompleted extends AuthState {
-  final KycEntity kyc;
-  final int step;
-  const KycStepCompleted({required this.kyc, required this.step});
-  @override
-  List<Object> get props => [kyc, step];
 }
 
 class KycSubmitted extends AuthState {

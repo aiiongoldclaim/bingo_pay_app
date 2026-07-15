@@ -5,46 +5,52 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/cached_image.dart';
+import '../../../../core/widgets/glass/glass_card.dart';
 import '../models/product_mock_data.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
   final bool isGrid;
+  final Future<void> Function()? onChanged;
 
-  const ProductCard({super.key, required this.product, this.isGrid = false});
+  const ProductCard({
+    super.key,
+    required this.product,
+    this.isGrid = false,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return isGrid ? _GridCard(product: product) : _ListCard(product: product);
+    return isGrid
+        ? _GridCard(product: product, onChanged: onChanged)
+        : _ListCard(product: product, onChanged: onChanged);
   }
+}
+
+Future<void> _openDetail(
+  BuildContext context,
+  Product product,
+  Future<void> Function()? onChanged,
+) async {
+  // Detail screen can edit or delete the product, so refresh the list on return
+  await context.push(AppRoutes.vendorProductDetailPath(product.uuid));
+  await onChanged?.call();
 }
 
 class _ListCard extends StatelessWidget {
   final Product product;
-  const _ListCard({required this.product});
+  final Future<void> Function()? onChanged;
+  const _ListCard({required this.product, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-      onTap: product.uuid.isEmpty
-          ? null
-          : () => context.push(AppRoutes.vendorProductDetailPath(product.uuid)),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppDimensions.sm + 4),
-        padding: const EdgeInsets.all(AppDimensions.md),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: AppDimensions.sm + 4),
+      padding: const EdgeInsets.all(AppDimensions.md),
+      radius: AppDimensions.radiusXl,
+      onTap: product.uuid.isEmpty ? null : () => _openDetail(context, product, onChanged),
+      child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
@@ -78,7 +84,7 @@ class _ListCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     product.category,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   _StockPill(stock: product.stock),
@@ -87,44 +93,30 @@ class _ListCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
 
 class _GridCard extends StatelessWidget {
   final Product product;
-  const _GridCard({required this.product});
+  final Future<void> Function()? onChanged;
+  const _GridCard({required this.product, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-      onTap: product.uuid.isEmpty
-          ? null
-          : () => context.push(AppRoutes.vendorProductDetailPath(product.uuid)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
+    return GlassCard(
+      padding: EdgeInsets.zero,
+      radius: AppDimensions.radiusXl,
+      onTap: product.uuid.isEmpty ? null : () => _openDetail(context, product, onChanged),
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDimensions.radiusLg)),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDimensions.radiusXl)),
                     child: CachedImage(
                       url: product.imageUrl,
                       width: double.infinity,
@@ -140,35 +132,36 @@ class _GridCard extends StatelessWidget {
                 ],
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      product.category,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                    ),
-                    const Spacer(),
-                    _StockPill(stock: product.stock),
-                  ],
-                ),
+            Padding(
+              padding: const EdgeInsets.all(AppDimensions.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    product.category,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                  ),
+                  const SizedBox(height: AppDimensions.sm),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: _StockPill(stock: product.stock),
+                  ),
+                ],
               ),
             ),
           ],
         ),
-      ),
     );
   }
 }
@@ -197,20 +190,21 @@ class _StockPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final (bg, fg, label) = switch (stock.type) {
       StockStatusType.inStock => (
-        AppColors.successTint,
-        const Color(0xFF4C7A2D),
+        colors.successTint,
+        colors.successFg,
         'In stock',
       ),
       StockStatusType.lowStock => (
-        AppColors.warningTint,
-        const Color(0xFFB36B00),
+        colors.warningTint,
+        colors.warningFg,
         'Low stock: ${stock.lowStockCount} left',
       ),
       StockStatusType.outOfStock => (
-        AppColors.errorTint,
-        AppColors.error,
+        colors.errorTint,
+        colors.errorFg,
         'Out of stock',
       ),
     };

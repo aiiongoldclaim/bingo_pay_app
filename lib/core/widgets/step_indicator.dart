@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_colors.dart';
+
 class StepIndicator extends StatelessWidget {
   final int currentStep; // 0-based
   final int totalSteps;
@@ -69,7 +71,7 @@ class StepIndicator extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
-                color: isCurrent ? color : Colors.grey[600],
+                color: isCurrent ? color : context.colors.textSecondary,
               ),
             ),
           ],

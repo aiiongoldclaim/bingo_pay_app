@@ -1,19 +1,3 @@
-enum OrderStatus { pending, confirmed, delivered }
-
-class RecentOrder {
-  final String orderId;
-  final String customerName;
-  final String timeAgo;
-  final OrderStatus status;
-
-  const RecentOrder({
-    required this.orderId,
-    required this.customerName,
-    required this.timeAgo,
-    required this.status,
-  });
-}
-
 class SalesPoint {
   final String dayLabel;
   final double revenue;
@@ -39,26 +23,5 @@ class DashboardMockData {
     SalesPoint(dayLabel: 'Fri', revenue: 45500),
     SalesPoint(dayLabel: 'Sat', revenue: 60500),
     SalesPoint(dayLabel: 'Sun', revenue: 48250),
-  ];
-
-  static const List<RecentOrder> recentOrders = [
-    RecentOrder(
-      orderId: 'ORD12390',
-      customerName: 'Rashi Khurana',
-      timeAgo: '12 min ago',
-      status: OrderStatus.pending,
-    ),
-    RecentOrder(
-      orderId: 'ORD12389',
-      customerName: 'Gargi Rana',
-      timeAgo: '38 min ago',
-      status: OrderStatus.confirmed,
-    ),
-    RecentOrder(
-      orderId: 'ORD12386',
-      customerName: 'Achal Sharma',
-      timeAgo: '2 hrs ago',
-      status: OrderStatus.delivered,
-    ),
   ];
 }

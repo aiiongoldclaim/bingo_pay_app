@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/constants/app_currency.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/error/error_messages.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
@@ -20,6 +22,7 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late Future<ProductDetail> _productFuture;
+  bool _deleting = false;
 
   @override
   void initState() {
@@ -44,15 +47,55 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _openEdit() async {
     await context.push(AppRoutes.vendorProductEditPath(widget.uuid));
-    setState(() => _productFuture = _fetch());
+    setState(() {
+      _productFuture = _fetch();
+    });
+  }
+
+  Future<void> _confirmDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Product?'),
+        content: const Text(
+          'This product will be permanently deleted. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    try {
+      await getIt<ProductRemoteDataSource>().deleteProduct(widget.uuid);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Product deleted successfully')),
+      );
+      context.pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _deleting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete product: ${friendlyErrorMessage(e)}')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F7),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1B2A6B),
+            appBar: AppBar(
+        backgroundColor: AppColors.primary,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
@@ -63,9 +106,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           FutureBuilder<ProductDetail>(
             future: _productFuture,
             builder: (_, snap) => snap.hasData
-                ? IconButton(
-                    icon: const Icon(Icons.edit_outlined, color: Colors.white),
-                    onPressed: _openEdit,
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                        onPressed: _deleting ? null : _openEdit,
+                      ),
+                      _deleting
+                          ? const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.delete_outline, color: Colors.white),
+                              onPressed: _confirmDelete,
+                            ),
+                    ],
                   )
                 : const SizedBox.shrink(),
           ),
@@ -79,7 +143,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           }
           if (snapshot.hasError) {
             return _ErrorState(
-              message: '${snapshot.error}',
+              message: friendlyErrorMessage(snapshot.error),
               onRetry: () => setState(() => _productFuture = _fetch()),
             );
           }
@@ -141,13 +205,13 @@ class _BodyState extends State<_Body> {
                     _StatusBadge(rawStatus: p.rawStatus),
                     if (p.isFeatured) ...[
                       const SizedBox(width: 8),
-                      _Badge(label: 'Featured', bg: const Color(0xFFFFF3CD), fg: const Color(0xFF7D5A00)),
+                      _Badge(label: 'Featured', bg: context.colors.warningTint, fg: context.colors.warningFg),
                     ],
                     const Spacer(),
                     if (p.createdAt != null)
                       Text(
                         DateFormat('d MMM y').format(p.createdAt!),
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 12, color: context.colors.textMuted),
                       ),
                   ],
                 ),
@@ -167,7 +231,7 @@ class _BodyState extends State<_Body> {
                       if (p.brand?.name.isNotEmpty == true) p.brand!.name,
                       if (p.category?.name.isNotEmpty == true) p.category!.name,
                     ].join('  ·  '),
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 13, color: context.colors.textSecondary),
                   ),
 
                 const SizedBox(height: AppDimensions.md),
@@ -196,7 +260,7 @@ class _BodyState extends State<_Body> {
                   _InfoCard(
                     child: Text(
                       p.shortDescription!,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.5),
+                      style: TextStyle(fontSize: 14, color: context.colors.textPrimary, height: 1.5),
                     ),
                   ),
                 ],
@@ -276,7 +340,7 @@ class _ImageCarousel extends StatelessWidget {
                     images[i],
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       color: AppColors.infoTint,
                       child: const Center(
                         child: Icon(Icons.broken_image_outlined, color: AppColors.primary, size: 48),
@@ -365,7 +429,7 @@ class _MetricTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
         ),
         child: Column(
@@ -373,7 +437,7 @@ class _MetricTile extends StatelessWidget {
             Icon(icon, size: 20, color: AppColors.primary),
             const SizedBox(height: 4),
             Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+            Text(label, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
           ],
         ),
       ),
@@ -401,7 +465,7 @@ class _VariantCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDimensions.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
         border: isDefault ? Border.all(color: AppColors.primary, width: 1.5) : null,
       ),
@@ -426,16 +490,16 @@ class _VariantCard extends StatelessWidget {
                   children: [
                     if (salePrice != null) ...[
                       Text(
-                        '₹${salePrice.toStringAsFixed(0)}',
+                        AppCurrency.format(salePrice),
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                       ),
                       if (basePrice != null && basePrice > salePrice) ...[
                         const SizedBox(width: 6),
                         Text(
-                          '₹${basePrice.toStringAsFixed(0)}',
+                          AppCurrency.format(basePrice),
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.grey[400],
+                            color: context.colors.textMuted,
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
@@ -447,7 +511,7 @@ class _VariantCard extends StatelessWidget {
                       ],
                     ] else if (basePrice != null)
                       Text(
-                        '₹${basePrice.toStringAsFixed(0)}',
+                        AppCurrency.format(basePrice),
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                       ),
                   ],
@@ -455,7 +519,7 @@ class _VariantCard extends StatelessWidget {
                 if (sku.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('SKU: $sku', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                    child: Text('SKU: $sku', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
                   ),
               ],
             ),
@@ -466,7 +530,7 @@ class _VariantCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: stock > 0 ? AppColors.successTint : const Color(0xFFFFEDED),
+                  color: stock > 0 ? context.colors.successTint : context.colors.errorTint,
                   borderRadius: BorderRadius.circular(AppDimensions.radiusCircular),
                 ),
                 child: Text(
@@ -474,7 +538,7 @@ class _VariantCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: stock > 0 ? const Color(0xFF4C7A2D) : AppColors.error,
+                    color: stock > 0 ? context.colors.successFg : context.colors.errorFg,
                   ),
                 ),
               ),
@@ -525,7 +589,7 @@ class _SpecRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 130,
-            child: Text(attrName, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+            child: Text(attrName, style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
           ),
           Expanded(
             child: Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
@@ -554,7 +618,7 @@ class _GalleryRow extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: images.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (_, i) => GestureDetector(
           onTap: () => onTap(i),
           child: Container(
@@ -571,7 +635,7 @@ class _GalleryRow extends StatelessWidget {
               child: Image.network(
                 images[i],
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(color: AppColors.infoTint),
+                errorBuilder: (_, _, _) => Container(color: AppColors.infoTint),
               ),
             ),
           ),
@@ -607,7 +671,7 @@ class _ExpandableDescriptionState extends State<_ExpandableDescription> {
             widget.text,
             maxLines: _expanded ? null : maxLines,
             overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 14, color: Colors.grey[800], height: 1.5),
+            style: TextStyle(fontSize: 14, color: context.colors.textPrimary, height: 1.5),
           ),
           if (widget.text.length > 200) ...[
             const SizedBox(height: 8),
@@ -635,13 +699,14 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final (bg, fg, label) = switch (rawStatus.toUpperCase()) {
-      'ACTIVE' => (AppColors.successTint, const Color(0xFF4C7A2D), 'Active'),
-      'DRAFT' => (const Color(0xFFEDEEF0), const Color(0xFF666666), 'Draft'),
-      'PENDING_ADMIN_APPROVAL' => (const Color(0xFFFFF3CD), const Color(0xFF7D5A00), 'Pending Review'),
-      'ARCHIVED' => (const Color(0xFFEDEEF0), const Color(0xFF666666), 'Archived'),
-      'REJECTED' => (const Color(0xFFFFEDED), AppColors.error, 'Rejected'),
-      _ => (const Color(0xFFEDEEF0), const Color(0xFF666666), rawStatus.isNotEmpty ? rawStatus : 'Draft'),
+      'ACTIVE' => (colors.successTint, colors.successFg, 'Active'),
+      'DRAFT' => (colors.inputFill, colors.textSecondary, 'Draft'),
+      'PENDING_ADMIN_APPROVAL' => (colors.warningTint, colors.warningFg, 'Pending Review'),
+      'ARCHIVED' => (colors.inputFill, colors.textSecondary, 'Archived'),
+      'REJECTED' => (colors.errorTint, colors.errorFg, 'Rejected'),
+      _ => (colors.inputFill, colors.textSecondary, rawStatus.isNotEmpty ? rawStatus : 'Draft'),
     };
 
     return _Badge(label: label, bg: bg, fg: fg);
@@ -692,7 +757,7 @@ class _InfoCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
       child: child,
@@ -720,7 +785,7 @@ class _ErrorState extends StatelessWidget {
           children: [
             const Text('Failed to load product', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.textSecondary, fontSize: 12)),
             const SizedBox(height: AppDimensions.md),
             ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],

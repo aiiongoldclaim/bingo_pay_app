@@ -12,8 +12,7 @@ class RegisterVendorUseCase {
 
   Future<Either<Failure, RegisterOtpEntity>> call(VendorRegisterParams params) =>
       _repository.registerVendor(
-        firstName: params.firstName,
-        lastName: params.lastName,
+        fullName: params.fullName,
         email: params.email,
         phone: params.phone,
         password: params.password,
@@ -29,8 +28,7 @@ class RegisterVendorUseCase {
 }
 
 class VendorRegisterParams extends Equatable {
-  final String firstName;
-  final String lastName;
+  final String fullName;
   final String email;
   final String phone;
   final String password;
@@ -43,8 +41,7 @@ class VendorRegisterParams extends Equatable {
   final String? supportEmail;
   final String? supportPhone;
   const VendorRegisterParams({
-    required this.firstName,
-    required this.lastName,
+    required this.fullName,
     required this.email,
     required this.phone,
     required this.password,
@@ -59,7 +56,7 @@ class VendorRegisterParams extends Equatable {
   });
   @override
   List<Object?> get props => [
-        firstName, lastName, email, phone, password,
+        fullName, email, phone, password,
         shopName, shopSlug, businessName,
         description, gstNumber, panNumber, supportEmail, supportPhone,
       ];

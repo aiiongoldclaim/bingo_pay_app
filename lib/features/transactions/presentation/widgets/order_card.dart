@@ -2,50 +2,106 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/glass/glass_card.dart';
 import '../models/order_mock_data.dart';
 
 class OrderCard extends StatelessWidget {
   final Order order;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
-  const OrderCard({super.key, required this.order, required this.onTap});
+  const OrderCard({super.key, required this.order, this.onTap});
+
+  String get _waitingLabel {
+    final elapsed = DateTime.now().difference(order.createdAt);
+    if (elapsed.inMinutes < 1) return 'waiting less than a minute';
+    if (elapsed.inMinutes < 60) return 'waiting ${elapsed.inMinutes} min';
+    if (elapsed.inHours < 24) return 'waiting ${elapsed.inHours} h';
+    return 'waiting ${elapsed.inDays} d';
+  }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+    final colors = context.colors;
+    final isPending = order.status == OrderStatus.pending;
+
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: AppDimensions.sm + 4),
+      padding: EdgeInsets.zero,
+      radius: AppDimensions.radiusXl,
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppDimensions.sm + 4),
-        padding: const EdgeInsets.all(AppDimensions.md),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Text('#${order.orderId}', style: TextStyle(fontSize: 13, color: Colors.grey[500])),
-                const Spacer(),
-                Text(order.timeAgo, style: TextStyle(fontSize: 13, color: Colors.grey[500])),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(order.customerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 2),
-            Text(order.itemSummary, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                _PaymentPill(payment: order.payment),
-                const SizedBox(width: 8),
-                _StatusPill(status: order.status),
-              ],
+            // Amber accent edge marks orders that still need action.
+            if (isPending)
+              Container(
+                width: 3.5,
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: colors.warningFg,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(AppDimensions.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text('#${order.orderId}',
+                            style: TextStyle(
+                                fontSize: 13, color: colors.textMuted)),
+                        const Spacer(),
+                        if (isPending)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.timer_outlined,
+                                  size: 14, color: colors.warningFg),
+                              const SizedBox(width: 3),
+                              Text(
+                                _waitingLabel,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.warningFg,
+                                ),
+                              ),
+                            ],
+                          )
+                        else
+                          Text(order.timeAgo,
+                              style: TextStyle(
+                                  fontSize: 13, color: colors.textMuted)),
+                        if (onTap != null) ...[
+                          const SizedBox(width: 6),
+                          Icon(Icons.chevron_right,
+                              size: 18, color: colors.textMuted),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(order.customerName,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text(order.itemSummary,
+                        style: TextStyle(
+                            fontSize: 13, color: colors.textSecondary)),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        _PaymentPill(payment: order.payment),
+                        const SizedBox(width: 8),
+                        _StatusPill(status: order.status),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -62,8 +118,8 @@ class _PaymentPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, label) = switch (payment) {
-      PaymentType.cod => (const Color(0xFFEDEEF0), Colors.grey[700]!, 'COD'),
-      PaymentType.paid => (AppColors.successTint, const Color(0xFF4C7A2D), 'Paid'),
+      PaymentType.cod => (context.colors.inputFill, context.colors.textSecondary, 'COD'),
+      PaymentType.paid => (context.colors.successTint, context.colors.successFg, 'Paid'),
     };
     return _Pill(label: label, background: bg, foreground: fg);
   }
@@ -76,12 +132,13 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final (bg, fg) = switch (status) {
-      OrderStatus.pending => (AppColors.warningTint, const Color(0xFFB36B00)),
-      OrderStatus.confirmed => (const Color(0xFFDDEBFB), const Color(0xFF1A5DAB)),
-      OrderStatus.processing => (const Color(0xFFDDEBFB), const Color(0xFF1A5DAB)),
-      OrderStatus.shipped => (AppColors.accentPurpleTint, AppColors.accentPurple),
-      OrderStatus.delivered => (AppColors.successTint, const Color(0xFF4C7A2D)),
+      OrderStatus.pending => (colors.warningTint, colors.warningFg),
+      OrderStatus.confirmed => (colors.infoTint, colors.infoFg),
+      OrderStatus.processing => (colors.infoTint, colors.infoFg),
+      OrderStatus.shipped => (colors.purpleTint, colors.purpleFg),
+      OrderStatus.delivered => (colors.successTint, colors.successFg),
     };
     return _Pill(label: status.label, background: bg, foreground: fg);
   }

@@ -1,3 +1,5 @@
+import '../../data/models/vendor_order_model.dart';
+
 enum OrderStatus { pending, confirmed, processing, shipped, delivered }
 
 extension OrderStatusLabel on OrderStatus {
@@ -44,6 +46,7 @@ class OrderItem {
 }
 
 class Order {
+  final String uuid;
   final String orderId;
   final String customerName;
   final String customerPhone;
@@ -54,6 +57,7 @@ class Order {
   final DateTime createdAt;
 
   const Order({
+    this.uuid = '',
     required this.orderId,
     required this.customerName,
     required this.customerPhone,
@@ -94,10 +98,29 @@ class Order {
       createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
     );
   }
+
+  factory Order.fromVendorOrder(VendorOrderModel model) {
+    return Order(
+      uuid: model.uuid,
+      orderId: model.id,
+      customerName: model.orderNumber.isNotEmpty ? model.orderNumber : 'Order #${model.id}',
+      customerPhone: '',
+      items: model.items
+          .map((i) => OrderItem(productName: i.productTitle, quantity: i.quantity, price: i.unitPrice))
+          .toList(),
+      totalAmount: model.totalAmount,
+      payment: model.paymentStatus.toUpperCase() == 'PAID' ? PaymentType.paid : PaymentType.cod,
+      status: _statusFromApi(model.orderStatus),
+      createdAt: model.createdAt,
+    );
+  }
 }
 
 OrderStatus _statusFromApi(String? value) {
-  return OrderStatus.values.firstWhere((s) => s.name == value, orElse: () => OrderStatus.pending);
+  return OrderStatus.values.firstWhere(
+    (s) => s.name.toLowerCase() == value?.toLowerCase(),
+    orElse: () => OrderStatus.pending,
+  );
 }
 
 List<Order> filterOrders(

@@ -2,10 +2,13 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../domain/entities/bingold_login_result_entity.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/register_otp_entity.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../domain/entities/user_existence_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/submit_vendor_kyc_usecase.dart';
 import '../datasources/auth_local_datasource.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../models/user_model.dart';
@@ -19,8 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, RegisterOtpEntity>> registerVendor({
-    required String firstName,
-    required String lastName,
+    required String fullName,
     required String email,
     required String phone,
     required String password,
@@ -35,8 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final result = await _remote.registerVendor(
-        firstName: firstName,
-        lastName: lastName,
+        fullName: fullName,
         email: email,
         phone: phone,
         password: password,
@@ -91,12 +92,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> checkEmailExists({
+  Future<Either<Failure, UserExistenceEntity>> checkEmailExists({
     required String email,
   }) async {
     try {
-      final exists = await _remote.checkUserExists(email: email);
-      return Right(exists);
+      final model = await _remote.checkUserExists(email: email);
+      return Right(model.toEntity());
     } catch (e) {
       return Left(ErrorHandler.mapErrorToFailure(e));
     }
@@ -119,6 +120,78 @@ class AuthRepositoryImpl implements AuthRepository {
       await _local.saveUser(result.user);
       await _local.saveVendorData(result.vendorData);
       return Right(result.user);
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, RegisterOtpEntity>> bingoldLoginOtp({
+    required String email,
+  }) async {
+    try {
+      final result = await _remote.bingoldLoginOtp(email: email);
+      return Right(
+        RegisterOtpEntity(email: result.email, message: result.message),
+      );
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, BinGoldLoginResultEntity>> bingoldVerifyLogin({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      final result = await _remote.bingoldVerifyLogin(email: email, otp: otp);
+      if (result.requiresPasswordSetup) {
+        await _local.saveTempTokens(
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        );
+      } else {
+        await _local.saveTokens(
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        );
+      }
+      await _local.saveUser(result.user);
+      return Right(BinGoldLoginResultEntity(
+        user: result.user,
+        requiresPasswordSetup: result.requiresPasswordSetup,
+      ));
+    } catch (e) {
+      return Left(ErrorHandler.mapErrorToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> setPassword({
+    required String password,
+  }) async {
+    try {
+      final accessToken = await _local.getTempAccessToken();
+      if (accessToken == null) {
+        return const Left(
+          AuthFailure(message: 'Session expired. Please verify OTP again.'),
+        );
+      }
+      await _remote.setPassword(accessToken: accessToken, password: password);
+      final refreshToken = await _local.getTempRefreshToken();
+      await _local.saveTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken ?? '',
+      );
+      await _local.clearTempTokens();
+      final user = await _local.getUser();
+      if (user == null) {
+        return const Left(
+          AuthFailure(message: 'Unable to complete login. Please try again.'),
+        );
+      }
+      return Right(user);
     } catch (e) {
       return Left(ErrorHandler.mapErrorToFailure(e));
     }
@@ -157,45 +230,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, KycEntity>> submitKycPersonalDetails({
-    required String name,
-    required String dateOfBirth,
-    required String address,
+  Future<Either<Failure, KycEntity>> submitVendorKyc({
+    required String kybMode,
+    required List<KycDocumentSubmission> documents,
   }) async {
     try {
-      final kyc = await _remote.submitKycPersonalDetails(
-        name: name,
-        dateOfBirth: dateOfBirth,
-        address: address,
+      final vendorUuid = (await _local.getVendorData())?['uuid'] as String?;
+      if (vendorUuid == null) {
+        return const Left(AuthFailure(message: 'Vendor details not found. Please log in again.'));
+      }
+      final kyc = await _remote.submitVendorKyc(
+        vendorUuid: vendorUuid,
+        kybMode: kybMode,
+        documents: documents,
       );
-      return Right(kyc);
-    } catch (e) {
-      return Left(ErrorHandler.mapErrorToFailure(e));
-    }
-  }
-
-  @override
-  Future<Either<Failure, KycEntity>> uploadKycDocument({
-    required String filePath,
-    required String documentType,
-  }) async {
-    try {
-      final kyc = await _remote.uploadKycDocument(
-        filePath: filePath,
-        documentType: documentType,
-      );
-      return Right(kyc);
-    } catch (e) {
-      return Left(ErrorHandler.mapErrorToFailure(e));
-    }
-  }
-
-  @override
-  Future<Either<Failure, KycEntity>> uploadKycSelfie({
-    required String filePath,
-  }) async {
-    try {
-      final kyc = await _remote.uploadKycSelfie(filePath: filePath);
       final cachedUser = await _local.getUser();
       if (cachedUser != null) {
         await _local.saveUser(UserModel(
@@ -204,6 +252,7 @@ class AuthRepositoryImpl implements AuthRepository {
           name: cachedUser.name,
           role: cachedUser.role,
           kycStatus: kyc.status,
+          kybStatus: cachedUser.kybStatus,
           shopName: cachedUser.shopName,
           merchantCode: cachedUser.merchantCode,
           businessName: cachedUser.businessName,

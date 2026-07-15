@@ -25,20 +25,26 @@ class VariantDraft {
     Map<String, String>? attributeValues,
   }) : attributeValues = attributeValues ?? {};
 
-  Map<String, dynamic> toPayload() => {
-    if (title.trim().isNotEmpty) 'title': title.trim(),
-    if (basePrice != null) 'basePrice': basePrice,
-    if (salePrice != null) 'salePrice': salePrice,
-    if (costPrice != null) 'costPrice': costPrice,
-    if (sku.trim().isNotEmpty) 'sku': sku.trim(),
-    if (barcode.trim().isNotEmpty) 'barcode': barcode.trim(),
-    'stock': stock,
-    'isDefault': isDefault,
-    if (attributeValues.isNotEmpty)
+  Map<String, dynamic> toPayload() {
+    return {
+      if (title.trim().isNotEmpty) 'title': title.trim(),
+      if (basePrice != null) 'basePrice': basePrice,
+      if (salePrice != null) 'salePrice': salePrice,
+      if (costPrice != null) 'costPrice': costPrice,
+      if (sku.trim().isNotEmpty) 'sku': sku.trim(),
+      if (barcode.trim().isNotEmpty) 'barcode': barcode.trim(),
+      'stock': stock,
+      'isDefault': isDefault,
+      // Always sent — backend expects a blank array when the category has no
+      // variant attributes.
       'attributes': attributeValues.entries
-          .map((e) => {'attributeUuid': e.key, 'optionId': int.tryParse(e.value) ?? e.value})
+          .map((e) => {
+                'attributeUuid': e.key,
+                'optionId': int.tryParse(e.value) ?? e.value,
+              })
           .toList(),
-  };
+    };
+  }
 }
 
 class ProductDraft {

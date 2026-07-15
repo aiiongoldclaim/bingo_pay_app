@@ -96,7 +96,7 @@ class _StockStepper extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 4),
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : const Color(0xFFF1F0EC),
+        color: enabled ? context.colors.card : context.colors.inputFill,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
       child: Row(
@@ -130,7 +130,7 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 14),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+      decoration: BoxDecoration(color: context.colors.card, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
       child: Row(
         children: [
           Expanded(child: _FieldLabel(title, required: required, padBottom: false)),
@@ -155,7 +155,7 @@ class _FieldLabel extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           text: text,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           children: required ? const [TextSpan(text: ' *', style: TextStyle(color: AppColors.error))] : null,
         ),
       ),

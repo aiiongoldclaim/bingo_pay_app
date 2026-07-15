@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../data/models/category_form_model.dart';
 import '../../models/product_form_data.dart';
@@ -39,7 +41,7 @@ class _SpecificationsStepState extends State<SpecificationsStep> {
 
   void _initControllers() {
     for (final attr in widget.attributes) {
-      if (attr.fieldType != 'SELECT') {
+      if (!attr.hasOptions) {
         _textControllers.putIfAbsent(
           attr.uuid,
           () => TextEditingController(text: widget.draft.specifications[attr.uuid] ?? ''),
@@ -50,7 +52,9 @@ class _SpecificationsStepState extends State<SpecificationsStep> {
 
   @override
   void dispose() {
-    for (final c in _textControllers.values) c.dispose();
+    for (final c in _textControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -59,12 +63,12 @@ class _SpecificationsStepState extends State<SpecificationsStep> {
     final attrs = [...widget.attributes]..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
     if (attrs.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 48),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
         child: Center(
           child: Text(
             'No specifications required for this category.',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: context.colors.textMuted),
           ),
         ),
       );
@@ -77,9 +81,9 @@ class _SpecificationsStepState extends State<SpecificationsStep> {
         children: [
           for (final attr in attrs) ...[
             _FieldLabel(attr.name, required: attr.isRequired),
-            if (attr.fieldType == 'SELECT' && attr.options.isNotEmpty)
+            if (attr.hasOptions)
               DropdownButtonFormField<String>(
-                value: widget.draft.specifications[attr.uuid]?.isEmpty == false
+                initialValue: widget.draft.specifications[attr.uuid]?.isEmpty == false
                     ? widget.draft.specifications[attr.uuid]
                     : null,
                 decoration: InputDecoration(hintText: 'Select ${attr.name.toLowerCase()}'),
@@ -97,10 +101,22 @@ class _SpecificationsStepState extends State<SpecificationsStep> {
             else
               TextFormField(
                 controller: _textControllers[attr.uuid],
-                decoration: InputDecoration(hintText: 'Enter ${attr.name.toLowerCase()}'),
-                validator: attr.isRequired
-                    ? (v) => (v == null || v.trim().isEmpty) ? '${attr.name} is required' : null
+                keyboardType: attr.isNumeric
+                    ? const TextInputType.numberWithOptions(decimal: true)
+                    : TextInputType.text,
+                inputFormatters: attr.isNumeric
+                    ? [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))]
                     : null,
+                decoration: InputDecoration(hintText: 'Enter ${attr.name.toLowerCase()}'),
+                validator: (v) {
+                  if (attr.isRequired && (v == null || v.trim().isEmpty)) {
+                    return '${attr.name} is required';
+                  }
+                  if (attr.isNumeric && v != null && v.trim().isNotEmpty && double.tryParse(v.trim()) == null) {
+                    return 'Enter a valid ${attr.name.toLowerCase()}';
+                  }
+                  return null;
+                },
                 onChanged: (v) => widget.draft.specifications[attr.uuid] = v,
               ),
             const SizedBox(height: AppDimensions.lg),
@@ -124,7 +140,7 @@ class _FieldLabel extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           text: text,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Colors.red))] : null,
         ),
       ),

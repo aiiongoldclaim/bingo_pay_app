@@ -21,17 +21,4 @@ class AppSnackbar {
       ),
     );
   }
-
-  static void showOfflineBanner(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('No internet connection'),
-          backgroundColor: AppColors.warning,
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(days: 1),
-        ),
-      );
-  }
 }

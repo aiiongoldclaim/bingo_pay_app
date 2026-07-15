@@ -1,3 +1,4 @@
+import '../../domain/entities/user_entity.dart';
 import 'user_model.dart';
 
 class VendorLoginResultModel {
@@ -20,6 +21,9 @@ class VendorLoginResultModel {
     final role = (roles != null && roles.isNotEmpty) ? roles.first as String : 'vendor';
     final verificationStatus =
         (vendor['verificationStatus'] as String?)?.toLowerCase() ?? 'pending';
+    final kybStatus = kybStatusToString(
+      kybStatusFromString(vendor['kybStatus'] as String?),
+    );
     return VendorLoginResultModel(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String? ?? '',
@@ -29,6 +33,7 @@ class VendorLoginResultModel {
         name: user['fullName'] as String,
         role: role,
         kycStatus: verificationStatus,
+        kybStatus: kybStatus,
         shopName: vendor['shopName'] as String?,
         merchantCode: vendor['merchantCode'] as String?,
         businessName: vendor['businessName'] as String?,

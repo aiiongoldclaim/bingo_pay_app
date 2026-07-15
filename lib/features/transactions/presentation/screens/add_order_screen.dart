@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/constants/app_currency.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/error/error_messages.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/validators.dart';
@@ -34,8 +35,6 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   PaymentType _payment = PaymentType.cod;
   final List<_OrderItemRow> _items = [_OrderItemRow()];
   bool _isSubmitting = false;
-
-  final _currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 
   @override
   void dispose() {
@@ -97,7 +96,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to add order: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add order: ${friendlyErrorMessage(e)}')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -106,9 +106,8 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F5F7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B2A6B),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text('Add Order', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -155,13 +154,13 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             const SizedBox(height: AppDimensions.lg),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 14),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+              decoration: BoxDecoration(color: context.colors.card, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Total amount', style: TextStyle(fontWeight: FontWeight.w600)),
                   Text(
-                    _currency.format(_totalAmount),
+                    AppCurrency.format(_totalAmount),
                     style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primary),
                   ),
                 ],
@@ -172,9 +171,9 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(AppDimensions.md),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, -2))],
+        decoration: BoxDecoration(
+          color: context.colors.card,
+          boxShadow: [BoxShadow(color: context.colors.shadow, blurRadius: 8, offset: const Offset(0, -2))],
         ),
         child: SafeArea(
           top: false,
@@ -205,7 +204,7 @@ class _PaymentSegmentedControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+      decoration: BoxDecoration(color: context.colors.card, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
       child: Row(
         children: [
           for (final payment in PaymentType.values)
@@ -222,7 +221,7 @@ class _PaymentSegmentedControl extends StatelessWidget {
                     payment == PaymentType.cod ? 'COD' : 'Paid',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: payment == value ? Colors.white : Colors.grey[600],
+                      color: payment == value ? Colors.white : context.colors.textSecondary,
                       fontWeight: payment == value ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
@@ -247,7 +246,7 @@ class _ItemRowFields extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: AppDimensions.sm),
       padding: const EdgeInsets.all(AppDimensions.md),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+      decoration: BoxDecoration(color: context.colors.card, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -285,7 +284,7 @@ class _ItemRowFields extends StatelessWidget {
                 child: TextFormField(
                   controller: row.priceController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(prefixText: '₹ ', hintText: 'Price'),
+                  decoration: const InputDecoration(prefixText: AppCurrency.inputPrefix, hintText: 'Price'),
                   onChanged: (_) => onChanged(),
                   validator: (v) {
                     final price = double.tryParse(v?.trim() ?? '');
@@ -315,7 +314,7 @@ class _FieldLabel extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           text: text,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           children: required ? const [TextSpan(text: ' *', style: TextStyle(color: AppColors.error))] : null,
         ),
       ),

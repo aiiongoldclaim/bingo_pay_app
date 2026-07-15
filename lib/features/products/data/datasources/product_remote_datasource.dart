@@ -12,24 +12,55 @@ import '../models/category_model.dart';
 
 abstract interface class ProductRemoteDataSource {
   Future<void> addProduct(Map<String, dynamic> payload);
+  Future<Map<String, dynamic>> createProduct(Map<String, dynamic> payload);
   Future<List<Map<String, dynamic>>> getProducts();
   Future<Map<String, dynamic>> getProductDetail(String uuid);
-  Future<Map<String, dynamic>> updateProduct(String uuid, Map<String, dynamic> payload);
+  Future<void> deleteProduct(String uuid);
+  Future<Map<String, dynamic>> updateProduct(
+    String uuid,
+    Map<String, dynamic> payload,
+  );
   Future<List<Map<String, dynamic>>> getProductVariants(String productUuid);
-  Future<Map<String, dynamic>> createVariant(String productUuid, Map<String, dynamic> payload);
-  Future<Map<String, dynamic>> updateVariant(String productUuid, String variantUuid, Map<String, dynamic> payload);
+  Future<Map<String, dynamic>> createVariant(
+    String productUuid,
+    Map<String, dynamic> payload,
+  );
+  Future<Map<String, dynamic>> updateVariant(
+    String productUuid,
+    String variantUuid,
+    Map<String, dynamic> payload,
+  );
   Future<List<CategoryModel>> getCategories();
   Future<List<CategoryModel>> getCategoryTree();
   Future<List<BrandModel>> getBrands();
   Future<List<CategoryAttributeModel>> getCategoryAttributes();
   Future<List<AttributeOptionModel>> getAttributeOptions();
   Future<List<Map<String, dynamic>>> getProductMedia(String productUuid);
-  Future<Map<String, dynamic>> uploadThumbnail(String productUuid, String filePath, {String? altText});
-  Future<List<String>> uploadGallery(String productUuid, List<String> filePaths);
-  Future<List<Map<String, dynamic>>> uploadGalleryWithIds(String productUuid, List<String> filePaths);
+  Future<Map<String, dynamic>> uploadThumbnail(
+    String productUuid,
+    String filePath, {
+    String? altText,
+  });
+  Future<Map<String, dynamic>> replaceThumbnail(
+    String productUuid,
+    String filePath,
+  );
+  Future<List<String>> uploadGallery(
+    String productUuid,
+    List<String> filePaths,
+  );
+  Future<List<Map<String, dynamic>>> uploadGalleryWithIds(
+    String productUuid,
+    List<String> filePaths,
+  );
   Future<void> deleteMedia(String mediaId);
-  Future<void> saveSpecifications(String productUuid, Map<String, String> specs);
-  Future<List<Map<String, dynamic>>> getProductSpecifications(String productUuid);
+  Future<void> saveSpecifications(
+    String productUuid,
+    Map<String, String> specs,
+  );
+  Future<List<Map<String, dynamic>>> getProductSpecifications(
+    String productUuid,
+  );
   Future<CategoryFormData> getCategoryForm(String categoryUuid);
   Future<Map<String, dynamic>> submitProduct(String productUuid);
 }
@@ -46,10 +77,31 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     await _client.post('addProduct', payload);
   }
 
+  // Single-object endpoints sometimes wrap the payload twice, e.g.
+  // { data: { message, data: {...actual object...} } } — unwrap both layers.
+  Map<String, dynamic> _unwrapObject(dynamic responseData) {
+    var data = responseData is Map ? responseData['data'] : null;
+    if (data is Map && data['data'] is Map) data = data['data'];
+    if (data is! Map) return {};
+    return data.map((k, v) => MapEntry(k.toString(), v));
+  }
+
+  @override
+  Future<Map<String, dynamic>> createProduct(
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.createProduct,
+      data: payload,
+    );
+    return _unwrapObject(response.data);
+  }
+
   @override
   Future<List<Map<String, dynamic>>> getProducts() async {
     final response = await _apiClient.dio.get(ApiEndpoints.myProducts);
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
@@ -60,23 +112,35 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<Map<String, dynamic>> getProductDetail(String uuid) async {
     final response = await _apiClient.dio.get(ApiEndpoints.productDetail(uuid));
-    final data = response.data['data'];
-    if (data is! Map) return {};
-    return data.map((k, v) => MapEntry(k.toString(), v));
+    return _unwrapObject(response.data);
   }
 
   @override
-  Future<Map<String, dynamic>> updateProduct(String uuid, Map<String, dynamic> payload) async {
-    final response = await _apiClient.dio.patch(ApiEndpoints.productDetail(uuid), data: payload);
-    final data = response.data['data'];
-    if (data is! Map) return {};
-    return data.map((k, v) => MapEntry(k.toString(), v));
+  Future<void> deleteProduct(String uuid) async {
+    await _apiClient.dio.delete(ApiEndpoints.productDetail(uuid));
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getProductVariants(String productUuid) async {
-    final response = await _apiClient.dio.get(ApiEndpoints.productVariants(productUuid));
-    final list = response.data['data'];
+  Future<Map<String, dynamic>> updateProduct(
+    String uuid,
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _apiClient.dio.patch(
+      ApiEndpoints.productDetail(uuid),
+      data: payload,
+    );
+    return _unwrapObject(response.data);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getProductVariants(
+    String productUuid,
+  ) async {
+    final response = await _apiClient.dio.get(
+      ApiEndpoints.productVariants(productUuid),
+    );
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
@@ -85,40 +149,59 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<Map<String, dynamic>> createVariant(String productUuid, Map<String, dynamic> payload) async {
-    final response = await _apiClient.dio.post(ApiEndpoints.productVariants(productUuid), data: payload);
-    final data = response.data['data'];
-    if (data is! Map) return {};
-    return data.map((k, v) => MapEntry(k.toString(), v));
+  Future<Map<String, dynamic>> createVariant(
+    String productUuid,
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.productVariants(productUuid),
+      data: payload,
+    );
+    return _unwrapObject(response.data);
   }
 
   @override
-  Future<Map<String, dynamic>> updateVariant(String productUuid, String variantUuid, Map<String, dynamic> payload) async {
-    final response = await _apiClient.dio.patch(ApiEndpoints.variantDetail(variantUuid), data: payload);
-    final data = response.data['data'];
-    if (data is! Map) return {};
-    return data.map((k, v) => MapEntry(k.toString(), v));
+  Future<Map<String, dynamic>> updateVariant(
+    String productUuid,
+    String variantUuid,
+    Map<String, dynamic> payload,
+  ) async {
+    final response = await _apiClient.dio.patch(
+      ApiEndpoints.variantDetail(variantUuid),
+      data: payload,
+    );
+    return _unwrapObject(response.data);
   }
 
   @override
   Future<List<CategoryModel>> getCategories() async {
     final response = await _apiClient.dio.get(ApiEndpoints.categories);
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
-        .map((e) => CategoryModel.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
+        .map(
+          (e) => CategoryModel.fromJson(
+            e.map((k, v) => MapEntry(k.toString(), v)),
+          ),
+        )
         .toList();
   }
 
   @override
   Future<List<CategoryModel>> getCategoryTree() async {
     final response = await _apiClient.dio.get(ApiEndpoints.categoryTree);
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
-        .map((e) => CategoryModel.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
+        .map(
+          (e) => CategoryModel.fromJson(
+            e.map((k, v) => MapEntry(k.toString(), v)),
+          ),
+        )
         .where((c) => c.depth == 0)
         .toList();
   }
@@ -126,42 +209,62 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<BrandModel>> getBrands() async {
     final response = await _apiClient.dio.get(ApiEndpoints.brands);
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
-        .map((e) => BrandModel.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
+        .map(
+          (e) =>
+              BrandModel.fromJson(e.map((k, v) => MapEntry(k.toString(), v))),
+        )
         .toList();
   }
 
   @override
   Future<List<CategoryAttributeModel>> getCategoryAttributes() async {
     final response = await _apiClient.dio.get(ApiEndpoints.categoryAttributes);
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
-        .map((e) => CategoryAttributeModel.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
+        .map(
+          (e) => CategoryAttributeModel.fromJson(
+            e.map((k, v) => MapEntry(k.toString(), v)),
+          ),
+        )
         .toList();
   }
 
   @override
   Future<List<AttributeOptionModel>> getAttributeOptions() async {
     final response = await _apiClient.dio.get(ApiEndpoints.attributeOptions);
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
-        .map((e) => AttributeOptionModel.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
+        .map(
+          (e) => AttributeOptionModel.fromJson(
+            e.map((k, v) => MapEntry(k.toString(), v)),
+          ),
+        )
         .toList();
   }
 
   @override
   Future<List<Map<String, dynamic>>> getProductMedia(String productUuid) async {
-    final response = await _apiClient.dio.get(ApiEndpoints.productAllMedia(productUuid));
-    final list = response.data['data'];
+    final response = await _apiClient.dio.get(
+      ApiEndpoints.productAllMedia(productUuid),
+    );
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
-    return list.whereType<Map>().map((e) => e.map((k, v) => MapEntry(k.toString(), v))).toList();
+    return list
+        .whereType<Map>()
+        .map((e) => e.map((k, v) => MapEntry(k.toString(), v)))
+        .toList();
   }
 
   @override
@@ -179,9 +282,23 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       data: formData,
       options: Options(contentType: 'multipart/form-data'),
     );
-    final data = response.data['data'];
-    if (data is! Map) return {};
-    return data.map((k, v) => MapEntry(k.toString(), v));
+    return _unwrapObject(response.data);
+  }
+
+  @override
+  Future<Map<String, dynamic>> replaceThumbnail(
+    String productUuid,
+    String filePath,
+  ) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath),
+    });
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.productThumbnailReplace(productUuid),
+      data: formData,
+      options: Options(contentType: 'multipart/form-data'),
+    );
+    return _unwrapObject(response.data);
   }
 
   @override
@@ -190,56 +307,31 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<void> saveSpecifications(String productUuid, Map<String, String> specs) async {
+  Future<void> saveSpecifications(
+    String productUuid,
+    Map<String, String> specs,
+  ) async {
     final payload = {
       'specifications': specs.entries
           .where((e) => e.value.trim().isNotEmpty)
           .map((e) => {'attributeUuid': e.key, 'value': e.value.trim()})
           .toList(),
     };
-    await _apiClient.dio.post(ApiEndpoints.productSpecifications(productUuid), data: payload);
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getProductSpecifications(String productUuid) async {
-    final response = await _apiClient.dio.get(ApiEndpoints.productSpecifications(productUuid));
-    final list = response.data['data'];
-    if (list is! List) return [];
-    return list.whereType<Map>().map((e) => e.map((k, v) => MapEntry(k.toString(), v))).toList();
-  }
-
-  @override
-  Future<CategoryFormData> getCategoryForm(String categoryUuid) async {
-    final response = await _apiClient.dio.get(ApiEndpoints.categoryForm(categoryUuid));
-
-    List<FormAttribute> parseList(dynamic raw) => (raw is List ? raw : [])
-        .whereType<Map>()
-        .map((e) => FormAttribute.fromJson(e.map((k, v) => MapEntry(k.toString(), v))))
-        .toList();
-
-    return CategoryFormData(
-      specificationAttributes: parseList(response.data['specificationAttributes']),
-      variantAttributes: parseList(response.data['variantAttributes']),
+    await _apiClient.dio.post(
+      ApiEndpoints.productSpecifications(productUuid),
+      data: payload,
     );
   }
 
   @override
-  Future<Map<String, dynamic>> submitProduct(String productUuid) async {
-    final response = await _apiClient.dio.post(ApiEndpoints.productSubmit(productUuid));
-    final data = response.data['data'];
-    if (data is! Map) return {};
-    return data.map((k, v) => MapEntry(k.toString(), v));
-  }
-
-  Future<List<Map<String, dynamic>>> _postGallery(String productUuid, List<String> filePaths) async {
-    final files = await Future.wait(filePaths.map((p) => MultipartFile.fromFile(p)));
-    final formData = FormData.fromMap({'files': files});
-    final response = await _apiClient.dio.post(
-      ApiEndpoints.productGallery(productUuid),
-      data: formData,
-      options: Options(contentType: 'multipart/form-data'),
+  Future<List<Map<String, dynamic>>> getProductSpecifications(
+    String productUuid,
+  ) async {
+    final response = await _apiClient.dio.get(
+      ApiEndpoints.productSpecifications(productUuid),
     );
-    final list = response.data['data'];
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
     if (list is! List) return [];
     return list
         .whereType<Map>()
@@ -248,7 +340,64 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<String>> uploadGallery(String productUuid, List<String> filePaths) async {
+  Future<CategoryFormData> getCategoryForm(String categoryUuid) async {
+    final response = await _apiClient.dio.get(
+      ApiEndpoints.categoryForm(categoryUuid),
+    );
+    final data = response.data['data'] is Map
+        ? response.data['data']
+        : response.data;
+
+    List<FormAttribute> parseList(dynamic raw) => (raw is List ? raw : [])
+        .whereType<Map>()
+        .map(
+          (e) => FormAttribute.fromJson(
+            e.map((k, v) => MapEntry(k.toString(), v)),
+          ),
+        )
+        .toList();
+
+    return CategoryFormData(
+      specificationAttributes: parseList(data['specificationAttributes']),
+      variantAttributes: parseList(data['variantAttributes']),
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>> submitProduct(String productUuid) async {
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.productSubmit(productUuid),
+    );
+    return _unwrapObject(response.data);
+  }
+
+  Future<List<Map<String, dynamic>>> _postGallery(
+    String productUuid,
+    List<String> filePaths,
+  ) async {
+    final files = await Future.wait(
+      filePaths.map((p) => MultipartFile.fromFile(p)),
+    );
+    final formData = FormData.fromMap({'files': files});
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.productGallery(productUuid),
+      data: formData,
+      options: Options(contentType: 'multipart/form-data'),
+    );
+    var list = response.data['data'];
+    if (list is Map) list = list['data'];
+    if (list is! List) return [];
+    return list
+        .whereType<Map>()
+        .map((e) => e.map((k, v) => MapEntry(k.toString(), v)))
+        .toList();
+  }
+
+  @override
+  Future<List<String>> uploadGallery(
+    String productUuid,
+    List<String> filePaths,
+  ) async {
     final items = await _postGallery(productUuid, filePaths);
     return items
         .map((e) => e['url']?.toString() ?? '')
@@ -257,7 +406,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> uploadGalleryWithIds(String productUuid, List<String> filePaths) async {
+  Future<List<Map<String, dynamic>>> uploadGalleryWithIds(
+    String productUuid,
+    List<String> filePaths,
+  ) async {
     return _postGallery(productUuid, filePaths);
   }
 }

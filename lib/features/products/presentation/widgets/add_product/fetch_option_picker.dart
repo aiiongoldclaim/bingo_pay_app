@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/error/error_messages.dart';
+
 /// Returns `(id, name)` record for the selected item, or null if dismissed.
 Future<({String id, String name})?> showFetchOptionPickerById<T>(
   BuildContext context, {
@@ -71,7 +73,7 @@ class _FetchOptionPickerByIdContentState<T>
               if (snapshot.hasError) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: Text('Failed to load options: ${snapshot.error}'),
+                  child: Text('Failed to load options: ${friendlyErrorMessage(snapshot.error)}'),
                 );
               }
               final options = snapshot.data ?? const [];
@@ -154,7 +156,7 @@ class _FetchOptionPickerContentState<T> extends State<_FetchOptionPickerContent<
               if (snapshot.hasError) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                  child: Text('Failed to load options: ${snapshot.error}'),
+                  child: Text('Failed to load options: ${friendlyErrorMessage(snapshot.error)}'),
                 );
               }
               final options = snapshot.data ?? const [];

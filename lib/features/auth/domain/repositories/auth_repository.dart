@@ -1,13 +1,15 @@
 import 'package:fpdart/fpdart.dart';
 import '../../../../core/error/failures.dart';
+import '../entities/bingold_login_result_entity.dart';
 import '../entities/kyc_entity.dart';
 import '../entities/register_otp_entity.dart';
 import '../entities/user_entity.dart';
+import '../entities/user_existence_entity.dart';
+import '../usecases/submit_vendor_kyc_usecase.dart';
 
 abstract interface class AuthRepository {
   Future<Either<Failure, RegisterOtpEntity>> registerVendor({
-    required String firstName,
-    required String lastName,
+    required String fullName,
     required String email,
     required String phone,
     required String password,
@@ -30,12 +32,23 @@ abstract interface class AuthRepository {
     required String email,
   });
 
-  Future<Either<Failure, bool>> checkEmailExists({required String email});
+  Future<Either<Failure, UserExistenceEntity>> checkEmailExists({required String email});
 
   Future<Either<Failure, UserEntity>> vendorLogin({
     required String identifier,
     required String password,
   });
+
+  Future<Either<Failure, RegisterOtpEntity>> bingoldLoginOtp({
+    required String email,
+  });
+
+  Future<Either<Failure, BinGoldLoginResultEntity>> bingoldVerifyLogin({
+    required String email,
+    required String otp,
+  });
+
+  Future<Either<Failure, UserEntity>> setPassword({required String password});
 
   Future<Either<Failure, Unit>> forgotPassword({required String email});
 
@@ -43,18 +56,10 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, UserEntity?>> getStoredUser();
 
-  Future<Either<Failure, KycEntity>> submitKycPersonalDetails({
-    required String name,
-    required String dateOfBirth,
-    required String address,
+  Future<Either<Failure, KycEntity>> submitVendorKyc({
+    required String kybMode,
+    required List<KycDocumentSubmission> documents,
   });
-
-  Future<Either<Failure, KycEntity>> uploadKycDocument({
-    required String filePath,
-    required String documentType,
-  });
-
-  Future<Either<Failure, KycEntity>> uploadKycSelfie({required String filePath});
 
   Future<Either<Failure, KycEntity>> getKycStatus();
 }

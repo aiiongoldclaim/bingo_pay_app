@@ -104,7 +104,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -142,7 +142,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(
-                    color: theme.colorScheme.outline.withOpacity(0.5),
+                    color: theme.colorScheme.outline.withValues(alpha: 0.5),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -187,9 +187,8 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         tileColor: isSelected
-                            ? theme.colorScheme.primaryContainer.withOpacity(
-                                0.3,
-                              )
+                            ? theme.colorScheme.primaryContainer
+                                .withValues(alpha: 0.3)
                             : null,
                         leading: Text(
                           CountryPickerBottomSheet.getFlagEmoji(country.code),

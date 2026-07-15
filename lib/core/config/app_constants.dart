@@ -7,4 +7,6 @@ class AppConstants {
   static const String onboardingSeenKey = 'onboarding_seen';
   static const String bingoldUuidKey = 'bingold_uuid';
   static const String vendorUuidKey = 'vendor_uuid';
+  static const String tempAccessTokenKey = 'temp_access_token';
+  static const String tempRefreshTokenKey = 'temp_refresh_token';
 }

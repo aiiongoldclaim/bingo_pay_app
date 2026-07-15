@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/app_currency.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../models/product_form_data.dart';
@@ -97,7 +98,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: AppDimensions.sm),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black54, letterSpacing: 0.3),
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.textSecondary, letterSpacing: 0.3),
       ),
     );
   }
@@ -111,7 +112,7 @@ class _ReviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
       child: Column(
@@ -136,7 +137,7 @@ class _ReviewRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 110,
-            child: Text(label, style: const TextStyle(fontSize: 13, color: Colors.black54)),
+            child: Text(label, style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
           ),
           Expanded(
             child: Text(value.isNotEmpty ? value : '—', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
@@ -155,7 +156,7 @@ class _ReviewEmpty extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 12),
-      child: Text(text, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+      child: Text(text, style: TextStyle(fontSize: 13, color: context.colors.textMuted)),
     );
   }
 }
@@ -178,9 +179,9 @@ class _VariantRow extends StatelessWidget {
             ),
           ),
           if (price != null)
-            Text('₹${price.toStringAsFixed(0)}', style: const TextStyle(fontSize: 13, color: Colors.black54)),
+            Text(AppCurrency.format(price), style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
           const SizedBox(width: 12),
-          Text('Stock: ${variant.stock}', style: const TextStyle(fontSize: 13, color: Colors.black54)),
+          Text('Stock: ${variant.stock}', style: TextStyle(fontSize: 13, color: context.colors.textSecondary)),
         ],
       ),
     );

@@ -5,17 +5,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/slugify.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../domain/entities/user_existence_entity.dart';
 import '../../domain/usecases/check_email_exists_usecase.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../../../../core/widgets/glass/glass_back_button.dart';
+import '../../../../core/widgets/glass/glass_scaffold.dart';
 import '../widgets/country_picker.dart';
-import '../../../../core/widgets/step_indicator.dart';
 import 'otp_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -29,8 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _personalFormKey = GlobalKey<FormState>();
   final _businessFormKey = GlobalKey<FormState>();
 
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -45,14 +47,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _supportEmailController = TextEditingController();
   final _supportPhoneController = TextEditingController();
 
+  // Personal step focus nodes
+  final _fullNameFocus = FocusNode();
   final _emailFocusNode = FocusNode();
+  final _phoneFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmPasswordFocus = FocusNode();
+
+  // Business step focus nodes
+  final _shopNameFocus = FocusNode();
+  final _businessNameFocus = FocusNode();
+  final _descriptionFocus = FocusNode();
+  final _gstFocus = FocusNode();
+  final _panFocus = FocusNode();
+  final _supportEmailFocus = FocusNode();
+  final _supportPhoneFocus = FocusNode();
+
   final _checkEmailExists = getIt<CheckEmailExistsUseCase>();
   bool _checkingEmail = false;
+  bool _isLoginOtpFlow = false;
+  String? _lastCheckedEmail;
 
   int _step = 0;
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
-  bool _shopSlugEdited = false;
 
   List<Country> _countries = [];
   Country? _selectedCountry;
@@ -61,13 +79,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _shopNameController.addListener(_onShopNameChanged);
+    // Check email existence on ANY unfocus (tapping another field, keyboard
+    // next, tapping outside) — not just the keyboard submit action.
     _emailFocusNode.addListener(_onEmailFocusChanged);
     _loadCountries();
   }
 
+  void _onEmailFocusChanged() {
+    if (!_emailFocusNode.hasFocus) _maybeCheckEmail();
+  }
+
+  /// Runs the email-exists check if the email is valid and hasn't already
+  /// been checked (so unfocus + submit don't fire the API twice).
+  void _maybeCheckEmail() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || Validators.email(email) != null) return;
+    if (_checkingEmail || email == _lastCheckedEmail) return;
+    _lastCheckedEmail = email;
+    _checkEmail(email);
+  }
+
   Future<void> _loadCountries() async {
     try {
-      final jsonString = await rootBundle.loadString('assets/data/countries_phone.json');
+      final jsonString =
+          await rootBundle.loadString('assets/data/countries_phone.json');
       final List<dynamic> jsonList = json.decode(jsonString);
       setState(() {
         _countries = jsonList.map((e) => Country.fromJson(e)).toList();
@@ -76,9 +111,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           orElse: () => _countries.isNotEmpty
               ? _countries.first
               : const Country(
-                  name: "India",
-                  code: "IN",
-                  dialCode: "+91",
+                  name: 'India',
+                  code: 'IN',
+                  dialCode: '+91',
                   minLength: 10,
                   maxLength: 10,
                 ),
@@ -87,9 +122,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       setState(() {
         _selectedCountry = const Country(
-          name: "India",
-          code: "IN",
-          dialCode: "+91",
+          name: 'India',
+          code: 'IN',
+          dialCode: '+91',
           minLength: 10,
           maxLength: 10,
         );
@@ -103,214 +138,330 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
-        return CountryPickerBottomSheet(
-          countries: _countries,
-          initialSelectedCountry: _selectedCountry,
-          onCountrySelected: (country) {
-            setState(() {
-              _selectedCountry = country;
-              _phoneController.clear(); // Clear existing number when country changes to avoid validation mismatch
-            });
-          },
-        );
-      },
+      builder: (context) => CountryPickerBottomSheet(
+        countries: _countries,
+        initialSelectedCountry: _selectedCountry,
+        onCountrySelected: (country) {
+          setState(() {
+            _selectedCountry = country;
+            _phoneController.clear();
+          });
+        },
+      ),
     );
   }
 
-  String _getFlagEmoji(String countryCode) {
-    return CountryPickerBottomSheet.getFlagEmoji(countryCode);
-  }
+  String _getFlagEmoji(String countryCode) =>
+      CountryPickerBottomSheet.getFlagEmoji(countryCode);
 
   void _onShopNameChanged() {
-    if (_shopSlugEdited) return;
     _shopSlugController.text = slugify(_shopNameController.text);
-  }
-
-  void _onEmailFocusChanged() {
-    if (_emailFocusNode.hasFocus) return;
-    final email = _emailController.text.trim();
-    if (email.isEmpty || Validators.email(email) != null) return;
-    _checkEmail(email);
   }
 
   Future<void> _checkEmail(String email) async {
     setState(() => _checkingEmail = true);
+    
     final result = await _checkEmailExists(email);
     if (!mounted) return;
     setState(() => _checkingEmail = false);
     result.match(
       (failure) {},
-      (exists) {
-        if (exists) _showEmailExistsDialog(email);
+      (existence) {
+        if (!existence.checked) return; // gateway down — silent continue
+        if (existence.exists) {
+          if (!existence.hasLocalPassword) {
+            _showBinGoldContinueDialog(email);
+          } else {
+            _showEmailExistsDialog(email);
+          }
+        } else if (existence.hasLocalProfile) {
+          _prefillFromProfile(existence);
+        }
       },
     );
   }
 
-  // void _showEmailExistsDialog(String email) {
-  //   showDialog<void>(
-  //     context: context,
-  //     builder: (dialogContext) => AlertDialog(
-  //       title: const Text('Account already exists'),
-  //       content: Text(
-  //         'An account with $email already exists. Please log in instead.',
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.of(dialogContext).pop(),
-  //           child: const Text('Cancel'),
-  //         ),
-  //         FilledButton(
-  //           onPressed: () {
-  //             Navigator.of(dialogContext).pop();
-  //             context.go(AppRoutes.login);
-  //           },
-  //           child: const Text('Go to Login'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  void _prefillFromProfile(UserExistenceEntity existence) {
+    final fullName = existence.fullName?.trim() ?? '';
+    if (fullName.isNotEmpty) {
+      _fullNameController.text = fullName;
+    }
+    final phone = existence.phone?.trim() ?? '';
+    if (phone.isNotEmpty && _selectedCountry != null) {
+      final dialCode = _selectedCountry!.dialCode;
+      final stripped = phone.startsWith(dialCode)
+          ? phone.substring(dialCode.length).trim()
+          : phone.replaceAll(RegExp(r'^\+\d+\s*'), '');
+      _phoneController.text = stripped;
+    }
+  }
 
-  void _showEmailExistsDialog(String email) {
-  showDialog<void>(
-    context: context,
-    barrierColor: Colors.black.withOpacity(0.6),
-    builder: (dialogContext) => Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon badge
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.deepOrange.shade300, Colors.deepOrange.shade500],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.deepOrange.withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+  void _showBinGoldContinueDialog(String email) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+          decoration: BoxDecoration(
+            color: context.colors.card,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: 0.8),
+                      AppColors.primaryDark,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
-              ),
-              child: const Icon(
-                Icons.mark_email_read_rounded,
-                color: Colors.white,
-                size: 30,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Title
-            const Text(
-              'Account already exists',
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1A1A1A),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-
-            // Subtitle
-            Text.rich(
-              TextSpan(
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: Colors.grey[600],
-                ),
-                children: [
-                  const TextSpan(text: 'An account with '),
-                  TextSpan(
-                    text: email,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A1A),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                  ),
-                  const TextSpan(text: ' already exists. Please log in instead.'),
-                ],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 28),
-
-            // Primary action
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A1A1A),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
+                  ],
                 ),
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  context.go(AppRoutes.login);
-                },
-                child: const Text(
-                  'Go to Login',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                child: const Icon(
+                  Icons.verified_user_rounded,
+                  color: Colors.white,
+                  size: 30,
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-
-            // Secondary action
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Text(
-                'Cancel',
+              const SizedBox(height: 20),
+              Text(
+                'Account found on BinGold',
                 style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[500],
+                  fontSize: 19,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text.rich(
+                TextSpan(
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: context.colors.textSecondary,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: email,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: context.colors.textPrimary,
+                      ),
+                    ),
+                    const TextSpan(
+                      text:
+                          ' is linked to a BinGold account. We\'ll send a verification code to continue.',
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    _isLoginOtpFlow = true;
+                    context.read<AuthBloc>().add(
+                          BinGoldLoginOtpRequested(email: email),
+                        );
+                  },
+                  child: const Text(
+                    'Send Verification Code',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.textMuted,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+
+  void _showEmailExistsDialog(String email) {
+    showDialog<void>(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+          decoration: BoxDecoration(
+            color: context.colors.card,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.deepOrange.shade300,
+                      Colors.deepOrange.shade500,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.deepOrange.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.mark_email_read_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Account already exists',
+                style: TextStyle(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text.rich(
+                TextSpan(
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: context.colors.textSecondary,
+                  ),
+                  children: [
+                    const TextSpan(text: 'An account with '),
+                    TextSpan(
+                      text: email,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: context.colors.textPrimary,
+                      ),
+                    ),
+                    const TextSpan(
+                        text: ' already exists. Please log in instead.'),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : const Color(0xFF1A1A1A),
+                    foregroundColor: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black
+                        : Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    context.go(AppRoutes.login);
+                  },
+                  child: const Text(
+                    'Go to Login',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.textMuted,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
     _shopNameController.removeListener(_onShopNameChanged);
-    _emailFocusNode.removeListener(_onEmailFocusChanged);
-    _emailFocusNode.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
+    _fullNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
@@ -323,6 +474,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _panController.dispose();
     _supportEmailController.dispose();
     _supportPhoneController.dispose();
+    _fullNameFocus.dispose();
+    _emailFocusNode.dispose();
+    _phoneFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
+    _shopNameFocus.dispose();
+    _businessNameFocus.dispose();
+    _descriptionFocus.dispose();
+    _gstFocus.dispose();
+    _panFocus.dispose();
+    _supportEmailFocus.dispose();
+    _supportPhoneFocus.dispose();
     super.dispose();
   }
 
@@ -335,154 +498,70 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submitVendor() {
     if (_businessFormKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
-        VendorRegisterRequested(
-          firstName: _firstNameController.text.trim(),
-          lastName: _lastNameController.text.trim(),
-          email: _emailController.text.trim(),
-          phone: _phoneController.text.trim(),
-          password: _passwordController.text,
-          shopName: _shopNameController.text.trim(),
-          shopSlug: _shopSlugController.text.trim(),
-          businessName: _businessNameController.text.trim(),
-          description: _descriptionController.text.trim().isEmpty
-              ? null
-              : _descriptionController.text.trim(),
-          gstNumber: _gstController.text.trim().isEmpty
-              ? null
-              : _gstController.text.trim(),
-          panNumber: _panController.text.trim().isEmpty
-              ? null
-              : _panController.text.trim(),
-          supportEmail: _supportEmailController.text.trim().isEmpty
-              ? null
-              : _supportEmailController.text.trim(),
-          supportPhone: _supportPhoneController.text.trim().isEmpty
-              ? null
-              : _supportPhoneController.text.trim(),
-        ),
-      );
+            VendorRegisterRequested(
+              fullName: _fullNameController.text.trim(),
+              email: _emailController.text.trim(),
+              phone: _phoneController.text.trim(),
+              password: _passwordController.text,
+              shopName: _shopNameController.text.trim(),
+              shopSlug: _shopSlugController.text.trim(),
+              businessName: _businessNameController.text.trim(),
+              description: _descriptionController.text.trim().isEmpty
+                  ? null
+                  : _descriptionController.text.trim(),
+              gstNumber: _gstController.text.trim().isEmpty
+                  ? null
+                  : _gstController.text.trim(),
+              panNumber: _panController.text.trim().isEmpty
+                  ? null
+                  : _panController.text.trim(),
+              supportEmail: _supportEmailController.text.trim().isEmpty
+                  ? null
+                  : _supportEmailController.text.trim(),
+              supportPhone: _supportPhoneController.text.trim().isEmpty
+                  ? null
+                  : _supportPhoneController.text.trim(),
+            ),
+          );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
+    return GlassScaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            AppSnackbar.showError(context, state.failure.message);
+            if (ModalRoute.of(context)?.isCurrent ?? true) {
+              AppSnackbar.showError(context, state.failure.message);
+            }
           } else if (state is AuthOtpRequired) {
+            final isLoginOtpFlow = _isLoginOtpFlow;
+            _isLoginOtpFlow = false;
+            if (isLoginOtpFlow) {
+              AppSnackbar.showSuccess(context, state.message);
+            }
             context.push(
               AppRoutes.registerOtp,
-              extra: OtpScreenArgs(email: state.email),
+              extra: OtpScreenArgs(
+                email: state.email,
+                otpType: isLoginOtpFlow ? OtpType.login : OtpType.register,
+              ),
             );
           }
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 32),
-                Text(
-                  'Create Account',
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                StepIndicator(currentStep: _step, totalSteps: 2),
-                const SizedBox(height: 8),
-                Text(
-                  _step == 0
-                      ? 'Step 1 of 2: Personal Details'
-                      : 'Step 2 of 2: Business Details',
-                ),
+                _buildHeader(context),
                 const SizedBox(height: 24),
                 if (_step == 0)
-                  Form(
-                    key: _personalFormKey,
-                    child: _PersonalDetailsFields(
-                      firstNameController: _firstNameController,
-                      lastNameController: _lastNameController,
-                      emailController: _emailController,
-                      emailFocusNode: _emailFocusNode,
-                      checkingEmail: _checkingEmail,
-                      phoneController: _phoneController,
-                      passwordController: _passwordController,
-                      confirmPasswordController: _confirmPasswordController,
-                      obscurePassword: _obscurePassword,
-                      obscureConfirm: _obscureConfirm,
-                      onTogglePassword: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                      onToggleConfirm: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm),
-                      selectedCountryFlag: _selectedCountry != null
-                          ? _getFlagEmoji(_selectedCountry!.code)
-                          : '🇮🇳',
-                      selectedCountryDialCode: _selectedCountry?.dialCode ?? '+91',
-                      minPhoneLength: _selectedCountry?.minLength ?? 10,
-                      maxPhoneLength: _selectedCountry?.maxLength ?? 10,
-                      onSelectCountry: _showCountryPicker,
-                    ),
-                  )
+                  _buildPersonalStep(context)
                 else
-                  Form(
-                    key: _businessFormKey,
-                    child: _BusinessDetailsFields(
-                      shopNameController: _shopNameController,
-                      shopSlugController: _shopSlugController,
-                      businessNameController: _businessNameController,
-                      descriptionController: _descriptionController,
-                      gstController: _gstController,
-                      panController: _panController,
-                      supportEmailController: _supportEmailController,
-                      supportPhoneController: _supportPhoneController,
-                      onShopSlugChanged: () => _shopSlugEdited = true,
-                    ),
-                  ),
-                const SizedBox(height: 32),
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final isLoading = state is AuthLoading;
-                    if (_step == 0) {
-                      return AppButton(
-                        label: 'Next',
-                        onPressed: _goToBusinessStep,
-                        isLoading: isLoading,
-                      );
-                    }
-                    return Column(
-                      children: [
-                        AppButton(
-                          label: 'Create Account',
-                          onPressed: _submitVendor,
-                          isLoading: isLoading,
-                        ),
-                        const SizedBox(height: 12),
-                        AppButton(
-                          label: 'Back',
-                          variant: AppButtonVariant.outlined,
-                          onPressed: isLoading
-                              ? null
-                              : () => setState(() => _step = 0),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Already have an account?'),
-                    TextButton(
-                      onPressed: () => context.go(AppRoutes.login),
-                      child: const Text('Sign In'),
-                    ),
-                  ],
-                ),
+                  _buildBusinessStep(context),
               ],
             ),
           ),
@@ -490,17 +569,174 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final isLoading = state is AuthLoading;
+              return GlassBackButton(
+                onTap: isLoading
+                    ? null
+                    : () {
+                        if (_step == 0) {
+                          context.go(AppRoutes.login);
+                        } else {
+                          setState(() => _step = 0);
+                        }
+                      },
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 24),
+        StepProgressBar(currentStep: _step + 1, totalSteps: 4),
+        const SizedBox(height: 16),
+        Text(
+          'Step ${_step + 1} of 4',
+          style: TextStyle(
+            fontSize: 13,
+            color: context.colors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _step == 0 ? 'Tell us about yourself' : 'Set up your shop',
+          style: TextStyle(
+            fontSize: 24,
+            height: 1.3,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.4,
+            color: context.colors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _step == 0
+              ? 'Your name and login details for the account.'
+              : 'Shop name, registration and support contacts.',
+          style: TextStyle(
+            fontSize: 14,
+            color: context.colors.textSecondary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPersonalStep(BuildContext context) {
+    return Form(
+      key: _personalFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _PersonalDetailsFields(
+            fullNameController: _fullNameController,
+            fullNameFocus: _fullNameFocus,
+            emailController: _emailController,
+            emailFocusNode: _emailFocusNode,
+            phoneFocus: _phoneFocus,
+            checkingEmail: _checkingEmail,
+            phoneController: _phoneController,
+            passwordController: _passwordController,
+            passwordFocus: _passwordFocus,
+            confirmPasswordController: _confirmPasswordController,
+            confirmPasswordFocus: _confirmPasswordFocus,
+            obscurePassword: _obscurePassword,
+            obscureConfirm: _obscureConfirm,
+            onTogglePassword: () =>
+                setState(() => _obscurePassword = !_obscurePassword),
+            onToggleConfirm: () =>
+                setState(() => _obscureConfirm = !_obscureConfirm),
+            selectedCountryFlag: _selectedCountry != null
+                ? _getFlagEmoji(_selectedCountry!.code)
+                : '🇮🇳',
+            selectedCountryDialCode: _selectedCountry?.dialCode ?? '+91',
+            minPhoneLength: _selectedCountry?.minLength ?? 10,
+            maxPhoneLength: _selectedCountry?.maxLength ?? 10,
+            onSelectCountry: _showCountryPicker,
+            onEmailSubmitted: _maybeCheckEmail,
+          ),
+          const SizedBox(height: 32),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) => AppButton(
+              label: 'Continue',
+              onPressed: _goToBusinessStep,
+              isLoading: state is AuthLoading,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Already have an account?',
+                style: TextStyle(color: context.colors.textSecondary, fontSize: 14),
+              ),
+              TextButton(
+                onPressed: () => context.go(AppRoutes.login),
+                child: const Text('Sign In'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBusinessStep(BuildContext context) {
+    return Form(
+      key: _businessFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _BusinessDetailsFields(
+            shopNameController: _shopNameController,
+            shopNameFocus: _shopNameFocus,
+            shopSlugController: _shopSlugController,
+            businessNameController: _businessNameController,
+            businessNameFocus: _businessNameFocus,
+            descriptionController: _descriptionController,
+            descriptionFocus: _descriptionFocus,
+            gstController: _gstController,
+            gstFocus: _gstFocus,
+            panController: _panController,
+            panFocus: _panFocus,
+            supportEmailController: _supportEmailController,
+            supportEmailFocus: _supportEmailFocus,
+            supportPhoneController: _supportPhoneController,
+            supportPhoneFocus: _supportPhoneFocus,
+          ),
+          const SizedBox(height: 32),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) => AppButton(
+              label: 'Create Account',
+              onPressed: _submitVendor,
+              isLoading: state is AuthLoading,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _PersonalDetailsFields extends StatelessWidget {
-  final TextEditingController firstNameController;
-  final TextEditingController lastNameController;
+  final TextEditingController fullNameController;
+  final FocusNode fullNameFocus;
   final TextEditingController emailController;
   final FocusNode emailFocusNode;
+  final FocusNode phoneFocus;
   final bool checkingEmail;
   final TextEditingController phoneController;
   final TextEditingController passwordController;
+  final FocusNode passwordFocus;
   final TextEditingController confirmPasswordController;
+  final FocusNode confirmPasswordFocus;
   final bool obscurePassword;
   final bool obscureConfirm;
   final VoidCallback onTogglePassword;
@@ -510,16 +746,20 @@ class _PersonalDetailsFields extends StatelessWidget {
   final int minPhoneLength;
   final int maxPhoneLength;
   final VoidCallback onSelectCountry;
+  final VoidCallback onEmailSubmitted;
 
   const _PersonalDetailsFields({
-    required this.firstNameController,
-    required this.lastNameController,
+    required this.fullNameController,
+    required this.fullNameFocus,
     required this.emailController,
     required this.emailFocusNode,
+    required this.phoneFocus,
     required this.checkingEmail,
     required this.phoneController,
     required this.passwordController,
+    required this.passwordFocus,
     required this.confirmPasswordController,
+    required this.confirmPasswordFocus,
     required this.obscurePassword,
     required this.obscureConfirm,
     required this.onTogglePassword,
@@ -529,6 +769,7 @@ class _PersonalDetailsFields extends StatelessWidget {
     required this.minPhoneLength,
     required this.maxPhoneLength,
     required this.onSelectCountry,
+    required this.onEmailSubmitted,
   });
 
   @override
@@ -537,23 +778,23 @@ class _PersonalDetailsFields extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AppTextField(
-          controller: firstNameController,
-          label: 'First Name',
-          validator: (v) => Validators.required(v, fieldName: 'First name'),
-        ),
-        const SizedBox(height: 16),
-        AppTextField(
-          controller: lastNameController,
-          label: 'Last Name',
-          validator: (v) => Validators.required(v, fieldName: 'Last name'),
+          controller: fullNameController,
+          focusNode: fullNameFocus,
+          nextFocusNode: emailFocusNode,
+          label: 'Full Name',
+          isRequired: true,
+          validator: (v) => Validators.required(v, fieldName: 'Full name'),
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: emailController,
           focusNode: emailFocusNode,
-          label: 'Email',
+          nextFocusNode: phoneFocus,
+          label: 'Email Address',
+          isRequired: true,
           keyboardType: TextInputType.emailAddress,
           validator: Validators.email,
+          onSubmitted: onEmailSubmitted,
           suffixIcon: checkingEmail
               ? const Padding(
                   padding: EdgeInsets.all(12),
@@ -568,7 +809,10 @@ class _PersonalDetailsFields extends StatelessWidget {
         const SizedBox(height: 16),
         AppTextField(
           controller: phoneController,
+          focusNode: phoneFocus,
+          nextFocusNode: passwordFocus,
           label: 'Phone Number',
+          isRequired: true,
           keyboardType: TextInputType.phone,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
@@ -576,10 +820,10 @@ class _PersonalDetailsFields extends StatelessWidget {
             }
             final cleanVal = value.trim();
             if (cleanVal.length < minPhoneLength) {
-              return 'Phone number must be at least $minPhoneLength digits';
+              return 'Must be at least $minPhoneLength digits';
             }
             if (cleanVal.length > maxPhoneLength) {
-              return 'Phone number must be at most $maxPhoneLength digits';
+              return 'Must be at most $maxPhoneLength digits';
             }
             return null;
           },
@@ -592,7 +836,7 @@ class _PersonalDetailsFields extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   right: BorderSide(
-                    color: Theme.of(context).dividerColor.withOpacity(0.5),
+                    color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
                     width: 1,
                   ),
                 ),
@@ -600,10 +844,8 @@ class _PersonalDetailsFields extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    selectedCountryFlag,
-                    style: const TextStyle(fontSize: 18),
-                  ),
+                  Text(selectedCountryFlag,
+                      style: const TextStyle(fontSize: 18)),
                   const SizedBox(width: 4),
                   Text(
                     selectedCountryDialCode,
@@ -625,7 +867,10 @@ class _PersonalDetailsFields extends StatelessWidget {
         const SizedBox(height: 16),
         AppTextField(
           controller: passwordController,
+          focusNode: passwordFocus,
+          nextFocusNode: confirmPasswordFocus,
           label: 'Password',
+          isRequired: true,
           obscureText: obscurePassword,
           validator: Validators.password,
           suffixIcon: IconButton(
@@ -640,7 +885,9 @@ class _PersonalDetailsFields extends StatelessWidget {
         const SizedBox(height: 16),
         AppTextField(
           controller: confirmPasswordController,
+          focusNode: confirmPasswordFocus,
           label: 'Confirm Password',
+          isRequired: true,
           obscureText: obscureConfirm,
           validator: (v) =>
               Validators.confirmPassword(v, passwordController.text),
@@ -660,25 +907,37 @@ class _PersonalDetailsFields extends StatelessWidget {
 
 class _BusinessDetailsFields extends StatelessWidget {
   final TextEditingController shopNameController;
+  final FocusNode shopNameFocus;
   final TextEditingController shopSlugController;
   final TextEditingController businessNameController;
+  final FocusNode businessNameFocus;
   final TextEditingController descriptionController;
+  final FocusNode descriptionFocus;
   final TextEditingController gstController;
+  final FocusNode gstFocus;
   final TextEditingController panController;
+  final FocusNode panFocus;
   final TextEditingController supportEmailController;
+  final FocusNode supportEmailFocus;
   final TextEditingController supportPhoneController;
-  final VoidCallback onShopSlugChanged;
+  final FocusNode supportPhoneFocus;
 
   const _BusinessDetailsFields({
     required this.shopNameController,
+    required this.shopNameFocus,
     required this.shopSlugController,
     required this.businessNameController,
+    required this.businessNameFocus,
     required this.descriptionController,
+    required this.descriptionFocus,
     required this.gstController,
+    required this.gstFocus,
     required this.panController,
+    required this.panFocus,
     required this.supportEmailController,
+    required this.supportEmailFocus,
     required this.supportPhoneController,
-    required this.onShopSlugChanged,
+    required this.supportPhoneFocus,
   });
 
   @override
@@ -686,56 +945,88 @@ class _BusinessDetailsFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        _sectionLabel(context, 'Shop Info'),
         AppTextField(
           controller: shopNameController,
+          focusNode: shopNameFocus,
+          nextFocusNode: businessNameFocus,
           label: 'Shop Name',
+          isRequired: true,
           validator: (v) => Validators.required(v, fieldName: 'Shop name'),
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: shopSlugController,
           label: 'Shop Slug',
-          onChanged: (_) => onShopSlugChanged(),
-          validator: (v) => Validators.required(v, fieldName: 'Shop slug'),
+          hint: 'Auto-generated from shop name',
+          enabled: false,
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: businessNameController,
+          focusNode: businessNameFocus,
+          nextFocusNode: descriptionFocus,
           label: 'Business Name',
+          isRequired: true,
           validator: (v) => Validators.required(v, fieldName: 'Business name'),
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: descriptionController,
-          label: 'Description (optional)',
+          focusNode: descriptionFocus,
+          label: 'Description',
+          hint: 'Brief description of your business',
           maxLines: 3,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 28),
+        _sectionLabel(context, 'Tax & Compliance  •  Optional'),
         AppTextField(
           controller: gstController,
-          label: 'GST Number (optional)',
+          focusNode: gstFocus,
+          nextFocusNode: panFocus,
+          label: 'GST Number',
           validator: Validators.gst,
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: panController,
-          label: 'PAN Number (optional)',
+          focusNode: panFocus,
+          nextFocusNode: supportEmailFocus,
+          label: 'PAN Number',
           validator: Validators.pan,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 28),
+        _sectionLabel(context, 'Support Contact  •  Optional'),
         AppTextField(
           controller: supportEmailController,
-          label: 'Support Email (optional)',
+          focusNode: supportEmailFocus,
+          nextFocusNode: supportPhoneFocus,
+          label: 'Support Email',
           keyboardType: TextInputType.emailAddress,
         ),
         const SizedBox(height: 16),
         AppTextField(
           controller: supportPhoneController,
-          label: 'Support Phone (optional)',
+          focusNode: supportPhoneFocus,
+          label: 'Support Phone',
           keyboardType: TextInputType.phone,
         ),
       ],
     );
   }
-}
 
+  Widget _sectionLabel(BuildContext context, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: context.colors.textSecondary,
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+}

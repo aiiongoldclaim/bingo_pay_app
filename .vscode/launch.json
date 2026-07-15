@@ -5,19 +5,22 @@
       "name": "Bingo Pay (dev)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_dev.dart"
+      "program": "lib/main_dev.dart",
+      "args": ["--flavor", "dev"]
     },
     {
       "name": "Bingo Pay (staging)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_staging.dart"
+      "program": "lib/main_staging.dart",
+      "args": ["--flavor", "staging"]
     },
     {
       "name": "Bingo Pay (prod)",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_prod.dart"
+      "program": "lib/main_prod.dart",
+      "args": ["--flavor", "prod"]
     }
   ]
 }

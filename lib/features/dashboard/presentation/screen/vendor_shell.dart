@@ -1,14 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/glass/glass_tab_bar.dart';
+
 class VendorShell extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
   const VendorShell({super.key, required this.navigationShell});
 
+  static const _tabs = [
+    GlassTabItem(
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home,
+      label: 'Home',
+    ),
+    GlassTabItem(
+      icon: Icons.inventory_2_outlined,
+      activeIcon: Icons.inventory_2,
+      label: 'Products',
+    ),
+    GlassTabItem(
+      icon: Icons.receipt_long_outlined,
+      activeIcon: Icons.receipt_long,
+      label: 'Orders',
+    ),
+    GlassTabItem(
+      icon: Icons.bar_chart_outlined,
+      activeIcon: Icons.bar_chart,
+      label: 'Analytics',
+    ),
+    GlassTabItem(
+      icon: Icons.more_horiz,
+      activeIcon: Icons.more_horiz,
+      label: 'More',
+    ),
+  ];
+
   void _onTap(int index) {
-    navigationShell.
-    goBranch(
+    navigationShell.goBranch(
       index,
       // Tap karke same tab pe dobara jao toh root tak reset ho jaye
       initialLocation: index == navigationShell.currentIndex,
@@ -18,53 +47,13 @@ class VendorShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBody: true,
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: GlassTabBar(
+        items: _tabs,
         currentIndex: navigationShell.currentIndex,
         onTap: _onTap,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF1A5DAB),
-        unselectedItemColor: Colors.grey[600],
-        items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            activeIcon: Icon(Icons.inventory_2),
-            label: 'Products',
-          ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Icon(Icons.receipt_long_outlined),
-                Positioned(
-                  right: -8,
-                  top: -4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text(
-                      '12',
-                      style: TextStyle(color: Colors.white, fontSize: 10),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            label: 'Orders',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'More',
-          ),
-        ],
       ),
     );
   }

@@ -2,19 +2,29 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_glass.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/glass/glass_back_button.dart';
+import '../../../../core/widgets/glass/glass_scaffold.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../widgets/kyb_status_navigator.dart';
 
 const _resendCooldownSeconds = 30;
 const _otpLength = 6;
 
+enum OtpType { register, login, forgotPassword }
+
 class OtpScreenArgs {
   final String email;
+  final OtpType otpType;
 
-  const OtpScreenArgs({required this.email});
+  const OtpScreenArgs({required this.email, required this.otpType});
 }
 
 class OtpVerificationScreen extends StatefulWidget {
@@ -61,59 +71,130 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _onVerify() {
     if (_otpController.text.length != _otpLength) return;
-    context.read<AuthBloc>().add(
-      VerifyOtpRequested(email: widget.args.email, otp: _otpController.text),
-    );
+    switch (widget.args.otpType) {
+      case OtpType.register:
+        context.read<AuthBloc>().add(
+              VerifyOtpRequested(
+                email: widget.args.email,
+                otp: _otpController.text,
+              ),
+            );
+      case OtpType.login:
+        context.read<AuthBloc>().add(
+              BinGoldVerifyLoginRequested(
+                email: widget.args.email,
+                otp: _otpController.text,
+              ),
+            );
+      case OtpType.forgotPassword:
+        // TODO: dispatch forgot password OTP verify event
+        break;
+    }
   }
 
   void _onResend() {
     if (_secondsRemaining > 0) return;
     _otpController.clear();
-    context.read<AuthBloc>().add(ResendOtpRequested(email: widget.args.email));
+    switch (widget.args.otpType) {
+      case OtpType.register:
+        context.read<AuthBloc>().add(
+              ResendOtpRequested(email: widget.args.email),
+            );
+      case OtpType.login:
+        context.read<AuthBloc>().add(
+              BinGoldLoginOtpRequested(email: widget.args.email),
+            );
+      case OtpType.forgotPassword:
+        // TODO: dispatch forgot password OTP resend event
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Verify Email')),
+    final isRegisterFlow = widget.args.otpType == OtpType.register;
+
+    return GlassScaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            AppSnackbar.showError(context, state.failure.message);
+            if (ModalRoute.of(context)?.isCurrent ?? true) {
+              AppSnackbar.showError(context, state.failure.message);
+            }
           } else if (state is AuthOtpRequired) {
             _startResendTimer();
             AppSnackbar.showSuccess(context, 'OTP resent to ${state.email}');
+          } else if (state is AuthPasswordSetupRequired) {
+            context.push(AppRoutes.setPassword);
+          } else if (state is AuthAuthenticated) {
+            handlePostAuthKybNavigation(context, state.user);
           }
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
-                Text(
-                  'Enter verification code',
-                  style: theme.textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GlassBackButton(
+                    onTap: () => Navigator.of(context).pop(),
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'We sent a $_otpLength-digit code to ${widget.args.email}',
-                  style: theme.textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
+                const SizedBox(height: 24),
+                if (isRegisterFlow) ...[
+                  const StepProgressBar(currentStep: 3, totalSteps: 4),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Step 3 of 4',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: context.colors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                Text.rich(
+                  TextSpan(
+                    text: 'Enter the code we sent to\n',
+                    style: TextStyle(
+                      fontSize: 24,
+                      height: 1.3,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                      color: context.colors.textPrimary,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: widget.args.email,
+                        style: const TextStyle(color: AppColors.primary),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 32),
                 _OtpBoxesInput(
                   controller: _otpController,
                   focusNode: _otpFocusNode,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton(
+                    onPressed: _secondsRemaining == 0 ? _onResend : null,
+                    child: Text(
+                      _secondsRemaining == 0
+                          ? 'Resend code'
+                          : 'Resend code in ${_secondsRemaining.toString().padLeft(2, '0')}s',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
-                    final canVerify = _otpController.text.length == _otpLength;
+                    final canVerify =
+                        _otpController.text.length == _otpLength;
                     return AppButton(
                       label: 'Verify',
                       onPressed: canVerify ? _onVerify : null,
@@ -121,26 +202,45 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Didn't receive the code?"),
-                    TextButton(
-                      onPressed: _secondsRemaining == 0 ? _onResend : null,
-                      child: Text(
-                        _secondsRemaining == 0
-                            ? 'Resend OTP'
-                            : 'Resend in ${_secondsRemaining}s',
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Segmented progress bar for the multi-step auth flow.
+class StepProgressBar extends StatelessWidget {
+  final int currentStep;
+  final int totalSteps;
+
+  const StepProgressBar({
+    super.key,
+    required this.currentStep,
+    required this.totalSteps,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 0; i < totalSteps; i++) ...[
+          if (i > 0) const SizedBox(width: 4),
+          Expanded(
+            child: Container(
+              height: 4,
+              decoration: BoxDecoration(
+                color: i < currentStep
+                    ? AppColors.primary
+                    : AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -172,13 +272,21 @@ class _OtpBoxesInput extends StatelessWidget {
                 height: 52,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
+                  color: context.glass.fill,
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isActive
                         ? theme.colorScheme.primary
-                        : theme.dividerColor,
+                        : context.glass.border,
                     width: isActive ? 2 : 1,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: context.glass.shadow,
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Text(digit, style: theme.textTheme.headlineSmall),
               );

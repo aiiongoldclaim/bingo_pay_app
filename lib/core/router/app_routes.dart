@@ -3,9 +3,8 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String registerOtp = '/register/otp';
+  static const String setPassword = '/register/set-password';
   static const String registerKyc = '/register/kyc';
-  static const String kycDocument = '/register/kyc/document';
-  static const String kycSelfie = '/register/kyc/selfie';
   static const String forgotPassword = '/forgot-password';
 
   // Vendor shell
@@ -15,6 +14,7 @@ class AppRoutes {
   static const String vendorProductDetail = '/vendor/products/:id';
   static const String vendorProductEdit = '/vendor/products/:id/edit';
   static const String vendorTransactions = '/vendor/transactions';
+  static const String vendorAnalytics = '/vendor/analytics';
   static const String vendorTransactionDetail = '/vendor/transactions/:id';
   static const String vendorOrderCreate = '/vendor/orders/create';
   static const String vendorInvoices = '/vendor/invoices';
@@ -26,9 +26,8 @@ class AppRoutes {
     login,
     register,
     registerOtp,
+    setPassword,
     registerKyc,
-    kycDocument,
-    kycSelfie,
     forgotPassword,
   ];
 

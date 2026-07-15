@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/di/injection.dart';
+import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/utils/validators.dart';
 import '../../../data/datasources/product_remote_datasource.dart';
@@ -162,7 +163,7 @@ class _FieldLabel extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           text: text,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           children: required ? const [TextSpan(text: ' *', style: TextStyle(color: Colors.red))] : null,
         ),
       ),

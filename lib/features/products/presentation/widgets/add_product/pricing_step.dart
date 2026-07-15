@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/app_currency.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../models/product_form_data.dart';
@@ -42,7 +43,7 @@ class PricingStep extends StatelessWidget {
           TextFormField(
             controller: mrpController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(prefixText: '₹ ', hintText: '999'),
+            decoration: const InputDecoration(prefixText: AppCurrency.inputPrefix, hintText: '999'),
             validator: (v) => _requiredPrice(v, 'MRP'),
           ),
           const SizedBox(height: AppDimensions.lg),
@@ -50,7 +51,7 @@ class PricingStep extends StatelessWidget {
           TextFormField(
             controller: sellingPriceController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(prefixText: '₹ ', hintText: '699'),
+            decoration: const InputDecoration(prefixText: AppCurrency.inputPrefix, hintText: '699'),
             validator: (v) => _requiredPrice(v, 'selling price'),
           ),
           AnimatedBuilder(
@@ -76,11 +77,11 @@ class PricingStep extends StatelessWidget {
           TextFormField(
             controller: costPriceController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(prefixText: '₹ ', hintText: '0'),
+            decoration: const InputDecoration(prefixText: AppCurrency.inputPrefix, hintText: '0'),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 4),
-            child: Text('Used internally for margin analysis', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+            child: Text('Used internally for margin analysis', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
           ),
           const SizedBox(height: AppDimensions.lg),
           TapSelectField(
@@ -122,7 +123,7 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+      decoration: BoxDecoration(color: context.colors.card, borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
       child: Row(
         children: [
           Expanded(
@@ -131,7 +132,7 @@ class _ToggleRow extends StatelessWidget {
               children: [
                 Text(title, style: const TextStyle(fontSize: 14)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                Text(subtitle, style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
               ],
             ),
           ),
@@ -155,7 +156,7 @@ class _FieldLabel extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           text: text,
-          style: const TextStyle(fontSize: 14, color: Colors.black87),
+          style: TextStyle(fontSize: 14, color: context.colors.textPrimary),
           children: required ? const [TextSpan(text: ' *', style: TextStyle(color: AppColors.error))] : null,
         ),
       ),
