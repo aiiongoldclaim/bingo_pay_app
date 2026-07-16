@@ -193,11 +193,22 @@ class CartItemTile extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: isPending ? null : onDelete,
-                      child: Icon(
-                        Icons.delete_outline,
-                        size: 18.sp,
-                        color: ThemeColors.inkDim,
-                      ),
+                      child: isPending
+                          ? SizedBox(
+                              width: 18.sp,
+                              height: 18.sp,
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation(
+                                  ThemeColors.red,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              Icons.delete_outline,
+                              size: 18.sp,
+                              color: ThemeColors.inkDim,
+                            ),
                     ),
                   ],
                 ),
@@ -224,53 +235,38 @@ class CartItemTile extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    // Quantity controls
+                    // Quantity controls - always visible
                     Container(
                       height: 4.h,
                       decoration: BoxDecoration(
                         color: const Color(0xFF1A1D4E),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: isPending
-                          ? SizedBox(
-                              width: 18.w,
-                              child: const Center(
-                                child: SizedBox(
-                                  width: 14,
-                                  height: 14,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _QtyButton(
+                            icon: Icons.remove,
+                            onTap: isPending ? null : onDecrease,
+                            isDisabled: isPending,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 3.w),
+                            child: Text(
+                              '${item.quantity}',
+                              style: AppTextStyles.titleMedium.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _QtyButton(
-                                  icon: Icons.remove,
-                                  onTap: onDecrease,
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 3.w),
-                                  child: Text(
-                                    '${item.quantity}',
-                                    style: AppTextStyles.titleMedium.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                _QtyButton(
-                                  icon: Icons.add,
-                                  onTap: onIncrease,
-                                ),
-                              ],
                             ),
+                          ),
+                          _QtyButton(
+                            icon: Icons.add,
+                            onTap: isPending ? null : onIncrease,
+                            isDisabled: isPending,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -284,17 +280,26 @@ class CartItemTile extends StatelessWidget {
 }
 
 class _QtyButton extends StatelessWidget {
-  const _QtyButton({required this.icon, required this.onTap});
+  const _QtyButton({
+    required this.icon,
+    required this.onTap,
+    this.isDisabled = false,
+  });
   final IconData icon;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool isDisabled;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-        child: Icon(icon, size: 16.sp, color: Colors.white),
+        child: Icon(
+          icon,
+          size: 16.sp,
+          color: isDisabled ? Colors.white.withValues(alpha: 0.5) : Colors.white,
+        ),
       ),
     );
   }

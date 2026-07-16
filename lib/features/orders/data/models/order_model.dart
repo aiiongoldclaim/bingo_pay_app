@@ -354,13 +354,15 @@ String _formatPrice(double price) {
 int? _asInt(dynamic value) {
   if (value == null) return null;
   if (value is num) return value.toInt();
-  return int.tryParse(value.toString());
+  final str = value.toString().trim();
+  return int.tryParse(str);
 }
 
 double _asDouble(dynamic value) {
   if (value == null) return 0.0;
   if (value is num) return value.toDouble();
-  return double.tryParse(value.toString()) ?? 0.0;
+  final str = value.toString().trim();
+  return double.tryParse(str) ?? 0.0;
 }
 
 DateTime? _asDate(dynamic value) {

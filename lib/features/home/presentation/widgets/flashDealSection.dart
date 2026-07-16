@@ -50,7 +50,7 @@ class FlashDealSection extends StatelessWidget {
 
               InkWell(
                 onTap: () {
-                  context.push(AppRoutes.categories);
+                  context.push(AppRoutes.allProducts);
                 },
                 child: Text(
                   'See all',

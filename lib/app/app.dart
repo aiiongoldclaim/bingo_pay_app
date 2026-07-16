@@ -77,11 +77,6 @@ class _AppState extends State<App> {
                   darkTheme: AppTheme.dark,
                   routerConfig: _router.router,
                   builder: (context, child) {
-                    // Stacked above the entire app (every screen, dialog,
-                    // and route) so losing connectivity blocks interaction
-                    // everywhere, not just on the screen it happened on.
-                    // It clears itself the instant isConnected flips back
-                    // to true — no manual retry needed.
                     return Stack(
                       children: [
                         child ?? const SizedBox.shrink(),

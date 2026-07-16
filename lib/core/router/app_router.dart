@@ -28,6 +28,7 @@ import '../../features/auth/presentation/screens/sso_otp_verification_screen.dar
 import '../../features/auth/presentation/screens/sso_set_password_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/screens/all_products_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
 import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
@@ -219,6 +220,10 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.categories,
               builder: (_, _) => const CategoriesScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.allProducts,
+              builder: (_, _) => const AllProductsScreen(),
             ),
             GoRoute(
               path: AppRoutes.productListing,

@@ -24,6 +24,17 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     }
   }
 
+  void selectVariant(int index) {
+    final current = state;
+    if (current is! ProductDetailLoaded) return;
+    final updatedProduct = current.product.copyWith(selectedVariantIndex: index);
+    emit(current.copyWith(
+      product: updatedProduct,
+      selectedVariantIndex: index,
+      quantity: 1,
+    ));
+  }
+
   void selectColor(int index) {
     final current = state;
     if (current is! ProductDetailLoaded) return;

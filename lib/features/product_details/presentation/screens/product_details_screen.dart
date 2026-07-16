@@ -21,6 +21,7 @@ import '../widgets/product_info_section.dart';
 import '../widgets/product_details_shimmer.dart';
 import '../widgets/product_policies_section.dart';
 import '../widgets/product_rating_section.dart';
+import '../widgets/product_variants_section.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key});
@@ -130,6 +131,15 @@ class ProductDetailScreen extends StatelessWidget {
                         selectedIndex: data.selectedColorIndex,
                         onSelect: (index) {
                           context.read<ProductDetailCubit>().selectColor(index);
+                        },
+                      ),
+
+                      /// VARIANTS
+                      ProductVariantsSection(
+                        variants: product.variants,
+                        selectedIndex: data.selectedVariantIndex,
+                        onSelect: (index) {
+                          context.read<ProductDetailCubit>().selectVariant(index);
                         },
                       ),
 

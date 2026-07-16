@@ -17,22 +17,26 @@ class ProductDetailLoading extends ProductDetailState {
 class ProductDetailLoaded extends ProductDetailState {
   final ProductDetailModel product;
   final int selectedColorIndex;
+  final int selectedVariantIndex;
   final int quantity;
 
   const ProductDetailLoaded({
     required this.product,
     this.selectedColorIndex = 0,
+    this.selectedVariantIndex = 0,
     this.quantity = 1,
   });
 
   ProductDetailLoaded copyWith({
     ProductDetailModel? product,
     int? selectedColorIndex,
+    int? selectedVariantIndex,
     int? quantity,
   }) {
     return ProductDetailLoaded(
       product: product ?? this.product,
       selectedColorIndex: selectedColorIndex ?? this.selectedColorIndex,
+      selectedVariantIndex: selectedVariantIndex ?? this.selectedVariantIndex,
       quantity: quantity ?? this.quantity,
     );
   }
@@ -41,6 +45,7 @@ class ProductDetailLoaded extends ProductDetailState {
   List<Object?> get props => [
     product,
     selectedColorIndex,
+    selectedVariantIndex,
     quantity,
   ];
 }
