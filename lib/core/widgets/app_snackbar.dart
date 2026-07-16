@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 import '../theme/app_colors.dart';
 
 class AppSnackbar {
@@ -21,6 +22,11 @@ class AppSnackbar {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
+          margin: EdgeInsets.only(
+      bottom: 4.h, // 👈 adjust based on FAB height
+      left: 16,
+      right: 16,
+    ),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),

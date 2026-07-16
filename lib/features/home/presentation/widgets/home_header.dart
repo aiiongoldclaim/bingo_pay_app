@@ -51,9 +51,18 @@ class HomeHeader extends StatelessWidget {
           AppIconContainer(
             icon: Icons.notifications_none,
             onTap: () {
+              final bottomPadding = MediaQuery.of(context).padding.bottom;
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                 SnackBar(
                   content: Text('Notification feature coming soon'),
+                   // ⭐ THIS LINE FIXES YOUR ERROR
+      behavior: SnackBarBehavior.floating,
+                  margin: EdgeInsets.fromLTRB(
+        10,
+        0,
+        10,
+        kBottomNavigationBarHeight - 2.h, // ⭐ pushes above FAB
+      ),
                   duration: Duration(seconds: 2),
                 ),
               );
