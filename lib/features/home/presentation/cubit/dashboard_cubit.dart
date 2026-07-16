@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:dio/dio.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/services/product_cache_service.dart';
 import '../../../account/data/account_model/account_profile_response.dart';
 import '../../../categories/data/models/categories_model.dart';
 import '../../../categories/data/models/categories_response_model.dart';
@@ -48,7 +50,8 @@ class HomeCubit extends Cubit<HomeState> {
       bigoldBalance = profile.account.bigoldBalance / 1e8;
     } catch (_) {}
 
-    // Fetch products
+    // Fetch products with throttling cache fallback
+    List<ProductModel> products = [];
     try {
       final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products';
       final response = await client.dio.get(
@@ -58,27 +61,48 @@ class HomeCubit extends Cubit<HomeState> {
       final raw = response.data as Map<String, dynamic>;
       final dataMap = raw['data'] as Map<String, dynamic>;
       final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-      final products = dataList
+      products = dataList
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      emit(state.copyWith(
-        status: HomeStatus.loaded,
-        userName: userName,
-        bigoldBalance: bigoldBalance,
-        categories: categories,
-        flashDeals: products.take(6).toList(),
-        recommended: products,
-      ));
-    } catch (_) {
-      emit(state.copyWith(
-        status: HomeStatus.loaded,
-        userName: userName,
-        bigoldBalance: bigoldBalance,
-        categories: categories,
-        flashDeals: [],
-        recommended: [],
-      ));
+      // Cache the products on successful load
+      final cacheService = GetIt.I<ProductCacheService>();
+      await cacheService.cacheHomeProducts(products);
+
+      debugPrint('✓ Loaded ${products.length} products from API');
+    } catch (e) {
+      // Handle throttling (429) and other errors gracefully
+      debugPrint('✗ Failed to fetch products: $e');
+
+      final isDioError = e is DioException;
+      final isThrottled = isDioError && e.response?.statusCode == 429;
+
+      if (isThrottled) {
+        debugPrint('⚠ API throttled (429), attempting to load from cache...');
+      }
+
+      // Try to load from cache
+      final cacheService = GetIt.I<ProductCacheService>();
+      final cachedProducts = await cacheService.getHomeProductsCache();
+
+      if (cachedProducts != null && cachedProducts.isNotEmpty) {
+        products = cachedProducts;
+        debugPrint(
+          '✓ Loaded ${products.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
+        );
+      } else {
+        debugPrint('✗ No cached products available');
+        products = [];
+      }
     }
+
+    emit(state.copyWith(
+      status: HomeStatus.loaded,
+      userName: userName,
+      bigoldBalance: bigoldBalance,
+      categories: categories,
+      flashDeals: products.take(6).toList(),
+      recommended: products,
+    ));
   }
 }

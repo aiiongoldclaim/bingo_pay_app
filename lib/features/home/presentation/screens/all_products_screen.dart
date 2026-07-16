@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
+import 'package:dio/dio.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/product_cache_service.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -33,6 +35,8 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
 
   Future<List<ProductModel>> _fetchAllProducts() async {
     final client = getIt<ApiClient>();
+    final cacheService = getIt<ProductCacheService>();
+
     try {
       final response = await client.dio.get(
         '${AppConfig.categoriesApiBaseUrl}/api/v1/products',
@@ -41,10 +45,35 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       final raw = response.data as Map<String, dynamic>;
       final dataMap = raw['data'] as Map<String, dynamic>;
       final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-      return dataList
+      final products = dataList
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList();
+
+      // Cache on success
+      await cacheService.cacheHomeProducts(products);
+      debugPrint('✓ Loaded and cached ${products.length} products from API');
+      return products;
     } catch (e) {
+      debugPrint('✗ Failed to fetch products: $e');
+
+      // Handle throttling gracefully
+      final isDioError = e is DioException;
+      final isThrottled = isDioError && e.response?.statusCode == 429;
+
+      if (isThrottled) {
+        debugPrint('⚠ API throttled (429), attempting to load from cache...');
+      }
+
+      // Try cache as fallback
+      final cachedProducts = await cacheService.getHomeProductsCache();
+      if (cachedProducts != null && cachedProducts.isNotEmpty) {
+        debugPrint(
+          '✓ Loaded ${cachedProducts.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
+        );
+        return cachedProducts;
+      }
+
+      debugPrint('✗ No cached products available, rethrowing error');
       rethrow;
     }
   }

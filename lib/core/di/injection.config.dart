@@ -13,6 +13,7 @@ import 'package:bingo_pay/core/api/api_client.dart' as _i541;
 import 'package:bingo_pay/core/di/app_module.dart' as _i842;
 import 'package:bingo_pay/core/network/connectivity_service.dart' as _i133;
 import 'package:bingo_pay/core/router/app_router.dart' as _i14;
+import 'package:bingo_pay/core/services/product_cache_service.dart' as _i734;
 import 'package:bingo_pay/core/storage/preferences_service.dart' as _i356;
 import 'package:bingo_pay/core/storage/secure_storage_service.dart' as _i481;
 import 'package:bingo_pay/features/account/data/datasource/account_datasource.dart'
@@ -161,6 +162,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
+    );
+    gh.singleton<_i734.ProductCacheService>(
+      () => appModule.productCacheService(gh<_i460.SharedPreferences>()),
     );
     gh.factory<_i763.AuthLocalDataSource>(
       () => _i763.AuthLocalDataSourceImpl(

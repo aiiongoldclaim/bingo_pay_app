@@ -66,6 +66,20 @@ class ProductModel {
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    'uuid': uuid,
+    'brand': brand,
+    'name': name,
+    'title': name,
+    'price': price,
+    'oldPrice': oldPrice,
+    'rating': rating,
+    'averageRating': double.tryParse(rating) ?? 0.0,
+    'discount': discount,
+    'images': images,
+    'media': images.map((url) => {'url': url}).toList(),
+  };
+
   static String _fmt(double v) {
     final s = v.truncate().toString();
     final buf = StringBuffer();
