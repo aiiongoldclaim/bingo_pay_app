@@ -105,10 +105,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
   Widget build(BuildContext context) {
     return GlassScaffold(
       appBar: const ProductsAppBar(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        onPressed: _openAddProduct,
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 96),
+        child: FloatingActionButton(
+          backgroundColor: AppColors.primary,
+          onPressed: _openAddProduct,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
       body: Column(
         children: [

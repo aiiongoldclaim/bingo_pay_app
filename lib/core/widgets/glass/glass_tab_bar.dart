@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_glass.dart';
+import 'glass_border.dart';
 
 class GlassTabItem {
   final IconData icon;
@@ -62,12 +63,7 @@ class GlassTabBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: glass.fill,
                 borderRadius: BorderRadius.circular(30),
-                border: Border(
-                  top: BorderSide(color: glass.specular),
-                  left: BorderSide(color: glass.border),
-                  right: BorderSide(color: glass.border),
-                  bottom: BorderSide(color: glass.border),
-                ),
+                border: GlassBorder(glass),
               ),
               child: Row(
                 children: [

@@ -7,6 +7,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/slugify.dart';
+import '../../../../core/utils/input_formatters.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -783,7 +784,9 @@ class _PersonalDetailsFields extends StatelessWidget {
           nextFocusNode: emailFocusNode,
           label: 'Full Name',
           isRequired: true,
-          validator: (v) => Validators.required(v, fieldName: 'Full name'),
+          textCapitalization: TextCapitalization.words,
+          inputFormatters: AppInputFormatters.name(),
+          validator: (v) => Validators.name(v, fieldName: 'full name'),
         ),
         const SizedBox(height: 16),
         AppTextField(
@@ -793,6 +796,7 @@ class _PersonalDetailsFields extends StatelessWidget {
           label: 'Email Address',
           isRequired: true,
           keyboardType: TextInputType.emailAddress,
+          inputFormatters: AppInputFormatters.email(),
           validator: Validators.email,
           onSubmitted: onEmailSubmitted,
           suffixIcon: checkingEmail
@@ -952,6 +956,8 @@ class _BusinessDetailsFields extends StatelessWidget {
           nextFocusNode: businessNameFocus,
           label: 'Shop Name',
           isRequired: true,
+          textCapitalization: TextCapitalization.words,
+          inputFormatters: AppInputFormatters.text(60),
           validator: (v) => Validators.required(v, fieldName: 'Shop name'),
         ),
         const SizedBox(height: 16),
@@ -968,6 +974,8 @@ class _BusinessDetailsFields extends StatelessWidget {
           nextFocusNode: descriptionFocus,
           label: 'Business Name',
           isRequired: true,
+          textCapitalization: TextCapitalization.words,
+          inputFormatters: AppInputFormatters.text(80),
           validator: (v) => Validators.required(v, fieldName: 'Business name'),
         ),
         const SizedBox(height: 16),
@@ -977,6 +985,7 @@ class _BusinessDetailsFields extends StatelessWidget {
           label: 'Description',
           hint: 'Brief description of your business',
           maxLines: 3,
+          inputFormatters: AppInputFormatters.text(500),
         ),
         const SizedBox(height: 28),
         _sectionLabel(context, 'Tax & Compliance  •  Optional'),
@@ -985,6 +994,7 @@ class _BusinessDetailsFields extends StatelessWidget {
           focusNode: gstFocus,
           nextFocusNode: panFocus,
           label: 'GST Number',
+          inputFormatters: AppInputFormatters.gst(),
           validator: Validators.gst,
         ),
         const SizedBox(height: 16),
@@ -993,6 +1003,7 @@ class _BusinessDetailsFields extends StatelessWidget {
           focusNode: panFocus,
           nextFocusNode: supportEmailFocus,
           label: 'PAN Number',
+          inputFormatters: AppInputFormatters.pan(),
           validator: Validators.pan,
         ),
         const SizedBox(height: 28),
@@ -1003,6 +1014,8 @@ class _BusinessDetailsFields extends StatelessWidget {
           nextFocusNode: supportPhoneFocus,
           label: 'Support Email',
           keyboardType: TextInputType.emailAddress,
+          inputFormatters: AppInputFormatters.email(),
+          validator: Validators.optionalEmail,
         ),
         const SizedBox(height: 16),
         AppTextField(
@@ -1010,6 +1023,8 @@ class _BusinessDetailsFields extends StatelessWidget {
           focusNode: supportPhoneFocus,
           label: 'Support Phone',
           keyboardType: TextInputType.phone,
+          inputFormatters: AppInputFormatters.digits(15),
+          validator: (v) => Validators.optionalPhone(v, minLength: 7, maxLength: 15),
         ),
       ],
     );

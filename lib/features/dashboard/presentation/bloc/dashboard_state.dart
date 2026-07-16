@@ -14,6 +14,7 @@ class DashboardLoaded extends DashboardState {
   final String shopName;
   final List<Product> products;
   final List<Order> recentOrders;
+  final bool hasUnreadNotifications;
 
   DashboardLoaded({
     required this.stats,
@@ -21,6 +22,7 @@ class DashboardLoaded extends DashboardState {
     required this.shopName,
     required this.products,
     required this.recentOrders,
+    this.hasUnreadNotifications = false,
   });
 }
 

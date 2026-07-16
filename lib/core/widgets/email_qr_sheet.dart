@@ -24,7 +24,7 @@ class _EmailQrSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final payload = EmailQrCodec.encrypt(email);
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppDimensions.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,

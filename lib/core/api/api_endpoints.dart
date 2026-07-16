@@ -53,4 +53,8 @@ class ApiEndpoints {
   static String productSubmit(String uuid) => '/api/v1/products/$uuid/submit';
   static String productVariants(String uuid) => '/api/v1/products/$uuid/variants';
   static String variantDetail(String variantUuid) => '/api/v1/variants/$variantUuid';
+
+  static const String notifications = '/api/v1/notifications/me';
+  static const String notificationsReadAll = '/api/v1/notifications/read-all';
+  static String notificationRead(String uuid) => '/api/v1/notifications/$uuid/read';
 }

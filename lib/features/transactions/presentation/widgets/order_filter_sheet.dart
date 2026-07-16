@@ -39,7 +39,7 @@ class _OrderFilterSheetState extends State<_OrderFilterSheet> {
   late DateRangeFilter _dateRange = widget.dateRange;
 
   bool get _isDefault =>
-      _status == null && _dateRange == DateRangeFilter.today;
+      _status == null && _dateRange == DateRangeFilter.all;
 
   (IconData, Color) _iconFor(OrderStatus? status) => switch (status) {
         null => (Icons.apps_rounded, AppColors.primary),
@@ -149,7 +149,7 @@ class _OrderFilterSheetState extends State<_OrderFilterSheet> {
                         ? null
                         : () => setState(() {
                               _status = null;
-                              _dateRange = DateRangeFilter.today;
+                              _dateRange = DateRangeFilter.all;
                             }),
                     child: const Text('Reset'),
                   ),

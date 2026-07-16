@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/input_formatters.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -192,6 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: 'Email',
                 isRequired: true,
                 keyboardType: TextInputType.emailAddress,
+                inputFormatters: AppInputFormatters.email(),
                 validator: Validators.email,
               ),
               const SizedBox(height: 16),

@@ -19,6 +19,12 @@ class AppTextField extends StatelessWidget {
   final int? maxLines;
   final List<TextInputFormatter>? inputFormatters;
   final bool isRequired;
+  final TextCapitalization textCapitalization;
+
+  /// Defaults to [AutovalidateMode.onUserInteraction] so a field validates
+  /// itself only after the user has interacted with it — the error shows on
+  /// the field currently being edited, not on every field at once.
+  final AutovalidateMode autovalidateMode;
 
   const AppTextField({
     super.key,
@@ -39,6 +45,8 @@ class AppTextField extends StatelessWidget {
     this.maxLines,
     this.inputFormatters,
     this.isRequired = false,
+    this.textCapitalization = TextCapitalization.none,
+    this.autovalidateMode = AutovalidateMode.onUserInteraction,
   });
 
   bool get _isMultiline => maxLines != null && maxLines! > 1;
@@ -95,6 +103,8 @@ class AppTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: _resolvedKeyboardType,
           textInputAction: _resolvedAction,
+          textCapitalization: textCapitalization,
+          autovalidateMode: autovalidateMode,
           validator: validator,
           onChanged: onChanged,
           onFieldSubmitted: (v) => _handleSubmitted(context, v),

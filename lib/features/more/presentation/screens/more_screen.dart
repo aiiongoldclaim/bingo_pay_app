@@ -10,6 +10,7 @@ import '../../../../core/theme/app_glass.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/email_qr_sheet.dart';
+import '../../../../core/widgets/glass/glass_border.dart';
 import '../../../../core/widgets/glass/glass_card.dart';
 import '../../../../core/widgets/glass/glass_scaffold.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
@@ -586,12 +587,7 @@ class _InfoGroup extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.glass.fill,
             borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-            border: Border(
-              top: BorderSide(color: context.glass.specular),
-              left: BorderSide(color: context.glass.border),
-              right: BorderSide(color: context.glass.border),
-              bottom: BorderSide(color: context.glass.border),
-            ),
+            border: GlassBorder(context.glass),
           ),
           child: Column(
             children: [

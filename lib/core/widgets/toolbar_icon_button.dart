@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimensions.dart';
 import '../theme/app_glass.dart';
+import 'glass/glass_border.dart';
 
 /// Square bordered icon button used in list toolbars (filter, view toggle…).
 /// Shows a small primary-colored dot when [showDot] is true.
@@ -35,12 +36,7 @@ class ToolbarIconButton extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-              border: Border(
-                top: BorderSide(color: context.glass.specular),
-                left: BorderSide(color: context.glass.border),
-                right: BorderSide(color: context.glass.border),
-                bottom: BorderSide(color: context.glass.border),
-              ),
+              border: GlassBorder(context.glass),
             ),
             child: Stack(
               alignment: Alignment.center,

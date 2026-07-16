@@ -6,6 +6,7 @@ import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/error/error_messages.dart';
 import '../../../more/data/datasources/profile_remote_datasource.dart';
 import '../../../more/data/models/vendor_profile_model.dart';
+import '../../../notifications/data/datasources/notification_remote_datasource.dart';
 import '../../../products/data/datasources/product_remote_datasource.dart';
 import '../../../products/presentation/models/product_mock_data.dart';
 import '../../../transactions/data/datasources/order_remote_datasource.dart';
@@ -27,11 +28,13 @@ class DashboardCubit extends Cubit<DashboardState> {
       final profileFuture = profileDs.getProfile();
       final productsFuture = productsDs.getProducts();
       final recentOrdersFuture = _fetchRecentOrders();
+      final hasUnreadFuture = _fetchHasUnreadNotifications();
 
       final dashRes = await dashFuture;
       final VendorProfileModel profile = await profileFuture;
       final productRows = await productsFuture;
       final recentOrders = await recentOrdersFuture;
+      final hasUnreadNotifications = await hasUnreadFuture;
 
       final data = dashRes.data as Map<String, dynamic>;
       final inner = (data['data'] as Map<String, dynamic>)['data'] as Map<String, dynamic>;
@@ -44,6 +47,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         shopName: profile.vendor.businessName ?? profile.vendor.shopName,
         products: products,
         recentOrders: recentOrders,
+        hasUnreadNotifications: hasUnreadNotifications,
       ));
     } catch (e) {
       emit(DashboardError(friendlyErrorMessage(e)));
@@ -60,6 +64,18 @@ class DashboardCubit extends Cubit<DashboardState> {
       return orders.take(3).toList();
     } catch (_) {
       return const [];
+    }
+  }
+
+  // Same non-fatal treatment as recent orders — the badge just stays hidden
+  // if this fails, it shouldn't take down the whole dashboard.
+  Future<bool> _fetchHasUnreadNotifications() async {
+    try {
+      final notifications =
+          await GetIt.I<NotificationRemoteDataSource>().getNotifications();
+      return notifications.any((n) => !n.isRead);
+    } catch (_) {
+      return false;
     }
   }
 }

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_glass.dart';
+import 'glass_border.dart';
 
 /// A frosted Liquid Glass panel: translucent fill, hairline border with a
 /// brighter specular top edge, and a soft drop shadow.
@@ -41,12 +42,7 @@ class GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: tint ?? glass.fill,
         borderRadius: borderRadius,
-        border: Border(
-          top: BorderSide(color: glass.specular),
-          left: BorderSide(color: glass.border),
-          right: BorderSide(color: glass.border),
-          bottom: BorderSide(color: glass.border),
-        ),
+        border: GlassBorder(glass),
       ),
       child: child,
     );

@@ -58,6 +58,8 @@ import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
 import 'package:bingo_pay/features/more/data/datasources/profile_remote_datasource.dart'
     as _i2;
+import 'package:bingo_pay/features/notifications/data/datasources/notification_remote_datasource.dart'
+    as _i219;
 import 'package:bingo_pay/features/products/data/datasources/product_remote_datasource.dart'
     as _i109;
 import 'package:bingo_pay/features/transactions/data/datasources/order_remote_datasource.dart'
@@ -121,6 +123,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i382.AppsScriptClient>(),
         gh<_i541.ApiClient>(),
       ),
+    );
+    gh.factory<_i219.NotificationRemoteDataSource>(
+      () => _i219.NotificationRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
     gh.lazySingleton<_i534.UploadService>(
       () => _i534.UploadService(gh<_i541.ApiClient>()),

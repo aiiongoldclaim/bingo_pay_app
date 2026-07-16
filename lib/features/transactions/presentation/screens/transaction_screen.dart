@@ -29,7 +29,7 @@ class TransactionScreen extends StatefulWidget {
 
 class _TransactionScreenState extends State<TransactionScreen> {
   OrderStatus? _selectedStatus;
-  DateRangeFilter _selectedDateRange = DateRangeFilter.today;
+  DateRangeFilter _selectedDateRange = DateRangeFilter.all;
   String _searchQuery = '';
   final _searchController = TextEditingController();
   late Future<List<Order>> _ordersFuture;
@@ -103,20 +103,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
     await future;
   }
 
-  Future<void> _openAddOrder() async {
-    await context.push(AppRoutes.vendorOrderCreate);
-    _refresh();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GlassScaffold(
       appBar: const OrdersAppBar(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.primary,
-        onPressed: _openAddOrder,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
       body: Column(
         children: [
           FutureBuilder<DashboardStatsModel?>(
@@ -205,7 +195,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   icon: Icons.tune,
                   tooltip: 'Filter',
                   showDot: _selectedStatus != null ||
-                      _selectedDateRange != DateRangeFilter.today,
+                      _selectedDateRange != DateRangeFilter.all,
                   onTap: _openFilterSheet,
                 ),
               ],

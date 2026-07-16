@@ -14,10 +14,11 @@ extension OrderStatusLabel on OrderStatus {
 
 enum PaymentType { cod, paid }
 
-enum DateRangeFilter { today, thisWeek, thisMonth, custom }
+enum DateRangeFilter { all, today, thisWeek, thisMonth, custom }
 
 extension DateRangeFilterLabel on DateRangeFilter {
   String get label => switch (this) {
+    DateRangeFilter.all => 'All',
     DateRangeFilter.today => 'Today',
     DateRangeFilter.thisWeek => 'This week',
     DateRangeFilter.thisMonth => 'This month',
@@ -131,6 +132,7 @@ List<Order> filterOrders(
   return orders.where((order) {
     final matchesStatus = status == null || order.status == status;
     final matchesDate = switch (dateRange) {
+      DateRangeFilter.all => true,
       DateRangeFilter.today => order.daysAgo == 0,
       DateRangeFilter.thisWeek => order.daysAgo <= 7,
       DateRangeFilter.thisMonth => order.daysAgo <= 30,

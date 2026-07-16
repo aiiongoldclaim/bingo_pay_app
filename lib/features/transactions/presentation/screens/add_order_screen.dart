@@ -5,6 +5,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/error_messages.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/utils/input_formatters.dart';
 import '../../../../core/utils/validators.dart';
 import '../../data/datasources/order_remote_datasource.dart';
 import '../models/order_mock_data.dart';
@@ -24,7 +25,7 @@ class _OrderItemRow {
   void dispose() {
     nameController.dispose();
     quantityController.dispose();
-    priceController.dispose();
+    priceController.dispose();                
   }
 }
 
@@ -120,14 +121,19 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
             const _FieldLabel('Customer name', required: true),
             TextFormField(
               controller: _customerNameController,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              textCapitalization: TextCapitalization.words,
+              inputFormatters: AppInputFormatters.name(),
               decoration: const InputDecoration(hintText: 'e.g. Rashi Khurana'),
-              validator: Validators.name,
+              validator: (v) => Validators.name(v, fieldName: 'customer name'),
             ),
             const SizedBox(height: AppDimensions.lg),
             const _FieldLabel('Customer phone', required: true),
             TextFormField(
               controller: _customerPhoneController,
               keyboardType: TextInputType.phone,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              inputFormatters: AppInputFormatters.digits(10),
               decoration: const InputDecoration(hintText: '10-digit mobile number'),
               validator: Validators.phone,
             ),

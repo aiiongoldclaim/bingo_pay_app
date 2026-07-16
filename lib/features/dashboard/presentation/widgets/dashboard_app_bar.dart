@@ -49,12 +49,32 @@ class DashboardAppBar extends StatelessWidget {
           ),
           child: Row(
             children: [
+
+               GlassCard(
+                radius: 22,
+                padding: EdgeInsets.zero,
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Center(
+                    child: Text(
+                      avatarInitial,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.info,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      dateLabel,
+                      _greeting,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -63,7 +83,7 @@ class DashboardAppBar extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_greeting, $greetingName',
+greetingName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -82,26 +102,8 @@ class DashboardAppBar extends StatelessWidget {
                 onTap: onNotificationsTap,
               ),
               const SizedBox(width: 8),
-              _GlassIconButton(icon: Icons.logout, onTap: onLogoutTap),
-              const SizedBox(width: 8),
-              GlassCard(
-                radius: 22,
-                padding: EdgeInsets.zero,
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Center(
-                    child: Text(
-                      avatarInitial,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.info,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+            
+             
             ],
           ),
         ),

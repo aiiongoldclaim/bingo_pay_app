@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/di/injection.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
-import '../../../../../core/utils/validators.dart';
+import '../../../../../core/utils/input_formatters.dart';
 import '../../../data/datasources/product_remote_datasource.dart';
 import '../../../data/models/category_model.dart';
 import '../../models/product_form_data.dart';
@@ -73,8 +73,18 @@ class _InfoStepState extends State<InfoStep> {
           const _FieldLabel('Product name', required: true),
           TextFormField(
             controller: widget.nameController,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            textCapitalization: TextCapitalization.words,
+            inputFormatters: AppInputFormatters.text(100),
             decoration: const InputDecoration(hintText: "e.g. Men's Cotton T-Shirt"),
-            validator: Validators.name,
+            // Product names may contain digits/symbols (e.g. "iPhone 15"),
+            // so only require a non-empty value with a sensible minimum.
+            validator: (v) {
+              final t = v?.trim() ?? '';
+              if (t.isEmpty) return 'Product name is required';
+              if (t.length < 2) return 'Please enter a valid product name';
+              return null;
+            },
           ),
           const SizedBox(height: AppDimensions.lg),
           const _FieldLabel('Short description'),

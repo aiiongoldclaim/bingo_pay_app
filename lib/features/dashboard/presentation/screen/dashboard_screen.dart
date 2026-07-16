@@ -42,8 +42,14 @@ class DashboardScreen extends StatelessWidget {
                   greetingName: greetingName,
                   shopName: state is DashboardLoaded ? state.shopName : '',
                   avatarInitial: avatarInitial,
-                  hasUnreadNotifications: true,
-                  onNotificationsTap: () {},
+                  hasUnreadNotifications:
+                      state is DashboardLoaded && state.hasUnreadNotifications,
+                  onNotificationsTap: () {
+                    final cubit = context.read<DashboardCubit>();
+                    context
+                        .push(AppRoutes.vendorNotifications)
+                        .then((_) => cubit.load());
+                  },
                   onLogoutTap: () {
                     context.read<AuthBloc>().add(const LogoutRequested());
                   },

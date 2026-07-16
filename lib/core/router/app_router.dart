@@ -216,6 +216,7 @@ import '../../features/dashboard/presentation/screen/dashboard_screen.dart';
 
 import '../../features/dashboard/presentation/screen/vendor_shell.dart';
 import '../../features/more/presentation/screens/more_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/products/presentation/screens/add_product_screen.dart';
 import '../../features/products/presentation/screens/product_detail_screen.dart';
 import '../../features/products/presentation/screens/products_screen.dart';
@@ -338,6 +339,12 @@ class AppRouter {
           path: AppRoutes.vendorTransactionDetail,
           builder: (context, state) =>
               OrderDetailScreen(uuid: state.pathParameters['id']!),
+        ),
+
+        // Notifications stays outside bottom-nav shell (pushed on top, full-screen)
+        GoRoute(
+          path: AppRoutes.vendorNotifications,
+          builder: (_, _) => const NotificationsScreen(),
         ),
 
         // Invoices stays outside bottom-nav shell (pushed on top, full-screen)
