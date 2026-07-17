@@ -59,11 +59,11 @@ class OrderModel {
       paymentMethod: (json['paymentMethod'] as String?) ?? '',
       orderStatus: (json['orderStatus'] as String?) ?? 'PENDING',
       totalItems: _asInt(json['totalItems']) ?? 0,
-      subtotalAmount: _asDouble(json['subtotalAmount']),
-      discountAmount: _asDouble(json['discountAmount']),
-      taxAmount: _asDouble(json['taxAmount']),
-      shippingAmount: _asDouble(json['shippingAmount']),
-      totalAmount: _asDouble(json['totalAmount']),
+      subtotalAmount: _asDouble(json['subtotalAmount'] ?? json['subtotal']),
+      discountAmount: _asDouble(json['discountAmount'] ?? json['discount']),
+      taxAmount: _asDouble(json['taxAmount'] ?? json['tax']),
+      shippingAmount: _asDouble(json['shippingAmount'] ?? json['shipping']),
+      totalAmount: _asDouble(json['totalAmount'] ?? json['total']),
       notes: json['notes'] as String?,
       placedAt: _asDate(json['placedAt']) ?? DateTime.now(),
       paidAt: _asDate(json['paidAt']),
@@ -106,6 +106,52 @@ class OrderModel {
 
   String formattedItemsLabel() =>
       '$totalItems ${totalItems == 1 ? 'item' : 'items'}';
+
+  OrderModel copyWith({
+    String? id,
+    String? uuid,
+    String? orderNumber,
+    String? addressId,
+    String? paymentStatus,
+    String? paymentMethod,
+    String? orderStatus,
+    int? totalItems,
+    double? subtotalAmount,
+    double? discountAmount,
+    double? taxAmount,
+    double? shippingAmount,
+    double? totalAmount,
+    String? notes,
+    DateTime? placedAt,
+    DateTime? paidAt,
+    DateTime? deliveredAt,
+    DateTime? cancelledAt,
+    List<OrderItemModel>? items,
+    OrderTrackingModel? tracking,
+  }) {
+    return OrderModel(
+      id: id ?? this.id,
+      uuid: uuid ?? this.uuid,
+      orderNumber: orderNumber ?? this.orderNumber,
+      addressId: addressId ?? this.addressId,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      orderStatus: orderStatus ?? this.orderStatus,
+      totalItems: totalItems ?? this.totalItems,
+      subtotalAmount: subtotalAmount ?? this.subtotalAmount,
+      discountAmount: discountAmount ?? this.discountAmount,
+      taxAmount: taxAmount ?? this.taxAmount,
+      shippingAmount: shippingAmount ?? this.shippingAmount,
+      totalAmount: totalAmount ?? this.totalAmount,
+      notes: notes ?? this.notes,
+      placedAt: placedAt ?? this.placedAt,
+      paidAt: paidAt ?? this.paidAt,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
+      cancelledAt: cancelledAt ?? this.cancelledAt,
+      items: items ?? this.items,
+      tracking: tracking ?? this.tracking,
+    );
+  }
 
   String? get previewImageUrl {
     for (final item in items) {

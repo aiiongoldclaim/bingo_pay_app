@@ -8,6 +8,8 @@ abstract class OrdersRemoteDataSource {
   Future<List<OrderModel>> getOrders();
 
   Future<OrderModel> getOrderDetail(String id);
+
+  Future<void> cancelOrder(String id);
 }
 
 @Injectable(as: OrdersRemoteDataSource)
@@ -33,5 +35,10 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     final envelope = response.data as Map<String, dynamic>;
     final data = envelope['data'] as Map<String, dynamic>;
     return OrderModel.fromJson(data);
+  }
+
+  @override
+  Future<void> cancelOrder(String id) async {
+    await _client.dio.patch('${ApiEndpoints.orders}/$id/cancel');
   }
 }

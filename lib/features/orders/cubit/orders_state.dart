@@ -41,3 +41,15 @@ class OrderDetailError extends OrderDetailState {
   final String message;
   OrderDetailError(this.message);
 }
+
+class OrderCancelling extends OrderDetailState {}
+
+class OrderCancelled extends OrderDetailState {
+  final OrderModel order;
+  OrderCancelled(this.order);
+}
+
+class OrderCancelError extends OrderDetailState {
+  final String message;
+  OrderCancelError(this.message);
+}

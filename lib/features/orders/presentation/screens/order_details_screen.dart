@@ -53,38 +53,69 @@ class _OrderDetailView extends StatelessWidget {
                     cubit.loadOrder(order);
                   },
           ),
-          body: BlocBuilder<OrderDetailCubit, OrderDetailState>(
-            builder: (context, state) {
-              if (state is OrderDetailLoading || state is OrderDetailInitial) {
-                return const Center(
-                  child: CircularProgressIndicator(color: ThemeColors.blue),
-                );
+          body: BlocListener<OrderDetailCubit, OrderDetailState>(
+            listener: (context, state) {
+              if (state is OrderCancelled) {
+                AppSnackbar.showSuccess(context, 'Order cancelled successfully');
               }
-              if (state is OrderDetailLoaded) {
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    final cubit = context.read<OrderDetailCubit>();
-                    await cubit.loadOrder(order);
-                  },
-                  color: ThemeColors.blue,
-                  backgroundColor: ThemeColors.surface,
-                  child: _buildBody(context, state.order, state.addressText),
-                );
+              if (state is OrderCancelError) {
+                AppSnackbar.showError(context, state.message);
               }
-              return const SizedBox.shrink();
             },
-          ),
-          bottomNavigationBar: AppBottomActionBar(
-            primaryLabel: 'Need Help',
-            onPrimaryPressed: () => AppSnackbar.showSuccess(
-              context,
-              'Our support team will reach out to you shortly.',
+            child: BlocBuilder<OrderDetailCubit, OrderDetailState>(
+              builder: (context, state) {
+                if (state is OrderDetailLoading || state is OrderDetailInitial) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: ThemeColors.blue),
+                  );
+                }
+                if (state is OrderCancelling) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: ThemeColors.blue),
+                  );
+                }
+                if (state is OrderDetailLoaded || state is OrderCancelled) {
+                  final currentOrder = state is OrderCancelled ? state.order : (state as OrderDetailLoaded).order;
+                  final addressText = state is OrderDetailLoaded ? state.addressText : null;
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      final cubit = context.read<OrderDetailCubit>();
+                      await cubit.loadOrder(order);
+                    },
+                    color: ThemeColors.blue,
+                    backgroundColor: ThemeColors.surface,
+                    child: _buildBody(context, currentOrder, addressText),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
-            secondaryLabel: 'Copy Order ID',
-            secondaryIcon: Icons.copy_rounded,
-            onSecondaryPressed: () {
-              Clipboard.setData(ClipboardData(text: order.orderNumber));
-              AppSnackbar.showSuccess(context, 'Order number copied');
+          ),
+          bottomNavigationBar: BlocBuilder<OrderDetailCubit, OrderDetailState>(
+            builder: (context, state) {
+              final currentOrder = state is OrderDetailLoaded
+                  ? state.order
+                  : state is OrderCancelled
+                  ? state.order
+                  : order;
+              final cubit = context.read<OrderDetailCubit>();
+              final canCancel = cubit.canCancelOrder(currentOrder);
+
+              return AppBottomActionBar(
+                primaryLabel: canCancel ? 'Cancel Order' : 'Need Help',
+                onPrimaryPressed: canCancel
+                    ? () => _showCancelConfirmation(context, currentOrder)
+                    : () => AppSnackbar.showSuccess(
+                      context,
+                      'Our support team will reach out to you shortly.',
+                    ),
+                secondaryLabel: 'Copy Order ID',
+                secondaryIcon: Icons.copy_rounded,
+                onSecondaryPressed: () {
+                  Clipboard.setData(ClipboardData(text: order.orderNumber));
+                  AppSnackbar.showSuccess(context, 'Order number copied');
+                },
+              );
             },
           ),
         );
@@ -286,6 +317,53 @@ class _OrderDetailView extends StatelessWidget {
       'CANCELLED': 'Cancelled',
     };
     return statusTitles[status] ?? titleCaseStatus(status);
+  }
+
+  void _showCancelConfirmation(BuildContext context, OrderModel order) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: ThemeColors.surface,
+        title: Text(
+          'Cancel Order',
+          style: AppTextStyles.titleLarge.copyWith(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to cancel this order? This action cannot be undone.',
+          style: AppTextStyles.bodyMedium.copyWith(
+            fontSize: 14.sp,
+            color: ThemeColors.inkMid,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(
+              'Keep Order',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: ThemeColors.blue,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.read<OrderDetailCubit>().cancelOrder(order);
+            },
+            child: Text(
+              'Cancel Order',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: ThemeColors.red,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

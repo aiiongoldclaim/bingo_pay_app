@@ -80,4 +80,25 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
 
     emit(OrderDetailLoaded(detailed, addressText: addressText));
   }
+
+  Future<void> cancelOrder(OrderModel order) async {
+    if (!canCancelOrder(order)) {
+      emit(OrderCancelError('Cannot cancel this order. It is already out for delivery or has been delivered.'));
+      return;
+    }
+
+    emit(OrderCancelling());
+    try {
+      await _ordersRemote.cancelOrder(order.uuid);
+      emit(OrderCancelled(order.copyWith(orderStatus: 'CANCELLED')));
+    } catch (e) {
+      emit(OrderCancelError('Failed to cancel order. Please try again.'));
+    }
+  }
+
+  bool canCancelOrder(OrderModel order) {
+    final cancelableStatuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'PACKED'];
+    return cancelableStatuses.contains(order.orderStatus.toUpperCase()) &&
+        !order.isCancelled;
+  }
 }
