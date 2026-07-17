@@ -70,7 +70,7 @@ class _AppState extends State<App> {
               builder: (context, snapshot) {
                 final isConnected = snapshot.data ?? true;
                 return MaterialApp.router(
-                  title: 'Bingo Pay',
+                  title: 'Vaults',
                   theme: AppTheme.light,
                   themeMode: ThemeMode.light,
                   debugShowCheckedModeBanner: false,

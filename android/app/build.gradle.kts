@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.bingosg.bingo_pay"
+    namespace = "com.thevaults.customer"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -18,7 +18,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.bingosg.bingo_pay"
+        applicationId = "com.thevaults.customer"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -32,17 +32,17 @@ android {
             dimension = "environment"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            resValue("string", "app_name", "Bingo Pay DEV")
+            resValue("string", "app_name", "Vaults DEV")
         }
         create("staging") {
             dimension = "environment"
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
-            resValue("string", "app_name", "Bingo Pay STG")
+            resValue("string", "app_name", "Vaults STG")
         }
         create("prod") {
             dimension = "environment"
-            resValue("string", "app_name", "Bingo Pay")
+            resValue("string", "app_name", "Vaults")
         }
     }
 

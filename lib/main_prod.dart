@@ -11,7 +11,7 @@ void main() async {
       // 'categoriesApiBaseUrl': 'https://api.bingopay.com',
       'apiBaseUrl': 'http://13.159.7.199:5001',
       'categoriesApiBaseUrl': 'http://13.159.7.199:5001',
-      'appName': 'Bingo Pay',
+      'appName': 'Vaults',
       'enableLogging': true,
       'enableAnalytics': true,
       'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',

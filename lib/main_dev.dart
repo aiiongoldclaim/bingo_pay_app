@@ -9,7 +9,7 @@ void main() async {
     variables: const {
       'apiBaseUrl': 'http://13.159.7.199:5001',
       'categoriesApiBaseUrl': 'http://13.159.7.199:5001',
-      'appName': 'Bingo Pay DEV',
+      'appName': 'Vaults DEV',
       'enableLogging': true,
       'enableAnalytics': true,
       'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',

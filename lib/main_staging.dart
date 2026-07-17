@@ -9,7 +9,7 @@ void main() async {
     variables: const {
       'apiBaseUrl': 'https://stg-api.bingopay.com/v1',
       'categoriesApiBaseUrl': 'https://stg-api.bingopay.com',
-      'appName': 'Bingo Pay STG',
+      'appName': 'Vaults STG',
       'enableLogging': true,
       'enableAnalytics': false,
       'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',
