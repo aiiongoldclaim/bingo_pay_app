@@ -43,6 +43,8 @@ dependencies:
   connectivity_plus: ^6.1.4
   pdf: ^3.11.2
   printing: ^5.14.2
+  path_provider: ^2.1.5
+  open_filex: ^4.7.0
   mobile_scanner: ^7.2.0
   # Pure-Dart QR decoding fallback for gallery images — mobile_scanner's
   # native analyzeImage (Vision API) is hard-unsupported on the iOS Simulator.

@@ -11,7 +11,7 @@ void main() async {
       'categoriesApiBaseUrl': 'http://13.159.7.199:5001',
       'appName': 'Bingo Pay DEV',
       'enableLogging': true,
-      'enableAnalytics': false,
+      'enableAnalytics': true,
       'apiKey': 'GTP_2026_PDA_V1_API_KEY_ASDF',
     },
   );
