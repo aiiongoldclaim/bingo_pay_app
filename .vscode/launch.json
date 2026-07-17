@@ -2,25 +2,43 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Bingo Pay (dev)",
+      "name": "Bingo Pay Android (dev)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_dev.dart",
       "args": ["--flavor", "dev"]
     },
     {
-      "name": "Bingo Pay (staging)",
+      "name": "Bingo Pay Android (staging)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_staging.dart",
       "args": ["--flavor", "staging"]
     },
     {
-      "name": "Bingo Pay (prod)",
+      "name": "Bingo Pay Android (prod)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_prod.dart",
       "args": ["--flavor", "prod"]
+    },
+    {
+      "name": "Bingo Pay iOS (dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_dev.dart"
+    },
+    {
+      "name": "Bingo Pay iOS (staging)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staging.dart"
+    },
+    {
+      "name": "Bingo Pay iOS (prod)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_prod.dart"
     }
   ]
 }

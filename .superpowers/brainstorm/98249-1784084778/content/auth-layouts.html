@@ -1,0 +1,113 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 484px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .inpt { border-radius:14px; padding:10px 12px; font-size:8.5px; color:#6b7280; display:flex; align-items:center; gap:7px; }
+  .btn { border-radius:14px; padding:11px 0; text-align:center; font-size:9px; font-weight:800; color:#fff; background:#1B2A6B; box-shadow:0 8px 20px rgba(27,42,107,.35); }
+  .otp { display:flex; gap:6px; justify-content:center; }
+  .otp b { width:30px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:14px; color:#111827; }
+</style>
+
+<h2>Screen 6 of 7 — Auth flow (Login / Register / OTP)</h2>
+<p class="subtitle">First impression of the app. Three treatments — each shows the login screen; the description covers how register + OTP follow the same pattern.</p>
+
+<div class="cards">
+
+  <!-- 1: CENTERED GLASS CARD -->
+  <div class="card" data-choice="auth-1-glass-card" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:180px;height:180px;background:rgba(122,162,255,.55);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:160px;height:160px;background:rgba(255,170,214,.45);bottom:40px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:36px 16px 0;">
+            <div style="text-align:center;">
+              <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1B2A6B,#4f68b8);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;margin:0 auto;box-shadow:0 10px 24px rgba(27,42,107,.35);">💳</div>
+              <div style="font-size:15px; font-weight:800; color:#111827; margin-top:8px;">Welcome back</div>
+              <div style="font-size:8px; color:#6b7280; margin-top:2px;">Sign in to your vendor account</div>
+            </div>
+            <div class="lg" style="border-radius:22px; margin-top:16px; padding:14px;">
+              <div class="lg inpt">📧 Email address</div>
+              <div class="lg inpt" style="margin-top:8px;">🔒 Password <span style="margin-left:auto;">👁</span></div>
+              <div style="text-align:right; font-size:7.5px; color:#1B2A6B; font-weight:700; margin-top:6px;">Forgot password?</div>
+              <div class="btn" style="margin-top:10px;">Sign In</div>
+            </div>
+            <div style="text-align:center; font-size:8px; color:#6b7280; margin-top:14px;">New to Bingo Pay? <b style="color:#1B2A6B;">Register</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Centered Glass Card</h3>
+      <p>Floating app icon, warm greeting, one frosted card holding the whole form. Register = same card with more fields; OTP = same card with 6 glass digit boxes. Symmetrical, calm, classic.</p>
+    </div>
+  </div>
+
+  <!-- 2: NAVY HERO + SHEET -->
+  <div class="card" data-choice="auth-2-hero-sheet" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll" style="background:linear-gradient(170deg,#24347c 0%,#1B2A6B 45%,#131f54 100%);">
+          <div class="mesh" style="width:190px;height:190px;background:rgba(93,130,255,.5);top:-50px;left:-40px;"></div>
+          <div class="mesh" style="width:140px;height:140px;background:rgba(52,168,83,.3);top:120px;right:-50px;"></div>
+          <div style="position:relative; z-index:2; padding:34px 18px 0; color:#fff;">
+            <div style="font-size:9px; font-weight:700; letter-spacing:.1em; opacity:.7;">BINGO PAY</div>
+            <div style="font-size:19px; font-weight:800; line-height:1.25; margin-top:8px;">Run your shop.<br>Get paid faster.</div>
+            <div style="font-size:8px; opacity:.7; margin-top:6px;">Products, orders & payments in one place.</div>
+          </div>
+          <div style="position:absolute; bottom:0; left:0; right:0; border-radius:26px 26px 0 0; padding:16px 16px 18px; background:rgba(255,255,255,.6); backdrop-filter:blur(20px) saturate(180%); border-top:1px solid rgba(255,255,255,.8);">
+            <div style="width:32px; height:4px; border-radius:99px; background:rgba(17,24,39,.15); margin:0 auto 10px;"></div>
+            <div class="lg inpt" style="background:rgba(255,255,255,.75);">📧 Email address</div>
+            <div class="lg inpt" style="background:rgba(255,255,255,.75); margin-top:8px;">🔒 Password <span style="margin-left:auto;">👁</span></div>
+            <div class="btn" style="margin-top:10px;">Sign In</div>
+            <div style="display:flex; justify-content:space-between; font-size:7.5px; margin-top:9px;">
+              <span style="color:#1B2A6B; font-weight:700;">Forgot password?</span>
+              <span style="color:#374151;">New here? <b style="color:#1B2A6B;">Register</b></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Navy Hero + Glass Sheet</h3>
+      <p>Brand moment first: navy world with a value-prop headline ("Run your shop. Get paid faster."), form lives in a frosted bottom sheet. Register/OTP slide up in the same sheet — the navy hero never leaves.</p>
+    </div>
+  </div>
+
+  <!-- 3: STEP FLOW -->
+  <div class="card" data-choice="auth-3-step-flow" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(140,228,180,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);bottom:60px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:26px 18px 0;">
+            <div style="display:flex; gap:4px;">
+              <span style="flex:1; height:3px; border-radius:99px; background:#1B2A6B;"></span>
+              <span style="flex:1; height:3px; border-radius:99px; background:#1B2A6B;"></span>
+              <span style="flex:1; height:3px; border-radius:99px; background:rgba(27,42,107,.15);"></span>
+            </div>
+            <div style="font-size:8px; color:#6b7280; margin-top:16px;">Step 2 of 3</div>
+            <div style="font-size:16px; font-weight:800; color:#111827; margin-top:4px; line-height:1.3;">Enter the code we sent to<br><span style="color:#1B2A6B;">aditya@bingosg.com</span></div>
+            <div class="otp" style="margin-top:18px;">
+              <b class="lg">4</b><b class="lg">7</b><b class="lg">2</b><b class="lg" style="border-color:#1B2A6B; border-width:1.5px;">|</b><b class="lg" style="color:#c5cbd6;">·</b><b class="lg" style="color:#c5cbd6;">·</b>
+            </div>
+            <div style="text-align:center; font-size:8px; color:#6b7280; margin-top:12px;">Resend code in <b style="color:#111827;">00:24</b></div>
+            <div class="btn" style="margin-top:18px;">Verify</div>
+            <div style="text-align:center; font-size:7.5px; color:#6b7280; margin-top:10px;">Wrong email? <b style="color:#1B2A6B;">Go back</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — One-Thing-Per-Screen Flow</h3>
+      <p>Typeform-style: each auth step is a single focused question with a progress bar — email → OTP (shown) → password. Big type, auto-advancing glass digit boxes, resend timer. Least friction for registration; login stays a simple 2-field page.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">Last one after this: KYC/onboarding. (These mix too — e.g. Hero+Sheet for login, Step Flow for registration.)</p>
+</div>

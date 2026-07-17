@@ -1,0 +1,160 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 484px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .titlex { font-size:15px; font-weight:800; color:#111827; letter-spacing:-.3px; }
+  .btn { border-radius:14px; padding:11px 0; text-align:center; font-size:9px; font-weight:800; color:#fff; background:#1B2A6B; box-shadow:0 8px 20px rgba(27,42,107,.35); }
+  .thumb { width:38px; height:38px; border-radius:10px; background:linear-gradient(135deg,#dbe4f5,#eee6f6); display:flex; align-items:center; justify-content:center; font-size:16px; }
+</style>
+
+<h2>KYC — feature-accurate options</h2>
+<p class="subtitle">Your real flow: upload GST Certificate and/or PAN Card (image or PDF) → submit → wait for review. Three UIs for exactly that, nothing invented.</p>
+
+<div class="cards">
+
+  <!-- 1: DOCUMENT SLOTS -->
+  <div class="card" data-choice="kyc-v2-1-document-slots" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(140,228,180,.4);bottom:80px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:22px 14px 0;">
+            <div class="titlex">Identity verification</div>
+            <div style="font-size:8px; color:#6b7280; margin-top:3px;">Upload at least one document to verify your business.</div>
+
+            <div class="lg" style="border-radius:18px; margin-top:12px; padding:11px;">
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div class="thumb">🧾</div>
+                <div style="flex:1;">
+                  <div style="font-size:9.5px; font-weight:800; color:#111827;">GST Certificate</div>
+                  <div style="font-size:7px; color:#059669; font-weight:700;">✓ gst_cert_2026.pdf · 1.2 MB</div>
+                </div>
+                <span style="font-size:8px; color:#1B2A6B; font-weight:700;">Replace</span>
+                <span style="font-size:10px; color:#dc2626; margin-left:6px;">🗑</span>
+              </div>
+              <div style="margin-top:8px; height:44px; border-radius:10px; background:linear-gradient(135deg,#e8eef9,#f3edf9); display:flex; align-items:center; justify-content:center; font-size:7.5px; color:#6b7280;">📄 PDF preview</div>
+            </div>
+
+            <div class="lg" style="border-radius:18px; margin-top:9px; padding:14px 11px; border-style:dashed; border-color:rgba(27,42,107,.35); text-align:center;">
+              <div style="width:34px;height:34px;border-radius:50%;background:rgba(27,42,107,.1);display:flex;align-items:center;justify-content:center;font-size:15px;margin:0 auto;">🪪</div>
+              <div style="font-size:9.5px; font-weight:800; color:#111827; margin-top:6px;">PAN Card</div>
+              <div style="font-size:7px; color:#6b7280; margin-top:2px;">JPG, PNG or PDF · max 5 MB</div>
+              <div style="display:inline-block; margin-top:7px; font-size:8px; font-weight:800; color:#1B2A6B; border:1.5px solid rgba(27,42,107,.4); padding:5px 14px; border-radius:99px;">＋ Upload</div>
+            </div>
+
+            <div style="font-size:7px; color:#6b7280; margin-top:9px; text-align:center;">1 of 2 uploaded — you can submit with one, both is faster ✅</div>
+            <div class="btn" style="margin-top:9px;">Submit for review</div>
+            <div style="text-align:center; font-size:7px; color:#6b7280; margin-top:6px;">🔒 Encrypted &amp; used only for verification</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Document Slots</h3>
+      <p>Both document types visible upfront as fixed slots — filled slot shows file preview + Replace/Delete, empty slot is a dashed upload target. No hidden sheet; you always see what's needed and what's done.</p>
+    </div>
+  </div>
+
+  <!-- 2: UPLOAD LIST (current flow, glassed) -->
+  <div class="card" data-choice="kyc-v2-2-upload-list" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(255,170,214,.42);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);bottom:80px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:22px 14px 0;">
+            <div class="titlex">Identity verification</div>
+            <div style="font-size:8px; color:#6b7280; margin-top:3px;">Upload a government-issued document to verify your identity.</div>
+
+            <div class="btn" style="margin-top:12px;">⬆ Upload document</div>
+
+            <div class="lg" style="border-radius:14px; margin-top:9px; padding:9px 11px; background:rgba(227,237,252,.55);">
+              <div style="font-size:7.5px; color:#1a5dab; line-height:1.6;"><b>Guidelines</b><br>• All four corners visible, no glare<br>• JPG, PNG or PDF under 5 MB<br>• Details must match your registration</div>
+            </div>
+
+            <div style="font-size:8px; font-weight:800; color:#111827; margin-top:11px;">Added documents</div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:9px 11px; display:flex; align-items:center; gap:9px;">
+              <div class="thumb">🧾</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">gst_cert_2026.pdf</div>
+                <div style="font-size:7px; color:#6b7280;">GST Certificate · PDF</div>
+              </div>
+              <span style="font-size:11px; color:#dc2626;">🗑</span>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:9px 11px; display:flex; align-items:center; gap:9px;">
+              <div class="thumb">🪪</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">pan_front.jpg</div>
+                <div style="font-size:7px; color:#6b7280;">PAN Card · Image</div>
+              </div>
+              <span style="font-size:11px; color:#dc2626;">🗑</span>
+            </div>
+
+            <div class="btn" style="margin-top:12px; background:#059669; box-shadow:0 8px 20px rgba(5,150,105,.35);">Submit 2 documents</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Upload List</h3>
+      <p>Your current flow, glassed: primary upload button (opens the type-picker sheet), guidelines card, added documents as rows with thumbnail + delete, green submit that counts documents. Smallest change from today's code.</p>
+    </div>
+  </div>
+
+  <!-- 3: STATUS-AWARE PAGE -->
+  <div class="card" data-choice="kyc-v2-3-status-aware" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(140,228,180,.45);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);bottom:80px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:22px 14px 0;">
+            <div class="titlex">Identity verification</div>
+
+            <div class="lg" style="border-radius:18px; margin-top:10px; padding:11px; background:rgba(252,239,217,.6); display:flex; gap:9px; align-items:center;">
+              <div style="width:30px;height:30px;border-radius:50%;background:rgba(180,83,9,.15);display:flex;align-items:center;justify-content:center;font-size:14px;">⏳</div>
+              <div style="flex:1;">
+                <div style="font-size:9.5px; font-weight:800; color:#92400e;">Under review</div>
+                <div style="font-size:7px; color:#b45309;">Submitted today, 10:42 am · usually done in 24 h</div>
+              </div>
+            </div>
+
+            <div style="font-size:8px; font-weight:800; color:#111827; margin-top:12px;">Submitted documents</div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:9px 11px; display:flex; align-items:center; gap:9px;">
+              <div class="thumb">🧾</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">GST Certificate</div>
+                <div style="font-size:7px; color:#6b7280;">gst_cert_2026.pdf</div>
+              </div>
+              <span style="font-size:7px; font-weight:700; color:#b45309; background:rgba(180,83,9,.12); padding:2.5px 8px; border-radius:99px;">In review</span>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:9px 11px; display:flex; align-items:center; gap:9px;">
+              <div class="thumb">🪪</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">PAN Card</div>
+                <div style="font-size:7px; color:#dc2626; font-weight:700;">Rejected — photo blurred</div>
+              </div>
+              <span style="display:inline-block; font-size:7.5px; font-weight:800; color:#fff; background:#dc2626; padding:4px 10px; border-radius:99px;">Re-upload</span>
+            </div>
+
+            <div class="lg" style="border-radius:16px; margin-top:10px; padding:10px 11px;">
+              <div style="font-size:8px; color:#374151;">While you wait, <b style="color:#1B2A6B;">set up your first products</b> so you're ready to sell the moment you're approved →</div>
+            </div>
+            <div style="text-align:center; font-size:7px; color:#6b7280; margin-top:10px;">Need help? <b style="color:#1B2A6B;">Contact support</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Status-Aware Page</h3>
+      <p>One screen that lives through the whole KYB lifecycle: status banner on top (pending / under review / rejected / verified), <b>per-document status</b> with one-tap re-upload for rejected files, and a nudge to build your catalog while waiting.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">1 and 3 combine naturally: slots for uploading, the same page turning status-aware after submit. This is the final screen choice — then I compile the whole redesign.</p>
+</div>

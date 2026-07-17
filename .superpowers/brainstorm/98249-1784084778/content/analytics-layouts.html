@@ -1,0 +1,197 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 452px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 10px; height: 44px; border-radius: 26px; display: flex; align-items: center; justify-content: space-around; font-size: 7.5px; z-index: 9; color:#6b7280; }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .tabbar .ico { font-size: 13px; line-height: 1; }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .titlex { font-size:17px; font-weight:800; color:#111827; letter-spacing:-.4px; }
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 44px; }
+  .spark i { flex: 1; border-radius: 3px 3px 0 0; display: block; }
+  .heat { display:grid; grid-template-columns:repeat(12,1fr); gap:2.5px; }
+  .heat i { aspect-ratio:1; border-radius:2.5px; display:block; }
+</style>
+
+<h2>Screen 4 of 7 — Analytics layout</h2>
+<p class="subtitle">Dashboard ✓ Products ✓ Orders ✓. Your analytics has trend, revenue breakdown, inventory health and top products — how should it present them?</p>
+
+<div class="cards">
+
+  <!-- 1: REPORT STACK -->
+  <div class="card" data-choice="ana-1-report-stack" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(140,228,180,.4);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="titlex">Analytics</div>
+            <div class="lg" style="margin-top:9px; border-radius:99px; padding:3px; display:flex;">
+              <span style="flex:1; text-align:center; font-size:8px; font-weight:800; color:#fff; background:#1B2A6B; border-radius:99px; padding:5px 0;">7 days</span>
+              <span style="flex:1; text-align:center; font-size:8px; font-weight:700; color:#374151; padding:5px 0;">30 days</span>
+              <span style="flex:1; text-align:center; font-size:8px; font-weight:700; color:#374151; padding:5px 0;">90 days</span>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:9px; padding:12px;">
+              <div style="display:flex; justify-content:space-between;">
+                <div><div style="font-size:7.5px; color:#6b7280; font-weight:600;">REVENUE · 7 DAYS</div>
+                <div style="font-size:18px; font-weight:800; color:#111827;">$18,240</div></div>
+                <span style="font-size:8px; color:#059669; font-weight:700;">▲ 8.2%</span>
+              </div>
+              <div class="spark" style="margin-top:9px;">
+                <i style="height:40%;background:rgba(27,42,107,.18);"></i><i style="height:60%;background:rgba(27,42,107,.25);"></i><i style="height:45%;background:rgba(27,42,107,.35);"></i><i style="height:75%;background:rgba(27,42,107,.5);"></i><i style="height:55%;background:rgba(27,42,107,.65);"></i><i style="height:95%;background:#1B2A6B;"></i><i style="height:80%;background:#1B2A6B;"></i>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:6.5px; color:#9ca3af; margin-top:3px;"><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span><span>Mon</span></div>
+            </div>
+            <div style="display:flex; gap:7px; margin-top:8px;">
+              <div class="lg" style="flex:1; border-radius:15px; padding:9px;"><div style="font-size:6.5px; color:#6b7280; font-weight:600;">ORDERS</div><div style="font-size:12px; font-weight:800; color:#111827;">862</div><div style="font-size:6.5px; color:#059669; font-weight:700;">▲ 4.1%</div></div>
+              <div class="lg" style="flex:1; border-radius:15px; padding:9px;"><div style="font-size:6.5px; color:#6b7280; font-weight:600;">AVG ORDER</div><div style="font-size:12px; font-weight:800; color:#111827;">$21.16</div><div style="font-size:6.5px; color:#dc2626; font-weight:700;">▼ 1.3%</div></div>
+              <div class="lg" style="flex:1; border-radius:15px; padding:9px;"><div style="font-size:6.5px; color:#6b7280; font-weight:600;">ITEMS SOLD</div><div style="font-size:12px; font-weight:800; color:#111827;">1,204</div><div style="font-size:6.5px; color:#059669; font-weight:700;">▲ 6.8%</div></div>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:8px; padding:11px;">
+              <div style="font-size:9px; font-weight:800; color:#111827; margin-bottom:7px;">Top products</div>
+              <div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">
+                <span style="font-size:11px;">☕</span><span style="font-size:8.5px; font-weight:700; color:#111827; width:70px;">Iced Latte</span>
+                <div style="flex:1; height:5px; border-radius:99px; background:rgba(27,42,107,.1);"><div style="width:88%; height:100%; border-radius:99px; background:#1B2A6B;"></div></div>
+                <span style="font-size:7.5px; color:#6b7280; font-weight:700;">$4.2k</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">
+                <span style="font-size:11px;">🥪</span><span style="font-size:8.5px; font-weight:700; color:#111827; width:70px;">Club Sandwich</span>
+                <div style="flex:1; height:5px; border-radius:99px; background:rgba(27,42,107,.1);"><div style="width:64%; height:100%; border-radius:99px; background:#4f68b8;"></div></div>
+                <span style="font-size:7.5px; color:#6b7280; font-weight:700;">$3.1k</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:7px;">
+                <span style="font-size:11px;">🧋</span><span style="font-size:8.5px; font-weight:700; color:#111827; width:70px;">Boba Tea</span>
+                <div style="flex:1; height:5px; border-radius:99px; background:rgba(27,42,107,.1);"><div style="width:41%; height:100%; border-radius:99px; background:#8fa3dd;"></div></div>
+                <span style="font-size:7.5px; color:#6b7280; font-weight:700;">$2.0k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Report Stack</h3>
+      <p>Classic top-down report: period toggle → revenue chart with day labels → KPI trio with trend arrows → top-products leaderboard bars. Everything your current screen has, reorganized and glassed.</p>
+    </div>
+  </div>
+
+  <!-- 2: STORY HIGHLIGHTS -->
+  <div class="card" data-choice="ana-2-story-highlights" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(255,170,214,.45);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="titlex">Your week</div>
+            <div style="display:flex; gap:7px; margin-top:9px; overflow:hidden;">
+              <div class="lg" style="min-width:118px; border-radius:20px; padding:11px; background:rgba(27,42,107,.85); border-color:rgba(255,255,255,.3);">
+                <div style="font-size:14px;">🏆</div>
+                <div style="font-size:9px; font-weight:800; color:#fff; margin-top:4px;">Best week this month</div>
+                <div style="font-size:7.5px; color:rgba(255,255,255,.75); margin-top:2px;">$18,240 · up 8.2%</div>
+              </div>
+              <div class="lg" style="min-width:118px; border-radius:20px; padding:11px;">
+                <div style="font-size:14px;">🔥</div>
+                <div style="font-size:9px; font-weight:800; color:#111827; margin-top:4px;">Friday was huge</div>
+                <div style="font-size:7.5px; color:#6b7280; margin-top:2px;">$4,120 in one day</div>
+              </div>
+              <div class="lg" style="min-width:70px; border-radius:20px; padding:11px;">
+                <div style="font-size:14px;">☕</div>
+                <div style="font-size:9px; font-weight:800; color:#111827; margin-top:4px;">Latte st…</div>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:9px; padding:12px;">
+              <div style="font-size:9px; color:#374151; line-height:1.6;">You made <b style="color:#111827;">$18,240</b> this week from <b style="color:#111827;">862 orders</b> — your <b style="color:#059669;">best week in July</b>. Fridays are your goldmine: <b style="color:#111827;">2.1×</b> an average day. 🎯</div>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:8px; padding:11px;">
+              <div style="font-size:9px; font-weight:800; color:#111827; margin-bottom:7px;">🥇 Product podium</div>
+              <div style="display:flex; align-items:flex-end; gap:6px; height:64px;">
+                <div style="flex:1; text-align:center;"><div style="font-size:11px;">🥪</div><div style="background:rgba(27,42,107,.35); border-radius:8px 8px 0 0; height:34px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#fff;">2</div></div>
+                <div style="flex:1; text-align:center;"><div style="font-size:11px;">☕</div><div style="background:#1B2A6B; border-radius:8px 8px 0 0; height:48px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#fff;">1</div></div>
+                <div style="flex:1; text-align:center;"><div style="font-size:11px;">🧋</div><div style="background:rgba(27,42,107,.2); border-radius:8px 8px 0 0; height:24px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; color:#1B2A6B;">3</div></div>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:8px; padding:11px;">
+              <div style="display:flex; gap:8px;">
+                <div style="width:24px;height:24px;border-radius:9px;background:rgba(251,191,36,.25);display:flex;align-items:center;justify-content:center;font-size:12px;">💡</div>
+                <div style="flex:1;">
+                  <div style="font-size:8.5px; font-weight:800; color:#111827;">Boba Tea is slipping</div>
+                  <div style="font-size:7.5px; color:#6b7280; margin-top:2px;">Down 22% two weeks in a row — consider a combo deal with your bestselling Latte.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Story Highlights</h3>
+      <p>Spotify-Wrapped for your shop: swipeable highlight cards ("Best week this month", "Friday was huge"), a plain-language summary, a product <b>podium</b>, and smart suggestions ("Boba is slipping — try a combo"). Numbers become narrative.</p>
+    </div>
+  </div>
+
+  <!-- 3: EXPLORER -->
+  <div class="card" data-choice="ana-3-explorer" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(140,228,180,.45);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.4);top:260px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="titlex">Explore</div>
+              <span class="lg" style="font-size:7.5px; font-weight:700; color:#374151; border-radius:99px; padding:4px 10px;">7 days ⌄</span>
+            </div>
+            <div style="display:flex; gap:5px; margin-top:9px;">
+              <span style="font-size:7.5px; font-weight:800; color:#fff; background:#1B2A6B; padding:4px 10px; border-radius:99px;">Revenue</span>
+              <span class="lg" style="font-size:7.5px; font-weight:700; color:#374151; padding:4px 10px; border-radius:99px;">Orders</span>
+              <span class="lg" style="font-size:7.5px; font-weight:700; color:#374151; padding:4px 10px; border-radius:99px;">Avg order</span>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:9px; padding:12px; position:relative;">
+              <div style="position:absolute; top:8px; left:52%; transform:translateX(-50%);" >
+                <div class="lg" style="border-radius:10px; padding:4px 8px; font-size:7px; font-weight:800; color:#111827;">Fri · $4,120</div>
+              </div>
+              <div class="spark" style="margin-top:22px; height:56px;">
+                <i style="height:40%;background:rgba(27,42,107,.18);"></i><i style="height:60%;background:rgba(27,42,107,.25);"></i><i style="height:45%;background:rgba(27,42,107,.35);"></i><i style="height:100%;background:#059669;"></i><i style="height:55%;background:rgba(27,42,107,.55);"></i><i style="height:85%;background:#1B2A6B;"></i><i style="height:70%;background:#1B2A6B;"></i>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:6.5px; color:#9ca3af; margin-top:3px;"><span>Tue</span><span>Wed</span><span>Thu</span><span style="color:#059669; font-weight:800;">Fri</span><span>Sat</span><span>Sun</span><span>Mon</span></div>
+              <div style="font-size:6.5px; color:#6b7280; margin-top:5px; text-align:center;">tap any bar to inspect · compare with last week ⇄</div>
+            </div>
+            <div class="lg" style="border-radius:20px; margin-top:8px; padding:11px;">
+              <div style="font-size:9px; font-weight:800; color:#111827; margin-bottom:6px;">Busy hours heatmap</div>
+              <div class="heat">
+                <i style="background:rgba(27,42,107,.08);"></i><i style="background:rgba(27,42,107,.12);"></i><i style="background:rgba(27,42,107,.25);"></i><i style="background:rgba(27,42,107,.45);"></i><i style="background:rgba(27,42,107,.85);"></i><i style="background:#1B2A6B;"></i><i style="background:rgba(27,42,107,.7);"></i><i style="background:rgba(27,42,107,.4);"></i><i style="background:rgba(27,42,107,.3);"></i><i style="background:rgba(27,42,107,.5);"></i><i style="background:rgba(27,42,107,.35);"></i><i style="background:rgba(27,42,107,.15);"></i>
+                <i style="background:rgba(27,42,107,.06);"></i><i style="background:rgba(27,42,107,.1);"></i><i style="background:rgba(27,42,107,.2);"></i><i style="background:rgba(27,42,107,.4);"></i><i style="background:rgba(27,42,107,.75);"></i><i style="background:rgba(27,42,107,.95);"></i><i style="background:rgba(27,42,107,.6);"></i><i style="background:rgba(27,42,107,.35);"></i><i style="background:rgba(27,42,107,.25);"></i><i style="background:rgba(27,42,107,.45);"></i><i style="background:rgba(27,42,107,.3);"></i><i style="background:rgba(27,42,107,.1);"></i>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:6.5px; color:#9ca3af; margin-top:4px;"><span>8am</span><span>11am</span><span>2pm</span><span>5pm</span><span>8pm</span></div>
+              <div style="font-size:7px; color:#374151; margin-top:5px;">Peak: <b>12–1pm</b> · quietest: <b>3–4pm</b></div>
+            </div>
+            <div style="display:flex; gap:7px; margin-top:8px;">
+              <div class="lg" style="flex:1; border-radius:15px; padding:9px;"><div style="font-size:6.5px; color:#6b7280; font-weight:600;">VS LAST WEEK</div><div style="font-size:11px; font-weight:800; color:#059669;">+8.2%</div></div>
+              <div class="lg" style="flex:1; border-radius:15px; padding:9px;"><div style="font-size:6.5px; color:#6b7280; font-weight:600;">BEST SELLER</div><div style="font-size:11px; font-weight:800; color:#111827;">☕ Latte</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Interactive Explorer</h3>
+      <p>One big touchable chart with metric toggles (Revenue/Orders/Avg), tap-a-bar tooltips, last-week comparison — plus a <b>busy-hours heatmap</b> showing exactly when your shop peaks. For vendors who want to dig.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">Mixable — e.g. Report Stack (1) plus the heatmap from (3). Next: the More/Profile screen.</p>
+</div>

@@ -1,0 +1,214 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 452px; overflow: hidden; position: relative; }
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 38px; }
+  .spark i { flex: 1; border-radius: 3px 3px 0 0; display: block; }
+
+  /* iOS Liquid Glass material */
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .lg-dark { background: rgba(30,30,36,.5); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12); }
+  .lg-tint { background: rgba(255,255,255,.16); backdrop-filter: blur(18px) saturate(170%); -webkit-backdrop-filter: blur(18px) saturate(170%); border: 1px solid rgba(255,255,255,.35); box-shadow: 0 8px 24px rgba(10,16,50,.25), inset 0 1px 0 rgba(255,255,255,.45); }
+
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 10px; height: 46px; border-radius: 26px; display: flex; align-items: center; justify-content: space-around; font-size: 7.5px; z-index: 9; }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .tabbar .ico { font-size: 13px; line-height: 1; }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  @keyframes floaty { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-10px);} }
+</style>
+
+<h2>iOS Liquid Glass — pick your flavour</h2>
+<p class="subtitle">True Apple-style glassmorphism: frosted translucent layers with specular highlights, floating glass tab bar, iOS large-title typography. Three treatments of the same dashboard.</p>
+
+<div class="cards">
+
+  <!-- A: LIGHT LIQUID GLASS -->
+  <div class="card" data-choice="A-light-liquid-glass" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll" style="background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%);">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.42);top:200px;left:-60px;"></div>
+          <div class="mesh" style="width:130px;height:130px;background:rgba(140,228,180,.45);bottom:-30px;right:-20px;"></div>
+
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-size:8px; color:#6b7280; font-weight:500;">Tuesday, 15 July</div>
+                <div style="font-size:17px; font-weight:800; color:#111827; letter-spacing:-.4px;">Dashboard</div>
+              </div>
+              <div class="lg" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#1B2A6B;">A</div>
+            </div>
+
+            <div class="lg" style="margin-top:12px; border-radius:22px; padding:13px;">
+              <div style="font-size:8px; color:#6b7280; font-weight:600;">TODAY'S SALES</div>
+              <div style="font-size:23px; font-weight:800; color:#111827; letter-spacing:-.6px;">$2,847.50</div>
+              <div style="font-size:8px; color:#059669; font-weight:700;">▲ 12.4% vs yesterday</div>
+              <div class="spark" style="margin-top:10px;">
+                <i style="height:40%;background:rgba(27,42,107,.15);"></i><i style="height:55%;background:rgba(27,42,107,.15);"></i><i style="height:35%;background:rgba(27,42,107,.25);"></i><i style="height:70%;background:rgba(27,42,107,.45);"></i><i style="height:60%;background:rgba(27,42,107,.6);"></i><i style="height:90%;background:#1B2A6B;"></i><i style="height:75%;background:#1B2A6B;"></i>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:7px; margin-top:9px;">
+              <div class="lg" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">📦</div><div style="font-size:12px; font-weight:800; color:#111827;">24</div><div style="font-size:6.5px; color:#6b7280; font-weight:600;">PRODUCTS</div></div>
+              <div class="lg" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">🛍️</div><div style="font-size:12px; font-weight:800; color:#111827;">142</div><div style="font-size:6.5px; color:#6b7280; font-weight:600;">ORDERS</div></div>
+              <div class="lg" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">⏳</div><div style="font-size:12px; font-weight:800; color:#b45309;">7</div><div style="font-size:6.5px; color:#6b7280; font-weight:600;">PENDING</div></div>
+            </div>
+
+            <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:800; color:#111827; letter-spacing:-.2px;">Recent Orders</span>
+              <span style="font-size:8px; color:#1B2A6B; font-weight:600;">See All ›</span>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:6px; overflow:hidden;">
+              <div style="display:flex; align-items:center; gap:8px; padding:9px 11px; border-bottom:1px solid rgba(255,255,255,.5);">
+                <span style="font-size:13px;">☕</span>
+                <div><div style="font-size:9px; font-weight:700; color:#111827;">Iced Latte ×2</div><div style="font-size:7px; color:#6b7280;">#1042 · 2 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#059669; background:rgba(5,150,105,.12); padding:2.5px 8px; border-radius:99px;">Paid</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; padding:9px 11px;">
+                <span style="font-size:13px;">🥪</span>
+                <div><div style="font-size:9px; font-weight:700; color:#111827;">Club Sandwich</div><div style="font-size:7px; color:#6b7280;">#1041 · 14 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#b45309; background:rgba(180,83,9,.12); padding:2.5px 8px; border-radius:99px;">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg" style="color:#6b7280;">
+          <span style="color:#1B2A6B; font-weight:700;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Light Liquid Glass</h3>
+      <p>Bright pastel mesh wallpaper under white frosted glass — closest to iOS 26's stock look. Floating pill tab bar, specular top edges, navy kept as the accent. Airy, clean, unmistakably Apple.</p>
+    </div>
+  </div>
+
+  <!-- B: DARK LIQUID GLASS -->
+  <div class="card" data-choice="B-dark-liquid-glass" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#14161c;">
+      <div class="phone">
+        <div class="ph-scroll" style="background:linear-gradient(165deg,#0e1220 0%,#161327 50%,#0d1a1c 100%);">
+          <div class="mesh" style="width:180px;height:180px;background:rgba(76,110,245,.35);top:-50px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(190,90,255,.25);top:210px;left:-60px;"></div>
+          <div class="mesh" style="width:130px;height:130px;background:rgba(45,212,191,.22);bottom:-30px;right:-20px;"></div>
+
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-size:8px; color:#8e93a3; font-weight:500;">Tuesday, 15 July</div>
+                <div style="font-size:17px; font-weight:800; color:#f5f6fa; letter-spacing:-.4px;">Dashboard</div>
+              </div>
+              <div class="lg-dark" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#9db4ff;">A</div>
+            </div>
+
+            <div class="lg-dark" style="margin-top:12px; border-radius:22px; padding:13px;">
+              <div style="font-size:8px; color:#8e93a3; font-weight:600;">TODAY'S SALES</div>
+              <div style="font-size:23px; font-weight:800; color:#fff; letter-spacing:-.6px;">$2,847.50</div>
+              <div style="font-size:8px; color:#34d399; font-weight:700;">▲ 12.4% vs yesterday</div>
+              <div class="spark" style="margin-top:10px;">
+                <i style="height:40%;background:rgba(157,180,255,.18);"></i><i style="height:55%;background:rgba(157,180,255,.18);"></i><i style="height:35%;background:rgba(157,180,255,.3);"></i><i style="height:70%;background:rgba(157,180,255,.5);"></i><i style="height:60%;background:rgba(157,180,255,.65);"></i><i style="height:90%;background:#9db4ff;"></i><i style="height:75%;background:#9db4ff;"></i>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:7px; margin-top:9px;">
+              <div class="lg-dark" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">📦</div><div style="font-size:12px; font-weight:800; color:#fff;">24</div><div style="font-size:6.5px; color:#8e93a3; font-weight:600;">PRODUCTS</div></div>
+              <div class="lg-dark" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">🛍️</div><div style="font-size:12px; font-weight:800; color:#fff;">142</div><div style="font-size:6.5px; color:#8e93a3; font-weight:600;">ORDERS</div></div>
+              <div class="lg-dark" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">⏳</div><div style="font-size:12px; font-weight:800; color:#fbbf24;">7</div><div style="font-size:6.5px; color:#8e93a3; font-weight:600;">PENDING</div></div>
+            </div>
+
+            <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:800; color:#f5f6fa; letter-spacing:-.2px;">Recent Orders</span>
+              <span style="font-size:8px; color:#9db4ff; font-weight:600;">See All ›</span>
+            </div>
+            <div class="lg-dark" style="border-radius:18px; margin-top:6px; overflow:hidden;">
+              <div style="display:flex; align-items:center; gap:8px; padding:9px 11px; border-bottom:1px solid rgba(255,255,255,.08);">
+                <span style="font-size:13px;">☕</span>
+                <div><div style="font-size:9px; font-weight:700; color:#f5f6fa;">Iced Latte ×2</div><div style="font-size:7px; color:#8e93a3;">#1042 · 2 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#34d399; background:rgba(52,211,153,.14); padding:2.5px 8px; border-radius:99px;">Paid</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; padding:9px 11px;">
+                <span style="font-size:13px;">🥪</span>
+                <div><div style="font-size:9px; font-weight:700; color:#f5f6fa;">Club Sandwich</div><div style="font-size:7px; color:#8e93a3;">#1041 · 14 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#fbbf24; background:rgba(251,191,36,.14); padding:2.5px 8px; border-radius:99px;">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg-dark" style="color:#8e93a3;">
+          <span style="color:#9db4ff; font-weight:700;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Dark Liquid Glass</h3>
+      <p>The same glass system on deep midnight with dim colour glows bleeding through the frost. Periwinkle accent, OLED-friendly. Feels like iOS dark mode + Vision Pro — sleek and expensive.</p>
+    </div>
+  </div>
+
+  <!-- C: BRAND-TINTED GLASS -->
+  <div class="card" data-choice="C-brand-tinted-glass" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#1c2650;">
+      <div class="phone">
+        <div class="ph-scroll" style="background:linear-gradient(170deg,#24347c 0%,#1B2A6B 40%,#131f54 100%);">
+          <div class="mesh" style="width:190px;height:190px;background:rgba(93,130,255,.45);top:-60px;left:-40px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(52,168,83,.3);top:230px;right:-50px;"></div>
+          <div class="mesh" style="width:120px;height:120px;background:rgba(255,255,255,.14);bottom:-20px;left:10px;"></div>
+
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <div style="font-size:8px; color:rgba(255,255,255,.6); font-weight:500;">Tuesday, 15 July</div>
+                <div style="font-size:17px; font-weight:800; color:#fff; letter-spacing:-.4px;">Dashboard</div>
+              </div>
+              <div class="lg-tint" style="width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;">A</div>
+            </div>
+
+            <div class="lg-tint" style="margin-top:12px; border-radius:22px; padding:13px; animation:floaty 5s ease-in-out infinite;">
+              <div style="font-size:8px; color:rgba(255,255,255,.65); font-weight:600;">TODAY'S SALES</div>
+              <div style="font-size:23px; font-weight:800; color:#fff; letter-spacing:-.6px;">$2,847.50</div>
+              <div style="font-size:8px; color:#7ee2a0; font-weight:700;">▲ 12.4% vs yesterday</div>
+              <div class="spark" style="margin-top:10px;">
+                <i style="height:40%;background:rgba(255,255,255,.2);"></i><i style="height:55%;background:rgba(255,255,255,.2);"></i><i style="height:35%;background:rgba(255,255,255,.32);"></i><i style="height:70%;background:rgba(255,255,255,.5);"></i><i style="height:60%;background:rgba(255,255,255,.68);"></i><i style="height:90%;background:#fff;"></i><i style="height:75%;background:#fff;"></i>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:7px; margin-top:9px;">
+              <div class="lg-tint" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">📦</div><div style="font-size:12px; font-weight:800; color:#fff;">24</div><div style="font-size:6.5px; color:rgba(255,255,255,.6); font-weight:600;">PRODUCTS</div></div>
+              <div class="lg-tint" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:12px;">🛍️</div><div style="font-size:12px; font-weight:800; color:#fff;">142</div><div style="font-size:6.5px; color:rgba(255,255,255,.6); font-weight:600;">ORDERS</div></div>
+              <div class="lg-tint" style="flex:1; border-radius:16px; padding:9px;"><div style="font-size:13px;">⏳</div><div style="font-size:12px; font-weight:800; color:#ffd479;">7</div><div style="font-size:6.5px; color:rgba(255,255,255,.6); font-weight:600;">PENDING</div></div>
+            </div>
+
+            <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11px; font-weight:800; color:#fff; letter-spacing:-.2px;">Recent Orders</span>
+              <span style="font-size:8px; color:rgba(255,255,255,.75); font-weight:600;">See All ›</span>
+            </div>
+            <div class="lg-tint" style="border-radius:18px; margin-top:6px; overflow:hidden;">
+              <div style="display:flex; align-items:center; gap:8px; padding:9px 11px; border-bottom:1px solid rgba(255,255,255,.18);">
+                <span style="font-size:13px;">☕</span>
+                <div><div style="font-size:9px; font-weight:700; color:#fff;">Iced Latte ×2</div><div style="font-size:7px; color:rgba(255,255,255,.6);">#1042 · 2 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#7ee2a0; background:rgba(126,226,160,.16); padding:2.5px 8px; border-radius:99px;">Paid</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; padding:9px 11px;">
+                <span style="font-size:13px;">🥪</span>
+                <div><div style="font-size:9px; font-weight:700; color:#fff;">Club Sandwich</div><div style="font-size:7px; color:rgba(255,255,255,.6);">#1041 · 14 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#ffd479; background:rgba(255,212,121,.16); padding:2.5px 8px; border-radius:99px;">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg-tint" style="color:rgba(255,255,255,.6);">
+          <span style="color:#fff; font-weight:700;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Brand-Tinted Glass</h3>
+      <p>Liquid Glass floating over your own navy brand world — glass panels tinted by the Bingo Pay blue beneath, white sparklines, gently floating hero card. Keeps brand identity strong while going full glass.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">All three share the same glass system (blur + specular edge + floating pill tab bar) — the choice is the world behind the glass: light pastel, midnight, or brand navy. Pick one in the browser, then tell me in the terminal.</p>
+</div>

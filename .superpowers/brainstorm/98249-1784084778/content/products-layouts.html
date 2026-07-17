@@ -1,0 +1,231 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 452px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 10px; height: 44px; border-radius: 26px; display: flex; align-items: center; justify-content: space-around; font-size: 7.5px; z-index: 9; color:#6b7280; }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .tabbar .ico { font-size: 13px; line-height: 1; }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .titlex { font-size:17px; font-weight:800; color:#111827; letter-spacing:-.4px; }
+  .searchpill { display:flex; align-items:center; gap:6px; border-radius:14px; padding:7px 10px; font-size:8.5px; color:#6b7280; }
+  .chip { font-size:7.5px; font-weight:700; padding:4px 10px; border-radius:99px; white-space:nowrap; }
+  .imgbox { border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#dbe4f5,#eee6f6); }
+  .fab { position:absolute; right:16px; bottom:64px; width:40px; height:40px; border-radius:50%; background:#1B2A6B; color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; z-index:9; box-shadow:0 8px 20px rgba(27,42,107,.4); }
+  .stockbar { height:4px; border-radius:99px; background:rgba(27,42,107,.12); overflow:hidden; }
+  .stockbar i { display:block; height:100%; border-radius:99px; }
+</style>
+
+<h2>Screen 2 of 7 — Products layout</h2>
+<p class="subtitle">Dashboard = Classic Hero ✓. Same glass system — now how should product management feel?</p>
+
+<div class="cards">
+
+  <!-- 1: GLASS LIST -->
+  <div class="card" data-choice="prod-1-glass-list" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.4);top:240px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="titlex">Products</div>
+              <div class="lg" style="width:26px;height:26px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;">▦</div>
+            </div>
+            <div class="lg searchpill" style="margin-top:9px;">🔍 Search products…</div>
+            <div style="display:flex; gap:5px; margin-top:8px; overflow:hidden;">
+              <span class="chip" style="background:#1B2A6B; color:#fff;">All · 24</span>
+              <span class="chip lg" style="color:#374151;">Active</span>
+              <span class="chip lg" style="color:#374151;">Low stock · 3</span>
+              <span class="chip lg" style="color:#374151;">Inactive</span>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:9px; padding:9px 10px; display:flex; gap:9px; align-items:center;">
+              <div class="imgbox" style="width:44px;height:44px;font-size:18px;">☕</div>
+              <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between;"><span style="font-size:9.5px; font-weight:700; color:#111827;">Iced Latte</span><span style="font-size:9.5px; font-weight:800; color:#111827;">$5.50</span></div>
+                <div style="font-size:7.5px; color:#6b7280; margin-top:1px;">Beverages</div>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:5px;">
+                  <div class="stockbar" style="flex:1;"><i style="width:78%; background:#059669;"></i></div>
+                  <span style="font-size:7px; color:#059669; font-weight:700;">42 in stock</span>
+                </div>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:7px; padding:9px 10px; display:flex; gap:9px; align-items:center;">
+              <div class="imgbox" style="width:44px;height:44px;font-size:18px;">🥪</div>
+              <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between;"><span style="font-size:9.5px; font-weight:700; color:#111827;">Club Sandwich</span><span style="font-size:9.5px; font-weight:800; color:#111827;">$8.50</span></div>
+                <div style="font-size:7.5px; color:#6b7280; margin-top:1px;">Food</div>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:5px;">
+                  <div class="stockbar" style="flex:1;"><i style="width:14%; background:#dc2626;"></i></div>
+                  <span style="font-size:7px; color:#dc2626; font-weight:700;">3 left!</span>
+                </div>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:7px; padding:9px 10px; display:flex; gap:9px; align-items:center; opacity:.65;">
+              <div class="imgbox" style="width:44px;height:44px;font-size:18px;">🧋</div>
+              <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between;"><span style="font-size:9.5px; font-weight:700; color:#111827;">Boba Tea</span><span style="font-size:9.5px; font-weight:800; color:#111827;">$5.40</span></div>
+                <div style="font-size:7.5px; color:#6b7280; margin-top:1px;">Beverages · <b style="color:#9ca3af;">Inactive</b></div>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:5px;">
+                  <div class="stockbar" style="flex:1;"><i style="width:50%; background:#9ca3af;"></i></div>
+                  <span style="font-size:7px; color:#6b7280; font-weight:700;">27 in stock</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Smart Glass List</h3>
+      <p>Search pill + filter chips with live counts ("Low stock · 3"), rows with price, category and a colour-coded <b>stock meter bar</b> — red when critically low, dimmed when inactive. Fast to scan and manage.</p>
+    </div>
+  </div>
+
+  <!-- 2: PHOTO GRID -->
+  <div class="card" data-choice="prod-2-photo-grid" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(140,228,180,.45);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="titlex">Products</div>
+              <div class="lg" style="width:26px;height:26px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;">☰</div>
+            </div>
+            <div class="lg searchpill" style="margin-top:9px;">🔍 Search products…</div>
+            <div style="display:flex; gap:5px; margin-top:8px;">
+              <span class="chip" style="background:#1B2A6B; color:#fff;">All</span>
+              <span class="chip lg" style="color:#374151;">Beverages</span>
+              <span class="chip lg" style="color:#374151;">Food</span>
+              <span class="chip lg" style="color:#374151;">Snacks</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:9px;">
+              <div class="lg" style="border-radius:18px; overflow:hidden;">
+                <div class="imgbox" style="height:74px; border-radius:0; font-size:26px; position:relative;">☕
+                  <span style="position:absolute; top:5px; left:5px; font-size:6.5px; font-weight:800; color:#fff; background:rgba(5,150,105,.9); padding:2px 6px; border-radius:99px;">ACTIVE</span>
+                </div>
+                <div style="padding:7px 9px;">
+                  <div style="font-size:9px; font-weight:700; color:#111827;">Iced Latte</div>
+                  <div style="display:flex; justify-content:space-between; margin-top:2px;">
+                    <span style="font-size:8.5px; font-weight:800; color:#1B2A6B;">$5.50</span>
+                    <span style="font-size:7px; color:#059669; font-weight:700;">42 left</span>
+                  </div>
+                </div>
+              </div>
+              <div class="lg" style="border-radius:18px; overflow:hidden;">
+                <div class="imgbox" style="height:74px; border-radius:0; font-size:26px; position:relative;">🥪
+                  <span style="position:absolute; top:5px; left:5px; font-size:6.5px; font-weight:800; color:#fff; background:rgba(220,38,38,.9); padding:2px 6px; border-radius:99px;">LOW STOCK</span>
+                </div>
+                <div style="padding:7px 9px;">
+                  <div style="font-size:9px; font-weight:700; color:#111827;">Club Sandwich</div>
+                  <div style="display:flex; justify-content:space-between; margin-top:2px;">
+                    <span style="font-size:8.5px; font-weight:800; color:#1B2A6B;">$8.50</span>
+                    <span style="font-size:7px; color:#dc2626; font-weight:700;">3 left</span>
+                  </div>
+                </div>
+              </div>
+              <div class="lg" style="border-radius:18px; overflow:hidden; opacity:.65;">
+                <div class="imgbox" style="height:74px; border-radius:0; font-size:26px;">🧋</div>
+                <div style="padding:7px 9px;">
+                  <div style="font-size:9px; font-weight:700; color:#111827;">Boba Tea</div>
+                  <div style="display:flex; justify-content:space-between; margin-top:2px;">
+                    <span style="font-size:8.5px; font-weight:800; color:#1B2A6B;">$5.40</span>
+                    <span style="font-size:7px; color:#6b7280; font-weight:700;">Inactive</span>
+                  </div>
+                </div>
+              </div>
+              <div class="lg" style="border-radius:18px; border-style:dashed; border-color:rgba(27,42,107,.35); display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:112px; color:#1B2A6B;">
+                <div style="font-size:18px;">＋</div>
+                <div style="font-size:7.5px; font-weight:700;">Add product</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Photo Grid</h3>
+      <p>Image-first 2-column grid — like a menu the customer would see. Status ribbons on photos, price + stock under each, category chips, and an "Add product" ghost tile at the end of the grid.</p>
+    </div>
+  </div>
+
+  <!-- 3: CATEGORY MANAGER -->
+  <div class="card" data-choice="prod-3-category-manager" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(255,170,214,.42);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="titlex">Products</div>
+            <div class="lg" style="border-radius:16px; margin-top:9px; padding:9px 11px; display:flex; align-items:center; gap:8px; background:rgba(254,226,226,.55);">
+              <span style="font-size:13px;">🚨</span>
+              <div style="flex:1;">
+                <div style="font-size:8.5px; font-weight:800; color:#991b1b;">3 products low on stock</div>
+                <div style="font-size:7px; color:#b45309;">Club Sandwich, Croissant, Mango Juice</div>
+              </div>
+              <span style="font-size:7.5px; font-weight:700; color:#fff; background:#dc2626; padding:3px 9px; border-radius:99px;">Restock</span>
+            </div>
+            <div style="margin-top:11px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:10px; font-weight:800; color:#111827;">☕ Beverages <span style="color:#6b7280; font-weight:600;">· 9</span></span>
+              <span style="font-size:12px; color:#6b7280;">⌄</span>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:8px 10px; display:flex; align-items:center; gap:8px;">
+              <div class="imgbox" style="width:36px;height:36px;font-size:15px;">☕</div>
+              <div style="flex:1;"><div style="font-size:9px; font-weight:700; color:#111827;">Iced Latte</div><div style="font-size:7.5px; color:#6b7280;">$5.50</div></div>
+              <div class="lg" style="display:flex; align-items:center; gap:7px; border-radius:99px; padding:3px 7px;">
+                <span style="font-size:10px; color:#1B2A6B; font-weight:800;">−</span>
+                <span style="font-size:8.5px; font-weight:800; color:#111827;">42</span>
+                <span style="font-size:10px; color:#1B2A6B; font-weight:800;">＋</span>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:8px 10px; display:flex; align-items:center; gap:8px;">
+              <div class="imgbox" style="width:36px;height:36px;font-size:15px;">🧋</div>
+              <div style="flex:1;"><div style="font-size:9px; font-weight:700; color:#111827;">Boba Tea</div><div style="font-size:7.5px; color:#6b7280;">$5.40</div></div>
+              <div class="lg" style="display:flex; align-items:center; gap:7px; border-radius:99px; padding:3px 7px;">
+                <span style="font-size:10px; color:#1B2A6B; font-weight:800;">−</span>
+                <span style="font-size:8.5px; font-weight:800; color:#111827;">27</span>
+                <span style="font-size:10px; color:#1B2A6B; font-weight:800;">＋</span>
+              </div>
+            </div>
+            <div style="margin-top:11px; display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:10px; font-weight:800; color:#111827;">🥪 Food <span style="color:#6b7280; font-weight:600;">· 8</span></span>
+              <span style="font-size:12px; color:#6b7280;">⌄</span>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:8px 10px; display:flex; align-items:center; gap:8px;">
+              <div class="imgbox" style="width:36px;height:36px;font-size:15px;">🥪</div>
+              <div style="flex:1;"><div style="font-size:9px; font-weight:700; color:#111827;">Club Sandwich</div><div style="font-size:7.5px; color:#dc2626; font-weight:700;">$8.50 · 3 left!</div></div>
+              <div class="lg" style="display:flex; align-items:center; gap:7px; border-radius:99px; padding:3px 7px; border-color:rgba(220,38,38,.4);">
+                <span style="font-size:10px; color:#1B2A6B; font-weight:800;">−</span>
+                <span style="font-size:8.5px; font-weight:800; color:#dc2626;">3</span>
+                <span style="font-size:10px; color:#1B2A6B; font-weight:800;">＋</span>
+              </div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Category Manager</h3>
+      <p>Built for daily operations: a red restock alert on top, products grouped by collapsible category, and <b>inline − / ＋ stock steppers</b> so you adjust stock right from the list without opening each product.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">Mixable — e.g. list layout (1) with the inline stock steppers from (3). Next up after this: Orders.</p>
+</div>

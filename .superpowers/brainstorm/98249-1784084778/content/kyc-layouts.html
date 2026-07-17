@@ -1,0 +1,150 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 484px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .titlex { font-size:15px; font-weight:800; color:#111827; letter-spacing:-.3px; }
+  .btn { border-radius:14px; padding:11px 0; text-align:center; font-size:9px; font-weight:800; color:#fff; background:#1B2A6B; box-shadow:0 8px 20px rgba(27,42,107,.35); }
+  @keyframes scanline { 0%,100% { top:12%; } 50% { top:82%; } }
+  @keyframes ringspin { to { transform:rotate(360deg); } }
+</style>
+
+<h2>Screen 7 of 7 — KYC / Identity verification</h2>
+<p class="subtitle">Last one! Your KYC flow: upload government documents → wait for review. Three ways to make it feel painless and trustworthy.</p>
+
+<div class="cards">
+
+  <!-- 1: CHECKLIST JOURNEY -->
+  <div class="card" data-choice="kyc-1-checklist" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(140,228,180,.4);bottom:80px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:22px 14px 0;">
+            <div class="titlex">Verify your business</div>
+            <div style="font-size:8px; color:#6b7280; margin-top:3px;">2 of 3 steps done — almost there!</div>
+            <div style="height:6px; border-radius:99px; background:rgba(27,42,107,.12); margin-top:8px;"><div style="width:66%; height:100%; border-radius:99px; background:linear-gradient(90deg,#1B2A6B,#059669);"></div></div>
+
+            <div class="lg" style="border-radius:16px; margin-top:12px; padding:10px 11px; display:flex; align-items:center; gap:9px;">
+              <div style="width:26px;height:26px;border-radius:50%;background:rgba(5,150,105,.15);display:flex;align-items:center;justify-content:center;font-size:12px;">✅</div>
+              <div style="flex:1;"><div style="font-size:9px; font-weight:800; color:#111827;">Business details</div><div style="font-size:7px; color:#059669; font-weight:700;">Completed</div></div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:7px; padding:10px 11px; display:flex; align-items:center; gap:9px;">
+              <div style="width:26px;height:26px;border-radius:50%;background:rgba(5,150,105,.15);display:flex;align-items:center;justify-content:center;font-size:12px;">✅</div>
+              <div style="flex:1;"><div style="font-size:9px; font-weight:800; color:#111827;">Business registration (ACRA)</div><div style="font-size:7px; color:#059669; font-weight:700;">Uploaded · acra_bizfile.pdf</div></div>
+              <span style="font-size:9px; color:#9ca3af;">✎</span>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:7px; padding:10px 11px; display:flex; align-items:center; gap:9px; border-color:rgba(27,42,107,.4); border-width:1.5px;">
+              <div style="width:26px;height:26px;border-radius:50%;background:rgba(27,42,107,.12);display:flex;align-items:center;justify-content:center;font-size:12px;">🪪</div>
+              <div style="flex:1;"><div style="font-size:9px; font-weight:800; color:#111827;">Owner's ID (NRIC / Passport)</div><div style="font-size:7px; color:#b45309; font-weight:700;">Required — tap to upload</div></div>
+              <span style="font-size:10px; color:#1B2A6B; font-weight:800;">＋</span>
+            </div>
+
+            <div class="lg" style="border-radius:14px; margin-top:10px; padding:9px 11px; background:rgba(227,237,252,.55);">
+              <div style="font-size:7.5px; color:#1a5dab; line-height:1.5;">📋 <b>Tips:</b> all four corners visible · no glare · file under 5 MB (JPG, PNG or PDF)</div>
+            </div>
+            <div class="btn" style="margin-top:12px; opacity:.5;">Submit for review</div>
+            <div style="text-align:center; font-size:7px; color:#6b7280; margin-top:6px;">🔒 Encrypted — used only for verification</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Checklist Journey</h3>
+      <p>Verification as a progress checklist: green ticks for done, the next required doc highlighted, gradient progress bar, inline tips, submit unlocks when complete. Clear "how much is left" at all times.</p>
+    </div>
+  </div>
+
+  <!-- 2: SCAN STUDIO -->
+  <div class="card" data-choice="kyc-2-scan-studio" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#14161c;">
+      <div class="phone">
+        <div class="ph-scroll" style="background:#101318;">
+          <div style="position:relative; z-index:2; padding:22px 14px 0; text-align:center;">
+            <div style="font-size:8px; color:#8e93a3;">Owner's ID · front side</div>
+            <div style="font-size:12px; font-weight:800; color:#fff; margin-top:2px;">Position your NRIC in the frame</div>
+            <div style="position:relative; margin:18px auto 0; width:200px; height:126px; border-radius:14px; border:2px dashed rgba(126,226,160,.7); background:rgba(255,255,255,.04); overflow:hidden;">
+              <div style="position:absolute; left:8%; right:8%; height:2px; background:linear-gradient(90deg,transparent,#7ee2a0,transparent); animation:scanline 2.6s ease-in-out infinite; box-shadow:0 0 12px rgba(126,226,160,.8);"></div>
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px; opacity:.25;">🪪</div>
+              <span style="position:absolute; top:6px; left:8px; font-size:12px; color:#7ee2a0;">⌜</span>
+              <span style="position:absolute; top:6px; right:8px; font-size:12px; color:#7ee2a0;">⌝</span>
+              <span style="position:absolute; bottom:6px; left:8px; font-size:12px; color:#7ee2a0;">⌞</span>
+              <span style="position:absolute; bottom:6px; right:8px; font-size:12px; color:#7ee2a0;">⌟</span>
+            </div>
+            <div style="font-size:7.5px; color:#7ee2a0; margin-top:10px; font-weight:700;">✓ Good lighting detected — hold steady</div>
+            <div style="display:flex; justify-content:center; gap:14px; margin-top:16px; align-items:center;">
+              <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:12px;">🖼️</div>
+              <div style="width:52px;height:52px;border-radius:50%;border:3px solid #fff;background:rgba(255,255,255,.15);"></div>
+              <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:12px;">⚡</div>
+            </div>
+            <div style="margin-top:16px; border-radius:14px; padding:9px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);">
+              <div style="font-size:7.5px; color:#8e93a3;">Auto-crop, glare check &amp; blur check run on-device before upload — retakes drop by half.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Scan Studio</h3>
+      <p>Camera-first eKYC like Singpass: a guided viewfinder with corner brackets, live scan line, lighting/glare feedback and auto-crop. Uploading a file feels like scanning, not filling a form. (Gallery upload stays as fallback.)</p>
+    </div>
+  </div>
+
+  <!-- 3: TRUST TIMELINE -->
+  <div class="card" data-choice="kyc-3-trust-timeline" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(255,170,214,.42);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);bottom:80px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:22px 14px 0;">
+            <div style="text-align:center;">
+              <div style="position:relative; width:64px; height:64px; margin:0 auto;">
+                <div style="position:absolute; inset:0; border-radius:50%; border:3px solid rgba(27,42,107,.12); border-top-color:#1B2A6B; animation:ringspin 1.6s linear infinite;"></div>
+                <div style="position:absolute; inset:8px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px;" class="lg">🛡️</div>
+              </div>
+              <div class="titlex" style="margin-top:10px;">Verification in progress</div>
+              <div style="font-size:8px; color:#6b7280; margin-top:3px;">Usually done within <b style="color:#111827;">24 hours</b></div>
+            </div>
+            <div style="margin-top:14px; padding-left:22px; position:relative;">
+              <div style="position:absolute; left:8px; top:4px; bottom:4px; width:2px; background:linear-gradient(#059669, #1B2A6B, rgba(27,42,107,.15));"></div>
+              <div style="position:relative; margin-bottom:12px;">
+                <span style="position:absolute; left:-19px; top:2px; width:10px; height:10px; border-radius:50%; background:#059669; box-shadow:0 0 0 3px rgba(5,150,105,.2);"></span>
+                <div style="font-size:9px; font-weight:800; color:#111827;">Documents uploaded</div>
+                <div style="font-size:7px; color:#6b7280;">ACRA BizFile + NRIC · today 10:42 am</div>
+              </div>
+              <div style="position:relative; margin-bottom:12px;">
+                <span style="position:absolute; left:-19px; top:2px; width:10px; height:10px; border-radius:50%; background:#1B2A6B; box-shadow:0 0 0 3px rgba(27,42,107,.2);"></span>
+                <div style="font-size:9px; font-weight:800; color:#111827;">Under review</div>
+                <div style="font-size:7px; color:#1B2A6B; font-weight:700;">Happening now — our team is checking your documents</div>
+              </div>
+              <div style="position:relative;">
+                <span style="position:absolute; left:-19px; top:2px; width:10px; height:10px; border-radius:50%; background:rgba(27,42,107,.2);"></span>
+                <div style="font-size:9px; font-weight:800; color:#9ca3af;">Verified — start selling</div>
+                <div style="font-size:7px; color:#9ca3af;">We'll notify you the moment it's approved</div>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:14px; padding:10px 11px; display:flex; align-items:center; gap:9px;">
+              <span style="font-size:13px;">🔔</span>
+              <div style="flex:1; font-size:8px; color:#374151;"><b>Notify me</b> when review completes</div>
+              <div style="width:26px; height:15px; border-radius:99px; background:#059669; position:relative;"><span style="position:absolute; right:2px; top:2px; width:11px; height:11px; border-radius:50%; background:#fff;"></span></div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:8px; padding:10px 11px;">
+              <div style="font-size:8px; color:#374151;">Meanwhile, you can <b style="color:#1B2A6B;">set up your products</b> so you're ready to sell the moment you're verified →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Trust Timeline</h3>
+      <p>Focuses on the anxious wait after submitting: a live status timeline (uploaded → under review → verified), honest ETA, notify toggle — and it invites you to build your catalog while waiting, so onboarding never stalls.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">These three actually chain: Checklist (1) to collect → Scan Studio (2) to capture → Trust Timeline (3) while waiting. You can pick one or take the full chain. This is the last screen — after this I'll compile the full design and we plan implementation.</p>
+</div>

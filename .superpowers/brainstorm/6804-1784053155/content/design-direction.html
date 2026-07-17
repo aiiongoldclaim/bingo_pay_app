@@ -1,0 +1,188 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 28px; border: 8px solid #1a1a1e; overflow: hidden; background: #f4f5f7; margin: 0 auto; position: relative; font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.18); }
+  .ph-scroll { height: 452px; overflow: hidden; }
+  .ph-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center; justify-content: space-around; font-size: 8px; }
+  .ph-nav span { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .ph-nav .ico { font-size: 14px; line-height: 1; }
+  .chipdot { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+  .statmini { flex: 1; border-radius: 12px; padding: 8px; }
+  .statmini .v { font-size: 15px; font-weight: 700; }
+  .statmini .t { font-size: 7.5px; opacity: .75; margin-top: 1px; }
+  .rowitem { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px; }
+  .rowitem .nm { font-size: 9px; font-weight: 600; }
+  .rowitem .sb { font-size: 7.5px; opacity: .6; }
+  .pill { font-size: 7px; padding: 2px 6px; border-radius: 99px; font-weight: 600; margin-left: auto; }
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 42px; }
+  .spark i { flex: 1; border-radius: 3px 3px 0 0; display: block; }
+</style>
+
+<h2>Which design direction should the redesign follow?</h2>
+<p class="subtitle">Same dashboard, three different visual languages. This choice sets the tone for every screen — we'll then go screen by screen. Click the one that feels right.</p>
+
+<div class="cards">
+
+  <!-- OPTION A: Polished Fintech -->
+  <div class="card" data-choice="A-polished-fintech" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#e9ebf2;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div style="background:linear-gradient(160deg,#1B2A6B,#121C4A); padding:14px 12px 40px; color:#fff; border-radius:0 0 24px 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:8px; opacity:.7;">Good morning 👋</div>
+                <div style="font-size:12px; font-weight:700;">Aditya's Store</div>
+              </div>
+              <div style="width:24px;height:24px;border-radius:50%;background:#34A853;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">A</div>
+            </div>
+            <div style="margin-top:12px; font-size:8px; opacity:.7;">Today's Sales</div>
+            <div style="font-size:20px; font-weight:800;">$2,847.50</div>
+            <div style="font-size:8px; color:#7ee2a0;">▲ 12.4% vs yesterday</div>
+          </div>
+          <div style="display:flex; gap:6px; padding:0 10px; margin-top:-24px;">
+            <div class="statmini" style="background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.07);"><div class="chipdot" style="background:#E3EDFC;">📦</div><div class="v" style="color:#202124;">24</div><div class="t" style="color:#5F6368;">Products</div></div>
+            <div class="statmini" style="background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.07);"><div class="chipdot" style="background:#EDE7FB;">🛍️</div><div class="v" style="color:#202124;">142</div><div class="t" style="color:#5F6368;">Orders</div></div>
+            <div class="statmini" style="background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.07);"><div class="chipdot" style="background:#FCEFD9;">⏳</div><div class="v" style="color:#202124;">7</div><div class="t" style="color:#5F6368;">Pending</div></div>
+          </div>
+          <div style="margin:10px; background:#fff; border-radius:12px; padding:10px; box-shadow:0 2px 8px rgba(0,0,0,.07);">
+            <div style="font-size:9px; font-weight:700; color:#202124; margin-bottom:6px;">Sales trend <span style="float:right; color:#34A853; font-weight:600;">This week ▾</span></div>
+            <div class="spark">
+              <i style="height:40%;background:#c9d3f0;"></i><i style="height:55%;background:#c9d3f0;"></i><i style="height:35%;background:#c9d3f0;"></i><i style="height:70%;background:#8fa3dd;"></i><i style="height:60%;background:#8fa3dd;"></i><i style="height:90%;background:#1B2A6B;"></i><i style="height:75%;background:#1B2A6B;"></i>
+            </div>
+          </div>
+          <div style="margin:0 10px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:10px; font-weight:700; color:#202124;">Recent orders</span><span style="font-size:8px; color:#1B2A6B; font-weight:600;">See all ›</span>
+          </div>
+          <div style="margin:6px 10px;">
+            <div class="rowitem" style="background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.05); margin-bottom:5px;">
+              <div class="chipdot" style="background:#E3F3E6;">☕</div>
+              <div><div class="nm" style="color:#202124;">Iced Latte ×2</div><div class="sb" style="color:#5F6368;">#1042 · 2 min ago</div></div>
+              <span class="pill" style="background:#E3F3E6; color:#4C7A2D;">Paid</span>
+            </div>
+            <div class="rowitem" style="background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.05);">
+              <div class="chipdot" style="background:#FCEFD9;">🥪</div>
+              <div><div class="nm" style="color:#202124;">Club Sandwich</div><div class="sb" style="color:#5F6368;">#1041 · 14 min ago</div></div>
+              <span class="pill" style="background:#FCEFD9; color:#B36B00;">Pending</span>
+            </div>
+          </div>
+        </div>
+        <div class="ph-nav" style="background:#fff; border-top:1px solid #eee; color:#9aa0a6;">
+          <span style="color:#1B2A6B;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Polished Fintech</h3>
+      <p>An evolution of your current navy brand. Deep-navy gradient hero header with today's sales front and center, floating white stat cards that overlap the header, soft shadows, 12–16px radii. Familiar but far more premium.</p>
+    </div>
+  </div>
+
+  <!-- OPTION B: Vibrant Modern -->
+  <div class="card" data-choice="B-vibrant-modern" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#ece9f6;">
+      <div class="phone" style="background:#f7f6fb;">
+        <div class="ph-scroll">
+          <div style="padding:14px 12px 8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:8px; color:#8a8798;">Good morning 👋</div>
+              <div style="font-size:12px; font-weight:800; color:#17131f;">Aditya's Store</div>
+            </div>
+            <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#6C4DF6,#B84DF6);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;">A</div>
+          </div>
+          <div style="margin:6px 10px; background:linear-gradient(135deg,#6C4DF6,#9B4DF6 60%,#E85D9E); border-radius:20px; padding:14px 12px; color:#fff;">
+            <div style="font-size:8px; opacity:.8;">Today's Sales</div>
+            <div style="font-size:21px; font-weight:800;">$2,847.50</div>
+            <div style="display:flex; gap:6px; margin-top:8px;">
+              <span style="font-size:7.5px; background:rgba(255,255,255,.22); padding:3px 8px; border-radius:99px;">▲ 12.4%</span>
+              <span style="font-size:7.5px; background:rgba(255,255,255,.22); padding:3px 8px; border-radius:99px;">142 orders</span>
+              <span style="font-size:7.5px; background:rgba(255,255,255,.22); padding:3px 8px; border-radius:99px;">7 pending</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:6px; margin:10px;">
+            <div style="flex:1; background:#fff; border-radius:16px; padding:9px; text-align:center;"><div style="font-size:15px;">➕</div><div style="font-size:7.5px; font-weight:700; color:#17131f; margin-top:2px;">Add product</div></div>
+            <div style="flex:1; background:#fff; border-radius:16px; padding:9px; text-align:center;"><div style="font-size:15px;">🧾</div><div style="font-size:7.5px; font-weight:700; color:#17131f; margin-top:2px;">Orders</div></div>
+            <div style="flex:1; background:#fff; border-radius:16px; padding:9px; text-align:center;"><div style="font-size:15px;">🔳</div><div style="font-size:7.5px; font-weight:700; color:#17131f; margin-top:2px;">My QR</div></div>
+            <div style="flex:1; background:#fff; border-radius:16px; padding:9px; text-align:center;"><div style="font-size:15px;">📈</div><div style="font-size:7.5px; font-weight:700; color:#17131f; margin-top:2px;">Reports</div></div>
+          </div>
+          <div style="margin:0 10px; background:#fff; border-radius:20px; padding:10px;">
+            <div style="font-size:9px; font-weight:800; color:#17131f; margin-bottom:6px;">Sales trend</div>
+            <div class="spark">
+              <i style="height:40%;background:#eae5fb;"></i><i style="height:55%;background:#eae5fb;"></i><i style="height:35%;background:#eae5fb;"></i><i style="height:70%;background:#c9b8f9;"></i><i style="height:60%;background:#c9b8f9;"></i><i style="height:90%;background:linear-gradient(180deg,#8b5ef7,#6C4DF6);"></i><i style="height:75%;background:linear-gradient(180deg,#8b5ef7,#6C4DF6);"></i>
+            </div>
+          </div>
+          <div style="margin:10px 10px 4px; display:flex; justify-content:space-between;">
+            <span style="font-size:10px; font-weight:800; color:#17131f;">Recent orders</span><span style="font-size:8px; color:#6C4DF6; font-weight:700;">See all ›</span>
+          </div>
+          <div class="rowitem" style="background:#fff; border-radius:16px; margin:0 10px 5px;">
+            <div class="chipdot" style="background:#f0ebfe;">☕</div>
+            <div><div class="nm" style="color:#17131f;">Iced Latte ×2</div><div class="sb" style="color:#8a8798;">#1042 · 2 min ago</div></div>
+            <span class="pill" style="background:#e5f8ec; color:#1d9e55;">Paid</span>
+          </div>
+        </div>
+        <div class="ph-nav" style="background:#fff; border-radius:20px 20px 0 0; color:#b3b0bf; box-shadow:0 -4px 16px rgba(0,0,0,.06);">
+          <span style="color:#6C4DF6;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span style="width:34px;height:34px;background:linear-gradient(135deg,#6C4DF6,#B84DF6);border-radius:50%;color:#fff;justify-content:center;margin-top:-16px;"><span class="ico">＋</span></span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Vibrant &amp; Modern</h3>
+      <p>A bolder rebrand: violet-to-pink gradient hero card, pill stats, large 20px radii, playful icon tiles, and a floating center "+" action button in the nav. Feels like a consumer fintech app (Revolut/PhonePe energy).</p>
+    </div>
+  </div>
+
+  <!-- OPTION C: Clean Minimal -->
+  <div class="card" data-choice="C-clean-minimal" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#eef0ee;">
+      <div class="phone" style="background:#fff;">
+        <div class="ph-scroll">
+          <div style="padding:16px 14px 6px;">
+            <div style="font-size:8px; color:#8b8b8b; letter-spacing:.06em; text-transform:uppercase;">Monday, 14 July</div>
+            <div style="font-size:13px; font-weight:700; color:#111; margin-top:2px;">Aditya's Store</div>
+          </div>
+          <div style="padding:10px 14px 12px; border-bottom:1px solid #ececec;">
+            <div style="font-size:8px; color:#8b8b8b;">Today's sales</div>
+            <div style="font-size:24px; font-weight:800; color:#111; letter-spacing:-.5px;">$2,847<span style="font-size:13px; color:#8b8b8b;">.50</span></div>
+            <div style="font-size:8px; color:#2e9e5b; font-weight:600;">▲ 12.4% vs yesterday</div>
+          </div>
+          <div style="display:flex; border-bottom:1px solid #ececec;">
+            <div style="flex:1; padding:10px 14px; border-right:1px solid #ececec;"><div style="font-size:14px; font-weight:800; color:#111;">24</div><div style="font-size:7.5px; color:#8b8b8b;">Products</div></div>
+            <div style="flex:1; padding:10px 14px; border-right:1px solid #ececec;"><div style="font-size:14px; font-weight:800; color:#111;">142</div><div style="font-size:7.5px; color:#8b8b8b;">Orders</div></div>
+            <div style="flex:1; padding:10px 14px;"><div style="font-size:14px; font-weight:800; color:#b3831d;">7</div><div style="font-size:7.5px; color:#8b8b8b;">Pending</div></div>
+          </div>
+          <div style="padding:12px 14px; border-bottom:1px solid #ececec;">
+            <div style="font-size:9px; font-weight:700; color:#111; margin-bottom:8px;">Sales trend</div>
+            <div class="spark">
+              <i style="height:40%;background:#e4e4e4;"></i><i style="height:55%;background:#e4e4e4;"></i><i style="height:35%;background:#e4e4e4;"></i><i style="height:70%;background:#bdbdbd;"></i><i style="height:60%;background:#bdbdbd;"></i><i style="height:90%;background:#111;"></i><i style="height:75%;background:#111;"></i>
+            </div>
+          </div>
+          <div style="padding:12px 14px 4px; display:flex; justify-content:space-between;">
+            <span style="font-size:10px; font-weight:700; color:#111;">Recent orders</span><span style="font-size:8px; color:#2e9e5b; font-weight:600;">See all</span>
+          </div>
+          <div style="padding:0 14px;">
+            <div style="display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid #f2f2f2;">
+              <div><div style="font-size:9px; font-weight:600; color:#111;">Iced Latte ×2</div><div style="font-size:7.5px; color:#8b8b8b;">#1042 · 2 min ago</div></div>
+              <span style="margin-left:auto; font-size:9px; font-weight:700; color:#111;">$11.00</span>
+              <span style="width:6px; height:6px; border-radius:50%; background:#2e9e5b;"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; padding:9px 0;">
+              <div><div style="font-size:9px; font-weight:600; color:#111;">Club Sandwich</div><div style="font-size:7.5px; color:#8b8b8b;">#1041 · 14 min ago</div></div>
+              <span style="margin-left:auto; font-size:9px; font-weight:700; color:#111;">$8.50</span>
+              <span style="width:6px; height:6px; border-radius:50%; background:#e0a52f;"></span>
+            </div>
+          </div>
+        </div>
+        <div class="ph-nav" style="background:#fff; border-top:1px solid #ececec; color:#b0b0b0;">
+          <span style="color:#111;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Clean Minimal</h3>
+      <p>Typography-led and calm: white background, hairline dividers instead of cards and shadows, big numbers, one green accent, status shown as tiny dots. Fastest to scan for a busy vendor; feels like Linear/Notion.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">You can also mix — e.g. "A's header with C's order list". Tell me in the terminal what you picked and anything you'd change.</p>
+</div>

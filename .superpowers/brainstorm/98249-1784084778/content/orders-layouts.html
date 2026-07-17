@@ -1,0 +1,225 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 452px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 10px; height: 44px; border-radius: 26px; display: flex; align-items: center; justify-content: space-around; font-size: 7.5px; z-index: 9; color:#6b7280; }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .tabbar .ico { font-size: 13px; line-height: 1; }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .titlex { font-size:17px; font-weight:800; color:#111827; letter-spacing:-.4px; }
+  .chip { font-size:7.5px; font-weight:700; padding:4px 10px; border-radius:99px; white-space:nowrap; }
+  .fab { position:absolute; right:16px; bottom:64px; width:40px; height:40px; border-radius:50%; background:#1B2A6B; color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; z-index:9; box-shadow:0 8px 20px rgba(27,42,107,.4); }
+  .pillst { font-size:7px; font-weight:700; padding:2.5px 8px; border-radius:99px; }
+  .swipehint { position:absolute; right:0; top:0; bottom:0; width:52px; background:linear-gradient(90deg,rgba(5,150,105,0),rgba(5,150,105,.85)); display:flex; align-items:center; justify-content:flex-end; padding-right:8px; color:#fff; font-size:9px; font-weight:800; border-radius:0 16px 16px 0; }
+</style>
+
+<h2>Screen 3 of 7 — Orders layout</h2>
+<p class="subtitle">Dashboard ✓ Products (Photo Grid) ✓. Orders is where vendors live during rush hour — how should it work?</p>
+
+<div class="cards">
+
+  <!-- 1: TIMELINE LIST -->
+  <div class="card" data-choice="ord-1-timeline" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.4);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="titlex">Orders</div>
+            <div style="display:flex; gap:5px; margin-top:9px;">
+              <span class="chip" style="background:#1B2A6B; color:#fff;">All · 142</span>
+              <span class="chip lg" style="color:#b45309;">Pending · 7</span>
+              <span class="chip lg" style="color:#059669;">Paid</span>
+              <span class="chip lg" style="color:#6b7280;">Cancelled</span>
+            </div>
+            <div style="margin-top:10px; font-size:8px; font-weight:800; color:#6b7280; letter-spacing:.05em;">TODAY</div>
+            <div class="lg" style="border-radius:16px; margin-top:5px; padding:9px 11px; display:flex; align-items:center; gap:8px;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">☕</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1042 · Iced Latte ×2</div>
+                <div style="font-size:7px; color:#6b7280;">2 min ago · Cash</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:9.5px; font-weight:800; color:#111827;">$11.00</div>
+                <span class="pillst" style="color:#059669; background:rgba(5,150,105,.12);">Paid</span>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:9px 11px; display:flex; align-items:center; gap:8px; border-left:3px solid #f59e0b;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">🥪</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1041 · Club Sandwich</div>
+                <div style="font-size:7px; color:#b45309; font-weight:700;">⏱ waiting 14 min</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:9.5px; font-weight:800; color:#111827;">$8.50</div>
+                <span class="pillst" style="color:#b45309; background:rgba(180,83,9,.12);">Pending</span>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:6px; padding:9px 11px; display:flex; align-items:center; gap:8px;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">🧋</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1040 · Boba Tea ×3</div>
+                <div style="font-size:7px; color:#6b7280;">32 min ago · QR</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:9.5px; font-weight:800; color:#111827;">$16.20</div>
+                <span class="pillst" style="color:#059669; background:rgba(5,150,105,.12);">Paid</span>
+              </div>
+            </div>
+            <div style="margin-top:10px; font-size:8px; font-weight:800; color:#6b7280; letter-spacing:.05em;">YESTERDAY</div>
+            <div class="lg" style="border-radius:16px; margin-top:5px; padding:9px 11px; display:flex; align-items:center; gap:8px; opacity:.75;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">🥐</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1039 · Croissant ×2</div>
+                <div style="font-size:7px; color:#6b7280;">6:40 pm · Card</div>
+              </div>
+              <div style="font-size:9.5px; font-weight:800; color:#111827;">$7.00</div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Timeline List</h3>
+      <p>Chronological feed grouped by day, status chips with counts, pending orders flagged with an amber edge + "waiting 14 min" timer. Familiar transactions-app pattern, easiest to browse history.</p>
+    </div>
+  </div>
+
+  <!-- 2: QUEUE BOARD -->
+  <div class="card" data-choice="ord-2-queue-board" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(251,191,36,.35);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div class="titlex">Orders</div>
+              <span style="font-size:8px; color:#6b7280;">🕐 History</span>
+            </div>
+            <div class="lg" style="margin-top:9px; border-radius:99px; padding:3px; display:flex;">
+              <span style="flex:1; text-align:center; font-size:8px; font-weight:800; color:#fff; background:#1B2A6B; border-radius:99px; padding:5px 0;">Queue · 7</span>
+              <span style="flex:1; text-align:center; font-size:8px; font-weight:700; color:#374151; padding:5px 0;">Done · 135</span>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:10px; padding:11px; border-left:3px solid #dc2626;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:10px; font-weight:800; color:#111827;">#1038 · $12.40</span>
+                <span style="font-size:7.5px; color:#dc2626; font-weight:800;">⏱ 24 MIN</span>
+              </div>
+              <div style="font-size:8px; color:#374151; margin-top:3px;">🧋 Boba Tea ×2 · 🥐 Croissant</div>
+              <div style="display:flex; gap:6px; margin-top:8px;">
+                <span style="flex:1; text-align:center; font-size:8px; font-weight:800; color:#fff; background:#059669; border-radius:99px; padding:5px 0;">✓ Mark Paid</span>
+                <span class="lg" style="width:52px; text-align:center; font-size:8px; font-weight:700; color:#dc2626; border-radius:99px; padding:5px 0;">✕</span>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:8px; padding:11px; border-left:3px solid #f59e0b;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:10px; font-weight:800; color:#111827;">#1041 · $8.50</span>
+                <span style="font-size:7.5px; color:#b45309; font-weight:800;">⏱ 14 MIN</span>
+              </div>
+              <div style="font-size:8px; color:#374151; margin-top:3px;">🥪 Club Sandwich</div>
+              <div style="display:flex; gap:6px; margin-top:8px;">
+                <span style="flex:1; text-align:center; font-size:8px; font-weight:800; color:#fff; background:#059669; border-radius:99px; padding:5px 0;">✓ Mark Paid</span>
+                <span class="lg" style="width:52px; text-align:center; font-size:8px; font-weight:700; color:#dc2626; border-radius:99px; padding:5px 0;">✕</span>
+              </div>
+            </div>
+            <div class="lg" style="border-radius:18px; margin-top:8px; padding:11px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:10px; font-weight:800; color:#111827;">#1043 · $5.50</span>
+                <span style="font-size:7.5px; color:#6b7280; font-weight:800;">⏱ 1 MIN</span>
+              </div>
+              <div style="font-size:8px; color:#374151; margin-top:3px;">☕ Iced Latte</div>
+              <div style="display:flex; gap:6px; margin-top:8px;">
+                <span style="flex:1; text-align:center; font-size:8px; font-weight:800; color:#fff; background:#059669; border-radius:99px; padding:5px 0;">✓ Mark Paid</span>
+                <span class="lg" style="width:52px; text-align:center; font-size:8px; font-weight:700; color:#dc2626; border-radius:99px; padding:5px 0;">✕</span>
+              </div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Queue Board</h3>
+      <p>Rush-hour mode: Queue/Done segmented toggle, pending orders sorted <b>oldest-first</b> with escalating timers (amber → red), and one-tap <b>✓ Mark Paid</b> on every card. History lives behind the "Done" tab.</p>
+    </div>
+  </div>
+
+  <!-- 3: SWIPE ACTIONS -->
+  <div class="card" data-choice="ord-3-swipe-actions" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(140,228,180,.45);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.4);top:250px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="titlex">Orders</div>
+            <div class="lg" style="margin-top:9px; border-radius:14px; padding:7px 10px; font-size:8.5px; color:#6b7280;">🔍 Search order #, product…</div>
+            <div style="display:flex; gap:5px; margin-top:8px;">
+              <span class="chip" style="background:#1B2A6B; color:#fff;">All</span>
+              <span class="chip lg" style="color:#b45309;">Pending · 7</span>
+              <span class="chip lg" style="color:#059669;">Paid</span>
+            </div>
+            <div style="position:relative; margin-top:9px;">
+              <div class="lg" style="border-radius:16px; padding:9px 11px; display:flex; align-items:center; gap:8px; transform:translateX(-34px);">
+                <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">🥪</div>
+                <div style="flex:1;">
+                  <div style="font-size:9px; font-weight:700; color:#111827;">#1041 · Club Sandwich</div>
+                  <div style="font-size:7px; color:#b45309; font-weight:700;">Pending · 14 min</div>
+                </div>
+                <div style="font-size:9.5px; font-weight:800; color:#111827;">$8.50</div>
+              </div>
+              <div class="swipehint">✓</div>
+            </div>
+            <div style="text-align:center; font-size:7px; color:#6b7280; margin-top:4px;">← swipe right to mark paid, left to cancel →</div>
+            <div class="lg" style="border-radius:16px; margin-top:7px; padding:9px 11px; display:flex; align-items:center; gap:8px;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">☕</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1042 · Iced Latte ×2</div>
+                <div style="font-size:7px; color:#6b7280;">Paid · 2 min ago</div>
+              </div>
+              <div style="font-size:9.5px; font-weight:800; color:#111827;">$11.00</div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:7px; padding:9px 11px; display:flex; align-items:center; gap:8px;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">🧋</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1040 · Boba Tea ×3</div>
+                <div style="font-size:7px; color:#6b7280;">Paid · 32 min ago</div>
+              </div>
+              <div style="font-size:9.5px; font-weight:800; color:#111827;">$16.20</div>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:7px; padding:9px 11px; display:flex; align-items:center; gap:8px; opacity:.75;">
+              <div style="width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#dbe4f5,#eee6f6);display:flex;align-items:center;justify-content:center;font-size:14px;">🥐</div>
+              <div style="flex:1;">
+                <div style="font-size:9px; font-weight:700; color:#111827;">#1039 · Croissant ×2</div>
+                <div style="font-size:7px; color:#6b7280;">Paid · yesterday</div>
+              </div>
+              <div style="font-size:9.5px; font-weight:800; color:#111827;">$7.00</div>
+            </div>
+          </div>
+          <div class="fab">＋</div>
+        </div>
+        <div class="tabbar lg">
+          <span><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span style="color:#1B2A6B; font-weight:700;"><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Swipe Actions</h3>
+      <p>Timeline look, gesture-first workflow: <b>swipe right = mark paid, swipe left = cancel</b> (iOS Mail style), search across order # and products. Fastest for one-handed use, actions stay hidden until needed.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">Combos welcome — e.g. Queue Board (2) with swipe gestures (3) inside it. Next: Analytics.</p>
+</div>

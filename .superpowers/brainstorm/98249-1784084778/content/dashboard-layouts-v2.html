@@ -1,0 +1,197 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 452px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .spark { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+  .spark i { flex: 1; border-radius: 3px 3px 0 0; display: block; }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 10px; height: 44px; border-radius: 26px; display: flex; align-items: center; justify-content: space-around; font-size: 7.5px; z-index: 9; color:#6b7280; }
+  .tabbar span { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .tabbar .ico { font-size: 13px; line-height: 1; }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .hd { display:flex; justify-content:space-between; align-items:flex-start; }
+  .datex { font-size:8px; color:#6b7280; font-weight:500; }
+  .titlex { font-size:17px; font-weight:800; color:#111827; letter-spacing:-.4px; }
+  .av { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#1B2A6B; }
+</style>
+
+<h2>Screen 1 of 7 — Dashboard layout</h2>
+<p class="subtitle">Style is locked (Liquid Glass, light shown here — dark mode mirrors it). Now: how should the home screen be organized?</p>
+
+<div class="cards">
+
+  <!-- 1: CLASSIC HERO -->
+  <div class="card" data-choice="dash-1-classic-hero" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.42);top:220px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="hd">
+              <div><div class="datex">Tuesday, 15 July</div><div class="titlex">Good morning, Aditya</div></div>
+              <div class="lg av">A</div>
+            </div>
+            <div class="lg" style="margin-top:11px; border-radius:22px; padding:13px;">
+              <div style="font-size:8px; color:#6b7280; font-weight:600;">TODAY'S SALES</div>
+              <div style="font-size:22px; font-weight:800; color:#111827;">$2,847.50</div>
+              <div style="font-size:8px; color:#059669; font-weight:700;">▲ 12.4% vs yesterday</div>
+              <div class="spark" style="margin-top:9px;">
+                <i style="height:40%;background:rgba(27,42,107,.15);"></i><i style="height:55%;background:rgba(27,42,107,.15);"></i><i style="height:35%;background:rgba(27,42,107,.25);"></i><i style="height:70%;background:rgba(27,42,107,.45);"></i><i style="height:60%;background:rgba(27,42,107,.6);"></i><i style="height:90%;background:#1B2A6B;"></i><i style="height:75%;background:#1B2A6B;"></i>
+              </div>
+            </div>
+            <div style="display:flex; gap:7px; margin-top:8px;">
+              <div class="lg" style="flex:1; border-radius:15px; padding:8px;"><div style="font-size:12px; font-weight:800; color:#111827;">24</div><div style="font-size:6.5px; color:#6b7280;">PRODUCTS</div></div>
+              <div class="lg" style="flex:1; border-radius:15px; padding:8px;"><div style="font-size:12px; font-weight:800; color:#111827;">142</div><div style="font-size:6.5px; color:#6b7280;">ORDERS</div></div>
+              <div class="lg" style="flex:1; border-radius:15px; padding:8px;"><div style="font-size:12px; font-weight:800; color:#b45309;">7</div><div style="font-size:6.5px; color:#6b7280;">PENDING</div></div>
+            </div>
+            <div style="display:flex; gap:7px; margin-top:8px;">
+              <div class="lg" style="flex:1; border-radius:14px; padding:8px; text-align:center;"><div style="font-size:12px;">➕</div><div style="font-size:6.5px; font-weight:700; color:#111827;">Add</div></div>
+              <div class="lg" style="flex:1; border-radius:14px; padding:8px; text-align:center;"><div style="font-size:12px;">🔳</div><div style="font-size:6.5px; font-weight:700; color:#111827;">QR</div></div>
+              <div class="lg" style="flex:1; border-radius:14px; padding:8px; text-align:center;"><div style="font-size:12px;">🧾</div><div style="font-size:6.5px; font-weight:700; color:#111827;">Orders</div></div>
+              <div class="lg" style="flex:1; border-radius:14px; padding:8px; text-align:center;"><div style="font-size:12px;">📊</div><div style="font-size:6.5px; font-weight:700; color:#111827;">Stats</div></div>
+            </div>
+            <div style="margin-top:10px; display:flex; justify-content:space-between;">
+              <span style="font-size:10.5px; font-weight:800; color:#111827;">Recent Orders</span><span style="font-size:8px; color:#1B2A6B; font-weight:600;">See All ›</span>
+            </div>
+            <div class="lg" style="border-radius:16px; margin-top:5px; padding:8px 10px; display:flex; align-items:center; gap:8px;">
+              <span style="font-size:12px;">☕</span>
+              <div><div style="font-size:8.5px; font-weight:700; color:#111827;">Iced Latte ×2</div><div style="font-size:7px; color:#6b7280;">#1042 · 2 min</div></div>
+              <span style="margin-left:auto; font-size:7px; font-weight:700; color:#059669; background:rgba(5,150,105,.12); padding:2px 7px; border-radius:99px;">Paid</span>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span style="color:#1B2A6B; font-weight:700;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Classic Hero</h3>
+      <p>Top-down priority: big sales hero → stat chips → quick actions → recent orders. Everything visible without scrolling. Predictable and calm — the safest ordering of what you already have.</p>
+    </div>
+  </div>
+
+  <!-- 2: BENTO GRID -->
+  <div class="card" data-choice="dash-2-bento-grid" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(140,228,180,.4);top:240px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="hd">
+              <div><div class="datex">Tuesday, 15 July</div><div class="titlex">Dashboard</div></div>
+              <div class="lg av">A</div>
+            </div>
+            <div style="display:grid; grid-template-columns:1.5fr 1fr; grid-auto-rows:74px; gap:7px; margin-top:11px;">
+              <div class="lg" style="grid-row:span 2; border-radius:20px; padding:11px;">
+                <div style="font-size:7.5px; color:#6b7280; font-weight:600;">TODAY'S SALES</div>
+                <div style="font-size:19px; font-weight:800; color:#111827;">$2,847<span style="font-size:11px;color:#6b7280;">.50</span></div>
+                <div style="font-size:7.5px; color:#059669; font-weight:700;">▲ 12.4%</div>
+                <div class="spark" style="margin-top:16px; height:44px;">
+                  <i style="height:40%;background:rgba(27,42,107,.15);"></i><i style="height:55%;background:rgba(27,42,107,.2);"></i><i style="height:35%;background:rgba(27,42,107,.3);"></i><i style="height:70%;background:rgba(27,42,107,.45);"></i><i style="height:60%;background:rgba(27,42,107,.6);"></i><i style="height:90%;background:#1B2A6B;"></i><i style="height:75%;background:#1B2A6B;"></i>
+                </div>
+              </div>
+              <div class="lg" style="border-radius:20px; padding:10px;">
+                <div style="font-size:12px;">🛍️</div><div style="font-size:14px; font-weight:800; color:#111827;">142</div><div style="font-size:6.5px; color:#6b7280; font-weight:600;">ORDERS TODAY</div>
+              </div>
+              <div class="lg" style="border-radius:20px; padding:10px; background:rgba(255,244,214,.55);">
+                <div style="font-size:12px;">⏳</div><div style="font-size:14px; font-weight:800; color:#b45309;">7</div><div style="font-size:6.5px; color:#6b7280; font-weight:600;">PENDING</div>
+              </div>
+              <div class="lg" style="border-radius:20px; padding:10px;">
+                <div style="font-size:7.5px; color:#6b7280; font-weight:600;">TOP PRODUCT</div>
+                <div style="font-size:10px; font-weight:800; color:#111827; margin-top:3px;">☕ Iced Latte</div>
+                <div style="font-size:7px; color:#059669; font-weight:700;">38 sold today</div>
+              </div>
+              <div class="lg" style="border-radius:20px; padding:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(27,42,107,.85); border-color:rgba(255,255,255,.3);">
+                <div style="font-size:15px;">🔳</div>
+                <div style="font-size:7px; font-weight:800; color:#fff; margin-top:2px;">SHOW QR</div>
+              </div>
+              <div class="lg" style="grid-column:span 2; border-radius:20px; padding:10px; display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px;">☕</span>
+                <div><div style="font-size:8.5px; font-weight:700; color:#111827;">Iced Latte ×2 · #1042</div><div style="font-size:7px; color:#6b7280;">2 min ago</div></div>
+                <span style="margin-left:auto; font-size:7px; font-weight:700; color:#059669; background:rgba(5,150,105,.12); padding:2px 7px; border-radius:99px;">Paid</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span style="color:#1B2A6B; font-weight:700;"><span class="ico">🏠</span>Home</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Bento Grid</h3>
+      <p>Apple-style bento: mixed-size glass tiles — tall sales tile with chart, small counters, top product, and a navy QR tile as a first-class action. Dense, glanceable, very "widget" like iOS home screen.</p>
+    </div>
+  </div>
+
+  <!-- 3: INSIGHT FEED -->
+  <div class="card" data-choice="dash-3-insight-feed" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(122,162,255,.5);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(255,170,214,.4);top:230px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:16px 13px 0;">
+            <div class="hd">
+              <div><div class="datex">Tuesday, 15 July</div><div class="titlex">Today</div></div>
+              <div class="lg av">A</div>
+            </div>
+            <div class="lg" style="margin-top:11px; border-radius:20px; padding:12px;">
+              <div style="font-size:9px; color:#374151; line-height:1.55;">You've made <b style="color:#111827;">$2,847.50</b> today — <b style="color:#059669;">12% better</b> than yesterday, from <b style="color:#111827;">142 orders</b>. 💪</div>
+            </div>
+            <div class="lg" style="margin-top:8px; border-radius:20px; padding:11px;">
+              <div style="display:flex; gap:8px;">
+                <div style="width:24px;height:24px;border-radius:9px;background:rgba(251,191,36,.25);display:flex;align-items:center;justify-content:center;font-size:12px;">⚠️</div>
+                <div style="flex:1;">
+                  <div style="font-size:9px; font-weight:800; color:#111827;">7 orders waiting on you</div>
+                  <div style="font-size:7.5px; color:#6b7280; margin-top:2px;">Oldest is 24 min old — clear them before lunch rush.</div>
+                  <div style="display:inline-block; margin-top:6px; font-size:7.5px; font-weight:700; color:#fff; background:#1B2A6B; padding:4px 11px; border-radius:99px;">Clear queue →</div>
+                </div>
+              </div>
+            </div>
+            <div class="lg" style="margin-top:8px; border-radius:20px; padding:11px;">
+              <div style="display:flex; gap:8px;">
+                <div style="width:24px;height:24px;border-radius:9px;background:rgba(5,150,105,.18);display:flex;align-items:center;justify-content:center;font-size:12px;">🚀</div>
+                <div style="flex:1;">
+                  <div style="font-size:9px; font-weight:800; color:#111827;">Iced Latte is 2× usual</div>
+                  <div style="font-size:7.5px; color:#6b7280; margin-top:2px;">38 sold — check your stock for the afternoon.</div>
+                  <div class="spark" style="margin-top:6px; height:22px;">
+                    <i style="height:30%;background:rgba(27,42,107,.12);"></i><i style="height:45%;background:rgba(27,42,107,.18);"></i><i style="height:40%;background:rgba(5,150,105,.35);"></i><i style="height:65%;background:rgba(5,150,105,.6);"></i><i style="height:100%;background:#059669;"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="lg" style="margin-top:8px; border-radius:20px; padding:11px;">
+              <div style="display:flex; gap:8px;">
+                <div style="width:24px;height:24px;border-radius:9px;background:rgba(122,162,255,.25);display:flex;align-items:center;justify-content:center;font-size:12px;">💡</div>
+                <div style="flex:1;">
+                  <div style="font-size:9px; font-weight:800; color:#111827;">Mondays peak at 12–1pm</div>
+                  <div style="font-size:7.5px; color:#6b7280; margin-top:2px;">Prep ~20% extra stock tomorrow morning.</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; gap:7px; margin-top:8px;">
+              <div class="lg" style="flex:1; border-radius:14px; padding:7px; text-align:center;"><div style="font-size:11px;">➕</div><div style="font-size:6.5px; font-weight:700; color:#111827;">Add</div></div>
+              <div class="lg" style="flex:1; border-radius:14px; padding:7px; text-align:center;"><div style="font-size:11px;">🔳</div><div style="font-size:6.5px; font-weight:700; color:#111827;">QR</div></div>
+              <div class="lg" style="flex:1; border-radius:14px; padding:7px; text-align:center;"><div style="font-size:11px;">🧾</div><div style="font-size:6.5px; font-weight:700; color:#111827;">Orders</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar lg">
+          <span style="color:#1B2A6B; font-weight:700;"><span class="ico">✨</span>Today</span><span><span class="ico">📦</span>Products</span><span><span class="ico">🧾</span>Orders</span><span><span class="ico">📊</span>Analytics</span><span><span class="ico">⋯</span>More</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Insight Feed</h3>
+      <p>The "app that talks to you" UX in glass: a one-line summary sentence, then prioritized action cards (pending queue, hot product, patterns). Most innovative; numbers live in Analytics instead.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">Hybrid is possible: e.g. Bento grid with one insight card pinned on top. After this we'll do Products → Orders → Analytics → More → Auth → KYC.</p>
+</div>

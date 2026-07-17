@@ -1,0 +1,112 @@
+<style>
+  .phone { width: 250px; height: 500px; border-radius: 32px; border: 8px solid #1a1a1e; overflow: hidden; margin: 0 auto; position: relative; font-family: -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+  .ph-scroll { height: 484px; overflow: hidden; position: relative; background:linear-gradient(165deg,#eaf1fb 0%,#f6f2fa 45%,#eef7f1 100%); }
+  .lg { background: rgba(255,255,255,.5); backdrop-filter: blur(18px) saturate(180%); -webkit-backdrop-filter: blur(18px) saturate(180%); border: 1px solid rgba(255,255,255,.65); box-shadow: 0 8px 24px rgba(31,38,76,.10), inset 0 1px 0 rgba(255,255,255,.9); }
+  .mesh { position: absolute; border-radius: 50%; filter: blur(30px); }
+  .btn { border-radius:14px; padding:11px 0; text-align:center; font-size:9px; font-weight:800; color:#fff; background:#1B2A6B; box-shadow:0 8px 20px rgba(27,42,107,.35); }
+  @keyframes ringpulse { 0%,100% { transform:scale(1); opacity:.35;} 50% { transform:scale(1.25); opacity:.08;} }
+  @keyframes orbfloat { 0%,100% { transform:translateY(0) scale(1);} 50% { transform:translateY(-14px) scale(1.05);} }
+  @keyframes orbhue { 0%,100% { filter:hue-rotate(0deg);} 50% { filter:hue-rotate(40deg);} }
+  @keyframes blink { 0%,100% { opacity:1;} 50% { opacity:.2;} }
+  .dots span { display:inline-block; width:4px; height:4px; border-radius:50%; background:#9ca3af; margin-right:3px; animation:blink 1.2s infinite; }
+  .dots span:nth-child(2) { animation-delay:.2s; } .dots span:nth-child(3) { animation-delay:.4s; }
+  .bubble { border-radius:16px; padding:9px 12px; font-size:8.5px; max-width:170px; }
+</style>
+
+<h2>Auth — round 2, the unconventional ones</h2>
+<p class="subtitle">No more "form on a page". Three concepts that make signing in feel like part of the product.</p>
+
+<div class="cards">
+
+  <!-- 1: BIOMETRIC VAULT -->
+  <div class="card" data-choice="auth-v2-1-biometric-vault" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:180px;height:180px;background:rgba(122,162,255,.55);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:160px;height:160px;background:rgba(140,228,180,.4);bottom:60px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; text-align:center; padding-top:64px;">
+            <div style="font-size:9px; font-weight:700; letter-spacing:.1em; color:#6b7280;">BINGO PAY</div>
+            <div style="position:relative; width:110px; height:110px; margin:34px auto 0;">
+              <div style="position:absolute; inset:0; border-radius:50%; border:2px solid #1B2A6B; animation:ringpulse 2.2s ease-out infinite;"></div>
+              <div style="position:absolute; inset:10px; border-radius:50%; border:1.5px solid rgba(27,42,107,.45); animation:ringpulse 2.2s ease-out infinite .35s;"></div>
+              <div class="lg" style="position:absolute; inset:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px;">🔐</div>
+            </div>
+            <div style="font-size:13px; font-weight:800; color:#111827; margin-top:26px;">Welcome back, Aditya</div>
+            <div style="font-size:8px; color:#6b7280; margin-top:3px;">Unlock with Face ID</div>
+            <div style="margin:18px 16px 0;">
+              <div class="lg" style="border-radius:14px; padding:10px 0; font-size:8.5px; font-weight:700; color:#1B2A6B;">Use password instead</div>
+            </div>
+            <div style="font-size:7.5px; color:#6b7280; margin-top:12px;">Not Aditya? <b style="color:#1B2A6B;">Switch account</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>1 — Biometric Vault</h3>
+      <p>Returning vendors never see a form: pulsing Face ID ring unlocks straight into the shop (password as fallback). First-time setup is the only typed flow. Login stops being a screen and becomes a blink.</p>
+    </div>
+  </div>
+
+  <!-- 2: CONVERSATIONAL CONCIERGE -->
+  <div class="card" data-choice="auth-v2-2-conversational" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#dfe6f0;">
+      <div class="phone">
+        <div class="ph-scroll">
+          <div class="mesh" style="width:170px;height:170px;background:rgba(255,170,214,.45);top:-40px;right:-50px;"></div>
+          <div class="mesh" style="width:150px;height:150px;background:rgba(122,162,255,.45);bottom:80px;left:-60px;"></div>
+          <div style="position:relative; z-index:2; padding:30px 14px 0;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1B2A6B,#4f68b8);display:flex;align-items:center;justify-content:center;font-size:13px;">🅱️</div>
+              <div><div style="font-size:9.5px; font-weight:800; color:#111827;">Bingo</div><div style="font-size:7px; color:#059669;">● online</div></div>
+            </div>
+            <div class="lg bubble" style="margin-top:16px;">Hey! 👋 Let's get you into your shop. What's your email?</div>
+            <div class="bubble" style="margin-top:8px; margin-left:auto; background:#1B2A6B; color:#fff; text-align:right;">aditya@bingosg.com</div>
+            <div class="lg bubble" style="margin-top:8px;">Found you! ✅ <b>Aditya's Store</b>. I've sent a 6-digit code to your inbox.</div>
+            <div class="bubble" style="margin-top:8px; margin-left:auto; background:#1B2A6B; color:#fff; text-align:right; letter-spacing:2px;">4 7 2 9 ▌</div>
+            <div class="lg bubble dots" style="margin-top:8px; width:44px;"><span></span><span></span><span></span></div>
+            <div style="position:absolute; top:396px; left:14px; right:14px;">
+              <div class="lg" style="border-radius:99px; padding:9px 14px; font-size:8.5px; color:#6b7280; display:flex; align-items:center;">Type here… <span style="margin-left:auto; width:22px; height:22px; border-radius:50%; background:#1B2A6B; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px;">↑</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>2 — Conversational Concierge</h3>
+      <p>Login and registration as a chat with "Bingo": it asks, you answer, it reacts ("Found you! ✅"). Same steps (email → OTP → password) but zero form-dread — and registration + KYC can continue in the exact same thread.</p>
+    </div>
+  </div>
+
+  <!-- 3: LIQUID ORB -->
+  <div class="card" data-choice="auth-v2-3-liquid-orb" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:18px 0; background:#14161c;">
+      <div class="phone">
+        <div class="ph-scroll" style="background:linear-gradient(170deg,#0e1220 0%,#161327 50%,#0d1a1c 100%);">
+          <div style="position:relative; z-index:2; text-align:center; padding-top:56px;">
+            <div style="position:relative; width:150px; height:150px; margin:0 auto; animation:orbfloat 5s ease-in-out infinite;">
+              <div style="position:absolute; inset:0; border-radius:50%; background:radial-gradient(circle at 35% 30%, #8ab4ff, #6C4DF6 45%, #2a1a6b 80%); filter:blur(2px); animation:orbhue 8s ease-in-out infinite; box-shadow:0 0 60px rgba(108,77,246,.55), inset -12px -16px 40px rgba(0,0,0,.4), inset 10px 12px 30px rgba(255,255,255,.35);"></div>
+              <div style="position:absolute; top:18px; left:26px; width:36px; height:20px; border-radius:50%; background:rgba(255,255,255,.55); filter:blur(6px); transform:rotate(-20deg);"></div>
+            </div>
+            <div style="font-size:17px; font-weight:800; color:#fff; margin-top:30px; letter-spacing:-.3px;">Bingo Pay</div>
+            <div style="font-size:8.5px; color:#8e93a3; margin-top:4px;">Your shop, in your pocket.</div>
+            <div style="margin:26px 18px 0;">
+              <div style="border-radius:16px; padding:12px 0; font-size:9px; font-weight:800; color:#0e1220; background:#fff; box-shadow:0 10px 30px rgba(255,255,255,.15);">Continue with Email</div>
+              <div style="border-radius:16px; padding:12px 0; font-size:9px; font-weight:700; color:#fff; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); margin-top:8px;">I'm new — create my shop</div>
+            </div>
+            <div style="font-size:7px; color:#5c6070; margin-top:16px;">Tapping continue morphs the orb into the form —<br>no page change, the orb becomes your progress light.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>3 — Liquid Orb</h3>
+      <p>A living glass orb floats over midnight — tap "Continue" and the <b>orb itself morphs</b> into the email field, then splits into OTP digits, glowing green when verified. One continuous liquid animation instead of screens. Pure Liquid-Glass theatre.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <p class="subtitle">Combos: e.g. Liquid Orb entrance (3) + Biometric Vault (1) for returning users is a killer pairing. KYC screen is last.</p>
+</div>
