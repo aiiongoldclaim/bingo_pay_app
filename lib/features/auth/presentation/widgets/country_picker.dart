@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/input_formatters.dart';
+
 class Country {
   final String name;
   final String code;
@@ -125,6 +127,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
               controller: _searchController,
+              inputFormatters: AppInputFormatters.countrySearch(),
               decoration: InputDecoration(
                 hintText: 'Search country name, code, or dial code...',
                 prefixIcon: const Icon(Icons.search),

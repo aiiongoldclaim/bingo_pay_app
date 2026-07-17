@@ -45,8 +45,28 @@ class AppInputFormatters {
         _upperCase,
       ];
 
-  /// Free-text business/shop name: any character, just length-capped.
+  /// Free-text field with no character restriction, just length-capped.
+  /// Prefer [businessName] for shop/business name fields instead — this is
+  /// for genuinely free-form text (e.g. a description).
   static List<TextInputFormatter> text(int maxLength) => [
         LengthLimitingTextInputFormatter(maxLength),
+      ];
+
+  /// Shop/business name: letters (incl. accented), digits, spaces, and the
+  /// punctuation real business names actually use — apostrophe, hyphen,
+  /// period, ampersand, comma (e.g. "7-Eleven", "M&S", "O'Brien's Store").
+  /// Blocks everything else, including symbols with no place in a name.
+  static List<TextInputFormatter> businessName(int maxLength) => [
+        FilteringTextInputFormatter.allow(RegExp(r"[\p{L}\p{N} .,'&-]", unicode: true)),
+        LengthLimitingTextInputFormatter(maxLength),
+      ];
+
+  /// Country picker search: letters (incl. accented, e.g. "São Tomé"),
+  /// digits and "+" (dial code search, e.g. "+91"), spaces, hyphen and
+  /// parentheses (e.g. "Congo (DR)", "Guinea-Bissau"). Blocks everything
+  /// else, since it can never match a country name/code/dial code.
+  static List<TextInputFormatter> countrySearch() => [
+        FilteringTextInputFormatter.allow(RegExp(r'[\p{L}\p{N} +()-]', unicode: true)),
+        LengthLimitingTextInputFormatter(50),
       ];
 }

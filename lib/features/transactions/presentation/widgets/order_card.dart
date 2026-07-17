@@ -51,9 +51,6 @@ class OrderCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text('#${order.orderId}',
-                            style: TextStyle(
-                                fontSize: 13, color: colors.textMuted)),
                         const Spacer(),
                         if (isPending)
                           Row(

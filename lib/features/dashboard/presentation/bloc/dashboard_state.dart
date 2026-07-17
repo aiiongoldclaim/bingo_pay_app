@@ -1,3 +1,4 @@
+import '../../../analytics/data/models/vendor_analytics_model.dart';
 import '../../../products/presentation/models/product_mock_data.dart';
 import '../../../transactions/presentation/models/order_mock_data.dart';
 import '../../data/models/dashboard_stats_model.dart';
@@ -15,6 +16,7 @@ class DashboardLoaded extends DashboardState {
   final List<Product> products;
   final List<Order> recentOrders;
   final bool hasUnreadNotifications;
+  final List<TimeseriesPoint> salesTrend;
 
   DashboardLoaded({
     required this.stats,
@@ -23,6 +25,7 @@ class DashboardLoaded extends DashboardState {
     required this.products,
     required this.recentOrders,
     this.hasUnreadNotifications = false,
+    this.salesTrend = const [],
   });
 }
 

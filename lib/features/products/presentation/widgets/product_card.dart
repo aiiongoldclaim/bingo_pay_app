@@ -149,7 +149,7 @@ class _GridCard extends StatelessWidget {
                     product.category,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11, color: context.colors.textMuted),
+                    style: TextStyle(fontSize: 11, color: context.colors.textSecondary),
                   ),
                   const SizedBox(height: AppDimensions.sm),
                   FittedBox(

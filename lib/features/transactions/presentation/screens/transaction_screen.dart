@@ -57,10 +57,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
     final query = _searchQuery.trim().toLowerCase();
     if (query.isEmpty) return orders;
     return orders
-        .where((o) =>
-            o.orderId.toLowerCase().contains(query) ||
-            o.customerName.toLowerCase().contains(query) ||
-            o.items.any((i) => i.productName.toLowerCase().contains(query)))
+        .where(
+          (o) =>
+              o.orderId.toLowerCase().contains(query) ||
+              o.customerName.toLowerCase().contains(query) ||
+              o.items.any((i) => i.productName.toLowerCase().contains(query)),
+        )
         .toList();
   }
 
@@ -85,9 +87,13 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Future<DashboardStatsModel?> _fetchStats() async {
     try {
-      final response = await getIt<ApiClient>().dio.get(ApiEndpoints.vendorDashboard);
+      final response = await getIt<ApiClient>().dio.get(
+        ApiEndpoints.vendorDashboard,
+      );
       final data = response.data as Map<String, dynamic>;
-      final inner = (data['data'] as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      final inner =
+          (data['data'] as Map<String, dynamic>)['data']
+              as Map<String, dynamic>;
       return DashboardStatsModel.fromJson(inner);
     } catch (_) {
       return null;
@@ -163,28 +169,48 @@ class _TransactionScreenState extends State<TransactionScreen> {
                     style: const TextStyle(fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Search orders…',
-                      hintStyle: TextStyle(fontSize: 14, color: context.colors.textMuted),
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        color: context.colors.textMuted,
+                      ),
                       isDense: true,
                       filled: true,
                       fillColor: context.glass.fill,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
                         borderSide: BorderSide(color: context.glass.border),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
                         borderSide: BorderSide(color: context.glass.border),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 1.5,
+                        ),
                       ),
-                      prefixIcon: Icon(Icons.search, size: 20, color: context.colors.textSecondary),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: 20,
+                        color: context.colors.textSecondary,
+                      ),
                       suffixIcon: _searchQuery.isEmpty
                           ? null
                           : IconButton(
-                              icon: Icon(Icons.close, size: 18, color: context.colors.textSecondary),
+                              icon: Icon(
+                                Icons.close,
+                                size: 18,
+                                color: context.colors.textSecondary,
+                              ),
                               onPressed: _clearSearch,
                             ),
                     ),
@@ -194,7 +220,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 ToolbarIconButton(
                   icon: Icons.tune,
                   tooltip: 'Filter',
-                  showDot: _selectedStatus != null ||
+                  showDot:
+                      _selectedStatus != null ||
                       _selectedDateRange != DateRangeFilter.all,
                   onTap: _openFilterSheet,
                 ),
@@ -210,14 +237,18 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 }
                 if (snapshot.hasError) {
                   return _ErrorState(
-                      message: friendlyErrorMessage(snapshot.error), onRetry: _refresh);
+                    message: friendlyErrorMessage(snapshot.error),
+                    onRetry: _refresh,
+                  );
                 }
 
-                final orders = _applySearch(filterOrders(
-                  snapshot.data ?? [],
-                  status: _selectedStatus,
-                  dateRange: _selectedDateRange,
-                ));
+                final orders = _applySearch(
+                  filterOrders(
+                    snapshot.data ?? [],
+                    status: _selectedStatus,
+                    dateRange: _selectedDateRange,
+                  ),
+                );
 
                 if (orders.isEmpty) {
                   return RefreshIndicator(
@@ -269,7 +300,11 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         order: order,
                         onTap: order.uuid.isEmpty
                             ? null
-                            : () => context.push(AppRoutes.vendorTransactionPath(order.uuid)).then((_) => _refresh()),
+                            : () => context
+                                  .push(
+                                    AppRoutes.vendorTransactionPath(order.uuid),
+                                  )
+                                  .then((_) => _refresh()),
                       );
                     },
                   ),
@@ -338,9 +373,19 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Failed to load orders', style: TextStyle(fontWeight: FontWeight.w600)),
+            const Text(
+              'Failed to load orders',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 4),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.textSecondary, fontSize: 12)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.colors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
             const SizedBox(height: AppDimensions.md),
             ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],

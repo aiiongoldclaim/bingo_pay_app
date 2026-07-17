@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/error/error_messages.dart';
+import '../../../analytics/data/datasources/analytics_remote_datasource.dart';
+import '../../../analytics/data/models/vendor_analytics_model.dart';
 import '../../../more/data/datasources/profile_remote_datasource.dart';
 import '../../../more/data/models/vendor_profile_model.dart';
 import '../../../notifications/data/datasources/notification_remote_datasource.dart';
@@ -29,12 +31,14 @@ class DashboardCubit extends Cubit<DashboardState> {
       final productsFuture = productsDs.getProducts();
       final recentOrdersFuture = _fetchRecentOrders();
       final hasUnreadFuture = _fetchHasUnreadNotifications();
+      final salesTrendFuture = _fetchSalesTrend();
 
       final dashRes = await dashFuture;
       final VendorProfileModel profile = await profileFuture;
       final productRows = await productsFuture;
       final recentOrders = await recentOrdersFuture;
       final hasUnreadNotifications = await hasUnreadFuture;
+      final salesTrend = await salesTrendFuture;
 
       final data = dashRes.data as Map<String, dynamic>;
       final inner = (data['data'] as Map<String, dynamic>)['data'] as Map<String, dynamic>;
@@ -48,6 +52,7 @@ class DashboardCubit extends Cubit<DashboardState> {
         products: products,
         recentOrders: recentOrders,
         hasUnreadNotifications: hasUnreadNotifications,
+        salesTrend: salesTrend,
       ));
     } catch (e) {
       emit(DashboardError(friendlyErrorMessage(e)));
@@ -76,6 +81,19 @@ class DashboardCubit extends Cubit<DashboardState> {
       return notifications.any((n) => !n.isRead);
     } catch (_) {
       return false;
+    }
+  }
+
+  // Same non-fatal treatment — the chart section just hides if this fails.
+  Future<List<TimeseriesPoint>> _fetchSalesTrend() async {
+    try {
+      final rows = await GetIt.I<AnalyticsRemoteDataSource>().getTimeseries(
+        period: '7d',
+        groupBy: 'day',
+      );
+      return rows.map(TimeseriesPoint.fromJson).toList();
+    } catch (_) {
+      return const [];
     }
   }
 }

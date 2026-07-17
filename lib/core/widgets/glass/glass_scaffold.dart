@@ -28,14 +28,18 @@ class GlassScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MeshBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: appBar,
-        body: body,
-        floatingActionButton: floatingActionButton,
-        bottomNavigationBar: bottomNavigationBar,
-        extendBody: extendBody,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: appBar,
+          body: body,
+          floatingActionButton: floatingActionButton,
+          bottomNavigationBar: bottomNavigationBar,
+          extendBody: extendBody,
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        ),
       ),
     );
   }

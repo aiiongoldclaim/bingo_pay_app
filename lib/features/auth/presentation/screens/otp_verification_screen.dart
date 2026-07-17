@@ -277,7 +277,7 @@ class _OtpBoxesInput extends StatelessWidget {
                   border: Border.all(
                     color: isActive
                         ? theme.colorScheme.primary
-                        : context.glass.border,
+                        : context.colors.border,
                     width: isActive ? 2 : 1,
                   ),
                   boxShadow: [

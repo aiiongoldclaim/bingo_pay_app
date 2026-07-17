@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -160,8 +161,18 @@ class _DashboardBody extends StatelessWidget {
           ),
           const SizedBox(height: AppDimensions.lg - 4),
 
-          SalesTrendChart(points: DashboardMockData.salesTrend),
-          const SizedBox(height: AppDimensions.lg - 4),
+          if (state.salesTrend.isNotEmpty) ...[
+            SalesTrendChart(
+              points: [
+                for (final point in state.salesTrend)
+                  SalesPoint(
+                    dayLabel: DateFormat('E').format(point.date),
+                    revenue: point.revenue,
+                  ),
+              ],
+            ),
+            const SizedBox(height: AppDimensions.lg - 4),
+          ],
 
           // LowStockBanner(count: DashboardMockData.lowStockCount, onManageTap: () {}),
           // const SizedBox(height: AppDimensions.lg - 4),

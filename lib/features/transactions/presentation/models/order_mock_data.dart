@@ -104,7 +104,7 @@ class Order {
     return Order(
       uuid: model.uuid,
       orderId: model.id,
-      customerName: model.orderNumber.isNotEmpty ? model.orderNumber : 'Order #${model.id}',
+      customerName: model.orderNumber.isNotEmpty ? model.orderNumber : 'Order ${model.id}',
       customerPhone: '',
       items: model.items
           .map((i) => OrderItem(productName: i.productTitle, quantity: i.quantity, price: i.unitPrice))

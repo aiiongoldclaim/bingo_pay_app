@@ -215,7 +215,7 @@ class _OrderDetailBody extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    order.orderNumber.isNotEmpty ? order.orderNumber : 'Order #${order.id}',
+                    order.orderNumber.isNotEmpty ? order.orderNumber : 'Order ${order.id}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   _StatusPill(status: order.orderStatus),

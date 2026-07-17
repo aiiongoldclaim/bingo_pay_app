@@ -34,8 +34,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
-            ForgotPasswordRequested(email: _emailController.text.trim()),
-          );
+        ForgotPasswordRequested(email: _emailController.text.trim()),
+      );
     }
   }
 
@@ -97,30 +97,47 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Widget _buildForm(BuildContext context) {
     return Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppTextField(
+            controller: _emailController,
+            focusNode: _emailFocus,
+            onSubmitted: _submit,
+            label: 'Email Address',
+            isRequired: true,
+            keyboardType: TextInputType.emailAddress,
+            inputFormatters: AppInputFormatters.email(),
+            validator: Validators.email,
+          ),
+          const SizedBox(height: 32),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) => AppButton(
+              label: 'Send Reset Link',
+              onPressed: _submit,
+              isLoading: state is AuthLoading,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AppTextField(
-                controller: _emailController,
-                focusNode: _emailFocus,
-                onSubmitted: _submit,
-                label: 'Email Address',
-                isRequired: true,
-                keyboardType: TextInputType.emailAddress,
-                inputFormatters: AppInputFormatters.email(),
-                validator: Validators.email,
-              ),
-              const SizedBox(height: 32),
-              BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) => AppButton(
-                  label: 'Send Reset Link',
-                  onPressed: _submit,
-                  isLoading: state is AuthLoading,
+              Text(
+                'Remember your password?',
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 14,
                 ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Back to Login'),
               ),
             ],
           ),
+        ],
+      ),
     );
   }
 }

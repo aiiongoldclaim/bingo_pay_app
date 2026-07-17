@@ -49,8 +49,7 @@ class DashboardAppBar extends StatelessWidget {
           ),
           child: Row(
             children: [
-
-               GlassCard(
+              GlassCard(
                 radius: 22,
                 padding: EdgeInsets.zero,
                 child: SizedBox(
@@ -83,7 +82,7 @@ class DashboardAppBar extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-greetingName,
+                      greetingName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -102,8 +101,6 @@ greetingName,
                 onTap: onNotificationsTap,
               ),
               const SizedBox(width: 8),
-            
-             
             ],
           ),
         ),

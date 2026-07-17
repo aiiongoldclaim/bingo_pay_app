@@ -12,7 +12,11 @@ import '../../../../core/widgets/app_image_picker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 
 enum KycDocumentType {
-  gstCertificate('GST_CERTIFICATE', 'GST Certificate', Icons.receipt_long_outlined),
+  gstCertificate(
+    'GST_CERTIFICATE',
+    'GST Certificate',
+    Icons.receipt_long_outlined,
+  ),
   panCard('PAN_CARD', 'PAN Card', Icons.badge_outlined);
 
   final String value;
@@ -85,7 +89,10 @@ class _KycDocumentUploadSheetContentState
     final size = await File(path).length();
     if (size > _maxFileSizeBytes) {
       if (mounted) {
-        AppSnackbar.showError(context, 'File is too large. Maximum size is 5 MB.');
+        AppSnackbar.showError(
+          context,
+          'File is too large. Maximum size is 5 MB.',
+        );
       }
       return false;
     }
@@ -138,8 +145,9 @@ class _KycDocumentUploadSheetContentState
       return;
     }
 
-    final imageSource =
-        source == _FileSource.camera ? ImageSource.camera : ImageSource.gallery;
+    final imageSource = source == _FileSource.camera
+        ? ImageSource.camera
+        : ImageSource.gallery;
     final file = await ImagePickerHelper.pickFrom(context, imageSource);
     if (file == null || !mounted) return;
     if (!await _checkFileSize(file.path)) return;
@@ -178,6 +186,132 @@ class _KycDocumentUploadSheetContentState
       setState(() => _isUploading = false);
       AppSnackbar.showError(context, 'Failed to upload document');
     }
+  }
+
+  /// Opens a scrollable picker sheet so the field stays compact regardless
+  /// of how many document types are available.
+  Future<void> _openDocumentTypePicker() async {
+    if (_isUploading) return;
+    await showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select document type',
+                  style: Theme.of(sheetContext).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                for (final type in _availableTypes)
+                  _documentTypeTile(
+                    type,
+                    onSelected: () => Navigator.pop(sheetContext),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _documentTypeField() {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: _openDocumentTypePicker,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: context.colors.inputFill,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: context.colors.border),
+        ),
+        child: Row(
+          children: [
+            Icon(_documentType.icon, size: 20, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _documentType.label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              size: 20,
+              color: context.colors.textMuted,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _documentTypeTile(KycDocumentType type, {VoidCallback? onSelected}) {
+    final isSelected = type == _documentType;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: _isUploading
+            ? null
+            : () {
+                setState(() => _documentType = type);
+                onSelected?.call();
+              },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : context.colors.border,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(type.icon, size: 20, color: AppColors.primary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  type.label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  ),
+                ),
+              ),
+              Icon(
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                size: 20,
+                color: isSelected
+                    ? AppColors.primary
+                    : context.colors.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -220,44 +354,23 @@ class _KycDocumentUploadSheetContentState
                 children: [
                   TextSpan(
                     text: ' *',
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 6),
-            DropdownButtonFormField<KycDocumentType>(
-              initialValue: _documentType,
-              isExpanded: true,
-              icon: const Icon(Icons.keyboard_arrow_down_rounded),
-              borderRadius: BorderRadius.circular(12),
-              decoration: const InputDecoration(
-                hintText: 'Select document type',
-              ),
-              items: _availableTypes
-                  .map((type) => DropdownMenuItem(
-                        value: type,
-                        child: Row(
-                          children: [
-                            Icon(type.icon, size: 20, color: AppColors.primary),
-                            const SizedBox(width: 10),
-                            Text(
-                              type.label,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              onChanged: _isUploading
-                  ? null
-                  : (value) {
-                      if (value != null) setState(() => _documentType = value);
-                    },
-            ),
+            // A compact field opening a picker sheet instead of a native
+            // dropdown: a DropdownButtonFormField's popup is a separate
+            // route that snapshots its item widgets once when opened, so
+            // it never re-themes while it stays open. Modal bottom sheets
+            // don't have that problem — their content is normal, live
+            // widget tree — and staying compact (vs. listing every type
+            // inline) keeps this scaling cleanly if more document types
+            // are added later.
+            _documentTypeField(),
             const SizedBox(height: 20),
             AppImagePicker(
               label: 'Document File',
@@ -269,10 +382,9 @@ class _KycDocumentUploadSheetContentState
             const SizedBox(height: 8),
             Text(
               'JPG, PNG or PDF · max 5 MB',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: context.colors.textSecondary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: context.colors.textSecondary,
+              ),
             ),
             const SizedBox(height: 24),
             AppButton(

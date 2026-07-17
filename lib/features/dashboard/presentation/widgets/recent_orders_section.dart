@@ -108,7 +108,7 @@ class _RecentOrderTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('#${order.orderId} · ${order.timeAgo}', style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
+                Text(order.timeAgo, style: TextStyle(fontSize: 12, color: context.colors.textSecondary)),
                 const SizedBox(height: 4),
                 Text(
                   productLine,

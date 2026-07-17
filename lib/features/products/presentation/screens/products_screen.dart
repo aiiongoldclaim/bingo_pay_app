@@ -56,10 +56,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final query = _searchQuery.trim().toLowerCase();
     if (query.isEmpty) return products;
     return products
-        .where((p) =>
-            p.name.toLowerCase().contains(query) ||
-            p.sku.toLowerCase().contains(query) ||
-            p.category.toLowerCase().contains(query))
+        .where(
+          (p) =>
+              p.name.toLowerCase().contains(query) ||
+              p.sku.toLowerCase().contains(query) ||
+              p.category.toLowerCase().contains(query),
+        )
         .toList();
   }
 
@@ -70,9 +72,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
   Future<DashboardStatsModel?> _fetchStats() async {
     try {
-      final response = await getIt<ApiClient>().dio.get(ApiEndpoints.vendorDashboard);
+      final response = await getIt<ApiClient>().dio.get(
+        ApiEndpoints.vendorDashboard,
+      );
       final data = response.data as Map<String, dynamic>;
-      final inner = (data['data'] as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      final inner =
+          (data['data'] as Map<String, dynamic>)['data']
+              as Map<String, dynamic>;
       return DashboardStatsModel.fromJson(inner);
     } catch (_) {
       return null;
@@ -94,8 +100,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _openFilterSheet() async {
-    final result =
-        await showProductFilterSheet(context, selected: _selectedFilter);
+    final result = await showProductFilterSheet(
+      context,
+      selected: _selectedFilter,
+    );
     if (result != null && mounted) {
       setState(() => _selectedFilter = result);
     }
@@ -185,28 +193,48 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     style: const TextStyle(fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Search products…',
-                      hintStyle: TextStyle(fontSize: 14, color: context.colors.textMuted),
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        color: context.colors.textMuted,
+                      ),
                       isDense: true,
                       filled: true,
                       fillColor: context.glass.fill,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
                         borderSide: BorderSide(color: context.glass.border),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
                         borderSide: BorderSide(color: context.glass.border),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusXl),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                        borderRadius: BorderRadius.circular(
+                          AppDimensions.radiusXl,
+                        ),
+                        borderSide: const BorderSide(
+                          color: AppColors.primary,
+                          width: 1.5,
+                        ),
                       ),
-                      prefixIcon: Icon(Icons.search, size: 20, color: context.colors.textSecondary),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: 20,
+                        color: context.colors.textSecondary,
+                      ),
                       suffixIcon: _searchQuery.isEmpty
                           ? null
                           : IconButton(
-                              icon: Icon(Icons.close, size: 18, color: context.colors.textSecondary),
+                              icon: Icon(
+                                Icons.close,
+                                size: 18,
+                                color: context.colors.textSecondary,
+                              ),
                               onPressed: _clearSearch,
                             ),
                     ),
@@ -221,7 +249,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 ),
                 const SizedBox(width: AppDimensions.sm),
                 ToolbarIconButton(
-                  icon: _isGridView ? Icons.view_list_outlined : Icons.grid_view_outlined,
+                  icon: _isGridView
+                      ? Icons.view_list_outlined
+                      : Icons.grid_view_outlined,
                   tooltip: _isGridView ? 'List view' : 'Grid view',
                   onTap: () => setState(() => _isGridView = !_isGridView),
                 ),
@@ -237,11 +267,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 }
                 if (snapshot.hasError) {
                   return _ErrorState(
-                      message: friendlyErrorMessage(snapshot.error), onRetry: _refresh);
+                    message: friendlyErrorMessage(snapshot.error),
+                    onRetry: _refresh,
+                  );
                 }
 
-                final products =
-                    _applySearch(filterProducts(snapshot.data ?? [], _selectedFilter));
+                final products = _applySearch(
+                  filterProducts(snapshot.data ?? [], _selectedFilter),
+                );
                 if (products.isEmpty) {
                   return RefreshIndicator(
                     onRefresh: _refresh,
@@ -252,8 +285,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           child: Center(
                             child: Column(
                               children: [
-                                Icon(Icons.inventory_2_outlined,
-                                    size: 48, color: context.colors.textMuted),
+                                Icon(
+                                  Icons.inventory_2_outlined,
+                                  size: 48,
+                                  color: context.colors.textMuted,
+                                ),
                                 const SizedBox(height: AppDimensions.sm),
                                 const Text('No products found'),
                               ],
@@ -275,12 +311,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             AppDimensions.md,
                             96,
                           ),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: AppDimensions.sm,
-                            mainAxisSpacing: AppDimensions.sm,
-                            mainAxisExtent: 250,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: AppDimensions.sm,
+                                mainAxisSpacing: AppDimensions.sm,
+                                mainAxisExtent: 250,
+                              ),
                           itemCount: products.length,
                           itemBuilder: (context, index) => ProductCard(
                             product: products[index],
@@ -325,9 +362,19 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Failed to load products', style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              'Failed to load products',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
             const SizedBox(height: 4),
-            Text(message, textAlign: TextAlign.center, style: TextStyle(color: context.colors.textSecondary, fontSize: 12)),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.colors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
             const SizedBox(height: AppDimensions.md),
             ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],

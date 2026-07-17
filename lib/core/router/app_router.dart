@@ -225,6 +225,7 @@ import '../../features/transactions/presentation/screens/order_detail_screen.dar
 import '../../features/transactions/presentation/screens/transaction_screen.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
+import 'unfocus_navigator_observer.dart';
 
 @lazySingleton
 class AppRouter {
@@ -234,6 +235,7 @@ class AppRouter {
   AppRouter() {
     router = GoRouter(
       initialLocation: AppRoutes.splash,
+      observers: [UnfocusNavigatorObserver()],
       redirect: (context, state) => RouteGuard.redirect(
         location: state.matchedLocation,
         authState: _authState,
