@@ -53,7 +53,8 @@ class Order {
   final String customerPhone;
   final List<OrderItem> items;
   final double totalAmount;
-  final PaymentType payment;
+  final String paymentMethod;
+  final String paymentStatus;
   final OrderStatus status;
   final DateTime createdAt;
 
@@ -64,7 +65,8 @@ class Order {
     required this.customerPhone,
     required this.items,
     required this.totalAmount,
-    required this.payment,
+    required this.paymentMethod,
+    required this.paymentStatus,
     required this.status,
     required this.createdAt,
   });
@@ -94,7 +96,8 @@ class Order {
       customerPhone: json['customer_phone']?.toString() ?? '',
       items: items,
       totalAmount: _toDouble(json['total_amount']) ?? 0,
-      payment: json['payment_type']?.toString() == 'paid' ? PaymentType.paid : PaymentType.cod,
+      paymentMethod: json['payment_method']?.toString() ?? '',
+      paymentStatus: json['payment_status']?.toString() ?? '',
       status: _statusFromApi(json['status']?.toString()),
       createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
     );
@@ -110,7 +113,8 @@ class Order {
           .map((i) => OrderItem(productName: i.productTitle, quantity: i.quantity, price: i.unitPrice))
           .toList(),
       totalAmount: model.totalAmount,
-      payment: model.paymentStatus.toUpperCase() == 'PAID' ? PaymentType.paid : PaymentType.cod,
+      paymentMethod: model.paymentMethod,
+      paymentStatus: model.paymentStatus,
       status: _statusFromApi(model.orderStatus),
       createdAt: model.createdAt,
     );

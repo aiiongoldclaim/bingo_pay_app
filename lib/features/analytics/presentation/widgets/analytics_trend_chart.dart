@@ -166,7 +166,7 @@ class _TrendLine extends StatelessWidget {
               dotData: const FlDotData(show: false),
               belowBarData: BarAreaData(
                 show: true,
-                color: lineColor.withValues(alpha: 0.10),
+                color: lineColor.withValues(alpha: 0.20),
               ),
             ),
           ],

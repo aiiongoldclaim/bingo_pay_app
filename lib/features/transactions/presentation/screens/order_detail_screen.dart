@@ -161,6 +161,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           foregroundColor: AppColors.error,
                           side: const BorderSide(color: AppColors.error),
                           padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                          ),
                         ),
                         child: const Text('Cancel Order'),
                       ),
@@ -214,10 +217,15 @@ class _OrderDetailBody extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    order.orderNumber.isNotEmpty ? order.orderNumber : 'Order ${order.id}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  Expanded(
+                    child: Text(
+                      order.orderNumber.isNotEmpty ? order.orderNumber : 'Order ${order.id}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   _StatusPill(status: order.orderStatus),
                 ],
               ),

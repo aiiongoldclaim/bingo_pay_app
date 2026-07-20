@@ -222,7 +222,7 @@ import '../../features/products/presentation/screens/product_detail_screen.dart'
 import '../../features/products/presentation/screens/products_screen.dart';
 import '../../features/transactions/presentation/screens/add_order_screen.dart';
 import '../../features/transactions/presentation/screens/order_detail_screen.dart';
-import '../../features/transactions/presentation/screens/transaction_screen.dart';
+import '../../features/transactions/presentation/screens/order_screen.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 import 'unfocus_navigator_observer.dart';
@@ -293,7 +293,7 @@ class AppRouter {
               routes: [
                 GoRoute(
                   path: AppRoutes.vendorTransactions,
-                  builder: (_, _) => const TransactionScreen(),
+                  builder: (_, _) => const OrderScreen(),
                 ),
               ],
             ),

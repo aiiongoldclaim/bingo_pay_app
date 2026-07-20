@@ -72,9 +72,13 @@ class _AnalyticsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final analytics = state.analytics;
     final periodLabel = switch (state.period) {
+      AnalyticsPeriod.today => 'today',
+      AnalyticsPeriod.yesterday => 'yesterday',
       AnalyticsPeriod.week => '7 days',
       AnalyticsPeriod.month => '30 days',
       AnalyticsPeriod.quarter => '90 days',
+      AnalyticsPeriod.year => '12 months',
+      AnalyticsPeriod.all => 'all time',
     };
 
     return RefreshIndicator(
@@ -164,46 +168,49 @@ class _PeriodSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Row(
-      children: [
-        for (final period in AnalyticsPeriod.values) ...[
-          GestureDetector(
-            onTap: () {
-              if (period != selected) onChanged(period);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.md,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: period == selected
-                    ? AppColors.primary
-                    : context.glass.fill,
-                borderRadius: BorderRadius.circular(
-                  AppDimensions.radiusCircular,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final period in AnalyticsPeriod.values) ...[
+            GestureDetector(
+              onTap: () {
+                if (period != selected) onChanged(period);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.md,
+                  vertical: 6,
                 ),
-                border: Border.all(
+                decoration: BoxDecoration(
                   color: period == selected
                       ? AppColors.primary
-                      : context.glass.border,
+                      : context.glass.fill,
+                  borderRadius: BorderRadius.circular(
+                    AppDimensions.radiusCircular,
+                  ),
+                  border: Border.all(
+                    color: period == selected
+                        ? AppColors.primary
+                        : context.glass.border,
+                  ),
                 ),
-              ),
-              child: Text(
-                period.label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: period == selected
-                      ? Colors.white
-                      : colors.textSecondary,
+                child: Text(
+                  period.label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: period == selected
+                        ? Colors.white
+                        : colors.textSecondary,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: AppDimensions.sm),
+            const SizedBox(width: AppDimensions.sm),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

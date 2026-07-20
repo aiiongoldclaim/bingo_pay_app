@@ -20,14 +20,14 @@ import '../widgets/order_card.dart';
 import '../widgets/order_filter_sheet.dart';
 import '../widgets/orders_app_bar.dart';
 
-class TransactionScreen extends StatefulWidget {
-  const TransactionScreen({super.key});
+class OrderScreen extends StatefulWidget {
+  const OrderScreen({super.key});
 
   @override
-  State<TransactionScreen> createState() => _TransactionScreenState();
+  State<OrderScreen> createState() => _OrderScreenState();
 }
 
-class _TransactionScreenState extends State<TransactionScreen> {
+class _OrderScreenState extends State<OrderScreen> {
   OrderStatus? _selectedStatus;
   DateRangeFilter _selectedDateRange = DateRangeFilter.all;
   String _searchQuery = '';

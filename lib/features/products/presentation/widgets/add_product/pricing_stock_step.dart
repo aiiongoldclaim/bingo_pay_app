@@ -101,11 +101,11 @@ class _EmptyState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(Icons.layers_outlined, size: 40, color: context.colors.textMuted),
+          Icon(Icons.layers_outlined, size: 40, color: context.colors.textSecondary),
           const SizedBox(height: 8),
-          Text('No variants yet', style: TextStyle(color: context.colors.textMuted, fontSize: 14)),
+          Text('No variants yet', style: TextStyle(color: context.colors.textSecondary, fontSize: 14)),
           const SizedBox(height: 4),
-          Text('Tap "Add Variant" to create one', style: TextStyle(color: context.colors.textMuted, fontSize: 12)),
+          Text('Tap "Add Variant" to create one', style: TextStyle(color: context.colors.textSecondary, fontSize: 12)),
         ],
       ),
     );
@@ -162,14 +162,14 @@ class _VariantCard extends StatelessWidget {
                   Row(
                     children: [
                       if (variant.salePrice != null)
-                        Text('${AppCurrency.symbol}${variant.salePrice}', style: const TextStyle(fontSize: 13)),
+                        Text('${AppCurrency.symbol}${variant.salePrice}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                       if (variant.basePrice != null && variant.salePrice != null &&
                           variant.basePrice! > variant.salePrice!)
                         Text(
                           '  ${AppCurrency.symbol}${variant.basePrice}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: context.colors.textMuted,
+                            color: context.colors.textSecondary,fontWeight: FontWeight.w500,
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
@@ -181,7 +181,7 @@ class _VariantCard extends StatelessWidget {
                     if (variant.sku.isNotEmpty) 'SKU: ${variant.sku}',
                     'Stock: ${variant.stock}',
                   ].join('  •  '),
-                  style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+                  style: TextStyle(fontSize: 12, color: context.colors.textSecondary, fontWeight: FontWeight.w500),
                 ),
               ],
             ),

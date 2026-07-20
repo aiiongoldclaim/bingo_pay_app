@@ -76,7 +76,7 @@ class TopProductsCard extends StatelessWidget {
                         '${count.format(product.orderLines)} orders',
                         style: TextStyle(
                           fontSize: 12,
-                          color: colors.textMuted,
+                          color: colors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 6),

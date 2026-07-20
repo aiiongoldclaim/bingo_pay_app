@@ -49,7 +49,7 @@ class AnalyticsCard extends StatelessWidget {
                         subtitle!,
                         style: TextStyle(
                           fontSize: 12,
-                          color: context.colors.textMuted,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ],

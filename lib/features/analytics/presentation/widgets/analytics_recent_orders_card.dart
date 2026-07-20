@@ -64,7 +64,7 @@ class AnalyticsRecentOrdersCard extends StatelessWidget {
                           dateFormat.format(order.createdAt!),
                           style: TextStyle(
                             fontSize: 12,
-                            color: colors.textMuted,
+                            color: colors.textSecondary,
                           ),
                         ),
                       ],

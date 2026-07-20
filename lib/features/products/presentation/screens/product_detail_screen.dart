@@ -67,7 +67,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: Text('Delete', style: TextStyle(color: dialogContext.colors.errorFg)),
           ),
         ],
       ),
@@ -211,7 +211,7 @@ class _BodyState extends State<_Body> {
                     if (p.createdAt != null)
                       Text(
                         DateFormat('d MMM y').format(p.createdAt!),
-                        style: TextStyle(fontSize: 12, color: context.colors.textMuted),
+                        style: TextStyle(fontSize: 12, color: context.colors.textSecondary, fontWeight: FontWeight.w500),
                       ),
                   ],
                 ),
@@ -327,9 +327,9 @@ class _ImageCarousel extends StatelessWidget {
           height: 260,
           child: images.isEmpty
               ? Container(
-                  color: AppColors.infoTint,
-                  child: const Center(
-                    child: Icon(Icons.image_outlined, color: AppColors.primary, size: 56),
+                  color: context.colors.infoTint,
+                  child: Center(
+                    child: Icon(Icons.image_outlined, color: context.colors.infoFg, size: 56),
                   ),
                 )
               : PageView.builder(
@@ -340,10 +340,10 @@ class _ImageCarousel extends StatelessWidget {
                     images[i],
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    errorBuilder: (_, _, _) => Container(
-                      color: AppColors.infoTint,
-                      child: const Center(
-                        child: Icon(Icons.broken_image_outlined, color: AppColors.primary, size: 48),
+                    errorBuilder: (context, _, _) => Container(
+                      color: context.colors.infoTint,
+                      child: Center(
+                        child: Icon(Icons.broken_image_outlined, color: context.colors.infoFg, size: 48),
                       ),
                     ),
                   ),
@@ -434,10 +434,17 @@ class _MetricTile extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 20, color: AppColors.primary),
+            Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 4),
-            Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-            Text(label, style: TextStyle(fontSize: 11, color: context.colors.textMuted)),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: context.colors.textPrimary,
+              ),
+            ),
+            Text(label, style: TextStyle(fontSize: 11, color: context.colors.textSecondary)),
           ],
         ),
       ),
@@ -461,13 +468,14 @@ class _VariantCard extends StatelessWidget {
     final stock = int.tryParse((variant['stock'] ?? variant['stockQuantity'])?.toString() ?? '') ?? 0;
     final sku = variant['sku']?.toString() ?? '';
     final isDefault = variant['isDefault'] == true;
+    final primary = Theme.of(context).colorScheme.primary;
 
     return Container(
       padding: const EdgeInsets.all(AppDimensions.md),
       decoration: BoxDecoration(
         color: context.colors.card,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-        border: isDefault ? Border.all(color: AppColors.primary, width: 1.5) : null,
+        border: isDefault ? Border.all(color: primary, width: 1.5) : null,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -481,7 +489,7 @@ class _VariantCard extends StatelessWidget {
                     Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                     if (isDefault) ...[
                       const SizedBox(width: 8),
-                      _Badge(label: 'Default', bg: AppColors.primary.withAlpha(20), fg: AppColors.primary),
+                      _Badge(label: 'Default', bg: primary.withAlpha(20), fg: primary),
                     ],
                   ],
                 ),
@@ -506,7 +514,7 @@ class _VariantCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           '${(((basePrice - salePrice) / basePrice) * 100).round()}% off',
-                          style: const TextStyle(fontSize: 12, color: AppColors.error, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 12, color: context.colors.errorFg, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ] else if (basePrice != null)
@@ -519,7 +527,7 @@ class _VariantCard extends StatelessWidget {
                 if (sku.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('SKU: $sku', style: TextStyle(fontSize: 12, color: context.colors.textMuted)),
+                    child: Text('SKU: $sku', style: TextStyle(fontSize: 12, color: context.colors.textSecondary, fontWeight: FontWeight.w500)),
                   ),
               ],
             ),
@@ -619,14 +627,16 @@ class _GalleryRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: images.length,
         separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemBuilder: (_, i) => GestureDetector(
+        itemBuilder: (context, i) => GestureDetector(
           onTap: () => onTap(i),
           child: Container(
             width: 72,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
               border: Border.all(
-                color: i == currentIndex ? AppColors.primary : Colors.transparent,
+                color: i == currentIndex
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -635,7 +645,7 @@ class _GalleryRow extends StatelessWidget {
               child: Image.network(
                 images[i],
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(color: AppColors.infoTint),
+                errorBuilder: (context, _, _) => Container(color: context.colors.infoTint),
               ),
             ),
           ),
@@ -679,7 +689,11 @@ class _ExpandableDescriptionState extends State<_ExpandableDescription> {
               onTap: () => setState(() => _expanded = !_expanded),
               child: Text(
                 _expanded ? 'Show less' : 'Read more',
-                style: const TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

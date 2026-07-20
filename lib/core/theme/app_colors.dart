@@ -85,7 +85,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     card: Color(0xFFFFFFFF),
     textPrimary: Color(0xFF202124),
     textSecondary: Color(0xFF5F6368),
-    textMuted: Color(0xFF9E9E9E),
+    textMuted: Color(0xFF5F6368),
     border: Color(0xFFE0E0E0),
     inputFill: Color(0xFFFFFFFF),
     shadow: Color(0x0A000000),

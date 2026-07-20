@@ -91,7 +91,10 @@ class OrderCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        _PaymentPill(payment: order.payment),
+                        _PaymentPill(
+                          paymentMethod: order.paymentMethod,
+                          paymentStatus: order.paymentStatus,
+                        ),
                         const SizedBox(width: 8),
                         _StatusPill(status: order.status),
                       ],
@@ -108,17 +111,30 @@ class OrderCard extends StatelessWidget {
 }
 
 class _PaymentPill extends StatelessWidget {
-  final PaymentType payment;
+  final String paymentMethod;
+  final String paymentStatus;
 
-  const _PaymentPill({required this.payment});
+  const _PaymentPill({required this.paymentMethod, required this.paymentStatus});
 
   @override
   Widget build(BuildContext context) {
-    final (bg, fg, label) = switch (payment) {
-      PaymentType.cod => (context.colors.inputFill, context.colors.textSecondary, 'COD'),
-      PaymentType.paid => (context.colors.successTint, context.colors.successFg, 'Paid'),
+    final colors = context.colors;
+    final (bg, fg) = switch (paymentStatus.toUpperCase()) {
+      'PAID' => (colors.successTint, colors.successFg),
+      'FAILED' => (colors.errorTint, colors.errorFg),
+      'REFUNDED' => (colors.purpleTint, colors.purpleFg),
+      'PENDING' => (colors.warningTint, colors.warningFg),
+      _ => (colors.inputFill, colors.textSecondary),
     };
-    return _Pill(label: label, background: bg, foreground: fg);
+    return _Pill(label: _formatMethod(paymentMethod), background: bg, foreground: fg);
+  }
+
+  static String _formatMethod(String raw) {
+    if (raw.isEmpty) return 'Unknown';
+    return raw
+        .split('_')
+        .map((w) => w.length <= 3 ? w.toUpperCase() : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+        .join(' ');
   }
 }
 

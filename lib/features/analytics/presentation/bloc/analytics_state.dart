@@ -1,9 +1,13 @@
 import '../../data/models/vendor_analytics_model.dart';
 
 enum AnalyticsPeriod {
+  all('all', 'All'),
+  today('today', 'Today'),
+  yesterday('yesterday', 'Yesterday'),
   week('7d', '7D'),
   month('30d', '30D'),
-  quarter('90d', '90D');
+  quarter('90d', '90D'),
+  year('12m', '12M');
 
   final String query;
   final String label;
