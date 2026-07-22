@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../core/di/injection.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/utils/input_formatters.dart';
-import '../../../data/datasources/product_remote_datasource.dart';
 import '../../../data/models/category_model.dart';
 import '../../models/product_form_data.dart';
 import 'brand_picker_sheet.dart';
@@ -34,34 +32,77 @@ class InfoStep extends StatefulWidget {
 }
 
 class _InfoStepState extends State<InfoStep> {
-  List<CategoryModel> _subCategories = [];
+  List<CategoryModel> _rootCategories = [];
+  bool _loadingRoots = true;
 
   ProductDraft get _draft => widget.draft;
 
-  void _onCategorySelected(CategoryModel cat) {
-    _draft.category = cat.name;
-    _draft.categoryUuid = cat.uuid;
-    _draft.subCategory = null;
-    _draft.subCategoryUuid = null;
+  @override
+  void initState() {
+    super.initState();
+    _loadRootCategories();
+  }
+
+  Future<void> _loadRootCategories() async {
+    final roots = await fetchRootCategories();
+    if (mounted) setState(() { _rootCategories = roots; _loadingRoots = false; });
+  }
+
+  /// Picks the category at [depth], truncating any deeper selections
+  /// (they no longer apply once an ancestor changes).
+  void _onCategorySelectedAt(int depth, CategoryModel selected) {
+    final path = [..._draft.categoryPath.take(depth), selected];
+    _draft.categoryPath = path;
     _draft.specifications.clear();
-    setState(() => _subCategories = cat.children);
     widget.onDraftChanged();
+    setState(() {});
   }
 
-  Future<List<CategoryModel>> _loadSubCategories() async {
-    if (_subCategories.isNotEmpty) return _subCategories;
-    if (_draft.categoryUuid == null) return [];
-    final tree = await getIt<ProductRemoteDataSource>().getCategoryTree();
-    final parent = tree.cast<CategoryModel?>().firstWhere(
-      (c) => c?.uuid == _draft.categoryUuid,
-      orElse: () => null,
-    );
-    final children = parent?.children ?? [];
-    if (mounted) setState(() => _subCategories = children);
-    return children;
+  String _labelForDepth(int depth) {
+    if (depth == 0) return 'Category';
+    if (depth == 1) return 'Sub-category';
+    return 'Sub-category $depth';
   }
 
-  bool get _hasSubCategories => _subCategories.isNotEmpty || _draft.subCategoryUuid != null;
+  /// Builds one field per category depth: the already-selected levels, plus
+  /// one more if the deepest selection still has children to drill into.
+  List<Widget> _buildCategoryFields(BuildContext context) {
+    final path = _draft.categoryPath;
+    final fields = <Widget>[];
+
+    for (var depth = 0; ; depth++) {
+      final options = depth == 0 ? _rootCategories : path[depth - 1].children;
+      if (depth > 0 && options.isEmpty) break;
+
+      final selected = depth < path.length ? path[depth] : null;
+      final parentUuid = depth == 0 ? 'root' : path[depth - 1].uuid;
+      fields.add(
+        TapSelectField(
+          key: ValueKey('cat_field_${depth}_$parentUuid'),
+          label: _labelForDepth(depth),
+          hint: depth == 0 && _loadingRoots ? 'Loading categories...' : 'Tap to select ${_labelForDepth(depth).toLowerCase()}',
+          value: selected?.name,
+          required: true,
+          enabled: depth > 0 || !_loadingRoots,
+          onTap: () async {
+            final result = await showCategoryPicker(
+              context,
+              options: options,
+              selectedId: selected?.uuid,
+              title: 'Select ${_labelForDepth(depth).toLowerCase()}',
+            );
+            if (result != null) _onCategorySelectedAt(depth, result);
+            return result?.name;
+          },
+          onChanged: (_) {},
+        ),
+      );
+
+      if (depth >= path.length) break;
+    }
+
+    return fields;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,45 +141,10 @@ class _InfoStepState extends State<InfoStep> {
             maxLines: 4,
           ),
           const SizedBox(height: AppDimensions.lg),
-          TapSelectField(
-            label: 'Category',
-            hint: 'Tap to select category',
-            value: _draft.category,
-            required: true,
-            onTap: () async {
-              final cat = await showParentCategoryPicker(context, selectedId: _draft.categoryUuid);
-              if (cat != null) _onCategorySelected(cat);
-              return cat?.name;
-            },
-            onChanged: (_) {},
-          ),
-          if (_hasSubCategories) ...[
+          for (final field in _buildCategoryFields(context)) ...[
+            field,
             const SizedBox(height: AppDimensions.lg),
-            TapSelectField(
-              label: 'Sub-category',
-              hint: 'Tap to select sub-category',
-              value: _draft.subCategory,
-              required: true,
-              onTap: () async {
-                final children = await _loadSubCategories();
-                if (!context.mounted) return null;
-                final result = await showSubCategoryPicker(
-                  context,
-                  children: children,
-                  selectedId: _draft.subCategoryUuid,
-                );
-                if (result != null) {
-                  _draft.subCategory = result.name;
-                  _draft.subCategoryUuid = result.id;
-                  _draft.specifications.clear();
-                  widget.onDraftChanged();
-                }
-                return result?.name;
-              },
-              onChanged: (_) {},
-            ),
           ],
-          const SizedBox(height: AppDimensions.lg),
           TapSelectField(
             label: 'Brand',
             hint: 'Tap to select brand',

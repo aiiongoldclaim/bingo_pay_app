@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/error_messages.dart';
+import '../../../../core/helpers/image_picker_helper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -91,27 +92,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       final categoryJson = data['category'] as Map<String, dynamic>?;
       if (categoryJson != null) {
         final catUuid = categoryJson['uuid']?.toString();
-        final catName = categoryJson['name']?.toString() ?? '';
         final tree = await ds.getCategoryTree();
-        final isRoot = tree.any((c) => c.uuid == catUuid);
-        if (isRoot) {
-          _draft.categoryUuid = catUuid;
-          _draft.category = catName;
-        } else {
-          CategoryModel? parent;
-          for (final root in tree) {
-            if (root.children.any((c) => c.uuid == catUuid)) {
-              parent = root;
-              break;
-            }
-          }
-          if (parent != null) {
-            _draft.categoryUuid = parent.uuid;
-            _draft.category = parent.name;
-          }
-          _draft.subCategoryUuid = catUuid;
-          _draft.subCategory = catName;
-        }
+        final path = catUuid == null ? null : _findCategoryPath(tree, catUuid);
+        if (path != null) _draft.categoryPath = path;
       }
 
       _draft.featured = data['isFeatured'] == true;
@@ -137,7 +120,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
       try {
         final variants = await ds.getProductVariants(widget.productId!);
         for (final v in variants) {
-          final stock = v['stock'] ?? v['stockQuantity'];
+          final inventory = v['inventory'] as Map<String, dynamic>?;
+          final stock = int.tryParse(inventory?['availableStock']?.toString() ?? '') ?? 0;
           final attributeValues = <String, String>{};
           final attrs = v['attributes'];
           if (attrs is List) {
@@ -159,7 +143,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               costPrice: double.tryParse(v['costPrice']?.toString() ?? ''),
               sku: v['sku']?.toString() ?? '',
               barcode: v['barcode']?.toString() ?? '',
-              stock: stock != null ? (stock as num).toInt() : 0,
+              stock: stock,
               isDefault: v['isDefault'] == true,
               attributeValues: attributeValues,
             ),
@@ -170,7 +154,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
 
       // Load category form + existing specs in parallel
-      final categoryUuid = _draft.subCategoryUuid ?? _draft.categoryUuid;
+      final categoryUuid = _draft.categoryUuid;
       if (categoryUuid != null) {
         try {
           final results = await Future.wait([
@@ -221,10 +205,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
     super.dispose();
   }
 
+  /// Finds the root-to-leaf chain of [CategoryModel]s leading to [targetUuid]
+  /// within a nested category tree, or null if not found.
+  List<CategoryModel>? _findCategoryPath(List<CategoryModel> tree, String targetUuid) {
+    for (final node in tree) {
+      if (node.uuid == targetUuid) return [node];
+      final childPath = _findCategoryPath(node.children, targetUuid);
+      if (childPath != null) return [node, ...childPath];
+    }
+    return null;
+  }
+
   void _onDraftChanged() => setState(() {});
 
   Future<void> _loadCategoryForm() async {
-    final categoryUuid = _draft.subCategoryUuid ?? _draft.categoryUuid;
+    final categoryUuid = _draft.categoryUuid;
     if (categoryUuid == null) return;
     try {
       final form = await getIt<ProductRemoteDataSource>().getCategoryForm(
@@ -287,7 +282,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         'title': _nameController.text.trim(),
         'shortDescription': _shortDescriptionController.text.trim(),
         'description': _fullDescriptionController.text.trim(),
-        'categoryUuid': _draft.subCategoryUuid ?? _draft.categoryUuid,
+        'categoryUuid': _draft.categoryUuid,
         if (_draft.brandUuid != null) 'brandUuid': _draft.brandUuid,
       };
       final result = await getIt<ProductRemoteDataSource>().createProduct(
@@ -335,10 +330,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String imagePath,
   ) async {
     if (_productId == null) return null;
+    final uploadPath = await ImagePickerHelper.compressIfNeeded(imagePath);
     try {
       final result = await getIt<ProductRemoteDataSource>().uploadThumbnail(
         _productId!,
-        imagePath,
+        uploadPath,
         altText: _nameController.text.trim(),
       );
       final url = result['url']?.toString();
@@ -363,10 +359,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
     List<String> imagePaths,
   ) async {
     if (_productId == null) return [];
+    final uploadPaths = [
+      for (final p in imagePaths) await ImagePickerHelper.compressIfNeeded(p),
+    ];
     try {
       final items = await getIt<ProductRemoteDataSource>().uploadGalleryWithIds(
         _productId!,
-        imagePaths,
+        uploadPaths,
       );
       return items
           .map((item) {
@@ -399,10 +398,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String imagePath,
   ) async {
     if (_productId == null) return null;
+    final uploadPath = await ImagePickerHelper.compressIfNeeded(imagePath);
     try {
       final result = await getIt<ProductRemoteDataSource>().replaceThumbnail(
         _productId!,
-        imagePath,
+        uploadPath,
       );
       final url = result['url']?.toString();
       final id = result['id']?.toString();
@@ -465,8 +465,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
           'shortDescription': _shortDescriptionController.text.trim(),
         if (_fullDescriptionController.text.trim().isNotEmpty)
           'description': _fullDescriptionController.text.trim(),
-        if (_draft.subCategoryUuid != null || _draft.categoryUuid != null)
-          'categoryUuid': _draft.subCategoryUuid ?? _draft.categoryUuid,
+        if (_draft.categoryUuid != null)
+          'categoryUuid': _draft.categoryUuid,
         if (_draft.brandUuid != null) 'brandUuid': _draft.brandUuid,
       },
       _ => {},

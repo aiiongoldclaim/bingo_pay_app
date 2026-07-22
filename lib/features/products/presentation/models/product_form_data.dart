@@ -1,3 +1,4 @@
+import '../../data/models/category_model.dart';
 import 'product_mock_data.dart';
 
 class VariantDraft {
@@ -48,10 +49,11 @@ class VariantDraft {
 }
 
 class ProductDraft {
-  String? category;
-  String? categoryUuid;
-  String? subCategory;
-  String? subCategoryUuid;
+  // Root-to-leaf chain, e.g. [Electronics, Mobiles, Smartphones].
+  List<CategoryModel> categoryPath = [];
+  String? get categoryUuid => categoryPath.isEmpty ? null : categoryPath.last.uuid;
+  String? get categoryDisplay =>
+      categoryPath.isEmpty ? null : categoryPath.map((c) => c.name).join(' › ');
   String? brand;
   String? brandUuid;
   String? gstSlab;

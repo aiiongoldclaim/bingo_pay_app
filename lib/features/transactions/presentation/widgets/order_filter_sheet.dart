@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../models/order_mock_data.dart';
 
-typedef OrderFilterResult = ({OrderStatus? status, DateRangeFilter dateRange});
+typedef OrderFilterResult = ({
+  OrderStatus? status,
+  DateRangeFilter dateRange,
+  DateTimeRange? customRange,
+});
 
 /// Opens the order filter bottom sheet. Returns the chosen status + date
 /// range, or null if the sheet was dismissed without applying.
@@ -12,6 +17,7 @@ Future<OrderFilterResult?> showOrderFilterSheet(
   BuildContext context, {
   required OrderStatus? status,
   required DateRangeFilter dateRange,
+  DateTimeRange? customRange,
 }) {
   return showModalBottomSheet<OrderFilterResult>(
     context: context,
@@ -20,15 +26,24 @@ Future<OrderFilterResult?> showOrderFilterSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
-    builder: (_) => _OrderFilterSheet(status: status, dateRange: dateRange),
+    builder: (_) => _OrderFilterSheet(
+      status: status,
+      dateRange: dateRange,
+      customRange: customRange,
+    ),
   );
 }
 
 class _OrderFilterSheet extends StatefulWidget {
   final OrderStatus? status;
   final DateRangeFilter dateRange;
+  final DateTimeRange? customRange;
 
-  const _OrderFilterSheet({required this.status, required this.dateRange});
+  const _OrderFilterSheet({
+    required this.status,
+    required this.dateRange,
+    required this.customRange,
+  });
 
   @override
   State<_OrderFilterSheet> createState() => _OrderFilterSheetState();
@@ -37,9 +52,33 @@ class _OrderFilterSheet extends StatefulWidget {
 class _OrderFilterSheetState extends State<_OrderFilterSheet> {
   late OrderStatus? _status = widget.status;
   late DateRangeFilter _dateRange = widget.dateRange;
+  late DateTimeRange? _customRange = widget.customRange;
 
   bool get _isDefault =>
       _status == null && _dateRange == DateRangeFilter.all;
+
+  Future<void> _pickCustomRange() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 5),
+      lastDate: now,
+      initialDateRange: _customRange,
+    );
+    if (picked == null) return;
+    setState(() {
+      _customRange = picked;
+      _dateRange = DateRangeFilter.custom;
+    });
+  }
+
+  String _dateRangeLabel(DateRangeFilter range) {
+    if (range == DateRangeFilter.custom && _customRange != null) {
+      final fmt = DateFormat('d MMM');
+      return '${fmt.format(_customRange!.start)} – ${fmt.format(_customRange!.end)}';
+    }
+    return range.label;
+  }
 
   (IconData, Color) _iconFor(OrderStatus? status) => switch (status) {
         null => (Icons.apps_rounded, AppColors.primary),
@@ -150,6 +189,7 @@ class _OrderFilterSheetState extends State<_OrderFilterSheet> {
                         : () => setState(() {
                               _status = null;
                               _dateRange = DateRangeFilter.all;
+                              _customRange = null;
                             }),
                     child: const Text('Reset'),
                   ),
@@ -169,9 +209,11 @@ class _OrderFilterSheetState extends State<_OrderFilterSheet> {
                 children: DateRangeFilter.values.map((range) {
                   final isSelected = range == _dateRange;
                   return ChoiceChip(
-                    label: Text(range.label),
+                    label: Text(_dateRangeLabel(range)),
                     selected: isSelected,
-                    onSelected: (_) => setState(() => _dateRange = range),
+                    onSelected: (_) => range == DateRangeFilter.custom
+                        ? _pickCustomRange()
+                        : setState(() => _dateRange = range),
                     selectedColor: AppColors.primary,
                     backgroundColor: context.colors.inputFill,
                     labelStyle: TextStyle(
@@ -194,8 +236,11 @@ class _OrderFilterSheetState extends State<_OrderFilterSheet> {
                     borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
                   ),
                 ),
-                onPressed: () => Navigator.of(context)
-                    .pop((status: _status, dateRange: _dateRange)),
+                onPressed: () => Navigator.of(context).pop((
+                  status: _status,
+                  dateRange: _dateRange,
+                  customRange: _customRange,
+                )),
                 child: const Text(
                   'Apply Filter',
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/api/api_client.dart';
-import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/error_messages.dart';
 import '../../../../core/router/app_routes.dart';
@@ -12,7 +10,6 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_glass.dart';
 import '../../../../core/widgets/glass/glass_scaffold.dart';
 import '../../../../core/widgets/toolbar_icon_button.dart';
-import '../../../dashboard/data/models/dashboard_stats_model.dart';
 import '../../../dashboard/presentation/widgets/stat_card.dart';
 import '../../data/datasources/order_remote_datasource.dart';
 import '../models/order_mock_data.dart';
@@ -30,16 +27,15 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   OrderStatus? _selectedStatus;
   DateRangeFilter _selectedDateRange = DateRangeFilter.all;
+  DateTimeRange? _customRange;
   String _searchQuery = '';
   final _searchController = TextEditingController();
   late Future<List<Order>> _ordersFuture;
-  late Future<DashboardStatsModel?> _statsFuture;
 
   @override
   void initState() {
     super.initState();
     _ordersFuture = _fetchOrders();
-    _statsFuture = _fetchStats();
   }
 
   @override
@@ -71,41 +67,36 @@ class _OrderScreenState extends State<OrderScreen> {
       context,
       status: _selectedStatus,
       dateRange: _selectedDateRange,
+      customRange: _customRange,
     );
-    if (result != null && mounted) {
-      setState(() {
-        _selectedStatus = result.status;
-        _selectedDateRange = result.dateRange;
-      });
+    if (result == null || !mounted) return;
+
+    final rangeChanged = result.dateRange == DateRangeFilter.custom &&
+        result.customRange != _customRange;
+    setState(() {
+      _selectedStatus = result.status;
+      _selectedDateRange = result.dateRange;
+      _customRange = result.customRange;
+    });
+    // Custom range is sent to the API, so re-fetch when it changes.
+    if (rangeChanged) {
+      setState(() => _ordersFuture = _fetchOrders());
     }
   }
 
   Future<List<Order>> _fetchOrders() async {
-    final vendorOrders = await getIt<OrderRemoteDataSource>().getVendorOrders();
+    final useCustomRange =
+        _selectedDateRange == DateRangeFilter.custom && _customRange != null;
+    final vendorOrders = await getIt<OrderRemoteDataSource>().getVendorOrders(
+      startDate: useCustomRange ? _customRange!.start : null,
+      endDate: useCustomRange ? _customRange!.end : null,
+    );
     return vendorOrders.map(Order.fromVendorOrder).toList();
-  }
-
-  Future<DashboardStatsModel?> _fetchStats() async {
-    try {
-      final response = await getIt<ApiClient>().dio.get(
-        ApiEndpoints.vendorDashboard,
-      );
-      final data = response.data as Map<String, dynamic>;
-      final inner =
-          (data['data'] as Map<String, dynamic>)['data']
-              as Map<String, dynamic>;
-      return DashboardStatsModel.fromJson(inner);
-    } catch (_) {
-      return null;
-    }
   }
 
   Future<void> _refresh() async {
     final future = _fetchOrders();
-    setState(() {
-      _ordersFuture = future;
-      _statsFuture = _fetchStats();
-    });
+    setState(() => _ordersFuture = future);
     await future;
   }
 
@@ -115,11 +106,17 @@ class _OrderScreenState extends State<OrderScreen> {
       appBar: const OrdersAppBar(),
       body: Column(
         children: [
-          FutureBuilder<DashboardStatsModel?>(
-            future: _statsFuture,
+          FutureBuilder<List<Order>>(
+            future: _ordersFuture,
             builder: (context, snapshot) {
-              final stats = snapshot.data;
-              if (stats == null) return const SizedBox.shrink();
+              final orders = snapshot.data;
+              if (orders == null) return const SizedBox.shrink();
+              final counts = <OrderStatus, int>{
+                for (final s in OrderStatus.values) s: 0,
+              };
+              for (final o in orders) {
+                counts[o.status] = (counts[o.status] ?? 0) + 1;
+              }
               return Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppDimensions.md,
@@ -131,21 +128,16 @@ class _OrderScreenState extends State<OrderScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      StatCard(
-                        title: 'Pending',
-                        value: '${stats.pendingOrders}',
-                        icon: Icons.hourglass_empty,
-                        iconColor: context.colors.warningFg,
-                        iconBackground: context.colors.warningTint,
-                      ),
-                      const SizedBox(width: AppDimensions.sm + 4),
-                      StatCard(
-                        title: 'Delivered',
-                        value: '${stats.deliveredOrders}',
-                        icon: Icons.check_circle_outline,
-                        iconColor: context.colors.successFg,
-                        iconBackground: context.colors.successTint,
-                      ),
+                      for (final status in OrderStatus.values) ...[
+                        StatCard(
+                          title: status.label,
+                          value: '${counts[status]}',
+                          icon: _statusIcon(status),
+                          iconColor: _statusColor(context, status).fg,
+                          iconBackground: _statusColor(context, status).bg,
+                        ),
+                        const SizedBox(width: AppDimensions.sm + 4),
+                      ],
                     ],
                   ),
                 ),
@@ -160,7 +152,7 @@ class _OrderScreenState extends State<OrderScreen> {
               0,
             ),
             child: Row(
-              children: [
+              children: [ 
                 Expanded(
                   child: TextField(
                     controller: _searchController,
@@ -247,6 +239,7 @@ class _OrderScreenState extends State<OrderScreen> {
                     snapshot.data ?? [],
                     status: _selectedStatus,
                     dateRange: _selectedDateRange,
+                    customRange: _customRange,
                   ),
                 );
 
@@ -316,6 +309,25 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
     );
   }
+}
+
+IconData _statusIcon(OrderStatus status) => switch (status) {
+  OrderStatus.pending => Icons.hourglass_empty,
+  OrderStatus.confirmed => Icons.thumb_up_alt_outlined,
+  OrderStatus.processing => Icons.autorenew,
+  OrderStatus.shipped => Icons.local_shipping_outlined,
+  OrderStatus.delivered => Icons.check_circle_outline,
+};
+
+({Color bg, Color fg}) _statusColor(BuildContext context, OrderStatus status) {
+  final colors = context.colors;
+  return switch (status) {
+    OrderStatus.pending => (bg: colors.warningTint, fg: colors.warningFg),
+    OrderStatus.confirmed => (bg: colors.infoTint, fg: colors.infoFg),
+    OrderStatus.processing => (bg: colors.infoTint, fg: colors.infoFg),
+    OrderStatus.shipped => (bg: colors.purpleTint, fg: colors.purpleFg),
+    OrderStatus.delivered => (bg: colors.successTint, fg: colors.successFg),
+  };
 }
 
 /// Flattens orders into day headers + order rows, newest day first.

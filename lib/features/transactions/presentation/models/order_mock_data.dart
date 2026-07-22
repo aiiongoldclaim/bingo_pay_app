@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart' show DateTimeRange;
+
 import '../../data/models/vendor_order_model.dart';
 
 enum OrderStatus { pending, confirmed, processing, shipped, delivered }
@@ -132,6 +134,7 @@ List<Order> filterOrders(
   List<Order> orders, {
   required OrderStatus? status,
   required DateRangeFilter dateRange,
+  DateTimeRange? customRange,
 }) {
   return orders.where((order) {
     final matchesStatus = status == null || order.status == status;
@@ -140,7 +143,12 @@ List<Order> filterOrders(
       DateRangeFilter.today => order.daysAgo == 0,
       DateRangeFilter.thisWeek => order.daysAgo <= 7,
       DateRangeFilter.thisMonth => order.daysAgo <= 30,
-      DateRangeFilter.custom => true,
+      DateRangeFilter.custom =>
+        customRange == null ||
+            (!order.createdAt.isBefore(customRange.start) &&
+                order.createdAt.isBefore(
+                  customRange.end.add(const Duration(days: 1)),
+                )),
     };
     return matchesStatus && matchesDate;
   }).toList();

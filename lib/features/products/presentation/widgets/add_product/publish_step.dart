@@ -30,7 +30,7 @@ class PublishStep extends StatelessWidget {
           _ReviewCard(children: [
             _ReviewRow('Name', productName.isNotEmpty ? productName : '—'),
             if (shortDescription.isNotEmpty) _ReviewRow('Description', shortDescription),
-            _ReviewRow('Category', [draft.category, draft.subCategory].whereType<String>().join(' › ')),
+            _ReviewRow('Category', draft.categoryDisplay ?? ''),
             if (draft.brand != null) _ReviewRow('Brand', draft.brand!),
           ]),
           const SizedBox(height: AppDimensions.lg),

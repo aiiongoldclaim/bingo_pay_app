@@ -267,6 +267,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         .toList();
   }
 
+  // ImagePickerHelper.compressIfNeeded always converts to JPEG, so the file
+  // part's content-type is pinned explicitly rather than inferred from the path.
+  static final _jpegContentType = DioMediaType('image', 'jpeg');
+
   @override
   Future<Map<String, dynamic>> uploadThumbnail(
     String productUuid,
@@ -275,12 +279,14 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }) async {
     final formData = FormData.fromMap({
       if (altText != null && altText.isNotEmpty) 'altText': altText,
-      'file': await MultipartFile.fromFile(filePath),
+      'file': await MultipartFile.fromFile(
+        filePath,
+        contentType: _jpegContentType,
+      ),
     });
     final response = await _apiClient.dio.post(
       ApiEndpoints.productThumbnail(productUuid),
       data: formData,
-      options: Options(contentType: 'multipart/form-data'),
     );
     return _unwrapObject(response.data);
   }
@@ -291,12 +297,14 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     String filePath,
   ) async {
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(filePath),
+      'file': await MultipartFile.fromFile(
+        filePath,
+        contentType: _jpegContentType,
+      ),
     });
     final response = await _apiClient.dio.post(
       ApiEndpoints.productThumbnailReplace(productUuid),
       data: formData,
-      options: Options(contentType: 'multipart/form-data'),
     );
     return _unwrapObject(response.data);
   }
@@ -376,13 +384,14 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     List<String> filePaths,
   ) async {
     final files = await Future.wait(
-      filePaths.map((p) => MultipartFile.fromFile(p)),
+      filePaths.map(
+        (p) => MultipartFile.fromFile(p, contentType: _jpegContentType),
+      ),
     );
     final formData = FormData.fromMap({'files': files});
     final response = await _apiClient.dio.post(
       ApiEndpoints.productGallery(productUuid),
       data: formData,
-      options: Options(contentType: 'multipart/form-data'),
     );
     var list = response.data['data'];
     if (list is Map) list = list['data'];

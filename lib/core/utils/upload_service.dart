@@ -81,7 +81,6 @@ class UploadService {
       ApiEndpoints.uploads,
       queryParameters: {'folder': folder.folderName},
       data: formData,
-      options: Options(contentType: 'multipart/form-data'),
     );
     final outer = response.data['data'] as Map<String, dynamic>;
     final data = outer['data'] as Map<String, dynamic>;

@@ -66,10 +66,36 @@ class Product {
       price: null,
       discountPercent: null,
       status: status,
-      stock: const StockInfo.inStock(),
+      stock: _stockFromVariants(json['variants']),
       imageUrl: imageUrl,
     );
   }
+}
+
+// Stock lives under each variant's inventory.availableStock (with
+// lowStockThreshold for the low-stock cutoff), not a flat field on the
+// product itself.
+StockInfo _stockFromVariants(dynamic variantsJson) {
+  if (variantsJson is! List || variantsJson.isEmpty) {
+    return const StockInfo.outOfStock();
+  }
+
+  var total = 0;
+  var anyLow = false;
+  for (final v in variantsJson) {
+    if (v is! Map) continue;
+    final inventory = v['inventory'];
+    final available = inventory is Map
+        ? int.tryParse(inventory['availableStock']?.toString() ?? '') ?? 0
+        : 0;
+    final threshold = int.tryParse(v['lowStockThreshold']?.toString() ?? '') ?? 0;
+    total += available;
+    if (available > 0 && available <= threshold) anyLow = true;
+  }
+
+  if (total <= 0) return const StockInfo.outOfStock();
+  if (anyLow) return StockInfo.lowStock(total);
+  return const StockInfo.inStock();
 }
 
 enum ProductFilter { all, active, pending, draft, outOfStock, archived }

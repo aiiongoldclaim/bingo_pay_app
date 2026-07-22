@@ -381,6 +381,13 @@ class _ImageCarousel extends StatelessWidget {
 // Metrics row
 // ---------------------------------------------------------------------------
 
+// Stock lives under variant.inventory.availableStock, not a flat
+// stock/stockQuantity field.
+int _variantStock(Map<String, dynamic> variant) {
+  final inventory = variant['inventory'] as Map<String, dynamic>?;
+  return int.tryParse(inventory?['availableStock']?.toString() ?? '') ?? 0;
+}
+
 class _MetricsRow extends StatelessWidget {
   final ProductDetail product;
   const _MetricsRow({required this.product});
@@ -389,7 +396,7 @@ class _MetricsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalStock = product.variants.fold<int>(
       0,
-      (sum, v) => sum + (int.tryParse((v['stock'] ?? v['stockQuantity'])?.toString() ?? '') ?? 0),
+      (sum, v) => sum + _variantStock(v),
     );
 
     return Row(
@@ -465,7 +472,7 @@ class _VariantCard extends StatelessWidget {
     final title = variant['title']?.toString() ?? 'Default';
     final basePrice = double.tryParse(variant['basePrice']?.toString() ?? '');
     final salePrice = double.tryParse(variant['salePrice']?.toString() ?? '');
-    final stock = int.tryParse((variant['stock'] ?? variant['stockQuantity'])?.toString() ?? '') ?? 0;
+    final stock = _variantStock(variant);
     final sku = variant['sku']?.toString() ?? '';
     final isDefault = variant['isDefault'] == true;
     final primary = Theme.of(context).colorScheme.primary;

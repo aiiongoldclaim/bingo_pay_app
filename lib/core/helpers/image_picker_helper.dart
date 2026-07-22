@@ -1,14 +1,68 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:uuid/uuid.dart';
 import 'permission_helper.dart';
 
 class ImagePickerHelper {
   ImagePickerHelper._();
 
   static final _picker = ImagePicker();
+
+  static const int _maxUploadBytes = 2 * 1024 * 1024;
+
+  /// Converts [path] to JPEG and downsizes it toward 2MB if needed, returning
+  /// the path to actually upload. Falls back to the original path if
+  /// conversion fails. The compressed file is renamed to a random UUID so the
+  /// image_picker's original (often long/identifying) filename never reaches
+  /// the backend.
+  static Future<String> compressIfNeeded(String path) async {
+    final targetDir = await getTemporaryDirectory();
+    final tempPath =
+        '${targetDir.path}/${DateTime.now().microsecondsSinceEpoch}.jpg';
+
+    try {
+      // JPEG is lossy, so quality reduction actually shrinks the file —
+      // step quality down first, then dimension, until under the limit.
+      var quality = 85;
+      var dimension = 1920;
+      XFile? converted;
+      while (dimension >= 480) {
+        final result = await FlutterImageCompress.compressAndGetFile(
+          path,
+          tempPath,
+          minWidth: dimension,
+          minHeight: dimension,
+          quality: quality,
+          format: CompressFormat.jpeg,
+        );
+        if (result == null) break;
+        converted = result;
+        if (await File(result.path).length() <= _maxUploadBytes) break;
+        if (quality > 40) {
+          quality -= 15;
+        } else {
+          dimension = (dimension * 0.75).round();
+        }
+      }
+
+      if (converted == null) {
+        debugPrint('DEBUG compressIfNeeded: compressAndGetFile returned null');
+        return path;
+      }
+
+      final renamedPath = '${targetDir.path}/${const Uuid().v4()}.jpg';
+      final renamed = await File(converted.path).rename(renamedPath);
+      return renamed.path;
+    } catch (e, st) {
+      debugPrint('DEBUG compressIfNeeded failed: $e\n$st');
+      return path;
+    }
+  }
 
   static Future<XFile?> pick(
     BuildContext context, {
