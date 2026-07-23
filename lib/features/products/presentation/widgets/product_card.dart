@@ -177,6 +177,7 @@ class _StatusBadge extends StatelessWidget {
       ProductStatus.active => (AppColors.successTint, const Color(0xFF4C7A2D), 'Active'),
       ProductStatus.pending => (const Color(0xFFFFF3CD), const Color(0xFF7D5A00), 'Pending Review'),
       ProductStatus.draft => (const Color(0xFFEDEEF0), const Color(0xFF666666), 'Draft'),
+      ProductStatus.rejected => (AppColors.errorTint, AppColors.error, 'Rejected'),
       ProductStatus.archived => (const Color(0xFFEDEEF0), const Color(0xFF666666), 'Archived'),
     };
     return _Pill(label: label, background: bg, foreground: fg);

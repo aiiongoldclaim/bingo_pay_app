@@ -38,8 +38,8 @@ class _ProductFilterSheetState extends State<_ProductFilterSheet> {
         ProductFilter.active => (Icons.check_circle_outline, AppColors.success),
         ProductFilter.pending => (Icons.hourglass_top_rounded, context.colors.warningFg),
         ProductFilter.draft => (Icons.edit_note_outlined, context.colors.textSecondary),
+        ProductFilter.rejected => (Icons.cancel_outlined, AppColors.error),
         ProductFilter.outOfStock => (Icons.remove_shopping_cart_outlined, AppColors.error),
-        ProductFilter.archived => (Icons.archive_outlined, context.colors.textSecondary),
       };
 
   @override

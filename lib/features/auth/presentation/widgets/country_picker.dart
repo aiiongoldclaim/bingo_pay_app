@@ -165,7 +165,8 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                       child: Text(
                         'No countries found matching your search.',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSecondary,
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),

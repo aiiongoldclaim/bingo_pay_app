@@ -6,6 +6,7 @@ import '../../../../core/error/error_messages.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../data/models/category_form_model.dart';
 import '../models/product_form_data.dart';
 
@@ -104,9 +105,7 @@ class _AddVariantScreenState extends State<AddVariantScreen> {
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save variant: ${friendlyErrorMessage(e)}')),
-        );
+        AppSnackbar.showError(context, 'Failed to save variant: ${friendlyErrorMessage(e)}');
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

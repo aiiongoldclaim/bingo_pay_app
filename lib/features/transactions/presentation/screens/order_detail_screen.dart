@@ -6,6 +6,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/error/error_messages.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../data/datasources/order_remote_datasource.dart';
 import '../../data/models/vendor_order_model.dart';
 
@@ -100,8 +101,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       debugPrint('[OrderDetailScreen] updateVendorOrderStatus failed uuid=${order.uuid} action=$action error=$e');
       debugPrint(st.toString());
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update order: ${friendlyErrorMessage(e)}')));
+      AppSnackbar.showError(context, 'Failed to update order: ${friendlyErrorMessage(e)}');
     } finally {
       if (mounted) setState(() => _updatingStatus = false);
     }

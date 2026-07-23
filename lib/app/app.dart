@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toastification/toastification.dart';
 import '../core/di/injection.dart';
 import '../core/network/connectivity_service.dart';
 import '../core/router/app_router.dart';
@@ -71,24 +72,26 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
-        child: MaterialApp.router(
-          title: 'Bingo Pay',
-          theme: AppTheme.light,
-          debugShowCheckedModeBanner: false,
-          darkTheme: AppTheme.dark,
-          routerConfig: _router.router,
-          builder: (context, child) {
-            // While offline, a full-screen glass page covers the app. The
-            // route stack underneath is never touched, so the user lands
-            // back exactly where they were once connectivity returns.
-            return Stack(
-              children: [
-                child ?? const SizedBox.shrink(),
-                if (!_isConnected)
-                  const Positioned.fill(child: OfflineScreen()),
-              ],
-            );
-          },
+        child: ToastificationWrapper(
+          child: MaterialApp.router(
+            title: 'Bingo Pay',
+            theme: AppTheme.light,
+            debugShowCheckedModeBanner: false,
+            darkTheme: AppTheme.dark,
+            routerConfig: _router.router,
+            builder: (context, child) {
+              // While offline, a full-screen glass page covers the app. The
+              // route stack underneath is never touched, so the user lands
+              // back exactly where they were once connectivity returns.
+              return Stack(
+                children: [
+                  child ?? const SizedBox.shrink(),
+                  if (!_isConnected)
+                    const Positioned.fill(child: OfflineScreen()),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

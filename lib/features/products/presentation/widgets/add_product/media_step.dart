@@ -6,6 +6,7 @@ import '../../../../../core/error/error_messages.dart';
 import '../../../../../core/helpers/image_picker_helper.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/app_snackbar.dart';
 import '../../models/product_form_data.dart';
 
 const int kMaxProductImages = 8;
@@ -132,9 +133,7 @@ class _MediaStepState extends State<MediaStep> {
         await widget.onImageDeleted!(mediaId);
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete image: ${friendlyErrorMessage(e)}')),
-          );
+          AppSnackbar.showError(context, 'Failed to delete image: ${friendlyErrorMessage(e)}');
         }
         return;
       }

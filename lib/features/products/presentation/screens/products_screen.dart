@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/api/api_client.dart';
-import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/error_messages.dart';
 import '../../../../core/router/app_routes.dart';
@@ -11,13 +9,52 @@ import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/theme/app_glass.dart';
 import '../../../../core/widgets/glass/glass_scaffold.dart';
 import '../../../../core/widgets/toolbar_icon_button.dart';
-import '../../../dashboard/data/models/dashboard_stats_model.dart';
 import '../../../dashboard/presentation/widgets/stat_card.dart';
 import '../../data/datasources/product_remote_datasource.dart';
 import '../models/product_mock_data.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_filter_sheet.dart';
 import '../widgets/products_app_bar.dart';
+
+class _ProductStats {
+  final int approved;
+  final int draft;
+  final int rejected;
+  final int totalVariants;
+
+  const _ProductStats({
+    required this.approved,
+    required this.draft,
+    required this.rejected,
+    required this.totalVariants,
+  });
+
+  factory _ProductStats.fromProducts(List<Product> products) {
+    var approved = 0;
+    var draft = 0;
+    var rejected = 0;
+    var totalVariants = 0;
+    for (final p in products) {
+      switch (p.status) {
+        case ProductStatus.active:
+          approved++;
+        case ProductStatus.draft:
+          draft++;
+        case ProductStatus.rejected:
+          rejected++;
+        default:
+          break;
+      }
+      totalVariants += p.variantCount;
+    }
+    return _ProductStats(
+      approved: approved,
+      draft: draft,
+      rejected: rejected,
+      totalVariants: totalVariants,
+    );
+  }
+}
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -32,13 +69,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
   String _searchQuery = '';
   final _searchController = TextEditingController();
   late Future<List<Product>> _productsFuture;
-  late Future<DashboardStatsModel?> _statsFuture;
 
   @override
   void initState() {
     super.initState();
     _productsFuture = _fetchProducts();
-    _statsFuture = _fetchStats();
   }
 
   @override
@@ -70,26 +105,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
     return rows.map(Product.fromApi).toList();
   }
 
-  Future<DashboardStatsModel?> _fetchStats() async {
-    try {
-      final response = await getIt<ApiClient>().dio.get(
-        ApiEndpoints.vendorDashboard,
-      );
-      final data = response.data as Map<String, dynamic>;
-      final inner =
-          (data['data'] as Map<String, dynamic>)['data']
-              as Map<String, dynamic>;
-      return DashboardStatsModel.fromJson(inner);
-    } catch (_) {
-      return null;
-    }
-  }
-
   Future<void> _refresh() async {
     final future = _fetchProducts();
     setState(() {
       _productsFuture = future;
-      _statsFuture = _fetchStats();
     });
     await future;
   }
@@ -123,11 +142,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ),
       body: Column(
         children: [
-          FutureBuilder<DashboardStatsModel?>(
-            future: _statsFuture,
+          FutureBuilder<List<Product>>(
+            future: _productsFuture,
             builder: (context, snapshot) {
-              final stats = snapshot.data;
-              if (stats == null) return const SizedBox.shrink();
+              if (!snapshot.hasData) return const SizedBox.shrink();
+              final stats = _ProductStats.fromProducts(snapshot.data!);
               return Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppDimensions.md,
@@ -141,7 +160,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     children: [
                       StatCard(
                         title: 'Approved',
-                        value: '${stats.approvedProducts}',
+                        value: '${stats.approved}',
                         icon: Icons.check_circle_outline,
                         iconColor: AppColors.success,
                         iconBackground: AppColors.successTint,
@@ -149,7 +168,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       const SizedBox(width: AppDimensions.sm + 4),
                       StatCard(
                         title: 'Draft',
-                        value: '${stats.draftProducts}',
+                        value: '${stats.draft}',
                         icon: Icons.edit_note_outlined,
                         iconColor: AppColors.textSecondary,
                         iconBackground: AppColors.backgroundLight,
@@ -157,7 +176,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       const SizedBox(width: AppDimensions.sm + 4),
                       StatCard(
                         title: 'Rejected',
-                        value: '${stats.rejectedProducts}',
+                        value: '${stats.rejected}',
                         icon: Icons.cancel_outlined,
                         iconColor: AppColors.error,
                         iconBackground: AppColors.errorTint,

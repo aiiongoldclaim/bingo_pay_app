@@ -63,6 +63,7 @@ abstract interface class ProductRemoteDataSource {
   );
   Future<CategoryFormData> getCategoryForm(String categoryUuid);
   Future<Map<String, dynamic>> submitProduct(String productUuid);
+  Future<Map<String, dynamic>> resubmitProduct(String productUuid);
 }
 
 @Injectable(as: ProductRemoteDataSource)
@@ -375,6 +376,14 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<Map<String, dynamic>> submitProduct(String productUuid) async {
     final response = await _apiClient.dio.post(
       ApiEndpoints.productSubmit(productUuid),
+    );
+    return _unwrapObject(response.data);
+  }
+
+  @override
+  Future<Map<String, dynamic>> resubmitProduct(String productUuid) async {
+    final response = await _apiClient.dio.patch(
+      ApiEndpoints.productResubmit(productUuid),
     );
     return _unwrapObject(response.data);
   }

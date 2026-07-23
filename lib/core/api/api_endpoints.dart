@@ -51,6 +51,7 @@ class ApiEndpoints {
   static String productSpecifications(String uuid) => '/api/v1/products/$uuid/specifications';
   static String categoryForm(String categoryUuid) => '/api/v1/products/category/$categoryUuid/form';
   static String productSubmit(String uuid) => '/api/v1/products/$uuid/submit';
+  static String productResubmit(String uuid) => '/api/v1/products/$uuid/resubmit';
   static String productVariants(String uuid) => '/api/v1/products/$uuid/variants';
   static String variantDetail(String variantUuid) => '/api/v1/variants/$variantUuid';
 

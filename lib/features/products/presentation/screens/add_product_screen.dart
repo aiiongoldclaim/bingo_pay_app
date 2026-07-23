@@ -6,6 +6,7 @@ import '../../../../core/helpers/image_picker_helper.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/step_indicator.dart';
 import '../../data/datasources/product_remote_datasource.dart';
 import '../../data/models/category_form_model.dart';
@@ -182,11 +183,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {});
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load product: ${friendlyErrorMessage(e)}'),
-        ),
-      );
+      AppSnackbar.showError(context, 'Failed to load product: ${friendlyErrorMessage(e)}');
     } finally {
       if (mounted) setState(() => _isLoadingInitial = false);
     }
@@ -291,13 +288,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       _productId = result['uuid']?.toString();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to create product: ${friendlyErrorMessage(e)}',
-            ),
-          ),
-        );
+        AppSnackbar.showError(context, 'Failed to create product: ${friendlyErrorMessage(e)}');
       }
       rethrow;
     } finally {
@@ -314,13 +305,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to save specifications: ${friendlyErrorMessage(e)}',
-            ),
-          ),
-        );
+        AppSnackbar.showError(context, 'Failed to save specifications: ${friendlyErrorMessage(e)}');
       }
       rethrow;
     }
@@ -343,13 +328,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return (url: url, id: id);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to upload thumbnail: ${friendlyErrorMessage(e)}',
-            ),
-          ),
-        );
+        AppSnackbar.showError(context, 'Failed to upload thumbnail: ${friendlyErrorMessage(e)}');
       }
       return null;
     }
@@ -378,13 +357,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           .toList();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to upload images: ${friendlyErrorMessage(e)}',
-            ),
-          ),
-        );
+        AppSnackbar.showError(context, 'Failed to upload images: ${friendlyErrorMessage(e)}');
       }
       return [];
     }
@@ -410,13 +383,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return (url: url, id: id);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to replace thumbnail: ${friendlyErrorMessage(e)}',
-            ),
-          ),
-        );
+        AppSnackbar.showError(context, 'Failed to replace thumbnail: ${friendlyErrorMessage(e)}');
       }
       return null;
     }
@@ -447,9 +414,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save: ${friendlyErrorMessage(e)}')),
-        );
+        AppSnackbar.showError(context, 'Failed to save: ${friendlyErrorMessage(e)}');
       }
       rethrow;
     } finally {
@@ -490,7 +455,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     try {
       if (submitForReview && _productId != null) {
-        await getIt<ProductRemoteDataSource>().submitProduct(_productId!);
+        final ds = getIt<ProductRemoteDataSource>();
+        if (widget.productId != null) {
+          await ds.resubmitProduct(_productId!);
+        } else {
+          await ds.submitProduct(_productId!);
+        }
       }
 
       if (!mounted) return;
@@ -504,11 +474,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to save product: ${friendlyErrorMessage(e)}'),
-        ),
-      );
+      AppSnackbar.showError(context, 'Failed to save product: ${friendlyErrorMessage(e)}');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

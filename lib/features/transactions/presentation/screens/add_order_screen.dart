@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_dimensions.dart';
 import '../../../../core/utils/input_formatters.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_snackbar.dart';
 import '../../data/datasources/order_remote_datasource.dart';
 import '../models/order_mock_data.dart';
 
@@ -97,8 +98,7 @@ class _AddOrderScreenState extends State<AddOrderScreen> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add order: ${friendlyErrorMessage(e)}')));
+      AppSnackbar.showError(context, 'Failed to add order: ${friendlyErrorMessage(e)}');
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

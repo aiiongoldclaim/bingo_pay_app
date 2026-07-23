@@ -115,6 +115,8 @@ class ProductDetail {
     final status = switch ((json['status'] as String?)?.toUpperCase()) {
       'DRAFT' => ProductStatus.draft,
       'ARCHIVED' => ProductStatus.archived,
+      'REJECTED' => ProductStatus.rejected,
+      'PENDING_ADMIN_APPROVAL' => ProductStatus.pending,
       _ =>
         json['isPublished'] == true
             ? ProductStatus.active

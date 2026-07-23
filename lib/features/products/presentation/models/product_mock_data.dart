@@ -1,4 +1,4 @@
-enum ProductStatus { active, draft, pending, archived }
+enum ProductStatus { active, draft, pending, rejected, archived }
 
 enum StockStatusType { inStock, lowStock, outOfStock }
 
@@ -27,6 +27,7 @@ class Product {
   final ProductStatus status;
   final StockInfo stock;
   final String? imageUrl;
+  final int variantCount;
 
   const Product({
     required this.uuid,
@@ -38,6 +39,7 @@ class Product {
     this.price,
     this.discountPercent,
     this.imageUrl,
+    this.variantCount = 0,
   });
 
   factory Product.fromApi(Map<String, dynamic> json) {
@@ -46,6 +48,7 @@ class Product {
       'PUBLISHED' => ProductStatus.active,
       'DRAFT' => ProductStatus.draft,
       'ARCHIVED' => ProductStatus.archived,
+      'REJECTED' => ProductStatus.rejected,
       'PENDING_ADMIN_APPROVAL' => ProductStatus.pending,
       _ => json['isPublished'] == true ? ProductStatus.active : ProductStatus.draft,
     };
@@ -58,6 +61,8 @@ class Product {
       imageUrl = (primary ?? fallback)?['url']?.toString();
     }
 
+    final variants = json['variants'];
+
     return Product(
       uuid: json['uuid']?.toString() ?? '',
       name: json['title']?.toString() ?? '',
@@ -66,8 +71,9 @@ class Product {
       price: null,
       discountPercent: null,
       status: status,
-      stock: _stockFromVariants(json['variants']),
+      stock: _stockFromVariants(variants),
       imageUrl: imageUrl,
+      variantCount: variants is List ? variants.length : 0,
     );
   }
 }
@@ -98,7 +104,7 @@ StockInfo _stockFromVariants(dynamic variantsJson) {
   return const StockInfo.inStock();
 }
 
-enum ProductFilter { all, active, pending, draft, outOfStock, archived }
+enum ProductFilter { all, active, pending, draft, rejected, outOfStock }
 
 extension ProductFilterLabel on ProductFilter {
   String get label => switch (this) {
@@ -106,8 +112,8 @@ extension ProductFilterLabel on ProductFilter {
     ProductFilter.active => 'Active',
     ProductFilter.pending => 'Pending',
     ProductFilter.draft => 'Draft',
+    ProductFilter.rejected => 'Rejected',
     ProductFilter.outOfStock => 'Out of stock',
-    ProductFilter.archived => 'Archived',
   };
 }
 
@@ -117,7 +123,7 @@ List<Product> filterProducts(List<Product> products, ProductFilter filter) {
     ProductFilter.active => products.where((p) => p.status == ProductStatus.active).toList(),
     ProductFilter.pending => products.where((p) => p.status == ProductStatus.pending).toList(),
     ProductFilter.draft => products.where((p) => p.status == ProductStatus.draft).toList(),
-    ProductFilter.archived => products.where((p) => p.status == ProductStatus.archived).toList(),
+    ProductFilter.rejected => products.where((p) => p.status == ProductStatus.rejected).toList(),
     ProductFilter.outOfStock => products.where((p) => p.stock.type == StockStatusType.outOfStock).toList(),
   };
 }
