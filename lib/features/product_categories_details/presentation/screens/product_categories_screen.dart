@@ -89,6 +89,59 @@ class _ProductListingView extends StatelessWidget {
 
           body: Column(
             children: [
+              // ── Cached Data Indicator ────────────────────────
+              // if (state is ProductListingLoaded && state.isCachedData) ...[
+              //   Container(
+              //     width: double.infinity,
+              //     padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+              //     decoration: BoxDecoration(
+              //       color: const Color(0xFFFFF3E0),
+              //       border: Border(
+              //         bottom: BorderSide(
+              //           color: const Color(0xFFFFB74D).withValues(alpha: 0.3),
+              //           width: 1,
+              //         ),
+              //       ),
+              //     ),
+              //     child: Row(
+              //       children: [
+              //         const Icon(
+              //           Icons.cloud_off_outlined,
+              //           size: 18,
+              //           color: Color(0xFFF57C00),
+              //         ),
+              //         SizedBox(width: 2.w),
+              //         Expanded(
+              //           child: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             children: [
+              //               Text(
+              //                 'Showing Cached Data',
+              //                 style: AppTextStyles.labelMedium.copyWith(
+              //                   color: const Color(0xFFF57C00),
+              //                   fontWeight: FontWeight.w600,
+              //                 ),
+              //               ),
+              //               Text(
+              //                 'Last updated ${state.cachedTimeAgo ?? 'recently'}',
+              //                 style: AppTextStyles.bodySmall.copyWith(
+              //                   color: const Color(0xFFE65100).withValues(alpha: 0.7),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //         SizedBox(width: 1.w),
+              //         Icon(
+              //           Icons.info_outline,
+              //           size: 16,
+              //           color: const Color(0xFFF57C00).withValues(alpha: 0.6),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ],
+
               // // ── Sticky filter  ────────────────────
               if (state is ProductListingLoaded) ...[
                 ListingFilterBar(

@@ -187,6 +187,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_shell.dart';
+import '../../data/services/login_form_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -199,13 +200,37 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _loginFormManager = LoginFormManager();
 
   bool _obscurePassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    // Register controllers with the form manager
+    _loginFormManager.registerControllers(
+      _emailController,
+      _passwordController,
+      _emailFocusNode,
+      _passwordFocusNode,
+    );
+    // Clear any focus when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _emailFocusNode.unfocus();
+      _passwordFocusNode.unfocus();
+      FocusScope.of(context).unfocus();
+    });
+  }
+
+  @override
   void dispose() {
+    _loginFormManager.unregisterControllers();
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -259,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen> {
             bottom: 30,
             left: -160,
             size: 260,
-            colors: [ThemeColors.blueDeep, Colors.black12],
+            colors: [ThemeColors.blueDeep, Color.fromARGB(30, 0, 0, 0)],
           ),
 
           /// 🧠 LOGIC
@@ -321,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
+                                    color: Colors.black.withValues(alpha: 0.15),
                                     blurRadius: 30,
                                     offset: const Offset(0, 15),
                                   ),
@@ -334,6 +359,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   children: [
                                     AppTextField(
                                       controller: _emailController,
+                                      focusNode: _emailFocusNode,
                                       label: 'Email',
                                       isRequired: true,
                                       hint: 'Enter your email',
@@ -347,6 +373,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                     AppTextField(
                                       controller: _passwordController,
+                                      focusNode: _passwordFocusNode,
                                       label: 'Password',
                                       isRequired: true,
                                       hint: 'Enter your password',
@@ -470,7 +497,7 @@ class _Blob extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: LinearGradient(
             colors:
-                colors.map((c) => c.withOpacity(0.2)).toList(),
+                colors.map((c) => c.withValues(alpha: 0.2)).toList(),
           ),
         ),
       ),

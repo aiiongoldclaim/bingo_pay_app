@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
@@ -7,6 +8,7 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../data/models/product_categories_model.dart';
+import '../../data/services/product_cache_service.dart';
 import 'product_categories_state.dart';
 
 class ProductListingCubit extends Cubit<ProductListingState> {
@@ -14,45 +16,113 @@ class ProductListingCubit extends Cubit<ProductListingState> {
 
   String? _lastCategoryName;
   String? _lastCategoryUuid;
+  ProductCacheService? _cacheService;
+
+  // Prevent race conditions from multiple rapid taps
+  String? _currentRequestId;
+  bool _isLoading = false;
+
+  Future<void> _initCache() async {
+    _cacheService ??= ProductCacheService(await SharedPreferences.getInstance());
+  }
 
   Future<void> loadCategory(String categoryName, String categoryUuid) async {
+    // If same category already loading, ignore duplicate request
+    if (_isLoading && _lastCategoryUuid == categoryUuid) {
+      return;
+    }
+
     _lastCategoryName = categoryName;
     _lastCategoryUuid = categoryUuid;
-    await _loadCategoryInternal(categoryName, categoryUuid);
+
+    // Generate unique request ID to validate responses
+    _currentRequestId = DateTime.now().millisecondsSinceEpoch.toString();
+    await _loadCategoryInternal(categoryName, categoryUuid, _currentRequestId!);
   }
 
   Future<void> retryLoadCategory() async {
     if (_lastCategoryName != null && _lastCategoryUuid != null) {
-      await _loadCategoryInternal(_lastCategoryName!, _lastCategoryUuid!);
+      _currentRequestId = DateTime.now().millisecondsSinceEpoch.toString();
+      await _loadCategoryInternal(_lastCategoryName!, _lastCategoryUuid!, _currentRequestId!);
     }
   }
 
   Future<void> _loadCategoryInternal(
     String categoryName,
     String categoryUuid,
+    String requestId,
   ) async {
     try {
-      emit(const ProductListingLoading());
+      _isLoading = true;
+      await _initCache();
+
+      // Only emit if this is still the current request
+      if (_currentRequestId == requestId) {
+        emit(const ProductListingLoading());
+      } else {
+        return; // Newer request already started, ignore this one
+      }
+
+      // Check cache first - if exists, show it while trying to refresh
+      final cached = await _cacheService?.getCachedProducts(categoryUuid);
+      if (cached != null && cached.products.isNotEmpty) {
+        // Only emit if still current request
+        if (_currentRequestId == requestId) {
+          // Show cached data while attempting to refresh
+          emit(
+            ProductListingLoaded(
+              categoryName: categoryName,
+              products: cached.products,
+              filteredProducts: cached.products,
+              isCachedData: true,
+              cachedTimeAgo: cached.cachedTimeAgo,
+            ),
+          );
+        } else {
+          return; // Newer request started, stop processing
+        }
+      }
 
       final client = GetIt.I<ApiClient>();
+      RateLimitFailure? rateLimitError;
+      List<String> categoryUuids = [];
 
-      // Products are only ever attached to leaf/child categories, never to
-      // the top-level category shown on the Categories screen, so a plain
-      // categoryUuid filter on the tapped (top-level) category always comes
-      // back empty. Resolve the whole subtree and query every descendant too.
-      final categoryUuids = await _resolveCategoryUuids(client, categoryUuid);
+      // Try to resolve category tree, but catch rate limit errors
+      try {
+        // Products are only ever attached to leaf/child categories, never to
+        // the top-level category shown on the Categories screen, so a plain
+        // categoryUuid filter on the tapped (top-level) category always comes
+        // back empty. Resolve the whole subtree and query every descendant too.
+        categoryUuids = await _resolveCategoryUuids(client, categoryUuid);
+      } catch (e) {
+        // Even category resolution can be rate limited
+        final failure =
+            e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
+        if (failure is RateLimitFailure) {
+          rateLimitError = failure;
+          // Fall back to just the tapped category
+          categoryUuids = [categoryUuid];
+        } else {
+          // Re-throw non-rate-limit errors
+          rethrow;
+        }
+      }
 
       final results = <List<ListingProductModel>>[];
+
       for (final uuid in categoryUuids) {
         try {
           final products = await _fetchProducts(client, uuid);
           results.add(products);
         } catch (e) {
-          // If rate limited, stop and re-throw
+          // If rate limited, store the error but continue trying other categories
           final failure = e is Exception
               ? ErrorHandler.mapExceptionToFailure(e)
               : null;
-          if (failure is RateLimitFailure) rethrow;
+          if (failure is RateLimitFailure) {
+            rateLimitError = failure;
+            continue;
+          }
           // Otherwise continue with other categories
           continue;
         }
@@ -66,28 +136,99 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         }
       }
 
-      emit(
-        ProductListingLoaded(
-          categoryName: categoryName,
-          products: products,
-          filteredProducts: products,
-        ),
-      );
+      // If we got any products, cache them and emit success (fresh data)
+      if (products.isNotEmpty) {
+        await _cacheService?.cacheProducts(categoryUuid, products);
+
+        // Only emit if still current request
+        if (_currentRequestId == requestId) {
+          emit(
+            ProductListingLoaded(
+              categoryName: categoryName,
+              products: products,
+              filteredProducts: products,
+              isCachedData: false, // Fresh data from API
+            ),
+          );
+        }
+      } else if (rateLimitError != null) {
+        // No new products but rate limited
+        // Check if we already showed cache at the start
+        final currentState = state;
+        if (currentState is ProductListingLoaded && currentState.isCachedData) {
+          // Already showing cache, don't change it - user can see cached data
+          return;
+        }
+        // Otherwise try to show cache, only if still current request
+        if (_currentRequestId == requestId) {
+          await _handleRateLimitWithCache(categoryName, categoryUuid, rateLimitError, requestId);
+        }
+      } else {
+        // No products and no specific error
+        if (_currentRequestId == requestId) {
+          emit(
+            ProductListingLoaded(
+              categoryName: categoryName,
+              products: [],
+              filteredProducts: [],
+            ),
+          );
+        }
+      }
     } catch (e) {
       final failure = e is Exception
           ? ErrorHandler.mapExceptionToFailure(e)
           : null;
 
-      if (failure is RateLimitFailure) {
-        emit(ProductListingError(
-          message: failure.message,
-          isRateLimited: true,
-          retryAfterSeconds: failure.retryAfterSeconds,
-        ));
-      } else {
-        final errorMessage = failure?.message ?? e.toString();
-        emit(ProductListingError(message: errorMessage));
+      // Only emit if still current request
+      if (_currentRequestId == requestId) {
+        // If rate limited, try to show cached data instead of error
+        if (failure is RateLimitFailure) {
+          await _handleRateLimitWithCache(categoryName, categoryUuid, failure, requestId);
+        } else {
+          final errorMessage = failure?.message ?? e.toString();
+          emit(ProductListingError(message: errorMessage));
+        }
       }
+    } finally {
+      _isLoading = false;
+    }
+  }
+
+  /// Handle rate limit error by showing cached data if available
+  Future<void> _handleRateLimitWithCache(
+    String categoryName,
+    String categoryUuid,
+    RateLimitFailure failure, [
+    String? requestId,
+  ]) async {
+    final cached = await _cacheService?.getCachedProducts(categoryUuid);
+
+    // Check if request is still current before emitting
+    final isCurrentRequest = requestId == null || _currentRequestId == requestId;
+    if (!isCurrentRequest) return;
+
+    if (cached != null && cached.products.isNotEmpty) {
+      // Show cached data instead of error
+      emit(
+        ProductListingLoaded(
+          categoryName: categoryName,
+          products: cached.products,
+          filteredProducts: cached.products,
+          isCachedData: true,
+          cachedTimeAgo: cached.cachedTimeAgo,
+        ),
+      );
+    } else {
+      // No cache available, show empty state instead of error screen
+      emit(
+        ProductListingLoaded(
+          categoryName: categoryName,
+          products: [],
+          filteredProducts: [],
+          isCachedData: false,
+        ),
+      );
     }
   }
 

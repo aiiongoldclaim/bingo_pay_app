@@ -3,11 +3,12 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../domain/entities/brand_entity.dart';
 
 class BrandChip extends StatelessWidget {
   const BrandChip({super.key, required this.brand});
 
-  final String brand;
+  final BrandEntity brand;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class BrandChip extends StatelessWidget {
         border: Border.all(color: ThemeColors.line),
       ),
       child: Text(
-        brand,
+        brand.name,
         style: TextStyle(
           fontSize: 16.sp,
           fontWeight: FontWeight.w600,

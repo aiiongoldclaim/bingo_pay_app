@@ -60,58 +60,90 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../data/models/categories_model.dart';
+import '../../domain/usecases/get_brands_usecase.dart';
 import '../../domain/usecases/get_categories_usecase.dart';
 import 'categories_state.dart';
 
 @injectable
 class CategoriesCubit extends Cubit<CategoriesState> {
   final GetCategoriesUseCase _getCategories;
+  final GetBrandsUseCase _getBrands;
 
-  CategoriesCubit(this._getCategories) : super(const CategoriesState());
+  CategoriesCubit(this._getCategories, this._getBrands)
+      : super(const CategoriesState());
 
   Future<void> loadData() async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, isBrandsLoading: true));
 
-    final result = await _getCategories();
+    final categoriesResult = await _getCategories();
+    final brandsResult = await _getBrands();
 
-    result.fold(
+    categoriesResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false, error: failure.message));
       },
       (categories) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            categories: categories,
-            brands: const [
-              'SONARA',
-              'NOVA',
-              'TYDE',
-              'OPTIK',
-              'STRIDE',
-              'MAISON',
-            ],
-            collections: [
-              CuratedCollectionModel(
-                title: 'BINGOLD Luxe',
-                subtitle: 'Fine jewelry & watches',
-                icon: Icons.diamond_outlined,
-                iconBg: const Color(0xFFF4EFD9),
+        brandsResult.fold(
+          (failure) {
+            emit(
+              state.copyWith(
+                isLoading: false,
+                categories: categories,
+                isBrandsLoading: false,
+                brandsError: failure.message,
+                collections: [
+                  CuratedCollectionModel(
+                    title: 'BINGOLD Luxe',
+                    subtitle: 'Fine jewelry & watches',
+                    icon: Icons.diamond_outlined,
+                    iconBg: const Color(0xFFF4EFD9),
+                  ),
+                  CuratedCollectionModel(
+                    title: 'Tech Essentials',
+                    subtitle: 'Top-rated electronics',
+                    icon: Icons.bolt,
+                    iconBg: const Color(0xFFE8EEFF),
+                  ),
+                  CuratedCollectionModel(
+                    title: 'Home Refresh',
+                    subtitle: 'Furniture & decor',
+                    icon: Icons.home_outlined,
+                    iconBg: const Color(0xFFF5EBDD),
+                  ),
+                ],
               ),
-              CuratedCollectionModel(
-                title: 'Tech Essentials',
-                subtitle: 'Top-rated electronics',
-                icon: Icons.bolt,
-                iconBg: const Color(0xFFE8EEFF),
+            );
+          },
+          (brands) {
+            emit(
+              state.copyWith(
+                isLoading: false,
+                categories: categories,
+                brands: brands,
+                isBrandsLoading: false,
+                collections: [
+                  CuratedCollectionModel(
+                    title: 'BINGOLD Luxe',
+                    subtitle: 'Fine jewelry & watches',
+                    icon: Icons.diamond_outlined,
+                    iconBg: const Color(0xFFF4EFD9),
+                  ),
+                  CuratedCollectionModel(
+                    title: 'Tech Essentials',
+                    subtitle: 'Top-rated electronics',
+                    icon: Icons.bolt,
+                    iconBg: const Color(0xFFE8EEFF),
+                  ),
+                  CuratedCollectionModel(
+                    title: 'Home Refresh',
+                    subtitle: 'Furniture & decor',
+                    icon: Icons.home_outlined,
+                    iconBg: const Color(0xFFF5EBDD),
+                  ),
+                ],
               ),
-              CuratedCollectionModel(
-                title: 'Home Refresh',
-                subtitle: 'Furniture & decor',
-                icon: Icons.home_outlined,
-                iconBg: const Color(0xFFF5EBDD),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

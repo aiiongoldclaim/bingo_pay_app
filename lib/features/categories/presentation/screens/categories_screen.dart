@@ -57,7 +57,11 @@ class CategoriesScreen extends StatelessWidget {
 
                             const SectionTitle(title: 'Top brands'),
                             SizedBox(height: 2.h),
-                            BrandsGrid(brands: state.brands),
+                            BrandsGrid(
+                              brands: state.brands,
+                              isLoading: state.isBrandsLoading,
+                              error: state.brandsError,
+                            ),
 
                             SizedBox(height: 2.h),
 

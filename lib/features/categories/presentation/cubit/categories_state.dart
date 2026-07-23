@@ -1,12 +1,15 @@
 import 'package:equatable/equatable.dart';
 
 import '../../data/models/categories_model.dart';
+import '../../domain/entities/brand_entity.dart';
 import '../../domain/entities/category_entity.dart';
 
 class CategoriesState extends Equatable {
   final bool isLoading;
   final List<CategoryEntity> categories;
-  final List<String> brands;
+  final List<BrandEntity> brands;
+  final bool isBrandsLoading;
+  final String? brandsError;
   final List<CuratedCollectionModel> collections;
   final String? error;
 
@@ -14,6 +17,8 @@ class CategoriesState extends Equatable {
     this.isLoading = false,
     this.categories = const [],
     this.brands = const [],
+    this.isBrandsLoading = false,
+    this.brandsError,
     this.collections = const [],
     this.error,
   });
@@ -21,7 +26,9 @@ class CategoriesState extends Equatable {
   CategoriesState copyWith({
     bool? isLoading,
     List<CategoryEntity>? categories,
-    List<String>? brands,
+    List<BrandEntity>? brands,
+    bool? isBrandsLoading,
+    String? brandsError,
     List<CuratedCollectionModel>? collections,
     String? error,
   }) {
@@ -29,6 +36,8 @@ class CategoriesState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       categories: categories ?? this.categories,
       brands: brands ?? this.brands,
+      isBrandsLoading: isBrandsLoading ?? this.isBrandsLoading,
+      brandsError: brandsError ?? this.brandsError,
       collections: collections ?? this.collections,
       error: error,
     );
@@ -39,6 +48,8 @@ class CategoriesState extends Equatable {
     isLoading,
     categories,
     brands,
+    isBrandsLoading,
+    brandsError,
     collections,
     error,
   ];

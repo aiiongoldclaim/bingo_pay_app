@@ -50,7 +50,7 @@ class HomeCubit extends Cubit<HomeState> {
       bigoldBalance = profile.account.bigoldBalance / 1e8;
     } catch (_) {}
 
-    // Fetch products with throttling cache fallback
+    // Fetch products with robust throttling cache fallback
     List<ProductModel> products = [];
     try {
       final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products';
@@ -82,16 +82,22 @@ class HomeCubit extends Cubit<HomeState> {
       }
 
       // Try to load from cache
-      final cacheService = GetIt.I<ProductCacheService>();
-      final cachedProducts = await cacheService.getHomeProductsCache();
+      try {
+        final cacheService = GetIt.I<ProductCacheService>();
+        final cachedProducts = await cacheService.getHomeProductsCache();
 
-      if (cachedProducts != null && cachedProducts.isNotEmpty) {
-        products = cachedProducts;
-        debugPrint(
-          '✓ Loaded ${products.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
-        );
-      } else {
-        debugPrint('✗ No cached products available');
+        if (cachedProducts != null && cachedProducts.isNotEmpty) {
+          products = cachedProducts;
+          debugPrint(
+            '✓ Loaded ${products.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
+          );
+        } else {
+          debugPrint('✗ No cached products available');
+          products = [];
+        }
+      } catch (cacheError) {
+        // If cache retrieval also fails, log and use empty list
+        debugPrint('✗ Failed to retrieve products from cache: $cacheError');
         products = [];
       }
     }

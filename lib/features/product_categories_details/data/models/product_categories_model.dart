@@ -30,6 +30,26 @@ class ListingProductModel {
   });
 
   factory ListingProductModel.fromJson(Map<String, dynamic> json) {
+    // Handle both API response and cached JSON formats
+    if (json.containsKey('_cached')) {
+      // Deserialized from cache
+      return ListingProductModel(
+        id: json['id'] as String,
+        uuid: json['uuid'] as String?,
+        brand: json['brand'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        price: (json['price'] as num?)?.toDouble() ?? 0.0,
+        originalPrice: (json['originalPrice'] as num?)?.toDouble(),
+        rating: (json['rating'] as num?)?.toDouble(),
+        ratingCount: json['ratingCount'] as int?,
+        badge: json['badge'] as String?,
+        icon: Icons.shopping_bag_outlined,
+        imageUrl: json['imageUrl'] as String?,
+        isFavourite: json['isFavourite'] as bool? ?? false,
+      );
+    }
+
+    // Parse from API response
     final mediaList = (json['media'] as List<dynamic>?) ?? [];
     final primary = mediaList.cast<Map<String, dynamic>>().firstWhere(
           (m) => m['isPrimary'] == true,
@@ -67,6 +87,21 @@ class ListingProductModel {
       imageUrl: primary['url'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    '_cached': true, // Flag to identify cached format
+    'id': id,
+    'uuid': uuid,
+    'brand': brand,
+    'name': name,
+    'price': price,
+    'originalPrice': originalPrice,
+    'rating': rating,
+    'ratingCount': ratingCount,
+    'badge': badge,
+    'imageUrl': imageUrl,
+    'isFavourite': isFavourite,
+  };
 
   int? get discountPercent {
     if (originalPrice == null || originalPrice == 0) return null;

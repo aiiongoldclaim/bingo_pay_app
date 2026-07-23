@@ -23,6 +23,8 @@ class ProductListingLoaded extends ProductListingState {
   final ViewMode viewMode;
   final String? selectedPriceFilter; // "Under \$20k", "\$20k–\$50k" etc.
   final String? selectedRatingFilter; // "4★ & up"
+  final bool isCachedData; // True if showing cached data due to rate limit
+  final String? cachedTimeAgo; // Human-readable cache age (e.g. "5m ago")
 
   const ProductListingLoaded({
     required this.categoryName,
@@ -32,6 +34,8 @@ class ProductListingLoaded extends ProductListingState {
     this.viewMode = ViewMode.grid,
     this.selectedPriceFilter,
     this.selectedRatingFilter,
+    this.isCachedData = false,
+    this.cachedTimeAgo,
   });
 
   ProductListingLoaded copyWith({
@@ -43,6 +47,8 @@ class ProductListingLoaded extends ProductListingState {
     String? selectedRatingFilter,
     bool clearPriceFilter = false,
     bool clearRatingFilter = false,
+    bool? isCachedData,
+    String? cachedTimeAgo,
   }) {
     return ProductListingLoaded(
       categoryName: categoryName,
@@ -56,6 +62,8 @@ class ProductListingLoaded extends ProductListingState {
       selectedRatingFilter: clearRatingFilter
           ? null
           : selectedRatingFilter ?? this.selectedRatingFilter,
+      isCachedData: isCachedData ?? this.isCachedData,
+      cachedTimeAgo: cachedTimeAgo ?? this.cachedTimeAgo,
     );
   }
 
@@ -67,6 +75,8 @@ class ProductListingLoaded extends ProductListingState {
     viewMode,
     selectedPriceFilter,
     selectedRatingFilter,
+    isCachedData,
+    cachedTimeAgo,
   ];
 }
 

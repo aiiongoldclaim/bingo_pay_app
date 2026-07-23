@@ -14,15 +14,16 @@ class ProductCacheService {
 
   Future<void> cacheHomeProducts(List<ProductModel> products) async {
     try {
-      final jsonList = products.map((p) => p.toJson()).toList();
-      await _prefs.setString(
-        _homeProductsCacheKey,
-        jsonEncode(jsonList),
-      );
-      await _prefs.setInt(
-        '${_cacheTimestampKey}home',
-        DateTime.now().millisecondsSinceEpoch,
-      );
+      final jsonList = products
+          .map((p) => jsonEncode(p.toJson()))
+          .toList();
+      await Future.wait([
+        _prefs.setStringList(_homeProductsCacheKey, jsonList),
+        _prefs.setInt(
+          '${_cacheTimestampKey}home',
+          DateTime.now().millisecondsSinceEpoch,
+        ),
+      ]);
       debugPrint('✓ Cached ${products.length} home products');
     } catch (e) {
       debugPrint('✗ Failed to cache home products: $e');
@@ -31,20 +32,58 @@ class ProductCacheService {
 
   Future<List<ProductModel>?> getHomeProductsCache() async {
     try {
-      final cached = _prefs.getString(_homeProductsCacheKey);
-      if (cached == null) return null;
+      // Try new format first (StringList)
+      var cachedList = _prefs.getStringList(_homeProductsCacheKey);
 
-      final jsonList = jsonDecode(cached) as List<dynamic>;
-      final products = jsonList
-          .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
+      // If new format doesn't exist, try old format (String) for migration
+      if (cachedList == null || cachedList.isEmpty) {
+        final oldCachedString = _prefs.getString(_homeProductsCacheKey);
+        if (oldCachedString != null) {
+          try {
+            // Try to parse old format
+            final jsonList = jsonDecode(oldCachedString) as List<dynamic>;
+            cachedList = jsonList
+                .map((e) => jsonEncode(e as Map<String, dynamic>))
+                .cast<String>()
+                .toList();
+
+            // Migrate to new format
+            await _prefs.setStringList(_homeProductsCacheKey, cachedList);
+            debugPrint('[ProductCache] Migrated home products cache to new format');
+          } catch (e) {
+            debugPrint('✗ Failed to migrate old cache format: $e');
+            // Clear corrupted old cache
+            await _prefs.remove(_homeProductsCacheKey);
+            return null;
+          }
+        } else {
+          return null;
+        }
+      }
+
+      final products = cachedList
+          .map((json) {
+            try {
+              final decoded = jsonDecode(json) as Map<String, dynamic>;
+              return ProductModel.fromJson(decoded);
+            } catch (e) {
+              debugPrint('✗ Failed to decode cached product: $e');
+              return null;
+            }
+          })
+          .whereType<ProductModel>()
           .toList();
 
       debugPrint(
         '✓ Retrieved ${products.length} products from home cache',
       );
-      return products;
+      return products.isEmpty ? null : products;
     } catch (e) {
       debugPrint('✗ Failed to retrieve home products from cache: $e');
+      // Clear corrupted cache
+      try {
+        await _prefs.remove(_homeProductsCacheKey);
+      } catch (_) {}
       return null;
     }
   }

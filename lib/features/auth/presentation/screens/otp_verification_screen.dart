@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../../data/services/login_form_manager.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
@@ -338,6 +339,31 @@ Widget build(BuildContext context) {
                       ),
                       child: Column(
                         children: [
+                          /// 🔢 Label
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Enter OTP',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: ' *',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
                           /// 🔢 OTP Input
                           Pinput(
                             controller: _otpController,
@@ -379,7 +405,7 @@ Widget build(BuildContext context) {
                               textStyle: theme.textTheme.titleLarge,
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.primary
-                                    .withOpacity(0.1),
+                                    .withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: theme.colorScheme.primary,
@@ -426,6 +452,24 @@ Widget build(BuildContext context) {
                               ),
                             ],
                           ),
+
+                          const SizedBox(height: 24),
+
+                          /// 🔙 Back to Login
+                          TextButton(
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              LoginFormManager().clearForm();
+                              context.go(AppRoutes.login);
+                            },
+                            child: Text(
+                              'Back to Login',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -471,7 +515,7 @@ class _Blob extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
-            colors: colors.map((c) => c.withOpacity(0.25)).toList(),
+            colors: colors.map((c) => c.withValues(alpha: 0.25)).toList(),
           ),
         ),
       ),

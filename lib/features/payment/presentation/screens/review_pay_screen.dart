@@ -765,18 +765,29 @@ class PayNowBottomBar extends StatelessWidget {
         padding: const EdgeInsets.all(AppSizes.paddingMd),
         child: SizedBox(
           height: AppSizes.buttonHeight,
-          child: ElevatedButton.icon(
-            onPressed: isLoading ? null : onPay,
-            icon: isLoading
-                ? const SizedBox.shrink()
-                : const Icon(Icons.lock_outline, color: Colors.white),
-            label: isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Text('Pay $amount', style: AppTextStyles.buttonText),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ThemeColors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1A1D4E), Color(0xFF2B2FA8)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+            ),
+            child: ElevatedButton.icon(
+              onPressed: isLoading ? null : onPay,
+              icon: isLoading
+                  ? const SizedBox.shrink()
+                  : const Icon(Icons.lock_outline, color: Colors.white),
+              label: isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Text('Pay $amount', style: AppTextStyles.buttonText),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLg),
+                ),
               ),
             ),
           ),
