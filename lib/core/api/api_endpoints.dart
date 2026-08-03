@@ -22,8 +22,6 @@ class ApiEndpoints {
   static const String bingoldLoginOtp = '/api/v1/auth/bingold/login-otp';
   static const String bingoldVerifyLogin = '/api/v1/auth/bingold/verify-login';
   static const String setPassword = '/api/v1/auth/set-password';
-  // static const String scanner = '/api/bingold/bingopay/balance/operation';
-  static const String scanner = '/api/v1/customers/bingopay/balance/operation';
   static const String cart = '/api/v1/cart';
   static const String cartItems = '/api/v1/cart/items';
   static const String cartClear = '/api/v1/cart/clear';

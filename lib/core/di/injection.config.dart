@@ -160,6 +160,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
     );
+    gh.factory<_i337.PaymentRemoteDataSource>(
+      () => const _i337.PaymentRemoteDataSourceImpl(),
+    );
     gh.singleton<_i481.SecureStorageService>(
       () =>
           _i481.SecureStorageService(storage: gh<_i558.FlutterSecureStorage>()),
@@ -185,6 +188,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
+    gh.factory<_i758.PaymentRepository>(
+      () => _i461.PaymentRepositoryImpl(gh<_i337.PaymentRemoteDataSource>()),
+    );
     gh.factory<_i882.CartRemoteDataSource>(
       () => _i882.CartRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -193,9 +199,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i705.OrdersRemoteDataSource>(
       () => _i705.OrdersRemoteDataSourceImpl(gh<_i541.ApiClient>()),
-    );
-    gh.factory<_i337.PaymentRemoteDataSource>(
-      () => _i337.PaymentRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
     gh.factory<_i152.GetBrandsUseCase>(
       () => _i152.GetBrandsUseCase(gh<_i105.BrandRepository>()),
@@ -217,6 +220,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i97.TransactionsRemoteDataSource>(
       () => _i97.TransactionsRemoteDataSourceImpl(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i805.ProcessPaymentUseCase>(
+      () => _i805.ProcessPaymentUseCase(gh<_i758.PaymentRepository>()),
     );
     gh.factory<_i298.CategoryRepository>(
       () => _i611.CategoryRepositoryImpl(gh<_i298.CategoryRemoteDataSource>()),
@@ -248,9 +254,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i15.ClearCartUseCase>(),
       ),
     );
-    gh.factory<_i758.PaymentRepository>(
-      () => _i461.PaymentRepositoryImpl(gh<_i337.PaymentRemoteDataSource>()),
-    );
     gh.factory<_i610.OrdersCubit>(
       () => _i610.OrdersCubit(gh<_i705.OrdersRemoteDataSource>()),
     );
@@ -265,6 +268,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i874.AddressRepository>(
       () => _i279.AddressRepositoryImpl(gh<_i915.AddressRemoteDataSource>()),
+    );
+    gh.factory<_i631.PaymentCubit>(
+      () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
     );
     gh.factory<_i917.AuthRepository>(
       () => _i1061.AuthRepositoryImpl(
@@ -283,9 +289,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i507.GetCategoriesUseCase>(),
         gh<_i152.GetBrandsUseCase>(),
       ),
-    );
-    gh.factory<_i805.ProcessPaymentUseCase>(
-      () => _i805.ProcessPaymentUseCase(gh<_i758.PaymentRepository>()),
     );
     gh.factory<_i456.AddressCubit>(
       () => _i456.AddressCubit(gh<_i874.AddressRepository>()),
@@ -343,9 +346,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i741.AccountCubit>(
       () => _i741.AccountCubit(gh<_i810.GetProfileUseCase>()),
-    );
-    gh.factory<_i631.PaymentCubit>(
-      () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
     );
     gh.factory<_i357.AuthBloc>(
       () => _i357.AuthBloc(
