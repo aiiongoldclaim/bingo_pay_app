@@ -100,6 +100,27 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     }
   }
 
+  Future<String> _placeCodOrder() async {
+    final client = GetIt.I<ApiClient>();
+    final response = await client.dio.post(
+      ApiEndpoints.orders,
+      data: {
+        'addressId': state.deliveryAddressId,
+        'paymentMethod': 'COD',
+        if (!state.isCartFlow) 'variantUuid': state.variantUuid,
+        if (!state.isCartFlow) 'quantity': state.quantity,
+        if (!state.isCartFlow && state.couponCode.isNotEmpty)
+          'couponCode': state.couponCode,
+        if (!state.isCartFlow && state.notes.isNotEmpty) 'notes': state.notes,
+      },
+    );
+    final orderId = _extractOrderId(response.data);
+    if (orderId == null) {
+      throw StateError('Order was created but the response had no order id');
+    }
+    return orderId;
+  }
+
   String? _extractOrderId(dynamic raw) {
     if (raw is! Map<String, dynamic>) return null;
     final data = raw['data'];
@@ -179,6 +200,18 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     final ts = DateTime.now().millisecondsSinceEpoch;
 
     try {
+      if (state.selectedMethod == PaymentMethod.cashOnDelivery) {
+        final orderId = await _placeCodOrder();
+        emit(
+          state.copyWith(
+            status: PaymentStatus.success,
+            isProcessing: false,
+            orderId: orderId,
+          ),
+        );
+        return;
+      }
+
       if (state.isCartFlow) {
         // ── Cart flow ─────────────────────────────────────────────────
         final total = state.totalAmount;
