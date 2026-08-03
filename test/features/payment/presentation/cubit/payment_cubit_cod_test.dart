@@ -1,5 +1,6 @@
 import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/api/api_endpoints.dart';
+import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
@@ -14,6 +15,8 @@ class MockApiClient extends Mock implements ApiClient {}
 class MockDio extends Mock implements Dio {}
 
 class MockBigodPaymentDataSource extends Mock implements BigodPaymentDataSource {}
+
+class MockClearCartUseCase extends Mock implements ClearCartUseCase {}
 
 void main() {
   late MockApiClient mockApiClient;
@@ -30,9 +33,9 @@ void main() {
     GetIt.I.unregister<ApiClient>();
   });
 
-  // COD never touches BigodPaymentDataSource, but PaymentMethodCubit's
-  // constructor resolves it unconditionally, so the cubit needs one even
-  // in a COD-only test — a mock that's simply never called.
+  // COD never touches BigodPaymentDataSource or ClearCartUseCase (buy-now,
+  // not a cart purchase), but PaymentMethodCubit's constructor resolves both
+  // unconditionally, so the cubit needs mocks even though neither is called.
   PaymentMethodCubit buildCubit() {
     return PaymentMethodCubit(
       productPrice: 100,
@@ -40,6 +43,7 @@ void main() {
       vendorEmail: 'vendor@example.com',
       variantUuid: 'variant-1',
       bigodPaymentDataSource: MockBigodPaymentDataSource(),
+      clearCartUseCase: MockClearCartUseCase(),
     )
       ..updateDeliveryAddress(
         name: 'Jane',

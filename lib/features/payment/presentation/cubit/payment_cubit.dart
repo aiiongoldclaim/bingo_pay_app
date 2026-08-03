@@ -4,6 +4,7 @@ import 'package:bingo_pay/core/error/error_handler.dart';
 import 'package:bingo_pay/core/error/failures.dart';
 import 'package:bingo_pay/features/account/data/account_model/account_profile_response.dart';
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:dio/dio.dart';
@@ -20,8 +21,10 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     int quantity = 1,
     List<CartItemEntity> cartItems = const [],
     BigodPaymentDataSource? bigodPaymentDataSource,
+    ClearCartUseCase? clearCartUseCase,
   })  : _bigodPaymentDataSource =
             bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
+        _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
         super(
          PaymentMethodState.initial(
            productPrice: productPrice,
@@ -35,6 +38,12 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
        );
 
   final BigodPaymentDataSource _bigodPaymentDataSource;
+  final ClearCartUseCase _clearCartUseCase;
+
+  Future<void> _clearCartIfNeeded() async {
+    if (!state.isCartFlow) return;
+    await _clearCartUseCase(); // best-effort — a clear failure shouldn't block a completed purchase
+  }
 
   Future<String> _placeCodOrder() async {
     final client = GetIt.I<ApiClient>();
@@ -125,6 +134,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     try {
       if (state.selectedMethod == PaymentMethod.cashOnDelivery) {
         final orderId = await _placeCodOrder();
+        await _clearCartIfNeeded();
         emit(
           state.copyWith(
             status: PaymentStatus.success,
@@ -155,6 +165,8 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
 
       final confirmation =
           await _bigodPaymentDataSource.confirmPayment(intent.token);
+
+      await _clearCartIfNeeded();
 
       emit(
         state.copyWith(

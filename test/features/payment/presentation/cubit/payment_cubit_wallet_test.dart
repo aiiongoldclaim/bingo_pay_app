@@ -1,4 +1,5 @@
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/models/bigod_confirm_response.dart';
 import 'package:bingo_pay/features/payment/data/models/bigod_intent_response.dart';
@@ -6,15 +7,21 @@ import 'package:bingo_pay/features/payment/presentation/cubit/payment_cubit.dart
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockBigodPaymentDataSource extends Mock implements BigodPaymentDataSource {}
 
+class MockClearCartUseCase extends Mock implements ClearCartUseCase {}
+
 void main() {
   late MockBigodPaymentDataSource mockDataSource;
+  late MockClearCartUseCase mockClearCart;
 
   setUp(() {
     mockDataSource = MockBigodPaymentDataSource();
+    mockClearCart = MockClearCartUseCase();
+    when(() => mockClearCart()).thenAnswer((_) async => const Right('cleared'));
   });
 
   PaymentMethodCubit buildCubit() {
@@ -24,6 +31,7 @@ void main() {
       vendorEmail: 'vendor@example.com',
       variantUuid: 'variant-1',
       bigodPaymentDataSource: mockDataSource,
+      clearCartUseCase: mockClearCart,
     )..updateDeliveryAddress(
         name: 'Jane',
         phone: '555',
@@ -154,6 +162,7 @@ void main() {
         userEmail: 'buyer@example.com',
         vendorEmail: 'vendor@example.com',
         bigodPaymentDataSource: mockDataSource,
+        clearCartUseCase: mockClearCart,
         cartItems: [cartItem],
       )..updateDeliveryAddress(
           name: 'Jane',
