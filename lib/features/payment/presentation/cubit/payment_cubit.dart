@@ -1,10 +1,11 @@
 import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/api/api_endpoints.dart';
-import 'package:bingo_pay/core/config/app_config.dart';
+import 'package:bingo_pay/core/error/error_handler.dart';
+import 'package:bingo_pay/core/error/failures.dart';
 import 'package:bingo_pay/features/account/data/account_model/account_profile_response.dart';
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
+import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
-import 'package:bingo_pay/core/api/interceptors/logging_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -18,7 +19,10 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     String? variantUuid,
     int quantity = 1,
     List<CartItemEntity> cartItems = const [],
-  }) : super(
+    BigodPaymentDataSource? bigodPaymentDataSource,
+  })  : _bigodPaymentDataSource =
+            bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
+        super(
          PaymentMethodState.initial(
            productPrice: productPrice,
            productName: productName,
@@ -30,75 +34,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
          ),
        );
 
-  static const _apiUrl =
-      // 'https://admin-blog.bingold.to/api/bingold/bingopay/balance/operation';
-      'http://13.159.7.199:5001/api/v1/customers/bingopay/balance/operation';
-  static const _apiKey = 'mysecreate-key';
-
-  // The cart API's vendor object only exposes {uuid, shopName}, not email,
-  // so vendor emails (needed to credit the right wallet) are resolved via
-  // the product-details endpoint per unique product uuid and cached here
-  // for the duration of a single checkout.
-  Future<String?> _resolveVendorEmail(String productUuid) async {
-    try {
-      final client = GetIt.I<ApiClient>();
-      final url =
-          '${AppConfig.categoriesApiBaseUrl}/api/v1/products/$productUuid';
-      final response = await client.dio.get(url);
-      final outer =
-          (response.data as Map<String, dynamic>)['data']
-              as Map<String, dynamic>;
-      final data = outer['data'] as Map<String, dynamic>;
-      final vendor = data['vendor'] as Map<String, dynamic>?;
-      return vendor?['email'] as String?;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<String?> _createOrder() async {
-    final variantUuid = state.variantUuid;
-    if (variantUuid == null || state.deliveryAddressId.isEmpty) return null;
-
-    try {
-      final client = GetIt.I<ApiClient>();
-      final response = await client.dio.post(
-        ApiEndpoints.orders,
-        data: {
-          'addressId': state.deliveryAddressId,
-          'paymentMethod': 'WALLET',
-          if (state.couponCode.isNotEmpty) 'couponCode': state.couponCode,
-          if (state.notes.isNotEmpty) 'notes': state.notes,
-          'variantUuid': variantUuid,
-          'quantity': state.quantity,
-        },
-      );
-      return _extractOrderId(response.data);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  // Cart flow: converts the server-side cart into an order. Only
-  // addressId + paymentMethod are accepted — the endpoint rejects any
-  // other field (e.g. couponCode/notes) with a 400.
-  Future<String?> _checkout() async {
-    if (state.deliveryAddressId.isEmpty) return null;
-
-    try {
-      final client = GetIt.I<ApiClient>();
-      final response = await client.dio.post(
-        ApiEndpoints.checkout,
-        data: {
-          'addressId': state.deliveryAddressId,
-          'paymentMethod': 'WALLET',
-        },
-      );
-      return _extractOrderId(response.data);
-    } catch (_) {
-      return null;
-    }
-  }
+  final BigodPaymentDataSource _bigodPaymentDataSource;
 
   Future<String> _placeCodOrder() async {
     final client = GetIt.I<ApiClient>();
@@ -186,19 +122,6 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   Future<void> makePayment() async {
     emit(state.copyWith(status: PaymentStatus.loading, isProcessing: true));
 
-    final dio = Dio(
-      BaseOptions(
-        baseUrl: _apiUrl,
-        headers: {
-          'x-api-key': _apiKey,
-          'Content-Type': 'application/json',
-          'accept': '*/*',
-        },
-      ),
-    )..interceptors.add(LoggingInterceptor());
-
-    final ts = DateTime.now().millisecondsSinceEpoch;
-
     try {
       if (state.selectedMethod == PaymentMethod.cashOnDelivery) {
         final orderId = await _placeCodOrder();
@@ -212,108 +135,39 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         return;
       }
 
-      if (state.isCartFlow) {
-        // ── Cart flow ─────────────────────────────────────────────────
-        final total = state.totalAmount;
+      final intent = await _bigodPaymentDataSource.createIntent(
+        addressId: state.deliveryAddressId,
+        variantUuid: state.isCartFlow ? null : state.variantUuid,
+        quantity: state.isCartFlow ? null : state.quantity,
+      );
 
-        // Deduct full cart total from buyer
-        await dio.post(
-          _apiUrl,
-          data: {
-            'email': state.userEmail,
-            'amount': total,
-            'operation': 'deduct',
-            'reference': 'MKT-$ts-U',
-            'description': 'Cart purchase: ${state.cartItems.length} item(s)',
-          },
+      if (intent.customerBalance != null &&
+          intent.customerBalance! < intent.amount) {
+        emit(
+          state.copyWith(
+            status: PaymentStatus.failure,
+            errorMessage: 'Insufficient BingoPay balance for this purchase.',
+            isProcessing: false,
+          ),
         );
-
-        // Group items by vendor email (resolved via product-details lookup,
-        // since the cart API's vendor object has no email) and credit each
-        // vendor once.
-        final Map<String, String?> resolvedEmailByProductUuid = {};
-        final Map<String, double> vendorTotals = {};
-        for (final item in state.cartItems) {
-          final productUuid = item.product.uuid;
-          if (!resolvedEmailByProductUuid.containsKey(productUuid)) {
-            resolvedEmailByProductUuid[productUuid] = await _resolveVendorEmail(
-              productUuid,
-            );
-          }
-          final resolvedEmail = resolvedEmailByProductUuid[productUuid];
-          final email = (resolvedEmail?.isNotEmpty == true)
-              ? resolvedEmail!
-              : state.vendorEmail;
-          if (email.isEmpty) continue;
-          vendorTotals[email] = (vendorTotals[email] ?? 0.0) + item.totalPrice;
-        }
-
-        int offset = 1;
-        for (final entry in vendorTotals.entries) {
-          await dio.post(
-            _apiUrl,
-            data: {
-              'email': entry.key,
-              'amount': entry.value,
-              'operation': 'add',
-              'reference': 'MKT-${ts + offset}-V',
-              'description': 'Sale credit: cart order',
-            },
-          );
-          offset++;
-        }
-      } else {
-        // ── Single product flow ───────────────────────────────────────
-        await dio.post(
-          _apiUrl,
-          data: {
-            'email': state.userEmail,
-            'amount': state.productPriceValue,
-            'operation': 'deduct',
-            'reference': 'MKT-$ts-U',
-            // 'description': 'Purchase: ${state.productName}',
-            'description': 'Purchase: Static description for testing',
-          },
-        );
-
-        await dio.post(
-          _apiUrl,
-          data: {
-            'email': state.vendorEmail,
-            'amount': state.productPriceValue,
-            'operation': 'add',
-            'reference': 'MKT-${ts + 1}-V',
-            // 'description': 'Sale credit for: ${state.productName}',
-            'description': 'Sale credit for: Static description for testing',
-          },
-        );
+        return;
       }
 
-      // Cart flow hits /api/v1/checkout (converts the cart to an order);
-      // Buy Now flow hits /api/v1/orders. The wallet debit above has
-      // already succeeded by this point, so a failure here is swallowed
-      // rather than surfaced as a failed payment; it just falls back to
-      // the synthetic order id.
-      final realOrderId = state.isCartFlow
-          ? await _checkout()
-          : await _createOrder();
+      final confirmation =
+          await _bigodPaymentDataSource.confirmPayment(intent.token);
 
       emit(
         state.copyWith(
           status: PaymentStatus.success,
           isProcessing: false,
-          orderId: realOrderId ?? 'BG-${ts % 100000}',
-          coinsEarned: 380,
+          orderId: confirmation.order.orderNumber,
         ),
       );
     } on DioException catch (e) {
-      final msg =
-          (e.response?.data as Map<String, dynamic>?)?['message'] as String? ??
-          'Payment failed. Please try again.';
       emit(
         state.copyWith(
           status: PaymentStatus.failure,
-          errorMessage: msg,
+          errorMessage: _messageFor(e),
           isProcessing: false,
         ),
       );
@@ -326,5 +180,13 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         ),
       );
     }
+  }
+
+  String _messageFor(DioException e) {
+    final failure = ErrorHandler.mapExceptionToFailure(e);
+    if (failure is ServerFailure && failure.statusCode == 409) {
+      return 'This payment was already processed.';
+    }
+    return failure.message;
   }
 }

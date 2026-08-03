@@ -1,5 +1,6 @@
 import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/api/api_endpoints.dart';
+import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -11,6 +12,8 @@ import 'package:mocktail/mocktail.dart';
 class MockApiClient extends Mock implements ApiClient {}
 
 class MockDio extends Mock implements Dio {}
+
+class MockBigodPaymentDataSource extends Mock implements BigodPaymentDataSource {}
 
 void main() {
   late MockApiClient mockApiClient;
@@ -27,12 +30,16 @@ void main() {
     GetIt.I.unregister<ApiClient>();
   });
 
+  // COD never touches BigodPaymentDataSource, but PaymentMethodCubit's
+  // constructor resolves it unconditionally, so the cubit needs one even
+  // in a COD-only test — a mock that's simply never called.
   PaymentMethodCubit buildCubit() {
     return PaymentMethodCubit(
       productPrice: 100,
       userEmail: 'buyer@example.com',
       vendorEmail: 'vendor@example.com',
       variantUuid: 'variant-1',
+      bigodPaymentDataSource: MockBigodPaymentDataSource(),
     )
       ..updateDeliveryAddress(
         name: 'Jane',
