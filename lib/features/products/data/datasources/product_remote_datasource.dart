@@ -64,6 +64,11 @@ abstract interface class ProductRemoteDataSource {
   Future<CategoryFormData> getCategoryForm(String categoryUuid);
   Future<Map<String, dynamic>> submitProduct(String productUuid);
   Future<Map<String, dynamic>> resubmitProduct(String productUuid);
+  Future<List<int>> downloadBulkTemplate(String categoryUuid);
+  Future<Map<String, dynamic>> importBulkProducts(
+    String filePath, {
+    void Function(int sent, int total)? onSendProgress,
+  });
 }
 
 @Injectable(as: ProductRemoteDataSource)
@@ -384,6 +389,33 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<Map<String, dynamic>> resubmitProduct(String productUuid) async {
     final response = await _apiClient.dio.patch(
       ApiEndpoints.productResubmit(productUuid),
+    );
+    return _unwrapObject(response.data);
+  }
+
+  @override
+  Future<List<int>> downloadBulkTemplate(String categoryUuid) async {
+    final response = await _apiClient.dio.get<List<int>>(
+      ApiEndpoints.bulkImportTemplate,
+      queryParameters: {'categoryUuid': categoryUuid},
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return response.data ?? [];
+  }
+
+  @override
+  Future<Map<String, dynamic>> importBulkProducts(
+    String filePath, {
+    void Function(int sent, int total)? onSendProgress,
+  }) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath),
+    });
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.bulkImportUpload,
+      data: formData,
+      onSendProgress: onSendProgress,
+      options: Options(receiveTimeout: const Duration(seconds: 120)),
     );
     return _unwrapObject(response.data);
   }

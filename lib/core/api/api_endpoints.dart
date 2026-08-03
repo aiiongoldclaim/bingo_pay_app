@@ -19,6 +19,8 @@ class ApiEndpoints {
   static const String brands = '/api/v1/brands';
   static const String categoryAttributes = '/api/v1/category-attributes';
   static const String attributeOptions = '/api/v1/attribute-options';
+  static const String bulkImportTemplate = '/api/v1/products/bulk/template';
+  static const String bulkImportUpload = '/api/v1/products/bulk/import';
   static const String uploads = '/api/v1/uploads';
   static const String transactions = '/transactions';
   static const String invoices = '/invoices';
