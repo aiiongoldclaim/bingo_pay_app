@@ -218,6 +218,7 @@ import '../../features/dashboard/presentation/screen/vendor_shell.dart';
 import '../../features/more/presentation/screens/more_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/products/presentation/screens/add_product_screen.dart';
+import '../../features/products/presentation/screens/bulk_upload_screen.dart';
 import '../../features/products/presentation/screens/product_detail_screen.dart';
 import '../../features/products/presentation/screens/products_screen.dart';
 import '../../features/transactions/presentation/screens/add_order_screen.dart';
@@ -330,6 +331,10 @@ class AppRouter {
           path: AppRoutes.vendorProductEdit,
           builder: (context, state) =>
               AddProductScreen(productId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: AppRoutes.vendorProductBulkUpload,
+          builder: (_, _) => const BulkUploadScreen(),
         ),
 
         // Add order stays outside bottom-nav shell (pushed on top, full-screen)

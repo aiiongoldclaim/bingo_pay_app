@@ -13,6 +13,7 @@ class AppRoutes {
   static const String vendorProductCreate = '/vendor/products/create';
   static const String vendorProductDetail = '/vendor/products/:id';
   static const String vendorProductEdit = '/vendor/products/:id/edit';
+  static const String vendorProductBulkUpload = '/vendor/products/bulk-upload';
   static const String vendorTransactions = '/vendor/transactions';
   static const String vendorAnalytics = '/vendor/analytics';
   static const String vendorTransactionDetail = '/vendor/transactions/:id';
