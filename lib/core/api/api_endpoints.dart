@@ -29,4 +29,6 @@ class ApiEndpoints {
   static const String cartClear = '/api/v1/cart/clear';
   static const String orders = '/api/v1/orders';
   static const String checkout = '/api/v1/checkout';
+  static const String bigodIntent = '/api/v1/payments/bigod/intent';
+  static const String bigodConfirm = '/api/v1/payments/bigod/confirm';
 }
