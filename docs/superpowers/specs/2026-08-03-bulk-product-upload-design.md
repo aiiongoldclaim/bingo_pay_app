@@ -19,11 +19,11 @@ Base path: `products/bulk` (NestJS, `JwtAuthGuard` + `RolesGuard`).
     "totalRows": 10, "validCount": 8, "invalidCount": 2, "hasErrors": true
   }
   ```
-  **Critical confirmed behavior**: if `hasErrors` is `true` (any row invalid), the backend returns only the validation result and does **not** enqueue or create anything — not even the valid rows. Nothing is imported until every row in the file passes. Only when `hasErrors` is `false` does it create a `BulkImportJob` row, enqueue all rows to BullMQ, and respond:
+  **Critical confirmed behavior**: if `hasErrors` is `true` (any row invalid), the backend returns only the validation result and does **not** enqueue or create anything — not even the valid rows. Nothing is imported until every row in the file passes. Only when `hasErrors` is `false` does it create a `BulkImportJob` row, enqueue all rows to BullMQ, and respond with a **completely different, smaller shape** — no `validRows`, `invalidRows`, `validCount`, `invalidCount`, or `hasErrors` keys at all, just:
   ```json
   { "success": true, "jobUuid": "...", "status": "PENDING", "totalRows": 8, "message": "Bulk import has been queued successfully." }
   ```
-  (Key is `jobUuid`, not `jobId`.)
+  (Key is `jobUuid`, not `jobId`.) Because the success response carries no per-row data, there is nothing to show as a "valid rows preview" in that case — the only row-level detail the client ever receives is the invalid-rows list, and only on the rejected path.
 - `GET /products/bulk/status/:jobId` and `GET /products/bulk/report/:jobId` are **stubs**: status always returns `{"status":"PENDING"}` regardless of the id, report always 404s — neither reads the real `BulkImportJob` row even though `BulkJobService.findByUuid` exists and the BullMQ worker genuinely does update job status (`markProcessing`/`completeJob`/`failJob`) and fires a `bulk.import.completed` event that emails the vendor with final totals. **These two endpoints are not used by this design** — confirmed out of scope with the user.
 
 The existing React reference UI's polling code reads `payload.jobId` (always `undefined`, since the backend returns `jobUuid`) and its copy claims "valid rows were imported" when `hasErrors` is true (false — nothing is imported in that case). Both are bugs in the reference app; this design does not copy either.
@@ -62,16 +62,15 @@ Future<Map<String, dynamic>> importBulkProducts(
 // Returns _unwrapObject(response.data).
 ```
 
-New model `lib/features/products/data/models/bulk_import_result_model.dart`:
+New model `lib/features/products/data/models/bulk_import_result_model.dart`, with every field that's branch-specific made nullable/defaulted rather than required, since the two response shapes share almost nothing:
 ```dart
 class BulkImportResultModel {
   final int totalRows;
-  final int validCount;
-  final int invalidCount;
-  final bool hasErrors;
-  final List<BulkInvalidRow> invalidRows;
-  final List<BulkValidRowPreview> validRows; // display fields only
-  final String? jobUuid;
+  final int? validCount;      // only present on the has-errors branch
+  final int? invalidCount;    // only present on the has-errors branch
+  final bool hasErrors;       // defaults false when absent (the queued/success branch)
+  final List<BulkInvalidRow> invalidRows; // empty when absent
+  final String? jobUuid;      // only present on the queued/success branch
   final String? message;
 
   factory BulkImportResultModel.fromJson(Map<String, dynamic> json);
@@ -86,17 +85,8 @@ class BulkRowError {
   final String field;
   final String message;
 }
-
-class BulkValidRowPreview {
-  final int rowNumber;
-  final String title;   // data['Product Title']
-  final String sku;     // data['SKU']
-  final String brand;   // data['Brand']
-  final String price;   // data['Sale Price'] ?? data['Base Price']
-  final String stock;   // data['Stock']
-}
 ```
-`BulkValidRowPreview.fromJson` reads only those five display fields out of each row's `data` map and explicitly ignores `thumbnailBuffer`/`galleryBuffers` if present (raw image byte arrays the backend echoes back that the client has no use for).
+No `validRows`/valid-row-preview model — the backend never returns per-row data for successfully queued imports (see the API section above), so there's nothing to preview in that case, and previewing rows on the rejected path would be misleading (those rows were not imported either).
 
 ### Cubit & state
 
@@ -152,10 +142,8 @@ Single scrollable page (not a hard-gated paged wizard — matches the reference 
 1. **Category card** — leaf-category picker reusing `showCategoryPicker` from `category_picker_sheet.dart` with the same drill-down loop `AddProductScreen` already uses (call with root categories; if the picked node has children, call again with `cat.children`; repeat until a leaf is picked) + a "Download template" button, disabled until a leaf is selected, spinner while `downloadingTemplate`.
 2. **Upload card** — `file_picker` button restricted to `.xlsx`, shows the picked filename + size once chosen, "Upload & validate" button disabled until a file is picked, a linear progress indicator driven by `uploadProgressPercent` while `uploading`.
 3. **Results card** — rendered only once `state.result != null`:
-   - Three stat tiles: total / valid / invalid rows, using this app's existing card/tile styling (not the web's ad-hoc colored boxes).
-   - Corrected messaging based on `hasErrors` (see behavioral rule above).
-   - Expandable list of invalid rows, each showing its row number and field errors.
-   - Compact preview list of valid rows (title / SKU / brand / price / stock) when `hasErrors` is false and the job was queued.
+   - If `hasErrors`: stat tiles for total / valid / invalid rows (using this app's existing card/tile styling, not the web's ad-hoc colored boxes), the corrected messaging (see behavioral rule above), and an expandable list of invalid rows, each showing its row number and field errors. No valid-row preview — those rows weren't imported either, so listing them would be misleading.
+   - If not `hasErrors` (job queued): a single success message with `totalRows` and the confirmed-with-user copy ("N product(s) queued — you'll get an email when it's done, then check My Products"), optionally showing `jobUuid` for reference. No per-row detail exists to show here (see API section above).
    - Actions: "Upload another file" (`cubit.reset()`) and "View products" (`context.pop()`).
 
 ### Error handling
