@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class ProductsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ProductsAppBar({super.key});
+  final VoidCallback? onBulkUpload;
+
+  const ProductsAppBar({super.key, this.onBulkUpload});
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -24,6 +26,23 @@ class ProductsAppBar extends StatelessWidget implements PreferredSizeWidget {
           letterSpacing: -0.4,
         ),
       ),
+      actions: [
+        PopupMenuButton<void>(
+          icon: Icon(Icons.more_vert, color: context.colors.textPrimary),
+          itemBuilder: (context) => [
+            PopupMenuItem<void>(
+              onTap: onBulkUpload,
+              child: const Row(
+                children: [
+                  Icon(Icons.upload_file_outlined, size: 20),
+                  SizedBox(width: 12),
+                  Text('Bulk upload'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

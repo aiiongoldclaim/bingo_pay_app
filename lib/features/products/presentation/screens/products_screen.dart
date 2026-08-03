@@ -118,6 +118,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
     _refresh();
   }
 
+  Future<void> _openBulkUpload() async {
+    await context.push(AppRoutes.vendorProductBulkUpload);
+    _refresh();
+  }
+
   Future<void> _openFilterSheet() async {
     final result = await showProductFilterSheet(
       context,
@@ -131,7 +136,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return GlassScaffold(
-      appBar: const ProductsAppBar(),
+      appBar: ProductsAppBar(onBulkUpload: _openBulkUpload),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 96),
         child: FloatingActionButton(
