@@ -11,6 +11,7 @@ import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
+import 'widgets/payment_method_picker.dart';
 
 class CouponAndNotesCard extends StatefulWidget {
   const CouponAndNotesCard({super.key});
@@ -149,10 +150,14 @@ class ReviewPaymentCard extends StatelessWidget {
     super.key,
     required this.methodName,
     required this.bigoldBalance,
+    required this.selectedMethod,
+    required this.onChangeTap,
   });
 
   final String methodName;
   final String bigoldBalance;
+  final PaymentMethod selectedMethod;
+  final VoidCallback onChangeTap;
 
   @override
   Widget build(BuildContext context) {
@@ -233,31 +238,67 @@ class ReviewPaymentCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: onChangeTap,
+                  style: TextButton.styleFrom(
+                    foregroundColor: ThemeColors.white,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    'Change',
+                    style: AppTextStyles.labelLarge.copyWith(
+                      color: ThemeColors.white,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
 
-          // ── Balance ────────────────────────────────────────────────────
+          // ── Balance (wallet only) / COD note ─────────────────────────────
           Padding(
             padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'YOUR BALANCE',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: ThemeColors.inkMid,
+            child: selectedMethod == PaymentMethod.wallet
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'YOUR BALANCE',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: ThemeColors.inkMid,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _BalanceRow(
+                        icon: Icons.account_balance_wallet_outlined,
+                        label: 'Bigod Balance',
+                        value: bigoldBalance,
+                        color: const Color(0xFFF7A928),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      const Icon(
+                        Icons.payments_outlined,
+                        size: 18,
+                        color: ThemeColors.inkMid,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Pay with cash when your order arrives',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: ThemeColors.inkMid,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 12),
-                _BalanceRow(
-                  icon: Icons.account_balance_wallet_outlined,
-                  label: 'Bigod Balance',
-                  value: bigoldBalance,
-                  color: const Color(0xFFF7A928),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -459,11 +500,13 @@ class PayNowBottomBar extends StatelessWidget {
   const PayNowBottomBar({
     super.key,
     required this.amount,
+    required this.buttonLabel,
     required this.isLoading,
     required this.onPay,
   });
 
   final String amount;
+  final String buttonLabel;
   final bool isLoading;
   final VoidCallback onPay;
 
@@ -490,7 +533,7 @@ class PayNowBottomBar extends StatelessWidget {
                   : const Icon(Icons.lock_outline, color: Colors.white),
               label: isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : Text('Pay $amount', style: AppTextStyles.buttonText),
+                  : Text('$buttonLabel $amount', style: AppTextStyles.buttonText),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent,
                 shadowColor: Colors.transparent,
@@ -526,6 +569,9 @@ class ReviewPayScreen extends StatelessWidget {
 
             bottomNavigationBar: PayNowBottomBar(
               amount: state.formattedTotal,
+              buttonLabel: state.selectedMethod == PaymentMethod.cashOnDelivery
+                  ? 'Place Order'
+                  : 'Pay Now',
               isLoading: state.isProcessing,
               onPay: () async {
                 final cubit = context.read<PaymentMethodCubit>();
@@ -573,6 +619,11 @@ class ReviewPayScreen extends StatelessWidget {
                   ReviewPaymentCard(
                     methodName: state.methodDisplayName,
                     bigoldBalance: state.formattedBigoldBalance,
+                    selectedMethod: state.selectedMethod ?? PaymentMethod.wallet,
+                    onChangeTap: () => showPaymentMethodPicker(
+                      context,
+                      state.selectedMethod ?? PaymentMethod.wallet,
+                    ),
                   ),
 
                   const SizedBox(height: AppSizes.paddingMd),
