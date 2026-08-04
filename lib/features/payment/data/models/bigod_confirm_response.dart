@@ -16,13 +16,13 @@ class BigodConfirmResponse {
   final String status;
   final double amount;
   final BigodOrderRef order;
-  final double balance;
+  final double? balance;
 
   const BigodConfirmResponse({
     required this.status,
     required this.amount,
     required this.order,
-    required this.balance,
+    this.balance,
   });
 
   // API shape: { success, statusCode, message, data: { message, data: {
@@ -34,7 +34,7 @@ class BigodConfirmResponse {
       status: inner['status'] as String,
       amount: (inner['amount'] as num).toDouble(),
       order: BigodOrderRef.fromJson(inner['order'] as Map<String, dynamic>),
-      balance: (inner['balance'] as num).toDouble(),
+      balance: (inner['balance'] as num?)?.toDouble(),
     );
   }
 }
