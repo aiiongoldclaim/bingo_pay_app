@@ -6,11 +6,13 @@ import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:bingo_pay/core/theme/app_text_styles.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/utils/pdf_file_handler.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../cubit/orders_cubit.dart';
 import '../../cubit/orders_state.dart';
+import '../../data/datasources/orders_remote_datasource.dart';
 import '../../data/models/order_model.dart';
 import '../widgets/order_info_card.dart';
 import '../widgets/order_status.dart';
@@ -52,6 +54,8 @@ class _OrderDetailView extends StatelessWidget {
                     final cubit = context.read<OrderDetailCubit>();
                     cubit.loadOrder(order);
                   },
+            actionIcon2: Icons.receipt_long_outlined,
+            onAction2: () => _downloadInvoice(context, order),
           ),
           body: BlocListener<OrderDetailCubit, OrderDetailState>(
             listener: (context, state) {
@@ -217,6 +221,22 @@ class _OrderDetailView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _downloadInvoice(BuildContext context, OrderModel o) async {
+    try {
+      final invoice = await getIt<OrdersRemoteDataSource>().downloadInvoice(
+        o.uuid,
+      );
+      await openOrSharePdf(invoice.bytes, invoice.filename);
+    } catch (_) {
+      if (context.mounted) {
+        AppSnackbar.showError(
+          context,
+          'Failed to download invoice. Please try again.',
+        );
+      }
+    }
   }
 
   List<TrackingStep> _buildTimeline(OrderModel o) {

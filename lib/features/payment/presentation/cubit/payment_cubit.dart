@@ -45,7 +45,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     await _clearCartUseCase(); // best-effort — a clear failure shouldn't block a completed purchase
   }
 
-  Future<String> _placeCodOrder() async {
+  Future<({String orderNumber, String? uuid})> _placeCodOrder() async {
     final client = GetIt.I<ApiClient>();
     final response = await client.dio.post(
       ApiEndpoints.orders,
@@ -59,20 +59,23 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         if (!state.isCartFlow && state.notes.isNotEmpty) 'notes': state.notes,
       },
     );
-    final orderId = _extractOrderId(response.data);
-    if (orderId == null) {
+    final ids = _extractOrderIds(response.data);
+    if (ids == null) {
       throw StateError('Order was created but the response had no order id');
     }
-    return orderId;
+    return ids;
   }
 
-  String? _extractOrderId(dynamic raw) {
+  // Human-readable order number is preferred for display; the real uuid
+  // (kept separately) is what GET .../invoice needs as its path param.
+  ({String orderNumber, String? uuid})? _extractOrderIds(dynamic raw) {
     if (raw is! Map<String, dynamic>) return null;
     final data = raw['data'];
     if (data is! Map<String, dynamic>) return null;
-    final candidate =
+    final orderNumber =
         data['orderNumber'] ?? data['orderId'] ?? data['uuid'] ?? data['id'];
-    return candidate?.toString();
+    if (orderNumber == null) return null;
+    return (orderNumber: orderNumber.toString(), uuid: data['uuid']?.toString());
   }
 
   void selectPaymentMethod(PaymentMethod method) {
@@ -133,13 +136,14 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
 
     try {
       if (state.selectedMethod == PaymentMethod.cashOnDelivery) {
-        final orderId = await _placeCodOrder();
+        final ids = await _placeCodOrder();
         await _clearCartIfNeeded();
         emit(
           state.copyWith(
             status: PaymentStatus.success,
             isProcessing: false,
-            orderId: orderId,
+            orderId: ids.orderNumber,
+            orderUuid: ids.uuid ?? '',
           ),
         );
         return;
@@ -173,6 +177,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
           status: PaymentStatus.success,
           isProcessing: false,
           orderId: confirmation.order.orderNumber,
+          orderUuid: confirmation.order.uuid,
         ),
       );
     } on DioException catch (e) {

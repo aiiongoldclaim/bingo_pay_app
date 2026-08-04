@@ -54,7 +54,8 @@ class PaymentMethodState {
   final String notes;
 
   // Success Screen Data
-  final String orderId;
+  final String orderId; // human-readable order number, for display
+  final String orderUuid; // real order id, required for GET .../invoice
   final int coinsEarned;
 
   PaymentMethodState({
@@ -86,6 +87,7 @@ class PaymentMethodState {
     this.couponCode = '',
     this.notes = '',
     this.orderId = 'BG-48231',
+    this.orderUuid = '',
     this.coinsEarned = 380,
   }) : itemTotal = itemTotal ?? productPriceValue,
        totalAmount = totalAmount ?? productPriceValue;
@@ -145,6 +147,7 @@ class PaymentMethodState {
     String? couponCode,
     String? notes,
     String? orderId,
+    String? orderUuid,
     int? coinsEarned,
   }) {
     return PaymentMethodState(
@@ -178,6 +181,7 @@ class PaymentMethodState {
       couponCode: couponCode ?? this.couponCode,
       notes: notes ?? this.notes,
       orderId: orderId ?? this.orderId,
+      orderUuid: orderUuid ?? this.orderUuid,
       coinsEarned: coinsEarned ?? this.coinsEarned,
     );
   }
