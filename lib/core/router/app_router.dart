@@ -322,6 +322,13 @@ class AppRouter {
           path: AppRoutes.vendorProductCreate,
           builder: (_, _) => const AddProductScreen(),
         ),
+        // Must be registered before vendorProductDetail ('/vendor/products/:id')
+        // — go_router matches in declaration order, and the dynamic ':id'
+        // route would otherwise swallow the literal "bulk-upload" segment.
+        GoRoute(
+          path: AppRoutes.vendorProductBulkUpload,
+          builder: (_, _) => const BulkUploadScreen(),
+        ),
         GoRoute(
           path: AppRoutes.vendorProductDetail,
           builder: (context, state) =>
@@ -331,10 +338,6 @@ class AppRouter {
           path: AppRoutes.vendorProductEdit,
           builder: (context, state) =>
               AddProductScreen(productId: state.pathParameters['id']!),
-        ),
-        GoRoute(
-          path: AppRoutes.vendorProductBulkUpload,
-          builder: (_, _) => const BulkUploadScreen(),
         ),
 
         // Add order stays outside bottom-nav shell (pushed on top, full-screen)
