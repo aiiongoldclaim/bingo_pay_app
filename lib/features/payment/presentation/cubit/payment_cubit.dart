@@ -70,8 +70,11 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   // (kept separately) is what GET .../invoice needs as its path param.
   ({String orderNumber, String? uuid})? _extractOrderIds(dynamic raw) {
     if (raw is! Map<String, dynamic>) return null;
-    final data = raw['data'];
-    if (data is! Map<String, dynamic>) return null;
+    final outer = raw['data'];
+    if (outer is! Map<String, dynamic>) return null;
+    final data = outer['data'] is Map<String, dynamic>
+        ? outer['data'] as Map<String, dynamic>
+        : outer;
     final orderNumber =
         data['orderNumber'] ?? data['orderId'] ?? data['uuid'] ?? data['id'];
     if (orderNumber == null) return null;
