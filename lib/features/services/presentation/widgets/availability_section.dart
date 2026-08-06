@@ -29,7 +29,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
   Widget build(BuildContext context) {
     return BlocBuilder<AvailabilityCubit, AvailabilityState>(
       builder: (context, state) {
-        if (state.status == AvailabilityStatus.loading) {
+        // Handle initial/loading state
+        if (state.status == AvailabilityStatus.loading || state.status == AvailabilityStatus.initial) {
           return Center(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 5.h),
@@ -529,9 +530,12 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
   }
 
   Widget _buildTimeSlotsByPeriod(List<dynamic> slots) {
+    // Filter and cast slots to proper type
+    final earlyMorning = <dynamic>[];
     final morning = <dynamic>[];
     final afternoon = <dynamic>[];
     final evening = <dynamic>[];
+    final night = <dynamic>[];
 
     for (var slot in slots) {
       try {
@@ -539,12 +543,16 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
         final startTime = DateTime.parse(slot.startsAt);
         final hour = startTime.hour;
 
-        if (hour >= 6 && hour < 12) {
+        if (hour >= 0 && hour < 6) {
+          earlyMorning.add(slot);
+        } else if (hour >= 6 && hour < 12) {
           morning.add(slot);
         } else if (hour >= 12 && hour < 17) {
           afternoon.add(slot);
-        } else if (hour >= 17 && hour < 22) {
+        } else if (hour >= 17 && hour < 21) {
           evening.add(slot);
+        } else if (hour >= 21 && hour < 24) {
+          night.add(slot);
         }
       } catch (e) {
         debugPrint('Error parsing slot time: $e');
@@ -555,6 +563,10 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (earlyMorning.isNotEmpty) ...[
+          _buildPeriodSection('🌙 Early Morning', '12:00 AM - 6:00 AM', earlyMorning),
+          SizedBox(height: 2.h),
+        ],
         if (morning.isNotEmpty) ...[
           _buildPeriodSection('🌅 Morning', '6:00 AM - 12:00 PM', morning),
           SizedBox(height: 2.h),
@@ -564,7 +576,11 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
           SizedBox(height: 2.h),
         ],
         if (evening.isNotEmpty) ...[
-          _buildPeriodSection('🌆 Evening', '5:00 PM - 10:00 PM', evening),
+          _buildPeriodSection('🌆 Evening', '5:00 PM - 9:00 PM', evening),
+          SizedBox(height: 2.h),
+        ],
+        if (night.isNotEmpty) ...[
+          _buildPeriodSection('🌃 Night', '9:00 PM - 12:00 AM', night),
         ],
       ],
     );
@@ -630,13 +646,19 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             String displayTime = 'N/A';
             try {
-              if (slot.timeDisplay != null && slot.timeDisplay.isNotEmpty) {
+              // Generate time display from startsAt and endsAt (convert from UTC to local time)
+              if (slot.startsAt != null && slot.startsAt.isNotEmpty) {
+                final utcTime = DateTime.parse(slot.startsAt);
+                // Convert UTC to local timezone
+                final localTime = utcTime.toLocal();
+                displayTime = '${localTime.hour.toString().padLeft(2, '0')}:${localTime.minute.toString().padLeft(2, '0')}';
+              } else if (slot.timeDisplay != null && slot.timeDisplay.isNotEmpty) {
                 final parts = slot.timeDisplay.split(' - ');
                 displayTime = parts.isNotEmpty ? parts[0] : slot.timeDisplay;
               }
             } catch (e) {
               debugPrint('Error parsing display time: $e');
-              displayTime = slot.timeDisplay ?? 'N/A';
+              displayTime = 'N/A';
             }
 
             return GestureDetector(

@@ -107,7 +107,7 @@ OfferingModel _$OfferingModelFromJson(Map<String, dynamic> json) =>
       title: json['title'] as String,
       offeringName: json['offeringName'] as String,
       basePrice: json['basePrice'] as String,
-      salePrice: json['salePrice'] as String,
+      salePrice: json['salePrice'] as String?,
       currency: json['currency'] as String,
       durationMinutes: (json['durationMinutes'] as num).toInt(),
       isDefault: json['isDefault'] as bool,

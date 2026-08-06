@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/service_entity.dart';
 
 class OfferingsList extends StatelessWidget {
@@ -79,7 +80,10 @@ class OfferingsList extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${offering.currency} ${offering.salePrice}',
+                          CurrencyFormatter.formatPrice(
+                            offering.salePrice ?? offering.basePrice,
+                            offering.currency,
+                          ),
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w700,

@@ -31,6 +31,7 @@ class AppRoutes {
   static const String wallet = '/wallet';
   static const String search = '/search';
   static const String scanner = '/scanner';
+  static const String services = '/services';
   static const String transferSuccess = "/transferSuccess";
   static const String paymentSuccess = '/payment-Success';
   static const String reviewPayment = '/review-Payment';

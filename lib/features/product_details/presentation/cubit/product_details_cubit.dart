@@ -13,7 +13,7 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     emit(const ProductDetailLoading());
     try {
       final client = GetIt.I<ApiClient>();
-      final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products/$uuid';
+      final url = '${AppConfig.apiBaseUrl}/api/v1/products/$uuid';
       final response = await client.dio.get(url);
       final product = ProductDetailModel.fromJson(
         response.data as Map<String, dynamic>,

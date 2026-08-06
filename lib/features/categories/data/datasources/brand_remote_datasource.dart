@@ -16,7 +16,7 @@ class BrandRemoteDataSourceImpl implements BrandRemoteDataSource {
 
   @override
   Future<List<BrandModel>> getBrands() async {
-    final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/brands';
+    final url = '${AppConfig.apiBaseUrl}/api/v1/brands';
     final response = await _client.dio.get(url);
 
     final raw = response.data as Map<String, dynamic>;

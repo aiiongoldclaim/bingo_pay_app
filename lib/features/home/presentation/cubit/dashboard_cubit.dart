@@ -27,7 +27,7 @@ class HomeCubit extends Cubit<HomeState> {
     // Fetch categories
     try {
       final categoryResponse = await client.dio.get(
-        '${AppConfig.categoriesApiBaseUrl}${ApiEndpoints.categories}',
+        '${AppConfig.apiBaseUrl}${ApiEndpoints.categories}',
       );
       final categoryResult = CategoryResponseModel.fromJson(
         categoryResponse.data as Map<String, dynamic>,
@@ -53,7 +53,7 @@ class HomeCubit extends Cubit<HomeState> {
     // Fetch products with robust throttling cache fallback
     List<ProductModel> products = [];
     try {
-      final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products';
+      final url = '${AppConfig.apiBaseUrl}/api/v1/products';
       final response = await client.dio.get(
         url,
         queryParameters: {'page': 1, 'limit': 20},

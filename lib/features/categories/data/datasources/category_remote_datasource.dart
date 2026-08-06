@@ -18,7 +18,7 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
   @override
   Future<CategoryResponseModel> getCategories() async {
     final response = await _client.dio.get(
-      '${AppConfig.categoriesApiBaseUrl}${ApiEndpoints.categories}',
+      '${AppConfig.apiBaseUrl}${ApiEndpoints.categories}',
     );
 
     return CategoryResponseModel.fromJson(

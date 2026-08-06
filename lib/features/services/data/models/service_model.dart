@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../../../core/utils/currency_formatter.dart';
 
 part 'service_model.g.dart';
 
@@ -61,7 +62,10 @@ class ServiceModel {
       : 0.0;
 
   String get displayPrice => offerings.isNotEmpty
-      ? '${offerings.first.currency} ${offerings.first.salePrice}'
+      ? CurrencyFormatter.formatPrice(
+          offerings.first.salePrice ?? offerings.first.basePrice,
+          offerings.first.currency,
+        )
       : 'N/A';
 }
 
@@ -135,7 +139,7 @@ class OfferingModel {
   @JsonKey(name: 'basePrice')
   final String basePrice;
   @JsonKey(name: 'salePrice')
-  final String salePrice;
+  final String? salePrice;
   final String currency;
   @JsonKey(name: 'durationMinutes')
   final int durationMinutes;

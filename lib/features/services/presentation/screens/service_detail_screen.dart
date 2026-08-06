@@ -10,7 +10,6 @@ import '../cubit/service_detail_state.dart';
 import '../widgets/service_detail_header.dart';
 import '../widgets/offerings_list.dart';
 import '../widgets/availability_section.dart';
-import '../widgets/service_location_map.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final ServiceEntity? service;
@@ -130,16 +129,22 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
               }
 
               final service = state.service!;
+
+              // Ensure default offering is always selected
               if (_selectedOfferingUuid.isEmpty && service.offerings.isNotEmpty) {
-                // Set default offering
                 WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  final offeringUuid = service.offerings.first.uuid;
                   setState(() {
-                    _selectedOfferingUuid = service.offerings.first.uuid;
+                    _selectedOfferingUuid = offeringUuid;
                   });
-                  context.read<AvailabilityCubit>().loadAvailability(
-                        serviceUuid: serviceUuid,
-                        offeringUuid: service.offerings.first.uuid,
-                      );
+                  // Load availability for the default offering
+                  if (mounted) {
+                    context.read<AvailabilityCubit>().loadAvailability(
+                          serviceUuid: serviceUuid,
+                          offeringUuid: offeringUuid,
+                        );
+                  }
                 });
               }
 
@@ -150,16 +155,6 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                   children: [
                     // Header with image and basic info
                     ServiceDetailHeader(service: service),
-
-                    SizedBox(height: 3.h),
-
-                    // Location Map
-                    ServiceLocationMap(
-                      latitude: service.latitude,
-                      longitude: service.longitude,
-                      address: service.locationLabel,
-                      serviceName: service.title,
-                    ),
 
                     SizedBox(height: 3.h),
 

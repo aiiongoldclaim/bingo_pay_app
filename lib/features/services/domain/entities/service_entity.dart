@@ -74,7 +74,7 @@ class OfferingEntity extends Equatable {
   final String title;
   final String offeringName;
   final String basePrice;
-  final String salePrice;
+  final String? salePrice;
   final String currency;
   final int durationMinutes;
   final bool isDefault;

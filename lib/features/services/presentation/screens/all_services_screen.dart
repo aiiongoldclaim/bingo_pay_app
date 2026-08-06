@@ -109,7 +109,7 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 3.w,
                 mainAxisSpacing: 2.h,
-                childAspectRatio: 0.65,
+                childAspectRatio: 0.78,
               ),
               itemCount: state.services.length +
                   (state.hasMorePages ? 1 : 0),

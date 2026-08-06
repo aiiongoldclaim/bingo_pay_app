@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/app_search_bar.dart';
+import '../../../services/presentation/cubit/services_cubit.dart';
+import '../../../services/presentation/widgets/services_section.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../widgets/category_section.dart';
@@ -248,6 +251,13 @@ class HomeScreen extends StatelessWidget {
                               ],
 
                               CategorySection(categories: state.categories),
+
+                              SizedBox(height: 2.h),
+
+                              BlocProvider(
+                                create: (_) => getIt<ServicesCubit>()..loadServices(),
+                                child: const ServicesSection(),
+                              ),
 
                               if (state.flashDeals.isEmpty &&
                                   state.recommended.isEmpty)

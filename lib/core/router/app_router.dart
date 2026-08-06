@@ -29,6 +29,8 @@ import '../../features/auth/presentation/screens/sso_set_password_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/home/presentation/screens/all_products_screen.dart';
+import '../../features/services/presentation/screens/all_services_screen.dart';
+import '../../features/services/presentation/screens/service_detail_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
 import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
@@ -224,6 +226,19 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.allProducts,
               builder: (_, _) => const AllProductsScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.services,
+              builder: (_, _) => const AllServicesScreen(),
+            ),
+            GoRoute(
+              path: '/service-detail/:uuid',
+              builder: (context, state) {
+                final uuid = state.pathParameters['uuid'] ?? '';
+                return ServiceDetailScreen(
+                  serviceUuid: uuid,
+                );
+              },
             ),
             GoRoute(
               path: AppRoutes.productListing,

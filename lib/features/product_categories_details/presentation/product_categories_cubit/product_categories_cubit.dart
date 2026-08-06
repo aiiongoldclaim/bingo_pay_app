@@ -236,7 +236,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     ApiClient client,
     String categoryUuid,
   ) async {
-    final url = '${AppConfig.categoriesApiBaseUrl}/api/v1/products';
+    final url = '${AppConfig.apiBaseUrl}/api/v1/products';
     final response = await client.dio.get(
       url,
       queryParameters: {
@@ -262,7 +262,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
 
     try {
       final url =
-          '${AppConfig.categoriesApiBaseUrl}${ApiEndpoints.categories}';
+          '${AppConfig.apiBaseUrl}${ApiEndpoints.categories}';
       final response = await client.dio.get(url);
       final raw = response.data as Map<String, dynamic>;
       final dataMap = raw['data'] as Map<String, dynamic>;

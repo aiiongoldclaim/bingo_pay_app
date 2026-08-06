@@ -69,7 +69,7 @@ class ServiceCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
                       color: ThemeColors.black,
                     ),
@@ -83,7 +83,8 @@ class ServiceCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 11.sp,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -103,7 +104,7 @@ class ServiceCard extends StatelessWidget {
                         Text(
                           '${service.averageRating}',
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -111,22 +112,22 @@ class ServiceCard extends StatelessWidget {
                         Text(
                           '(${service.totalReviews})',
                           style: TextStyle(
-                            fontSize: 10.sp,
+                            fontSize: 12.sp,
                             color: Colors.grey.shade600,
                           ),
                         ),
                       ],
-                    )
-                  else
-                    Text(
-                      'No reviews yet',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        color: Colors.grey.shade500,
-                      ),
                     ),
+                  // else
+                  //   Text(
+                  //     'No reviews yet',
+                  //     style: TextStyle(
+                  //       fontSize: 14.sp,
+                  //       color: Colors.grey.shade500,
+                  //     ),
+                  //   ),
 
-                  SizedBox(height: 0.8.h),
+                  // SizedBox(height: 0.8.h),
 
                   // Price
                   Row(
@@ -135,7 +136,7 @@ class ServiceCard extends StatelessWidget {
                       Text(
                         service.displayPrice,
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
                           color: ThemeColors.blue,
                         ),
@@ -152,7 +153,7 @@ class ServiceCard extends StatelessWidget {
                         child: Text(
                           '${service.durationMinutes}m',
                           style: TextStyle(
-                            fontSize: 10.sp,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w500,
                             color: ThemeColors.blue,
                           ),

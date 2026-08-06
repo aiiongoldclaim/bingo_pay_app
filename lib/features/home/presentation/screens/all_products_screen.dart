@@ -39,7 +39,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
 
     try {
       final response = await client.dio.get(
-        '${AppConfig.categoriesApiBaseUrl}/api/v1/products',
+        '${AppConfig.apiBaseUrl}/api/v1/products',
         queryParameters: {'page': 1, 'limit': 100},
       );
       final raw = response.data as Map<String, dynamic>;

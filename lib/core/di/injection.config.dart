@@ -129,6 +129,18 @@ import 'package:bingo_pay/features/scanner/domain/usecases/process_payment_useca
     as _i805;
 import 'package:bingo_pay/features/scanner/presentation/cubit/payment_cubit.dart'
     as _i631;
+import 'package:bingo_pay/features/services/data/datasources/service_detail_datasource.dart'
+    as _i447;
+import 'package:bingo_pay/features/services/data/datasources/service_remote_datasource.dart'
+    as _i352;
+import 'package:bingo_pay/features/services/domain/usecases/get_service_detail_usecase.dart'
+    as _i838;
+import 'package:bingo_pay/features/services/domain/usecases/get_services_usecase.dart'
+    as _i254;
+import 'package:bingo_pay/features/services/presentation/cubit/service_detail_cubit.dart'
+    as _i695;
+import 'package:bingo_pay/features/services/presentation/cubit/services_cubit.dart'
+    as _i393;
 import 'package:bingo_pay/features/transactions/cubit/transactions_cubit.dart'
     as _i729;
 import 'package:bingo_pay/features/transactions/data/datasources/transactions_remote_datasource.dart'
@@ -203,8 +215,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i152.GetBrandsUseCase>(
       () => _i152.GetBrandsUseCase(gh<_i105.BrandRepository>()),
     );
+    gh.factory<_i447.ServiceDetailDataSource>(
+      () => _i447.ServiceDetailDataSourceImpl(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i298.CategoryRemoteDataSource>(
       () => _i298.CategoryRemoteDataSourceImpl(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i352.ServiceRemoteDataSource>(
+      () => _i352.ServiceRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
     gh.singleton<_i792.BigodPaymentDataSource>(
       () => _i792.BigodPaymentDataSource(gh<_i541.ApiClient>()),
@@ -245,6 +263,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i876.UpdateCartItemQuantityUseCase>(
       () => _i876.UpdateCartItemQuantityUseCase(gh<_i939.CartRepository>()),
     );
+    gh.factory<_i838.GetServiceDetailUseCase>(
+      () => _i838.GetServiceDetailUseCase(gh<_i447.ServiceDetailDataSource>()),
+    );
+    gh.factory<_i838.GetServiceAvailabilityUseCase>(
+      () => _i838.GetServiceAvailabilityUseCase(
+        gh<_i447.ServiceDetailDataSource>(),
+      ),
+    );
     gh.factory<_i728.CartCubit>(
       () => _i728.CartCubit(
         gh<_i92.GetCartUseCase>(),
@@ -259,6 +285,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i507.GetCategoriesUseCase>(
       () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
+    );
+    gh.factory<_i695.ServiceDetailCubit>(
+      () => _i695.ServiceDetailCubit(gh<_i838.GetServiceDetailUseCase>()),
     );
     gh.factory<_i610.OrderDetailCubit>(
       () => _i610.OrderDetailCubit(
@@ -283,6 +312,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i729.TransactionsCubit>(
       () => _i729.TransactionsCubit(gh<_i97.TransactionsRemoteDataSource>()),
+    );
+    gh.factory<_i695.AvailabilityCubit>(
+      () => _i695.AvailabilityCubit(gh<_i838.GetServiceAvailabilityUseCase>()),
+    );
+    gh.factory<_i254.GetServicesUseCase>(
+      () => _i254.GetServicesUseCase(gh<_i352.ServiceRemoteDataSource>()),
     );
     gh.factory<_i801.CategoriesCubit>(
       () => _i801.CategoriesCubit(
@@ -343,6 +378,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i999.VerifySsoLoginUseCase>(
       () => _i999.VerifySsoLoginUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i393.ServicesCubit>(
+      () => _i393.ServicesCubit(gh<_i254.GetServicesUseCase>()),
     );
     gh.factory<_i741.AccountCubit>(
       () => _i741.AccountCubit(gh<_i810.GetProfileUseCase>()),
