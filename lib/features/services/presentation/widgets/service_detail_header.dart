@@ -107,7 +107,7 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
               child: Text(
                 widget.service.vendorName,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 14.5.sp,
                   color: Colors.grey.shade600,
                 ),
               ),
@@ -124,7 +124,7 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
               child: Text(
                 widget.service.categoryName,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 13.5.sp,
                   color: ThemeColors.blue,
                   fontWeight: FontWeight.w500,
                 ),
@@ -149,7 +149,7 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
                 child: Text(
                   widget.service.locationLabel!,
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 13.5.sp,
                     color: Colors.grey.shade600,
                   ),
                   maxLines: 2,
@@ -169,7 +169,7 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
               children: [
                 Icon(
                   Icons.star_rounded,
-                  size: 16.sp,
+                  size: 17.sp,
                   color: Colors.amber,
                 ),
                 SizedBox(width: 0.5.w),
@@ -184,7 +184,7 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
                 Text(
                   '(${widget.service.totalReviews} reviews)',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 13.5.sp,
                     color: Colors.grey.shade600,
                   ),
                 ),
@@ -194,14 +194,14 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
               children: [
                 Icon(
                   Icons.access_time_rounded,
-                  size: 14.sp,
+                  size: 16.sp,
                   color: ThemeColors.blue,
                 ),
-                SizedBox(width: 0.5.w),
+                SizedBox(width: 0.9.w),
                 Text(
                   '${widget.service.durationMinutes}m',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 14.5.sp,
                     fontWeight: FontWeight.w500,
                     color: ThemeColors.blue,
                   ),
@@ -210,7 +210,7 @@ class _ServiceDetailHeaderState extends State<ServiceDetailHeader> {
             ),
           ],
         ),
-        SizedBox(height: 1.h),
+        SizedBox(height: 1.5.h),
 
         Container(
         height: 25.h,

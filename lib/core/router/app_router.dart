@@ -201,6 +201,7 @@ class AppRouter {
             );
           },
           routes: [
+            
             GoRoute(
               path: AppRoutes.home,
               builder: (_, _) => const HomeScreen(),

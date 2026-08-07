@@ -24,6 +24,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
   int selectedDateIndex = 0;
   String? selectedSlotUuid;
   String? selectedTime;
+  String? selectedDisplayTime;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +159,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                       Text(
                         'Select Date & Time',
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w800,
                           color: ThemeColors.black,
                         ),
@@ -166,7 +167,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                       Text(
                         'Choose your preferred appointment slot',
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 13.5.sp,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -179,7 +180,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             // Date Selector
             SizedBox(
-              height: 13.h,
+              height: 10.h,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: availability.days.length,
@@ -243,7 +244,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                             Text(
                               dayName,
                               style: TextStyle(
-                                fontSize: 11.sp,
+                                fontSize: 14.5.sp,
                                 fontWeight: FontWeight.w600,
                                 color: isSelected
                                     ? Colors.white
@@ -267,7 +268,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                 formattedDate,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w800,
                                   color: isSelected
                                       ? Colors.white
@@ -339,7 +340,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                     Text(
                       'Your Appointment',
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey.shade600,
                         letterSpacing: 0.5,
@@ -372,7 +373,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                     Text(
                                       'Date',
                                       style: TextStyle(
-                                        fontSize: 10.sp,
+                                        fontSize: 14.sp,
                                         color: Colors.grey.shade600,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -383,7 +384,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                             .days[selectedDateIndex].date,
                                       ),
                                       style: TextStyle(
-                                        fontSize: 13.sp,
+                                        fontSize: 13.5.sp,
                                         fontWeight: FontWeight.w800,
                                         color: ThemeColors.black,
                                       ),
@@ -421,17 +422,17 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                     Text(
                                       'Time',
                                       style: TextStyle(
-                                        fontSize: 10.sp,
+                                        fontSize: 14.sp,
                                         color: Colors.grey.shade600,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     Text(
-                                      selectedTime ?? 'Select',
+                                      selectedDisplayTime ?? 'Select',
                                       style: TextStyle(
-                                        fontSize: 13.sp,
+                                        fontSize: 13.5.sp,
                                         fontWeight: FontWeight.w800,
-                                        color: selectedTime != null
+                                        color: selectedDisplayTime != null
                                             ? ThemeColors.blue
                                             : Colors.grey.shade400,
                                       ),
@@ -620,7 +621,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
               Text(
                 timeRange,
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: 13.5.sp,
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w500,
                 ),
@@ -667,6 +668,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                       setState(() {
                         selectedSlotUuid = slot.uuid;
                         selectedTime = slot.timeDisplay;
+                        selectedDisplayTime = displayTime;
                       });
                     }
                   : null,
@@ -722,7 +724,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                     Text(
                       displayTime,
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: 15.sp,
                         fontWeight: FontWeight.w800,
                         color: isSelected
                             ? Colors.white
@@ -747,7 +749,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                         child: Text(
                           '${slot.remaining} available',
                           style: TextStyle(
-                            fontSize: 9.sp,
+                            fontSize: 13.sp,
                             color: isSelected
                                 ? Colors.white
                                 : ThemeColors.blue,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intro/intro.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/di/injection.dart';
@@ -152,8 +154,47 @@ class _Tag extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late ScrollController _scrollController;
+  bool _introStarted = false;
+
+  IntroController get controller => Intro.of(context).controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _startIntroIfReady(HomeState state) async {
+    if (!_introStarted && state.status == HomeStatus.loaded) {
+      _introStarted = true;
+      final prefs = await SharedPreferences.getInstance();
+      final hasShownIntro = prefs.getBool('hasShownHomeIntro') ?? false;
+
+      if (!hasShownIntro) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            controller.start(context);
+            prefs.setBool('hasShownHomeIntro', true);
+          }
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,11 +215,14 @@ class HomeScreen extends StatelessWidget {
                 return const HomeShimmer();
               }
 
+              _startIntroIfReady(state);
+
               return RefreshIndicator(
                 onRefresh: () async {
                   context.read<HomeCubit>().loadHome();
                 },
                 child: SingleChildScrollView(
+                  controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,28 +235,32 @@ class HomeScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            HomeHeader(userName: state.userName),
+                            _buildStep1(HomeHeader(userName: state.userName)),
 
-                            WalletCard(
-                              bigoldBalance: state.formattedBigoldBalance,
+                            _buildStep2(
+                              WalletCard(
+                                bigoldBalance: state.formattedBigoldBalance,
+                              ),
                             ),
 
                             SizedBox(height: 2.h),
 
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 5.w),
-                              child: AppSearchBar(
-                                hintText: 'Search products, brands...',
-                                backgroundColor: ThemeColors.white,
-                                prefixIcon: Icon(
-                                  Icons.search_sharp,
-                                  color: ThemeColors.blue,
-                                  size: 20.sp,
-                                ),
-                                suffixIcon: Icon(
-                                  Icons.mic_none_rounded,
-                                  color: ThemeColors.blue,
-                                  size: 20.sp,
+                              child: _buildStep3(
+                                AppSearchBar(
+                                  hintText: 'Search products, brands...',
+                                  backgroundColor: ThemeColors.white,
+                                  prefixIcon: Icon(
+                                    Icons.search_sharp,
+                                    color: ThemeColors.blue,
+                                    size: 20.sp,
+                                  ),
+                                  suffixIcon: Icon(
+                                    Icons.mic_none_rounded,
+                                    color: ThemeColors.blue,
+                                    size: 20.sp,
+                                  ),
                                 ),
                               ),
                             ),
@@ -250,13 +298,17 @@ class HomeScreen extends StatelessWidget {
                                 SizedBox(height: 1.h),
                               ],
 
-                              CategorySection(categories: state.categories),
+                              _buildStep4(
+                                CategorySection(categories: state.categories),
+                              ),
 
                               SizedBox(height: 2.h),
 
-                              BlocProvider(
-                                create: (_) => getIt<ServicesCubit>()..loadServices(),
-                                child: const ServicesSection(),
+                              _buildStep5(
+                                BlocProvider(
+                                  create: (_) => getIt<ServicesCubit>()..loadServices(),
+                                  child: const ServicesSection(),
+                                ),
                               ),
 
                               if (state.flashDeals.isEmpty &&
@@ -264,10 +316,14 @@ class HomeScreen extends StatelessWidget {
                                 const _EmptyProductsState()
                               else ...[
                                 if (state.flashDeals.isNotEmpty)
-                                  FlashDealSection(products: state.flashDeals),
+                                  _buildStep6(
+                                    FlashDealSection(products: state.flashDeals),
+                                  ),
                                 if (state.recommended.isNotEmpty)
-                                  RecommendedSection(
-                                    products: state.recommended,
+                                  _buildStep7(
+                                    RecommendedSection(
+                                      products: state.recommended,
+                                    ),
                                   ),
                               ],
 
@@ -285,5 +341,122 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildStep1(Widget child) {
+    return IntroStepTarget(
+      step: 1,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Welcome to Bingo Pay! 👋\nDiscover amazing products and services in our marketplace.",
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildStep2(Widget child) {
+    return IntroStepTarget(
+      step: 2,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Your Wallet\n\nKeep track of your Bigold balance here for quick and easy payments.",
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildStep3(Widget child) {
+    return IntroStepTarget(
+      step: 3,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Search & Discover\n\nFind products and brands instantly using our search bar.",
+      ),
+      highlightDecoration: const IntroHighlightDecoration(
+        cursor: SystemMouseCursors.click,
+        radius: BorderRadius.all(Radius.circular(12)),
+        padding: EdgeInsets.all(8),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildStep4(Widget child) {
+    return IntroStepTarget(
+      step: 4,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Browse Categories\n\nExplore products by category. Swipe to see more options.",
+      ),
+      onStepWillActivate: (fromStep) => _scrollToTarget(step: 4),
+      child: child,
+    );
+  }
+
+  Widget _buildStep5(Widget child) {
+    return IntroStepTarget(
+      step: 5,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Featured Services\n\nCheck out our partner services and exclusive offerings.",
+      ),
+      onStepWillActivate: (fromStep) => _scrollToTarget(step: 5),
+      child: child,
+    );
+  }
+
+  Widget _buildStep6(Widget child) {
+    return IntroStepTarget(
+      step: 6,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Flash Deals\n\nDon't miss out on our limited-time flash deals with huge discounts!",
+      ),
+      onStepWillActivate: (fromStep) => _scrollToTarget(step: 6),
+      child: child,
+    );
+  }
+
+  Widget _buildStep7(Widget child) {
+    return IntroStepTarget(
+      step: 7,
+      controller: controller,
+      cardContents: const TextSpan(
+        text: "Recommended For You\n\nPersonalized recommendations based on your preferences.",
+      ),
+      onStepWillActivate: (fromStep) => _scrollToTarget(step: 7),
+      child: child,
+    );
+  }
+
+  void _scrollToTarget({required int step}) {
+    if (!_scrollController.hasClients) return;
+    Future.delayed(const Duration(milliseconds: 100), () {
+      final currentScroll = _scrollController.offset;
+      final maxScroll = _scrollController.position.maxScrollExtent;
+
+      late double targetScroll;
+      switch (step) {
+        case 4:
+          targetScroll = (currentScroll + 150).clamp(0.0, maxScroll);
+          break;
+        case 5:
+          targetScroll = (currentScroll + 250).clamp(0.0, maxScroll);
+          break;
+        case 6 || 7:
+          targetScroll = maxScroll;
+          break;
+        default:
+          targetScroll = currentScroll;
+      }
+
+      _scrollController.animateTo(
+        targetScroll,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      ).then((_) {
+        controller.refresh();
+      });
+    });
   }
 }

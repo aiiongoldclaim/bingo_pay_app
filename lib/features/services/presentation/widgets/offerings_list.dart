@@ -60,7 +60,7 @@ class OfferingsList extends StatelessWidget {
                           Text(
                             offering.title,
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 14.5.sp,
                               fontWeight: FontWeight.w600,
                               color: ThemeColors.black,
                             ),
@@ -69,7 +69,7 @@ class OfferingsList extends StatelessWidget {
                           Text(
                             offering.offeringName,
                             style: TextStyle(
-                              fontSize: 12.sp,
+                              fontSize: 13.5.sp,
                               color: Colors.grey.shade600,
                             ),
                           ),
@@ -91,12 +91,22 @@ class OfferingsList extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 0.5.h),
-                        Text(
-                          '${offering.durationMinutes}m',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.grey.shade600,
-                          ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 15.sp,
+                              color: Colors.grey.shade600,
+                            ),
+                            SizedBox(width: 1.w),
+                            Text(
+                              '${offering.durationMinutes}m',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
