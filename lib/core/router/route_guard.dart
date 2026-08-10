@@ -4,25 +4,29 @@ class RouteAuthState {
   final bool isAuthenticated;
   final bool isLoading;
   final bool isKycPending;
+  final bool hasSeenOnboarding;
 
   const RouteAuthState({
     required this.isAuthenticated,
     this.isLoading = false,
     this.isKycPending = false,
+    this.hasSeenOnboarding = true,
   });
 
   const RouteAuthState.loading()
     : isAuthenticated = false,
       isLoading = true,
-      isKycPending = false;
+      isKycPending = false,
+      hasSeenOnboarding = true;
 
-  const RouteAuthState.unauthenticated()
+  const RouteAuthState.unauthenticated({this.hasSeenOnboarding = true})
     : isAuthenticated = false,
       isLoading = false,
       isKycPending = false;
 
   const RouteAuthState.authenticated({
     this.isKycPending = false,
+    this.hasSeenOnboarding = true,
   }) : isAuthenticated = true,
        isLoading = false;
 }
@@ -35,6 +39,14 @@ class RouteGuard {
     // Stay on splash while auth is being determined; block all other routes.
     if (authState.isLoading) {
       return location == AppRoutes.splash ? null : AppRoutes.splash;
+    }
+
+    if (!authState.hasSeenOnboarding) {
+      return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+    }
+
+    if (location == AppRoutes.onboarding) {
+      return authState.isAuthenticated ? AppRoutes.home : AppRoutes.login;
     }
 
     // Redirect away from splash once auth is known.

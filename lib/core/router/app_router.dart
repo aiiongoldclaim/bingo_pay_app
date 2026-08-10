@@ -6,7 +6,6 @@ import 'package:injectable/injectable.dart';
 import '../../features/account/presentation/cubit/account_cubit.dart';
 import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
-import '../../features/categories/presentation/cubit/categories_cubit.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
@@ -29,12 +28,12 @@ import '../../features/auth/presentation/screens/sso_set_password_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/home/presentation/screens/all_products_screen.dart';
+import '../../features/on_boarding/presentation/screens/onboarding_screen.dart';
 import '../../features/services/presentation/screens/all_services_screen.dart';
 import '../../features/services/presentation/screens/service_detail_screen.dart';
 import '../../features/orders/data/models/order_model.dart';
 import '../../features/orders/presentation/screens/my_oders_screen.dart';
 import '../../features/orders/presentation/screens/order_details_screen.dart';
-import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_success_screen.dart';
 import '../../features/product_categories_details/presentation/screens/product_categories_screen.dart';
 import '../../features/product_details/presentation/cubit/product_details_cubit.dart';
@@ -44,12 +43,14 @@ import '../../features/scanner/presentation/screens/payment_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
+import '../../features/splash/presentaion/screens/splash_screen.dart';
 import '../../features/transactions/presentation/screens/transactions_screen.dart';
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
 import '../../features/account/presentation/screens/help_support_screen.dart';
 import '../di/injection.dart';
+import '../storage/preferences_service.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
@@ -58,15 +59,63 @@ class AppRouter {
   late final GoRouter router;
   RouteAuthState _authState = const RouteAuthState.loading();
 
+  /// Splash minimum visible duration
+  static const _minSplashDuration = Duration(milliseconds: 6500);
+  final DateTime _startedAt = DateTime.now();
+
+  // void markOnboardingSeen() {
+  //   _authState = RouteAuthState(
+  //     isAuthenticated: _authState.isAuthenticated,
+  //     isLoading: _authState.isLoading,
+  //     isKycPending: _authState.isKycPending,
+  //     hasSeenOnboarding: true,
+  //   );
+  //   router.refresh();
+  // }
+
+  void markOnboardingSeen() {
+    _authState = RouteAuthState(
+      isAuthenticated: _authState.isAuthenticated,
+      isLoading: false,
+      isKycPending: _authState.isKycPending,
+      hasSeenOnboarding: true,
+    );
+    router.refresh();
+  }
+
   AppRouter() {
     router = GoRouter(
-      initialLocation: AppRoutes.home,
+      initialLocation: AppRoutes.splash,
       redirect: (context, state) => RouteGuard.redirect(
         location: state.matchedLocation,
         authState: _authState,
       ),
       routes: [
-        GoRoute(path: AppRoutes.splash, builder: (_, _) => const _SplashPage()),
+        GoRoute(
+          path: AppRoutes.splash,
+          builder: (_, _) => const SplashScreen(),
+        ),
+
+        // GoRoute(
+        //   path: AppRoutes.onboarding,
+        //   builder: (_, _) => OnboardingScreen(
+        //     onFinish: () async {
+        //       await getIt<PreferencesService>().setOnboardingSeen();
+        //       getIt<AppRouter>().markOnboardingSeen();
+        //     },
+        //   ),
+        // ),
+        GoRoute(
+          path: AppRoutes.onboarding,
+          builder: (_, _) => OnboardingScreen(
+            onFinish: () async {
+              // TODO: DEBUG — ye line ship se pehle uncomment karo
+              // await getIt<PreferencesService>().setOnboardingSeen();
+              getIt<AppRouter>().markOnboardingSeen();
+            },
+          ),
+        ),
+
         GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
         // GoRoute(path: AppRoutes.login, builder: (_, _) => const HomeScreen()),
         GoRoute(
@@ -236,16 +285,15 @@ class AppRouter {
               path: '/service-detail/:uuid',
               builder: (context, state) {
                 final uuid = state.pathParameters['uuid'] ?? '';
-                return ServiceDetailScreen(
-                  serviceUuid: uuid,
-                );
+                return ServiceDetailScreen(serviceUuid: uuid);
               },
             ),
             GoRoute(
               path: AppRoutes.productListing,
               builder: (context, state) => ProductListingScreen(
                 categoryName: Uri.decodeComponent(
-                    state.pathParameters['categoryName'] ?? ''),
+                  state.pathParameters['categoryName'] ?? '',
+                ),
                 categoryUuid: state.extra as String? ?? '',
               ),
             ),
@@ -353,20 +401,39 @@ class AppRouter {
     );
   }
 
-  void updateAuthState(RouteAuthState state) {
+  // void updateAuthState(RouteAuthState state) {
+  //   _authState = state;
+  //   router.refresh();
+  // }
+  Future<void> updateAuthState(RouteAuthState state) async {
+    debugPrint(
+      'AUTH → auth=${state.isAuthenticated} '
+      'loading=${state.isLoading} '
+      'onboarding=${state.hasSeenOnboarding} '
+      'kyc=${state.isKycPending}',
+    );
+    // Sirf pehli baar (loading -> resolved) wait karo
+    if (_authState.isLoading && !state.isLoading) {
+      final elapsed = DateTime.now().difference(_startedAt);
+      final remaining = _minSplashDuration - elapsed;
+      if (remaining > Duration.zero) {
+        await Future.delayed(remaining);
+      }
+    }
+
     _authState = state;
     router.refresh();
   }
 }
 
-class _SplashPage extends StatelessWidget {
-  const _SplashPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
-  }
-}
+// class _SplashPage extends StatelessWidget {
+//   const _SplashPage();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Scaffold(body: Center(child: CircularProgressIndicator()));
+//   }
+// }
 
 class _PlaceholderPage extends StatelessWidget {
   final String name;

@@ -77,6 +77,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_dimensions.dart';
 import 'app_text_styles.dart';
@@ -174,16 +175,31 @@ class AppTheme {
 
       appBarTheme: AppBarTheme(
         backgroundColor: isLight ? ThemeColors.surface : ThemeColors.ink,
-
         elevation: 0,
-
         centerTitle: true,
 
-        titleTextStyle: AppTextStyles.titleLarge.copyWith(
-          color: ThemeColors.ink,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
+          statusBarBrightness: isLight ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: isLight
+              ? ThemeColors.background
+              : ThemeColors.ink,
+          systemNavigationBarIconBrightness: isLight
+              ? Brightness.dark
+              : Brightness.light,
         ),
 
-        iconTheme: const IconThemeData(color: ThemeColors.ink),
+        titleTextStyle: AppTextStyles.titleLarge.copyWith(
+          color: isLight
+              ? ThemeColors.ink
+              : ThemeColors.white, // ← dark me bhi fix
+        ),
+        iconTheme: IconThemeData(
+          color: isLight
+              ? ThemeColors.ink
+              : ThemeColors.white, // ← dark me bhi fix
+        ),
       ),
     );
   }

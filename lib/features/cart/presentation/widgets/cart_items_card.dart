@@ -75,7 +75,7 @@ class _CartItemsCardState extends State<CartItemsCard> {
     final isLast = index >= _items.length - 1;
     return SizeTransition(
       sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-      alignment: Alignment.topCenter,
+      // alignment: Alignment.topCenter,
       child: FadeTransition(
         opacity: animation,
         child: Column(
@@ -298,7 +298,9 @@ class _QtyButton extends StatelessWidget {
         child: Icon(
           icon,
           size: 16.sp,
-          color: isDisabled ? Colors.white.withValues(alpha: 0.5) : Colors.white,
+          color: isDisabled
+              ? Colors.white.withValues(alpha: 0.5)
+              : Colors.white,
         ),
       ),
     );

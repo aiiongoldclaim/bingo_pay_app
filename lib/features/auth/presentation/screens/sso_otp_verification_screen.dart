@@ -15,9 +15,6 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_shell.dart';
 
-/// Dedicated OTP-verification screen for the BinGold SSO sign-in flow —
-/// kept separate from [OtpVerificationScreen] (new-user registration) since
-/// it talks to different endpoints (bingold login-otp / verify-login).
 class SsoOtpVerificationScreen extends StatefulWidget {
   final String email;
   const SsoOtpVerificationScreen({super.key, required this.email});
@@ -116,7 +113,8 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
                 SizedBox(height: 3.h),
                 AuthBrandHeader(
                   title: 'Enter sign-in code',
-                  subtitle: 'We sent a $_otpLength-digit code to ${widget.email}',
+                  subtitle:
+                      'We sent a $_otpLength-digit code to ${widget.email}',
                 ),
                 SizedBox(height: 3.h),
                 AuthCard(

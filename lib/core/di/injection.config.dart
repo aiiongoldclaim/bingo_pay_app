@@ -385,7 +385,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i741.AccountCubit>(
       () => _i741.AccountCubit(gh<_i810.GetProfileUseCase>()),
     );
-    gh.factory<_i357.AuthBloc>(
+    gh.singleton<_i357.AuthBloc>(
       () => _i357.AuthBloc(
         checkAuthStatus: gh<_i308.CheckAuthStatusUseCase>(),
         login: gh<_i368.LoginUseCase>(),

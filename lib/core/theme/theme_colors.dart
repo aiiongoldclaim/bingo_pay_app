@@ -22,9 +22,32 @@ class ThemeColors {
   static const Color accentSoft = Color(0xFFFBF3DD);
   static const Color accentInk = Color(0xFF6E551A);
 
+  static const Color heroGradTop = Color(0xFF1A2A6E);
+  static const Color navyDark = Color(0xFF002B5B);
+  static const Color heroGradBottom = Color(0xFF0A1230);
+  static const Color scaffoldDarkTop = Color(0xFF07091E);
+  static const Color textDark = Color(0xFF0D1B4B);
+
+  // =========================
+  // GOLD PALETTE
+  // =========================
+
+  static const gold = Color(0xFFD8A93A);
+  static const goldLight = Color(0xFFF3CE6B);
+  static const goldDeep = Color(0xFFD4AF37);
+  static const yellow = Color(0xFFFFD700);
+  static const gold1 = Color(0xFFd4ad52);
+  static const gold100 = Color(0xFFEBcf7f);
+  static const gold500 = Color(0xFFc3942d);
+  static const gold800 = Color(0xFF5a4414);
+  static const heroText1 = Color(0xFF231806);
+
   // =========================
   // BACKGROUND
   // =========================
+
+  static const Color purple = Color(0xFF6D28D9);
+  static const Color purpleLight = Color(0xFF8B5CF6);
 
   static const Color background = Color(0xFFF4F6FB);
 
@@ -40,6 +63,8 @@ class ThemeColors {
   // =========================
 
   static const Color ink = Color(0xFF0E1525);
+  static const Color textSecondary = Color(0xFF757575);
+  static const Color textGrey = Color(0xFF8A8FA3);
   static const Color inkMid = Color(0xFF5C6578);
   static const Color inkDim = Color(0xFF97A0B2);
 
@@ -81,5 +106,24 @@ class ThemeColors {
     colors: [accent, accentInk],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient goldButtonGradient = LinearGradient(
+    colors: [gold100, gold1, gold500],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient onboardingDarkBg = LinearGradient(
+    colors: [Color(0xFF0B0F26), Color(0xFF0E1533), Color(0xFF13205A)],
+    stops: [0.0, 0.45, 1.0],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient buttonBackGroundColor = LinearGradient(
+    colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
   );
 }
