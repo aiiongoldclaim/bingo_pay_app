@@ -21,6 +21,7 @@ class AuthMetrics {
   final double heroTitle;
   final double heroBody;
   final double heroImageMax;
+  final double heroImageMaxH;
 
   final double contentMaxWidth;
   final double formMaxWidth;
@@ -48,6 +49,7 @@ class AuthMetrics {
     required this.heroTitle,
     required this.heroBody,
     required this.heroImageMax,
+    required this.heroImageMaxH,
     required this.contentMaxWidth,
     required this.formMaxWidth,
     required this.buttonHeight,
@@ -66,7 +68,6 @@ class AuthMetrics {
 
     // ---------------- PHONE ----------------
     if (!ResponsiveUtils.isTablet) {
-      // 390dp = design baseline. Chhote/bade phone pe halka scale.
       final k = _cl(w / 390, 0.88, 1.12);
 
       return AuthMetrics._(
@@ -84,6 +85,7 @@ class AuthMetrics {
         heroTitle: 30 * k,
         heroBody: 15 * k,
         heroImageMax: w * 0.42,
+        heroImageMaxH: _cl(w * 0.44, 130, 190),
         contentMaxWidth: double.infinity,
         formMaxWidth: double.infinity,
         buttonHeight: 54 * k,
@@ -101,20 +103,21 @@ class AuthMetrics {
       return AuthMetrics._(
         isTablet: true,
         isLandscape: true,
-        pagePadH: w * 0.035,
-        pagePadV: _cl(h * 0.05, 20, 44),
+        pagePadH: w * 0.030, // 0.035 → 0.030
+        pagePadV: _cl(h * 0.035, 14, 28), // height bachai
         fieldGap: 18,
-        blockGap: 28,
+        blockGap: 22, // 28 → 22
         sectionGap: 36,
-        paneGap: w * 0.035,
+        paneGap: w * 0.012, // 0.025 → 0.012  (image ↔ form gap kam)
         logoBox: 46,
         brandTitle: _cl(w * 0.024, 24, 34),
         brandTagline: _cl(w * 0.010, 11, 14),
         heroTitle: _cl(w * 0.032, 30, 46),
         heroBody: _cl(w * 0.013, 14, 18),
-        heroImageMax: _cl(w * 0.28, 260, 460),
+        heroImageMax: _cl(w * 0.34, 280, 520),
+        heroImageMaxH: _cl(h * 0.42, 220, 400), // image thoda chhota
         contentMaxWidth: double.infinity,
-        formMaxWidth: 430,
+        formMaxWidth: _cl(w * 0.36, 400, 520), // 380–460 → 400–520 (form bada)
         buttonHeight: 54,
         buttonRadius: 12,
         linkText: _cl(w * 0.011, 13, 16),
@@ -140,9 +143,11 @@ class AuthMetrics {
       brandTagline: _cl(w * 0.015, 11, 14),
       heroTitle: _cl(w * 0.052, 30, 42),
       heroBody: _cl(w * 0.022, 15, 19),
-      heroImageMax: _cl(w * 0.46, 280, 460),
+      heroImageMax: _cl(w * 0.46, 260, 440),
+      heroImageMaxH: _cl(h * 0.20, 160, 260),
+
       contentMaxWidth: _cl(w * 0.88, 480, 760),
-      formMaxWidth: _cl(w * 0.78, 420, 620),
+      formMaxWidth: _cl(w * 0.88, 480, 760),
       buttonHeight: 54,
       buttonRadius: 12,
       linkText: _cl(w * 0.019, 14, 17),

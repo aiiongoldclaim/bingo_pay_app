@@ -26,14 +26,18 @@ class SsoLoginDialog extends StatelessWidget {
     required VoidCallback onSendOtp,
     required VoidCallback onUseDifferentEmail,
   }) {
+    final parentTheme = Theme.of(context);
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
       barrierColor: ThemeColors.black.withValues(alpha: 0.6),
-      builder: (_) => SsoLoginDialog(
-        email: email,
-        onSendOtp: onSendOtp,
-        onUseDifferentEmail: onUseDifferentEmail,
+      builder: (_) => Theme(
+        data: parentTheme,
+        child: SsoLoginDialog(
+          email: email,
+          onSendOtp: onSendOtp,
+          onUseDifferentEmail: onUseDifferentEmail,
+        ),
       ),
     );
   }
@@ -44,10 +48,15 @@ class SsoLoginDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    final cardBg = isDark ? ThemeColors.surface2 : ThemeColors.white;
+    final cardBg = isDark
+        ? Color.alphaBlend(
+            ThemeColors.white.withValues(alpha: 0.05),
+            ThemeColors.ink,
+          )
+        : ThemeColors.white;
     final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
     final bodyColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
-    final accent = isDark ? ThemeColors.gold1 : ThemeColors.blue;
+    final accent = isDark ? ThemeColors.gold1 : ThemeColors.purple;
 
     return BlocConsumer<AuthBloc, AuthState>(
       listenWhen: (previous, current) => current is SsoOtpRequired,
@@ -69,13 +78,13 @@ class SsoLoginDialog extends StatelessWidget {
                 child: Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: cardBg,
+                    color: ThemeColors.white,
                     borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
-                    border: isDark
-                        ? Border.all(
-                            color: ThemeColors.white.withValues(alpha: 0.10),
-                          )
-                        : null,
+                    // border: isDark
+                    //     ? Border.all(
+                    //         color: ThemeColors.white.withValues(alpha: 0.10),
+                    //       )
+                    //     : null,
                     boxShadow: [
                       BoxShadow(
                         color: isDark
@@ -108,7 +117,7 @@ class SsoLoginDialog extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: AppTextStyles.headlineMedium.copyWith(
                                 fontSize: m.titleFont,
-                                color: titleColor,
+                                color: ThemeColors.black,
                               ),
                             ),
                             SizedBox(height: m.gapSm),
@@ -147,6 +156,7 @@ class SsoLoginDialog extends StatelessWidget {
                             SizedBox(height: m.gapSm),
                             _SecondaryButton(
                               m: m,
+                              isDark: isDark,
                               label: 'Use a different email',
                               onTap: isSending ? null : onUseDifferentEmail,
                             ),
@@ -181,7 +191,7 @@ class _Header extends StatelessWidget {
         m.padH * 0.7,
         m.gapMd,
       ),
-      decoration: BoxDecoration(gradient: ThemeColors.primaryGradient),
+      decoration: BoxDecoration(gradient: ThemeColors.buttonBackGroundColor),
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -265,7 +275,7 @@ class _PrimaryButton extends StatelessWidget {
       height: m.buttonHeight,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: ThemeColors.primaryGradient,
+          gradient: ThemeColors.buttonBackGroundColor,
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
           boxShadow: [
             BoxShadow(
@@ -318,24 +328,22 @@ class _SecondaryButton extends StatelessWidget {
   final _DialogMetrics m;
   final String label;
   final VoidCallback? onTap;
+  final bool isDark;
 
   const _SecondaryButton({
     required this.m,
     required this.label,
     required this.onTap,
+    required this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     final fill = isDark
-        ? ThemeColors.white.withValues(alpha: 0.05)
+        ? ThemeColors.purple.withValues(alpha: 0.08)
         : ThemeColors.surface2;
-    final border = isDark
-        ? ThemeColors.white.withValues(alpha: 0.12)
-        : ThemeColors.line;
-    final textColor = isDark ? ThemeColors.white : ThemeColors.inkMid;
+    final border = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
+    final textColor = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
 
     return SizedBox(
       width: double.infinity,
@@ -354,7 +362,7 @@ class _SecondaryButton extends StatelessWidget {
             child: Center(
               child: Text(
                 label,
-                style: AppTextStyles.labelLarge.copyWith(
+                style: AppTextStyles.buttonText.copyWith(
                   fontSize: m.buttonFont,
                   color: textColor,
                 ),
@@ -367,8 +375,6 @@ class _SecondaryButton extends StatelessWidget {
   }
 }
 
-/// Phone / tablet-portrait / tablet-landscape sizing.
-/// Saari values REAL dp hain — Sizer `.sp` / `.h` / `.w` nahi.
 class _DialogMetrics {
   const _DialogMetrics({
     required this.maxWidth,

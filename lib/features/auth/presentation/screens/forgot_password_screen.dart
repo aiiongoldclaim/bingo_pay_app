@@ -56,14 +56,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             AppSnackbar.showError(context, state.failure.message);
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Forgot Password',
-            subtitle:
-                "Enter your email and we'll send you\na link to reset your password.",
-            onTopAction: () => Navigator.of(context).pop(),
-            formBuilder: _buildForm,
-          ),
+        child: AuthResponsiveLayout(
+          title: 'Forgot Password',
+          subtitle:
+              "Enter your email and we'll send you\na link to reset your password.",
+          onTopAction: () => Navigator.of(context).pop(),
+          formBuilder: _buildForm,
         ),
       ),
     );
@@ -119,7 +117,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ],
           ),
 
-          SizedBox(height: m.blockGap * 0.7),
+          SizedBox(height: m.blockGap * 2),
 
           /// BACK TO SIGN IN
           AuthFooterLink(
@@ -129,10 +127,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               context.go(AppRoutes.login);
             },
           ),
-
-          SizedBox(height: m.blockGap * 0.8),
-
-          AuthTermsText(m: m),
         ],
       ),
     );

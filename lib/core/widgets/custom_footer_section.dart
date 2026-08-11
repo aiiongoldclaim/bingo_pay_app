@@ -73,8 +73,6 @@ class AuthFooterLink extends StatelessWidget {
   }
 }
 
-/// Phone / tablet-portrait / tablet-landscape sizing.
-/// Saari values REAL dp hain — Sizer `.sp` nahi.
 class _FooterMetrics {
   const _FooterMetrics({
     required this.font,

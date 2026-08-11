@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import 'auth_metrics.dart';
+import 'auth_terms_text.dart';
 
 class AuthFeature {
   final IconData icon;
@@ -35,7 +36,7 @@ class AuthResponsiveLayout extends StatelessWidget {
     required this.subtitle,
     required this.formBuilder,
     this.brandFirst = 'The',
-    this.brandSecond = 'Vault',
+    this.brandSecond = 'Vaults',
     this.brandTagline = 'YOUR EVERYDAY STORE',
     this.topActionLabel,
     this.onTopAction,
@@ -85,7 +86,10 @@ class AuthResponsiveLayout extends StatelessWidget {
   }
 
   // ---------------- PHONE + TABLET PORTRAIT ----------------
+
   Widget _buildPortrait(BuildContext context, AuthMetrics m) {
+    final tabletPortrait = m.isTablet;
+
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: m.pagePadH,
@@ -105,25 +109,28 @@ class AuthResponsiveLayout extends StatelessWidget {
                 actionLabel: topActionLabel,
                 onAction: onTopAction,
               ),
-              SizedBox(height: m.blockGap),
+              SizedBox(height: tabletPortrait ? m.blockGap * 0.5 : m.blockGap),
 
               /// Text left + illustration right
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    flex: 5,
+                    flex: tabletPortrait ? 5 : 7,
                     child: _HeroText(m: m, title: title, subtitle: subtitle),
                   ),
                   SizedBox(width: m.fieldGap),
                   Expanded(
-                    flex: 4,
-                    child: _HeroImage(maxWidth: m.heroImageMax),
+                    flex: tabletPortrait ? 6 : 4,
+                    child: _HeroImage(
+                      maxWidth: m.heroImageMax,
+                      maxHeight: m.heroImageMaxH,
+                    ),
                   ),
                 ],
               ),
 
-              SizedBox(height: m.sectionGap),
+              SizedBox(height: tabletPortrait ? m.blockGap : m.sectionGap),
 
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: m.formMaxWidth),
@@ -137,64 +144,169 @@ class AuthResponsiveLayout extends StatelessWidget {
     );
   }
 
-  // ---------------- TABLET LANDSCAPE (2-pane) ----------------
   Widget _buildLandscape(BuildContext context, AuthMetrics m) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: m.pagePadH,
-        vertical: m.pagePadV,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _BrandRow(
-            m: m,
-            brandFirst: brandFirst,
-            brandSecond: brandSecond,
-            tagline: brandTagline,
-            actionLabel: topActionLabel,
-            onAction: onTopAction,
-          ),
-          SizedBox(height: m.blockGap),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                /// LEFT : heading + features
-                Expanded(
-                  flex: 5,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: m.pagePadH,
+          vertical: m.pagePadV,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            /// ── LEFT : brand → image → features (row) ──
+            if (!keyboardOpen) ...[
+              Expanded(
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    /// Brand — top pe fixed
+                    _BrandRow(
+                      m: m,
+                      brandFirst: brandFirst,
+                      brandSecond: brandSecond,
+                      tagline: brandTagline,
+                      actionLabel: null,
+                      onAction: null,
+                    ),
+
+                    /// Image —
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: m.blockGap * 0.6,
+                        ),
+                        child: _HeroImage(maxWidth: m.heroImageMax * 0.80),
+                      ),
+                    ),
+
+                    /// Features — horizontal row, 3 across
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _HeroText(m: m, title: title, subtitle: subtitle),
-                        SizedBox(height: m.blockGap),
-                        ...features.map(
-                          (f) => Padding(
-                            padding: EdgeInsets.only(bottom: m.fieldGap),
-                            child: _FeatureTile(m: m, feature: f),
+                        for (int i = 0; i < features.length; i++) ...[
+                          if (i > 0) SizedBox(width: m.fieldGap * 0.6),
+                          Expanded(
+                            child: _FeatureTile(
+                              m: m,
+                              feature: features[i],
+                              vertical: true,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
-                  ),
+                  ],
                 ),
-                SizedBox(width: m.paneGap),
+              ),
 
-                /// CENTER : illustration
-                Expanded(flex: 5, child: _HeroImage(maxWidth: m.heroImageMax)),
-                SizedBox(width: m.paneGap),
+              /// ── CENTER : divider ──
+              _PaneDivider(m: m),
+            ],
 
-                /// RIGHT : form
-                SizedBox(
-                  width: m.formMaxWidth,
-                  child: SingleChildScrollView(child: formBuilder(context, m)),
+            /// ── RIGHT : hero text → form → terms ──
+            Expanded(
+              flex: keyboardOpen ? 10 : 5,
+              child: _AutoScrollPane(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (!keyboardOpen) ...[
+                      _HeroText(
+                        m: m,
+                        title: title,
+                        subtitle: subtitle,
+                        center: true,
+                      ),
+                      SizedBox(height: m.blockGap * 0.8),
+                    ],
+                    formBuilder(context, m),
+                    SizedBox(height: m.blockGap * 0.6),
+                    AuthTermsText(m: m, onTapTerms: () {}, onTapPrivacy: () {}),
+                  ],
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FitPane extends StatelessWidget {
+  final Widget child;
+  final Alignment alignment;
+
+  const _FitPane({required this.child, this.alignment = Alignment.center});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        return ClipRect(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: alignment,
+            // child ko unbounded height — tabhi FittedBox theek se shrink karega
+            child: SizedBox(width: c.maxWidth, child: child),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AutoScrollPane extends StatelessWidget {
+  final Widget child;
+  const _AutoScrollPane({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: c.maxHeight),
+            child: Center(child: child),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PaneDivider extends StatelessWidget {
+  final AuthMetrics m;
+  const _PaneDivider({required this.m});
+
+  @override
+  Widget build(BuildContext context) {
+    final line = Theme.of(context).dividerColor;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: m.paneGap),
+      child: SizedBox(
+        width: 1,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                line.withValues(alpha: 0),
+                line.withValues(alpha: 0.55),
+                line.withValues(alpha: 0),
               ],
+              stops: const [0.0, 0.5, 1.0],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -273,14 +385,14 @@ class _BrandRow extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        if (actionLabel != null)
+        if (actionLabel != null && m.isTablet)
           TextButton(
             onPressed: onAction,
             child: Text(
               actionLabel!,
               style: AppTextStyles.labelLarge.copyWith(
                 fontSize: m.linkText,
-                color: ThemeColors.blue,
+                color: isDark ? ThemeColors.purpleLight : ThemeColors.purple,
               ),
             ),
           ),
@@ -293,11 +405,13 @@ class _HeroText extends StatelessWidget {
   final AuthMetrics m;
   final String title;
   final String subtitle;
+  final bool center; // ← ADD
 
   const _HeroText({
     required this.m,
     required this.title,
     required this.subtitle,
+    this.center = false, // ← ADD
   });
 
   @override
@@ -306,10 +420,14 @@ class _HeroText extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          center // ← CHANGED
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
       children: [
         Text(
           title,
+          textAlign: center ? TextAlign.center : TextAlign.start, // ← ADD
           style: AppTextStyles.displayLarge.copyWith(
             fontSize: m.heroTitle,
             height: 1.1,
@@ -319,6 +437,7 @@ class _HeroText extends StatelessWidget {
         SizedBox(height: m.fieldGap * 0.5),
         Text(
           subtitle,
+          textAlign: center ? TextAlign.center : TextAlign.start, // ← ADD
           style: AppTextStyles.bodyLarge.copyWith(
             fontSize: m.heroBody,
             color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
@@ -331,7 +450,9 @@ class _HeroText extends StatelessWidget {
 
 class _HeroImage extends StatelessWidget {
   final double maxWidth;
-  const _HeroImage({required this.maxWidth});
+  final double maxHeight;
+
+  const _HeroImage({required this.maxWidth, this.maxHeight = double.infinity});
 
   @override
   Widget build(BuildContext context) {
@@ -340,14 +461,11 @@ class _HeroImage extends StatelessWidget {
     return Align(
       alignment: Alignment.center,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: Image.asset(
-            isDark ? 'assets/images/Image_8.png' : 'assets/images/Image_7.png',
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-          ),
+        constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+        child: Image.asset(
+          isDark ? 'assets/images/Image_8.png' : 'assets/images/Image_7.png',
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),
       ),
     );
@@ -358,55 +476,83 @@ class _FeatureTile extends StatelessWidget {
   final AuthMetrics m;
   final AuthFeature feature;
 
-  const _FeatureTile({required this.m, required this.feature});
+  final bool vertical;
+
+  const _FeatureTile({
+    required this.m,
+    required this.feature,
+    this.vertical = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final iconBox = Container(
+      width: m.featureIconBox,
+      height: m.featureIconBox,
+      decoration: BoxDecoration(
+        color: isDark
+            ? ThemeColors.purple.withValues(alpha: 0.18)
+            : ThemeColors.blueSoft,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        feature.icon,
+        size: m.featureIconBox * 0.5,
+        color: ThemeColors.purple,
+      ),
+    );
+
+    final texts = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: vertical
+          ? CrossAxisAlignment.center
+          : CrossAxisAlignment.start,
+      children: [
+        Text(
+          feature.title,
+          textAlign: vertical ? TextAlign.center : TextAlign.start,
+          style: AppTextStyles.labelLarge.copyWith(
+            fontSize: m.featureTitle,
+            fontWeight: FontWeight.w700,
+            color: isDark ? ThemeColors.white : ThemeColors.ink,
+          ),
+        ),
+        SizedBox(height: m.featureBody * 0.2),
+        Text(
+          feature.subtitle.replaceAll('\n', ' '),
+          textAlign: vertical ? TextAlign.center : TextAlign.start,
+          maxLines: vertical ? 2 : 3,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.bodySmall.copyWith(
+            fontSize: m.featureBody,
+            color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+          ),
+        ),
+      ],
+    );
+
+    /// Vertical: icon upar, text neeche (3 tiles ek row mein)
+    if (vertical) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          iconBox,
+          SizedBox(height: m.fieldGap * 0.5),
+          texts,
+        ],
+      );
+    }
+
+    /// Horizontal: icon left, text right (portrait / default)
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: m.featureIconBox,
-          height: m.featureIconBox,
-          decoration: BoxDecoration(
-            color: isDark
-                ? ThemeColors.purple.withValues(alpha: 0.18)
-                : ThemeColors.blueSoft,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            feature.icon,
-            size: m.featureIconBox * 0.5,
-            color: ThemeColors.blue,
-          ),
-        ),
+        iconBox,
         SizedBox(width: m.fieldGap * 0.7),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                feature.title,
-                style: AppTextStyles.labelLarge.copyWith(
-                  fontSize: m.featureTitle,
-                  fontWeight: FontWeight.w700,
-                  color: isDark ? ThemeColors.white : ThemeColors.ink,
-                ),
-              ),
-              SizedBox(height: m.featureBody * 0.2),
-              Text(
-                feature.subtitle,
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: m.featureBody,
-                  color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
-                ),
-              ),
-            ],
-          ),
-        ),
+        Expanded(child: texts),
       ],
     );
   }

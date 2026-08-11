@@ -10,6 +10,7 @@ import '../core/router/app_router.dart';
 import '../core/router/route_guard.dart';
 import '../core/storage/preferences_service.dart';
 import '../core/theme/app_theme.dart';
+import '../core/utils/responsive_utils.dart';
 import '../core/widgets/no_internet_screen.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
@@ -37,8 +38,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    // _onboardingSeen = _prefs.isOnboardingSeen();
-    _onboardingSeen = true;
+    _onboardingSeen = _prefs.isOnboardingSeen();
   }
 
   // void _onAuthStateChanged(BuildContext context, AuthState state) {
@@ -101,6 +101,11 @@ class _AppState extends State<App> {
         listener: _onAuthStateChanged,
         child: Sizer(
           builder: (context, orientation, deviceType) {
+            ResponsiveUtils.setDeviceType(context);
+            final mq = MediaQuery.of(context);
+            debugPrint(
+              'size: ${mq.size}, shortestSide: ${mq.size.shortestSide}, dpr: ${mq.devicePixelRatio}',
+            );
             // return StreamBuilder<bool>(
             //   stream: _connectivity.isConnected,
             //   builder: (context, snapshot) {

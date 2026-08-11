@@ -38,10 +38,10 @@ class OnBoardingContent {
     OnBoardingContent(
       image: AppImages.onboard3,
       imageDark: AppImages.onboard3Dark,
-      titleHighlight: 'Grow Your',
-      title: 'Business',
+      titleHighlight: 'Favorites',
+      title: 'Shop Your',
       subTitle:
-          'Sell products or offer services,\nreach more customers and\ngrow your business with Bingo Pay.',
+          'Explore a wide range of products, exclusive deals and secure checkout all in one place.',
     ),
   ];
 }

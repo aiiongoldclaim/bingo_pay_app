@@ -98,16 +98,30 @@ flutter:
         - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
 
-flutter_native_splash:        # <-- column 0, koi indent nahi
-  color: "#F4F6FB"
-  color_dark: "#0E1525"
+flutter_native_splash:
+  # ── Light mode ──
+  color: "#FFFFFF"                  # ThemeColors light scaffoldBackground ka hex
   image: assets/splash/logo.png
-  image_dark: assets/splash/logo.png
+
+  # ── Dark mode ──
+  color_dark: "#0B0F1A"             # ThemeColors dark scaffoldBackground ka hex
+  image_dark: assets/splash/logo_dark.png
+
+  # ── Android 12+ (alag section, mandatory) ──
   android_12:
-    color: "#F4F6FB"
-    color_dark: "#0E1525"
-    image: assets/images/logo.png
-    icon_background_color: "#F4F6FB"
-    icon_background_color_dark: "#0E1525"
+    color: "#FFFFFF"
+    color_dark: "#0B0F1A"
+    image: assets/splash/logo_android12.png
+    image_dark: assets/splash/logo_android12_dark.png
+    icon_background_color: "#FFFFFF"
+    icon_background_color_dark: "#0B0F1A"
+
+  # ── Platform toggles ──
   android: true
   ios: true
+  web: false
+
+  # ── Fullscreen: status bar hide, taaki Dart splash se match kare ──
+  fullscreen: false
+  android_gravity: center
+  ios_content_mode: center

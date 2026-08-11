@@ -3,10 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_flavor/flutter_flavor.dart';
-import 'package:intro/intro.dart';
-import 'package:sizer/sizer.dart';
-
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:intro/intro.dart';
 import '../core/config/flavor_config.dart';
 import '../core/di/injection.dart';
 import 'app.dart';
@@ -75,7 +73,8 @@ Future<void> bootstrap() async {
       ),
       topLayerBuilder: (context, controller) {
         return Padding(
-          padding: EdgeInsets.only(top: 6.h, left: 80.w, right: 20),
+          // padding: EdgeInsets.only(top: 6.h, left: 80.w, right: 20),
+          padding: const EdgeInsets.only(top: 48, left: 280, right: 20),
           child: TextButton(
             onPressed: controller.close,
             style: ButtonStyle(

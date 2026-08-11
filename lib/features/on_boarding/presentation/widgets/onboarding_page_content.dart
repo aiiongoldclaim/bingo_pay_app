@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../data/model/on_boarding_feature.dart';
 import 'onboarding_metrics.dart';
@@ -59,36 +60,14 @@ class OnboardingPageContent extends StatelessWidget {
   }
 
   // ── Landscape: text left, image right ──
+
   Widget _landscape(BuildContext context) {
     final p = OnboardingPalette.of(context);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(
-          flex: 5,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _Title(content: content, m: m, p: p, center: false),
-                SizedBox(height: m.gapTitle),
-                Text(
-                  content.subTitle,
-                  maxLines: 5,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: m.subtitle,
-                    height: 1.55,
-                    color: p.body,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(width: m.gapImage),
+        // ⬅️ Image ab pehle (left side)
         Expanded(
           flex: 5,
           child: Image.asset(
@@ -96,6 +75,34 @@ class OnboardingPageContent extends StatelessWidget {
             width: m.imageWidth,
             height: m.imageHeight,
             fit: BoxFit.contain,
+          ),
+        ),
+        SizedBox(width: m.gapImage * 5),
+        // ➡️ Text ab baad mein (right side)
+        Expanded(
+          flex: 5,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(14.sp),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _Title(content: content, m: m, p: p, center: false),
+                  SizedBox(height: m.gapTitle),
+                  Text(
+                    content.subTitle,
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: m.subtitle,
+                      height: 1.55,
+                      color: p.body,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -142,7 +149,7 @@ class _Title extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: style.copyWith(
-            color: p.isDark ? ThemeColors.gold : ThemeColors.blue,
+            color: p.isDark ? ThemeColors.gold : ThemeColors.purple,
           ),
         ),
       ],

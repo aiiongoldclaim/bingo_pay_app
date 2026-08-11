@@ -64,7 +64,6 @@ class AuthTermsText extends StatelessWidget {
   }
 }
 
-/// Underlined blue link — alag se bhi use kar sakti ho.
 class AuthLegalLink extends StatelessWidget {
   const AuthLegalLink({
     required this.text,

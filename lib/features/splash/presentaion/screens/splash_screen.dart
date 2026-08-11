@@ -5,8 +5,6 @@ import '../../../../core/theme/theme_colors.dart';
 import '../widgets/splash_background..dart';
 import '../widgets/splash_logo.dart';
 import '../widgets/splash_metrics.dart';
-import '../widgets/splash_progress_bar.dart';
-import '../widgets/splash_service_icons.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,11 +24,11 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
+      duration: const Duration(milliseconds: 1500),
     )..forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      FlutterNativeSplash.remove(); // Flutter splash paint ho chuka
+      FlutterNativeSplash.remove();
       _controller.forward();
     });
 
@@ -113,26 +111,14 @@ class _PortraitContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Spacer(flex: 2),
-        FadeTransition(
-          opacity: fade,
-          child: ScaleTransition(
-            scale: scale,
-            child: SplashLogo(metrics: metrics, isDark: isDark),
-          ),
+    return Center(
+      child: FadeTransition(
+        opacity: fade,
+        child: ScaleTransition(
+          scale: scale,
+          child: SplashLogo(metrics: metrics, isDark: isDark, stacked: true),
         ),
-        const Spacer(flex: 2),
-        FadeTransition(
-          opacity: fade,
-          child: SplashServiceIcons(metrics: metrics, isDark: isDark),
-        ),
-        SizedBox(height: metrics.gapXl),
-        SplashProgressBar(metrics: metrics, isDark: isDark),
-        SizedBox(height: metrics.bottomGap),
-      ],
+      ),
     );
   }
 }
@@ -152,33 +138,14 @@ class _LandscapeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: FadeTransition(
-            opacity: fade,
-            child: ScaleTransition(
-              scale: scale,
-              child: SplashLogo(metrics: metrics, isDark: isDark),
-            ),
-          ),
+    return Center(
+      child: FadeTransition(
+        opacity: fade,
+        child: ScaleTransition(
+          scale: scale,
+          child: SplashLogo(metrics: metrics, isDark: isDark, stacked: false),
         ),
-        SizedBox(width: metrics.gapXl),
-        Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FadeTransition(
-                opacity: fade,
-                child: SplashServiceIcons(metrics: metrics, isDark: isDark),
-              ),
-              SizedBox(height: metrics.gapXl),
-              SplashProgressBar(metrics: metrics, isDark: isDark),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

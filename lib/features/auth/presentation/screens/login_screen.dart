@@ -173,8 +173,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sizer/sizer.dart';
-
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -212,14 +210,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Register controllers with the form manager
     _loginFormManager.registerControllers(
       _emailController,
       _passwordController,
       _emailFocusNode,
       _passwordFocusNode,
     );
-    // Clear any focus when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _emailFocusNode.unfocus();
       _passwordFocusNode.unfocus();
@@ -263,15 +259,11 @@ class _LoginScreenState extends State<LoginScreen> {
             AppSnackbar.showError(context, state.failure.message);
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Welcome Back!',
-            subtitle:
-                'Log in to your account and\ncontinue your shopping journey.',
-            // topActionLabel: 'Sign Up',
-            onTopAction: () => context.go(AppRoutes.register),
-            formBuilder: _buildForm,
-          ),
+        child: AuthResponsiveLayout(
+          title: 'Welcome Back!',
+          subtitle:
+              'Log in to your account and\ncontinue your shopping journey.',
+          formBuilder: _buildForm,
         ),
       ),
     );
@@ -368,6 +360,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           SizedBox(height: m.blockGap * 0.7),
+
           AuthFooterLink(
             prefix: AppStrings.alreadyAccount,
             action: AppStrings.signup,
@@ -375,11 +368,6 @@ class _LoginScreenState extends State<LoginScreen> {
               context.go(AppRoutes.register);
             },
           ),
-
-          SizedBox(height: m.blockGap * 0.8),
-
-          /// TERMS
-          AuthTermsText(m: m, onTapTerms: () {}, onTapPrivacy: () {}),
         ],
       ),
     );

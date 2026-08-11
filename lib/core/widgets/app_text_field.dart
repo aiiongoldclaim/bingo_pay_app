@@ -309,7 +309,7 @@ class AppTextField extends StatelessWidget {
                 border: _b(border),
                 enabledBorder: _b(border),
                 disabledBorder: _b(border),
-                focusedBorder: _b(ThemeColors.blue, 1.6),
+                focusedBorder: _b(ThemeColors.purple, 1.6),
                 errorBorder: _b(ThemeColors.red),
                 focusedErrorBorder: _b(ThemeColors.red, 1.6),
 

@@ -345,6 +345,7 @@ import '../widgets/auth_metrics.dart';
 import '../widgets/auth_tablet_layout.dart';
 import '../widgets/auth_terms_text.dart';
 import '../widgets/country_picker.dart';
+import '../widgets/password_requirements.dart';
 import '../widgets/sso_login_dialog.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -537,14 +538,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             });
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Create Account',
-            subtitle: 'Join TheVaults and start\nShopping smarter, every day.',
-            // topActionLabel: 'Sign In',
-            onTopAction: () => context.go(AppRoutes.login),
-            formBuilder: _buildForm,
-          ),
+        child: AuthResponsiveLayout(
+          title: 'Create Account',
+          subtitle: 'Join TheVaults and start\nShopping smarter every day.',
+          // topActionLabel: 'Sign In',
+          onTopAction: () => context.go(AppRoutes.login),
+          formBuilder: _buildForm,
         ),
       ),
     );
@@ -685,7 +684,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           if (_passwordController.text.isNotEmpty) ...[
             SizedBox(height: m.fieldGap * 0.5),
-            _PasswordRequirements(m: m, value: _passwordController.text),
+            PasswordRequirements(value: _passwordController.text, metrics: m),
           ],
 
           SizedBox(height: m.fieldGap),
@@ -711,7 +710,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
 
-          SizedBox(height: m.blockGap),
+          SizedBox(height: m.blockGap * 2),
 
           /// CREATE ACCOUNT
           BlocBuilder<AuthBloc, AuthState>(
@@ -752,11 +751,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               context.go(AppRoutes.login);
             },
           ),
-
-          SizedBox(height: m.blockGap * 0.8),
-
-          /// TERMS
-          AuthTermsText(m: m, onTapTerms: () => {}, onTapPrivacy: () {}),
         ],
       ),
     );
@@ -828,74 +822,74 @@ class _CountryPrefix extends StatelessWidget {
   }
 }
 
-class _PasswordRequirements extends StatelessWidget {
-  final AuthMetrics m;
-  final String value;
-
-  const _PasswordRequirements({required this.m, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final requirements = <String, bool>{
-      'At least 8 characters': value.length >= 8,
-      'One uppercase letter (A-Z)': RegExp(r'[A-Z]').hasMatch(value),
-      'One lowercase letter (a-z)': RegExp(r'[a-z]').hasMatch(value),
-      'One number (0-9)': RegExp(r'[0-9]').hasMatch(value),
-      'One special character (!@#\$%...)': RegExp(
-        r'[!@#$%^&*(),.?":{}|<>_\-+=~`\[\];/\\]',
-      ).hasMatch(value),
-    };
-
-    final dim = isDark ? ThemeColors.inkDim : ThemeColors.textGrey;
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: m.fieldGap * 0.7,
-        vertical: m.fieldGap * 0.6,
-      ),
-      decoration: BoxDecoration(
-        color: isDark
-            ? ThemeColors.white.withValues(alpha: 0.04)
-            : ThemeColors.surface2,
-        borderRadius: BorderRadius.circular(m.buttonRadius),
-        border: Border.all(
-          color: isDark
-              ? ThemeColors.white.withValues(alpha: 0.08)
-              : ThemeColors.line,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: requirements.entries.map((e) {
-          final met = e.value;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2.5),
-            child: Row(
-              children: [
-                Icon(
-                  met
-                      ? Icons.check_circle_rounded
-                      : Icons.radio_button_unchecked_rounded,
-                  size: m.footerText + 2,
-                  color: met ? ThemeColors.green : dim,
-                ),
-                SizedBox(width: m.fieldGap * 0.4),
-                Expanded(
-                  child: Text(
-                    e.key,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      fontSize: m.footerText,
-                      color: met ? ThemeColors.green : dim,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
+// class _PasswordRequirements extends StatelessWidget {
+//   final AuthMetrics m;
+//   final String value;
+//
+//   const _PasswordRequirements({required this.m, required this.value});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final isDark = Theme.of(context).brightness == Brightness.dark;
+//
+//     final requirements = <String, bool>{
+//       'At least 8 characters': value.length >= 8,
+//       'One uppercase letter (A-Z)': RegExp(r'[A-Z]').hasMatch(value),
+//       'One lowercase letter (a-z)': RegExp(r'[a-z]').hasMatch(value),
+//       'One number (0-9)': RegExp(r'[0-9]').hasMatch(value),
+//       'One special character (!@#\$%...)': RegExp(
+//         r'[!@#$%^&*(),.?":{}|<>_\-+=~`\[\];/\\]',
+//       ).hasMatch(value),
+//     };
+//
+//     final dim = isDark ? ThemeColors.inkDim : ThemeColors.textGrey;
+//
+//     return Container(
+//       padding: EdgeInsets.symmetric(
+//         horizontal: m.fieldGap * 0.7,
+//         vertical: m.fieldGap * 0.6,
+//       ),
+//       decoration: BoxDecoration(
+//         color: isDark
+//             ? ThemeColors.white.withValues(alpha: 0.04)
+//             : ThemeColors.surface2,
+//         borderRadius: BorderRadius.circular(m.buttonRadius),
+//         border: Border.all(
+//           color: isDark
+//               ? ThemeColors.white.withValues(alpha: 0.08)
+//               : ThemeColors.line,
+//         ),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: requirements.entries.map((e) {
+//           final met = e.value;
+//           return Padding(
+//             padding: const EdgeInsets.symmetric(vertical: 2.5),
+//             child: Row(
+//               children: [
+//                 Icon(
+//                   met
+//                       ? Icons.check_circle_rounded
+//                       : Icons.radio_button_unchecked_rounded,
+//                   size: m.footerText + 2,
+//                   color: met ? ThemeColors.green : dim,
+//                 ),
+//                 SizedBox(width: m.fieldGap * 0.4),
+//                 Expanded(
+//                   child: Text(
+//                     e.key,
+//                     style: AppTextStyles.bodySmall.copyWith(
+//                       fontSize: m.footerText,
+//                       color: met ? ThemeColors.green : dim,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         }).toList(),
+//       ),
+//     );
+//   }
+// }

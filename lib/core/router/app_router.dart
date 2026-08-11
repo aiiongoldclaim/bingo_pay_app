@@ -60,7 +60,7 @@ class AppRouter {
   RouteAuthState _authState = const RouteAuthState.loading();
 
   /// Splash minimum visible duration
-  static const _minSplashDuration = Duration(milliseconds: 6500);
+  static const _minSplashDuration = Duration(milliseconds: 1500);
   final DateTime _startedAt = DateTime.now();
 
   // void markOnboardingSeen() {
@@ -96,21 +96,11 @@ class AppRouter {
           builder: (_, _) => const SplashScreen(),
         ),
 
-        // GoRoute(
-        //   path: AppRoutes.onboarding,
-        //   builder: (_, _) => OnboardingScreen(
-        //     onFinish: () async {
-        //       await getIt<PreferencesService>().setOnboardingSeen();
-        //       getIt<AppRouter>().markOnboardingSeen();
-        //     },
-        //   ),
-        // ),
         GoRoute(
           path: AppRoutes.onboarding,
           builder: (_, _) => OnboardingScreen(
             onFinish: () async {
-              // TODO: DEBUG — ye line ship se pehle uncomment karo
-              // await getIt<PreferencesService>().setOnboardingSeen();
+              await getIt<PreferencesService>().setOnboardingSeen();
               getIt<AppRouter>().markOnboardingSeen();
             },
           ),
@@ -122,11 +112,11 @@ class AppRouter {
           path: AppRoutes.register,
           builder: (_, _) => const RegisterScreen(),
         ),
-        GoRoute(
-          path: AppRoutes.registerOtp,
-          builder: (_, state) =>
-              OtpVerificationScreen(email: state.extra as String? ?? ''),
-        ),
+        // GoRoute(
+        //   path: AppRoutes.registerOtp,
+        //   builder: (_, state) =>
+        //       OtpVerificationScreen(email: state.extra as String? ?? ''),
+        // ),
         GoRoute(
           path: AppRoutes.ssoLoginOtp,
           builder: (_, state) =>
@@ -250,7 +240,6 @@ class AppRouter {
             );
           },
           routes: [
-            
             GoRoute(
               path: AppRoutes.home,
               builder: (_, _) => const HomeScreen(),

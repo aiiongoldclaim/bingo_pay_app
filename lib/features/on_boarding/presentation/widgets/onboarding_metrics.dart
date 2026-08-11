@@ -229,10 +229,6 @@ class OnboardingPalette {
       backBorder: border,
       backText: isDark ? ThemeColors.white : ThemeColors.textDark,
 
-      // Next button — light: solid navy | dark: gold gradient
-      // nextFill: isDark ? null : ThemeColors.textDark,
-      // nextGradient: isDark ? ThemeColors.goldButtonGradient : null,
-      // nextText: isDark ? ThemeColors.textDark : ThemeColors.white,
       nextFill: null,
       nextGradient: ThemeColors.buttonBackGroundColor,
       nextText: ThemeColors.white,
