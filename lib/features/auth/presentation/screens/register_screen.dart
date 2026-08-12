@@ -538,12 +538,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             });
           }
         },
-        child: AuthResponsiveLayout(
-          title: 'Create Account',
-          subtitle: 'Join TheVaults and start\nShopping smarter every day.',
-          // topActionLabel: 'Sign In',
-          onTopAction: () => context.go(AppRoutes.login),
-          formBuilder: _buildForm,
+        child: SafeArea(
+          child: AuthResponsiveLayout(
+            title: 'Create Account',
+            subtitle: 'Join TheVaults and start\nShopping smarter every day.',
+            // topActionLabel: 'Sign In',
+            onTopAction: () => context.go(AppRoutes.login),
+            formBuilder: _buildForm,
+          ),
         ),
       ),
     );

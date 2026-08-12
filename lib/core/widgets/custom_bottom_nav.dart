@@ -138,7 +138,7 @@ class _NavItem extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: selected
-                      ? ThemeColors.blue.withOpacity(0.10)
+                      ? ThemeColors.purple.withOpacity(0.10)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
                 ),
@@ -173,7 +173,7 @@ class _NavItem extends StatelessWidget {
                   fontSize: selected ? 14.sp : 13.sp,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                   color: selected ? ThemeColors.blue : ThemeColors.inkDim,
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Inter',
                   letterSpacing: 0.1,
                 ),
                 child: Text(
@@ -212,7 +212,7 @@ class _CentreButton extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppSizes.radiusL),
-          gradient: ThemeColors.primaryGradient,
+          gradient: ThemeColors.buttonBackGroundColor,
           boxShadow: [
             // White ring
             const BoxShadow(
@@ -222,7 +222,7 @@ class _CentreButton extends StatelessWidget {
             ),
             // Blue glow
             BoxShadow(
-              color: ThemeColors.blue.withOpacity(selected ? 0.55 : 0.30),
+              color: ThemeColors.purple.withOpacity(selected ? 0.55 : 0.30),
               blurRadius: selected ? 24 : 14,
               spreadRadius: selected ? 2 : 0,
               offset: const Offset(0, 4),

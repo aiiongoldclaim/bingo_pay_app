@@ -255,7 +255,6 @@ class _NarrowLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Phone landscape me hero image kaafi jagah kha jati hai — chhupa dete hain.
     final showHero = m.isTablet || !m.isLandscape;
 
     return Column(
@@ -275,7 +274,6 @@ class _NarrowLayout extends StatelessWidget {
   }
 }
 
-/// Tablet / iPad landscape — left form, right hero art.
 class _WideLayout extends StatelessWidget {
   const _WideLayout({
     required this.m,
@@ -391,10 +389,7 @@ class _HeroArt extends StatelessWidget {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1,
-      child: Image.asset(
-        AppImages.onboard1Dark, // apna asset name lagana
-        fit: BoxFit.contain,
-      ),
+      child: Image.asset(AppImages.onboard1Dark, fit: BoxFit.contain),
     );
   }
 }

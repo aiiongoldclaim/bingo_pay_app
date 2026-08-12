@@ -7,10 +7,43 @@ class ThemeColors {
   // BLUE PALETTE
   // =========================
 
+  static const primaryPurple = Color(0xFF4C1E76);
+  static const deepPurple = Color(0xFF3F185F);
+  static const mediumPurple = Color(0xFF6B3A91);
+
+  // Lavender
+  static const lavender = Color(0xFFA98BC8);
+  static const lightLavender = Color(0xFFE5DCF1);
+  static const veryLightLavender = Color(0xFFF5F1F8);
+  static const purpleTint = Color(0xFFF0EAF6);
+
+  // Background
+  static const background = Color(0xFFFFFFFF);
+
+  // Text
+  static const textPrimary = Color(0xFF17151A);
+  static const textSecondary1 = Color(0xFF6B6870);
+  static const textMuted = Color(0xFF9B989F);
+
+  // Border
+  static const border = Color(0xFFE4E0E8);
+
+  // Service section
+  static const serviceBackground = Color(0xFFFDF4ED);
+
+  // Success / Discount
+  static const discount = Color(0xFF4C1E76);
+
+  // White
+  static const white = Color(0xFFFFFFFF);
+
   static const Color blue = Color(0xFF1B4AE4);
   static const Color blueDeep = Color(0xFF0E2A78);
   static const Color bluePress = Color(0xFF1740BF);
   static const Color blueSoft = Color(0xFFE7EDFD);
+
+  //orange
+  static const Color orange = Color(0xffFF9400);
 
   // =========================
   // GOLD PALETTE
@@ -49,7 +82,7 @@ class ThemeColors {
   static const Color purple = Color(0xFF6D28D9);
   static const Color purpleLight = Color(0xFF8B5CF6);
 
-  static const Color background = Color(0xFFF4F6FB);
+  // static const Color background = Color(0xFFF4F6FB);
 
   // =========================
   // SURFACE
@@ -89,12 +122,43 @@ class ThemeColors {
   // EXTRA COMMON COLORS
   // =========================
 
-  static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
+  // =========================
+  // DARK MODE PALETTE  (NEW)
+  // =========================
+  static const Color darkBackground = Color(0xFF0A0A0B);
+  static const Color darkSurface = Color(0xFF151517);
+  static const Color darkSurfaceAlt = Color(0xFF1C1C1F);
+  static const Color darkBorder = Color(0xFF2A2A2E);
+  static const Color darkTextPrimary = Color(0xFFF5F5F7);
+  static const Color darkTextSecondary = Color(0xFFA1A1AA);
+  static const Color darkTextMuted = Color(0xFF6E6E76);
+  static const Color darkPurple = Color(0xFF8B5CF6);
+  static const Color darkPurpleSoft = Color(0xFF2A1B45);
 
-  // =========================
-  // GRADIENTS
-  // =========================
+  // Hero banner (NEW)
+  static const LinearGradient heroBannerLight = LinearGradient(
+    colors: [Color(0xFFEDE6F5), Color(0xFFDCD0EA)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+  static const LinearGradient heroBannerDark = LinearGradient(
+    colors: [Color(0xFF1E1330), Color(0xFF2A1B45)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  // Benefits strip (NEW)
+  static const LinearGradient benefitsStripLight = LinearGradient(
+    colors: [Color(0xFF7B50AB), Color(0xFFA48BC2)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+  static const LinearGradient benefitsStripDark = LinearGradient(
+    colors: [Color(0xFF1C1C1F), Color(0xFF1C1C1F)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
 
   static LinearGradient primaryGradient = LinearGradient(
     colors: [blue, blueDeep],
@@ -123,6 +187,24 @@ class ThemeColors {
 
   static const LinearGradient buttonBackGroundColor = LinearGradient(
     colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  static const LinearGradient banner = LinearGradient(
+    colors: [Color(0xFFEDE6F5), Color(0xFFDCD0EA)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  static const LinearGradient bottomSection = LinearGradient(
+    colors: [Color(0xFF7B50AB), Color(0xFFA48BC2)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  static const LinearGradient bookServiceBackground = LinearGradient(
+    colors: [Color(0xFFFDF4ED), Color(0xFFF8EEF4)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );

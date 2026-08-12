@@ -259,11 +259,13 @@ class _LoginScreenState extends State<LoginScreen> {
             AppSnackbar.showError(context, state.failure.message);
           }
         },
-        child: AuthResponsiveLayout(
-          title: 'Welcome Back!',
-          subtitle:
-              'Log in to your account and\ncontinue your shopping journey.',
-          formBuilder: _buildForm,
+        child: SafeArea(
+          child: AuthResponsiveLayout(
+            title: 'Welcome Back!',
+            subtitle:
+                'Log in to your account and\ncontinue your shopping journey.',
+            formBuilder: _buildForm,
+          ),
         ),
       ),
     );

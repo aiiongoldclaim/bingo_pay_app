@@ -221,7 +221,7 @@ class AuthResponsiveLayout extends StatelessWidget {
                         title: title,
                         subtitle: subtitle,
                         center: true,
-                      ),
+                       ),
                       SizedBox(height: m.blockGap * 0.8),
                     ],
                     formBuilder(context, m),
