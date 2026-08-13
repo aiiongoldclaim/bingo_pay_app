@@ -19,6 +19,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final LinearGradient benefitsStrip;
   final bool isDark;
 
+  final Color navBackground;
+  final Color navSelected;
+  final Color navUnselected;
+
   const AppThemeColors({
     required this.background,
     required this.surface,
@@ -35,6 +39,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.heroBanner,
     required this.benefitsStrip,
     required this.isDark,
+
+    required this.navBackground,
+    required this.navSelected,
+    required this.navUnselected,
   });
 
   static const lightColors = AppThemeColors(
@@ -53,6 +61,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     heroBanner: ThemeColors.heroBannerLight,
     benefitsStrip: ThemeColors.benefitsStripLight,
     isDark: false,
+
+    navBackground: ThemeColors.white,
+    navSelected: ThemeColors.primaryPurple,
+    navUnselected: ThemeColors.textSecondary1,
   );
 
   static const darkColors = AppThemeColors(
@@ -71,6 +83,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     heroBanner: ThemeColors.heroBannerDark,
     benefitsStrip: ThemeColors.benefitsStripDark,
     isDark: true,
+
+    navBackground: ThemeColors.darkBackground,
+    navSelected: ThemeColors.darkPurple,
+    navUnselected: ThemeColors.darkTextSecondary,
   );
 
   static AppThemeColors of(BuildContext context) =>
@@ -93,6 +109,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     LinearGradient? heroBanner,
     LinearGradient? benefitsStrip,
     bool? isDark,
+
+    Color? navBackground,
+    Color? navSelected,
+    Color? navUnselected,
   }) => AppThemeColors(
     background: background ?? this.background,
     surface: surface ?? this.surface,
@@ -109,6 +129,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     heroBanner: heroBanner ?? this.heroBanner,
     benefitsStrip: benefitsStrip ?? this.benefitsStrip,
     isDark: isDark ?? this.isDark,
+
+    navBackground: navBackground ?? this.navBackground,
+    navSelected: navSelected ?? this.navSelected,
+    navUnselected: navUnselected ?? this.navUnselected,
   );
 
   @override
@@ -129,6 +153,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
         other.categoryCircleBg,
         t,
       )!,
+
       servicesBg: Color.lerp(servicesBg, other.servicesBg, t)!,
       discount: Color.lerp(discount, other.discount, t)!,
       heroBanner: LinearGradient.lerp(heroBanner, other.heroBanner, t)!,
@@ -138,6 +163,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
         t,
       )!,
       isDark: t < 0.5 ? isDark : other.isDark,
+
+      navBackground: Color.lerp(navBackground, other.navBackground, t)!,
+      navSelected: Color.lerp(navSelected, other.navSelected, t)!,
+      navUnselected: Color.lerp(navUnselected, other.navUnselected, t)!,
     );
   }
 }

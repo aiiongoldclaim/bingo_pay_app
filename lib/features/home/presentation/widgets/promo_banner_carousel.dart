@@ -31,38 +31,46 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
 
     final m = widget.metrics;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
-          child: CarouselSlider.builder(
-            itemCount: widget.banners.length,
-            itemBuilder: (context, index, realIndex) => PromoBanner(
+    // Pehli image ka ratio saare slides pe apply hota hai — isliye chaaron
+    // banners same dimensions ke hone chahiye.
+    return ImageRatioBuilder(
+      assetPath: widget.banners.first.imageAsset,
+      fallbackRatio: m.heroAspectRatio,
+      builder: (context, ratio) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
+              child: CarouselSlider.builder(
+                itemCount: widget.banners.length,
+                itemBuilder: (context, index, realIndex) => PromoBanner(
+                  metrics: m,
+                  banner: widget.banners[index],
+                  onTap: () => widget.onBannerTap?.call(widget.banners[index]),
+                ),
+                options: CarouselOptions(
+                  aspectRatio: ratio, // ← image se aaya, hardcode nahi
+                  viewportFraction: 1,
+                  autoPlay: widget.banners.length > 1,
+                  autoPlayInterval: const Duration(seconds: 5),
+                  autoPlayAnimationDuration: const Duration(milliseconds: 600),
+                  autoPlayCurve: Curves.easeInOutCubic,
+                  enableInfiniteScroll: widget.banners.length > 1,
+                  padEnds: false,
+                  onPageChanged: (index, _) => setState(() => _current = index),
+                ),
+              ),
+            ),
+            SizedBox(height: m.pagePadding * 0.75),
+            _DotsIndicator(
               metrics: m,
-              banner: widget.banners[index],
-              onTap: () => widget.onBannerTap?.call(widget.banners[index]),
+              count: widget.banners.length,
+              activeIndex: _current,
             ),
-            options: CarouselOptions(
-              height: m.heroHeight,
-              viewportFraction: 1,
-              autoPlay: widget.banners.length > 1,
-              autoPlayInterval: const Duration(seconds: 5),
-              autoPlayAnimationDuration: const Duration(milliseconds: 600),
-              autoPlayCurve: Curves.easeInOutCubic,
-              enableInfiniteScroll: widget.banners.length > 1,
-              padEnds: false,
-              onPageChanged: (index, _) => setState(() => _current = index),
-            ),
-          ),
-        ),
-        SizedBox(height: m.pagePadding * 0.6),
-        _DotsIndicator(
-          metrics: m,
-          count: widget.banners.length,
-          activeIndex: _current,
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

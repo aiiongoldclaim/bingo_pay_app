@@ -59,6 +59,11 @@ class HomeCubit extends Cubit<HomeState> {
         queryParameters: {'page': 1, 'limit': 20},
       );
       final raw = response.data as Map<String, dynamic>;
+
+      // TEMP DEBUG — variant structure dekhne ke liye
+      final firstProduct = ((raw['data'] as Map)['data'] as List).first;
+      debugPrint('VARIANT SAMPLE: ${firstProduct['variants']}');
+
       final dataMap = raw['data'] as Map<String, dynamic>;
       final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
       products = dataList
@@ -102,13 +107,15 @@ class HomeCubit extends Cubit<HomeState> {
       }
     }
 
-    emit(state.copyWith(
-      status: HomeStatus.loaded,
-      userName: userName,
-      bigoldBalance: bigoldBalance,
-      categories: categories,
-      flashDeals: products.take(6).toList(),
-      recommended: products,
-    ));
+    emit(
+      state.copyWith(
+        status: HomeStatus.loaded,
+        userName: userName,
+        bigoldBalance: bigoldBalance,
+        categories: categories,
+        flashDeals: products.take(6).toList(),
+        recommended: products,
+      ),
+    );
   }
 }

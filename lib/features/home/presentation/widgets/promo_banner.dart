@@ -109,10 +109,11 @@
 //     );
 //   }
 // }
-import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme_colors.dart';
-import 'home_metrics.dart';
+import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_theme_colors.dart';
 import 'home_banner_data.dart';
 import 'home_metrics.dart';
 
@@ -132,128 +133,103 @@ class PromoBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.c;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(metrics.heroRadius),
-      child: DecoratedBox(
-        decoration: BoxDecoration(gradient: c.heroBanner),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // ── Right-side artwork ────────────────────────
-            Align(
-              alignment: Alignment.centerRight,
-              child: FractionallySizedBox(
-                widthFactor: 0.48,
-                heightFactor: 1,
-                child: Image.asset(
-                  banner.imageAsset,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                ),
-              ),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(metrics.heroRadius),
+        child: Image.asset(
+          banner.imageAsset,
+          fit: BoxFit.fill, // container ab exact ratio ka hai
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => Container(
+            color: c.surfaceAlt,
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.image_outlined,
+              size: metrics.categoryIconSize,
+              color: c.textMuted,
             ),
-
-            // ── Text block ────────────────────────────────
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: metrics.pagePadding,
-                vertical: metrics.pagePadding * 0.85,
-              ),
-              child: FractionallySizedBox(
-                widthFactor: 0.56,
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (banner.eyebrow.isNotEmpty) ...[
-                      Text(
-                        banner.eyebrow.toUpperCase(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: metrics.heroEyebrowSize,
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w500,
-                          color: c.textSecondary,
-                        ),
-                      ),
-                      SizedBox(height: metrics.pagePadding * 0.4),
-                    ],
-
-                    // FittedBox = title kabhi overflow nahi karega
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          banner.title,
-                          style: TextStyle(
-                            fontSize: metrics.heroTitleSize,
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
-                            color: c.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    if (banner.subtitle.isNotEmpty) ...[
-                      SizedBox(height: metrics.pagePadding * 0.45),
-                      Flexible(
-                        child: Text(
-                          banner.subtitle,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: metrics.heroBodySize,
-                            height: 1.4,
-                            color: c.textPrimary.withValues(alpha: 0.85),
-                          ),
-                        ),
-                      ),
-                    ],
-
-                    SizedBox(height: metrics.pagePadding * 0.7),
-
-                    // Button ko fixed height do, minimumSize se nahi
-                    SizedBox(
-                      height: metrics.searchHeight * 0.72,
-                      child: ElevatedButton(
-                        onPressed: onTap,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: c.brand,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: metrics.pagePadding * 0.95,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                        child: Text(
-                          banner.ctaLabel.toUpperCase(),
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: metrics.heroBodySize * 0.95,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.6,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
+}
+
+class ImageRatioBuilder extends StatefulWidget {
+  const ImageRatioBuilder({
+    super.key,
+    required this.assetPath,
+    required this.builder,
+    this.fallbackRatio = 2.0,
+  });
+
+  final String assetPath;
+  final double fallbackRatio;
+  final Widget Function(BuildContext context, double aspectRatio) builder;
+
+  @override
+  State<ImageRatioBuilder> createState() => _ImageRatioBuilderState();
+}
+
+class _ImageRatioBuilderState extends State<ImageRatioBuilder> {
+  double? _ratio;
+  ImageStream? _stream;
+  ImageStreamListener? _listener;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(covariant ImageRatioBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.assetPath != widget.assetPath) {
+      _ratio = null;
+      _resolve();
+    }
+  }
+
+  void _resolve() {
+    _detach();
+    final provider = AssetImage(widget.assetPath);
+    final stream = provider.resolve(createLocalImageConfiguration(context));
+    final listener = ImageStreamListener(
+      (ImageInfo info, bool _) {
+        final ui.Image img = info.image;
+        final ratio = img.width / img.height;
+        if (mounted && _ratio != ratio) {
+          setState(() => _ratio = ratio);
+        }
+      },
+      onError: (_, __) {
+        if (mounted) setState(() => _ratio = widget.fallbackRatio);
+      },
+    );
+    stream.addListener(listener);
+    _stream = stream;
+    _listener = listener;
+  }
+
+  void _detach() {
+    if (_stream != null && _listener != null) {
+      _stream!.removeListener(_listener!);
+    }
+    _stream = null;
+    _listener = null;
+  }
+
+  @override
+  void dispose() {
+    _detach();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      widget.builder(context, _ratio ?? widget.fallbackRatio);
 }

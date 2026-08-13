@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intro/intro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/app_snackbar.dart';
+import '../../../cart/presentation/cubit/cart_cubit.dart';
+import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
+import '../../../wishlist/data/models/wishlist_model.dart';
+import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
+import '../../data/models/product_model.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../widgets/category_section.dart';
 import '../widgets/home_banner_data.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_shimmer.dart';
-import '../widgets/promo_banner.dart';
 
 // class HomeScreen extends StatefulWidget {
 //   const HomeScreen({super.key});
@@ -486,7 +493,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late ScrollController _scrollController;
   bool _introStarted = false;
 
-  /// Category tabs — sirf UI state, cubit ka logic touch nahi kiya
   int _selectedTabIndex = 0;
 
   IntroController get controller => Intro.of(context).controller;
@@ -521,11 +527,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// Tab labels categories se derive hote hain — koi static data nahi
-  List<String> _tabLabels(List<CategoryModel> categories) => [
-    'All',
-    ...categories.take(5).map((e) => e.name),
-  ];
+  void _openCategory(CategoryModel cat) {
+    context.push(
+      AppRoutes.productListing.replaceFirst(
+        ':categoryName',
+        Uri.encodeComponent(cat.name),
+      ),
+      extra: cat.uuid,
+    );
+  }
 
   static const List<BenefitItemData> _benefits = [
     BenefitItemData(icon: Icons.verified_outlined, label: '100%\nOriginal'),
@@ -546,6 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: c.background,
       body: SafeArea(
         bottom: false,
+
         child: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
             if (state.status == HomeStatus.loading) {
@@ -553,8 +564,6 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             _startIntroIfReady(state);
-
-            final tabs = _tabLabels(state.categories);
 
             return RefreshIndicator(
               color: c.brand,
@@ -576,13 +585,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             horizontal: m.pagePadding,
                           ),
                           child: _buildStep1(
-                            HomeHeader(
-                              metrics: m,
-                              brandName: 'TheVaults',
-                              cartCount: 0,
-                              onMenuTap: () {},
-                              onWishlistTap: () {},
-                              onCartTap: () {},
+                            BlocBuilder<CartCubit, CartState>(
+                              buildWhen: (a, b) => a.totalItems != b.totalItems,
+                              builder: (context, cartState) => HomeHeader(
+                                metrics: m,
+                                brandName: 'TheVaults',
+                                cartCount: cartState.totalItems,
+                                onMenuTap: () {},
+                                onWishlistTap: () =>
+                                    context.push(AppRoutes.buyerWishlist),
+                                onCartTap: () => context.push(AppRoutes.cart),
+                              ),
                             ),
                           ),
                         ),
@@ -602,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             HomeSearchField(
                               metrics: m,
                               hintText: 'Search for products, brands and more',
-                              onTap: () {},
+                              onTap: () => context.push(AppRoutes.search),
                               onCameraTap: () {},
                             ),
                           ),
@@ -614,15 +627,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
 
                       // ── Category tabs ───────────────────────
-                      SliverToBoxAdapter(
-                        child: HomeCategoryTabs(
-                          metrics: m,
-                          labels: tabs,
-                          selectedIndex: _selectedTabIndex,
-                          onSelected: (i) =>
-                              setState(() => _selectedTabIndex = i),
+                      if (state.categories.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: HomeCategoryTabs(
+                            metrics: m,
+                            labels: state.categories
+                                .map((e) => e.name)
+                                .toList(),
+                            selectedIndex: _selectedTabIndex,
+                            onSelected: (i) {
+                              setState(() => _selectedTabIndex = i);
+                              _openCategory(state.categories[i]);
+                            },
+                            onViewAll: () => context.push(AppRoutes.categories),
+                          ),
                         ),
-                      ),
 
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
@@ -639,29 +658,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
-                      // ── Category shortcuts ──────────────────
-                      if (state.categories.isNotEmpty) ...[
-                        SliverToBoxAdapter(
-                          child: _buildStep4(
-                            CategorySection(
-                              metrics: m,
-                              categories: state.categories,
-                              onCategoryTap: (cat) {},
-                            ),
-                          ),
-                        ),
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: m.sectionGap),
-                        ),
-                      ],
-
-                      // ── Book Services ───────────────────────
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: m.pagePadding,
                           ),
-                          child: _buildStep5(
+                          child: _buildStep4(
+                            // CHANGED: step5 → step4
                             BlocProvider(
                               create: (_) =>
                                   getIt<ServicesCubit>()..loadServices(),
@@ -676,9 +679,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                     subtitle: 'Beauty, Home, Repairs & more',
                                     buttonText: 'Book Now',
                                     services: s.services,
-                                    onBookNow: () {},
-                                    onServiceTap: (svc) {},
-                                    onViewAll: () {},
+                                    onBookNow: () =>
+                                        context.push(AppRoutes.services),
+                                    onServiceTap: (svc) => context.push(
+                                      '/service-detail/${svc.uuid}',
+                                    ),
+                                    onViewAll: () =>
+                                        context.push(AppRoutes.services),
                                   );
                                 },
                               ),
@@ -703,10 +710,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: 'Flash Deals',
                                 actionText: 'View All',
                                 products: state.flashDeals,
-                                onActionTap: () {},
-                                onProductTap: (p) {},
-                                onWishlistTap: (p) {},
-                                onAddToCart: (p) {},
+                                onActionTap: () =>
+                                    context.push(AppRoutes.allProducts),
+                                onProductTap: (p) {
+                                  if (p.uuid == null) return;
+                                  context.push(
+                                    AppRoutes.productDetails,
+                                    extra: p.uuid,
+                                  );
+                                },
+                                onWishlistTap: _toggleWishlist,
+                                onAddToCart: _addToCart,
                               ),
                             ),
                           ),
@@ -722,16 +736,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: 'Recommended For You',
                                 actionText: 'View All',
                                 products: state.recommended,
-                                onActionTap: () {},
-                                onProductTap: (p) {},
-                                onWishlistTap: (p) {},
-                                onAddToCart: (p) {},
+                                onActionTap: () =>
+                                    context.push(AppRoutes.allProducts),
+                                onProductTap: (p) {
+                                  if (p.uuid == null) return;
+                                  context.push(
+                                    AppRoutes.productDetails,
+                                    extra: p.uuid,
+                                  );
+                                },
+                                onWishlistTap: _toggleWishlist,
+                                onAddToCart: _addToCart,
                               ),
                             ),
                           ),
-                          SliverToBoxAdapter(
-                            child: SizedBox(height: m.sectionGap),
-                          ),
+                          // SliverToBoxAdapter(
+                          //   child: SizedBox(height: m.sectionGap),
+                          // ),
                         ],
                       ],
 
@@ -811,7 +832,7 @@ class _HomeScreenState extends State<HomeScreen> {
       controller: controller,
       cardContents: const TextSpan(
         text:
-            "Browse Categories\n\nExplore products by category. Swipe to see more options.",
+            "Book Services\n\nBeauty, home repairs, cleaning and more — book in a tap.",
       ),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 4),
       child: child,
@@ -889,9 +910,56 @@ class _HomeScreenState extends State<HomeScreen> {
           });
     });
   }
+
+  // ─────────── Wishlist ───────────
+  Future<void> _toggleWishlist(ProductModel product) async {
+    if (product.uuid == null) return;
+
+    final cubit = context.read<WishlistCubit>();
+    final wasWishlisted = cubit.isWishlisted(product.uuid);
+
+    await cubit.toggle(
+      WishlistItem(
+        id: product.uuid!,
+        brand: product.brand,
+        name: product.name,
+        price: product.price,
+        originalPrice: product.oldPrice.isNotEmpty ? product.oldPrice : null,
+        discountPercent: product.discount > 0 ? product.discount : null,
+        imageUrl: product.images.isNotEmpty ? product.images.first : null,
+        rating: product.rating,
+      ),
+    );
+
+    if (!mounted) return;
+    if (!wasWishlisted) {
+      AppSnackbar.showSuccess(
+        context,
+        'Product added to Wishlist successfully.',
+      );
+    }
+  }
+
+  // ─────────── Cart ───────────
+  Future<void> _addToCart(ProductModel product) async {
+    if (product.variantUuid == null) {
+      AppSnackbar.showError(context, 'This product is currently unavailable.');
+      return;
+    }
+
+    final cubit = context.read<CartCubit>();
+    await cubit.addItem(variantUuid: product.variantUuid!);
+
+    if (!mounted) return;
+    final error = cubit.state.error;
+    if (error != null) {
+      AppSnackbar.showError(context, error);
+    } else {
+      AppSnackbar.showSuccess(context, 'Added to cart.');
+    }
+  }
 }
 
-// ────────────────────────────────────────────────────
 class _EmptyProductsState extends StatelessWidget {
   const _EmptyProductsState({required this.metrics});
   final HomeMetrics metrics;

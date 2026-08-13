@@ -1,44 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
-import '../../../../core/theme/theme_colors.dart';
-import '../../../../core/widgets/app_search_bar.dart';
+import '../../../../core/matrics/search_metrics.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 
 class SearchInputBar extends StatefulWidget {
   const SearchInputBar({
     super.key,
-    this.initialValue = '',
-    this.hint = 'Search products, brands...',
+    required this.metrics,
     required this.onChanged,
     required this.onSubmit,
     required this.onBack,
-    this.onClear,
+    this.onVoiceTap,
+    this.hintText = 'Search for products, brands and more',
+    this.cancelLabel = 'Cancel',
   });
 
-  final String initialValue;
-  final String hint;
+  final SearchMetrics metrics;
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmit;
   final VoidCallback onBack;
-  final VoidCallback? onClear;
+  final VoidCallback? onVoiceTap;
+  final String hintText;
+  final String cancelLabel;
 
   @override
-  State<SearchInputBar> createState() => _SearchInputBarState();
+  State<SearchInputBar> createState() => SearchInputBarState();
 }
 
-class _SearchInputBarState extends State<SearchInputBar> {
-  late final TextEditingController _controller;
-  late final FocusNode _focusNode;
+class SearchInputBarState extends State<SearchInputBar> {
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-
-    _controller = TextEditingController(text: widget.initialValue);
-    _focusNode = FocusNode();
-
+    // Ajio-style: screen khulte hi keyboard up
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      if (mounted) _focusNode.requestFocus();
     });
   }
 
@@ -49,69 +47,120 @@ class _SearchInputBarState extends State<SearchInputBar> {
     super.dispose();
   }
 
+  /// Suggestion / recent tap pe field bharne ke liye
+  void setQuery(String value) {
+    _controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
+    final m = widget.metrics;
+
     return Padding(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.fromLTRB(
+        m.pagePadding * 0.4,
+        m.pagePadding * 0.5,
+        m.pagePadding,
+        m.pagePadding * 0.5,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 5.6.h,
-            child: GestureDetector(
-              onTap: widget.onBack,
-              child: Container(
-                padding: EdgeInsets.all(2.w),
-                decoration: BoxDecoration(
-                  color: ThemeColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: ThemeColors.line),
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: ThemeColors.ink,
-                ),
+          InkResponse(
+            onTap: widget.onBack,
+            radius: m.backIconSize,
+            child: Padding(
+              padding: EdgeInsets.all(m.pagePadding * 0.4),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: m.backIconSize * 0.8,
+                color: c.textPrimary,
               ),
             ),
           ),
 
-          SizedBox(width: 3.w),
-
           Expanded(
-            child: ValueListenableBuilder<TextEditingValue>(
-              valueListenable: _controller,
-              builder: (_, value, __) {
-                return Column(
-                  children: [
-                    SizedBox(height: 1.h),
-                    AppSearchBar(
+            child: Container(
+              height: m.inputHeight,
+              padding: EdgeInsets.symmetric(horizontal: m.pagePadding * 0.75),
+              decoration: BoxDecoration(
+                color: c.surface,
+                borderRadius: BorderRadius.circular(m.inputRadius),
+                border: Border.all(color: c.border),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search_rounded,
+                    size: m.inputIconSize,
+                    color: c.textMuted,
+                  ),
+                  SizedBox(width: m.pagePadding * 0.5),
+                  Expanded(
+                    child: TextField(
                       controller: _controller,
                       focusNode: _focusNode,
-                      autofocus: true,
-                      hintText: widget.hint,
-                      onChanged: (value) {
-                        debugPrint('Typing: $value');
-                        widget.onChanged(value);
-                      },
+                      textInputAction: TextInputAction.search,
+                      onChanged: widget.onChanged,
                       onSubmitted: widget.onSubmit,
-                    
-                      suffixIcon: value.text.isEmpty
-                          ? null
-                          : IconButton(
-                              icon: const Icon(
-                                Icons.close_rounded,
-                                color: ThemeColors.inkDim,
-                              ),
-                              onPressed: () {
-                                _controller.clear();
-                                widget.onChanged('');
-                                widget.onClear?.call();
-                              },
-                            ),
+                      cursorColor: c.brand,
+                      style: TextStyle(
+                        fontSize: m.inputFontSize,
+                        color: c.textPrimary,
+                      ),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        filled: false,
+                        contentPadding: EdgeInsets.zero,
+                        hintText: widget.hintText,
+                        hintStyle: TextStyle(
+                          fontSize: m.inputFontSize,
+                          color: c.textMuted,
+                        ),
+                      ),
                     ),
-                  ],
-                );
-              },
+                  ),
+                  SizedBox(width: m.pagePadding * 0.4),
+                  InkResponse(
+                    onTap: widget.onVoiceTap,
+                    radius: m.inputIconSize,
+                    child: Container(
+                      width: m.inputIconSize * 1.55,
+                      height: m.inputIconSize * 1.55,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: c.brand, width: 1.2),
+                      ),
+                      child: Icon(
+                        Icons.mic_rounded,
+                        size: m.inputIconSize * 0.85,
+                        color: c.brand,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SizedBox(width: m.pagePadding * 0.6),
+
+          InkWell(
+            onTap: widget.onBack,
+            child: Text(
+              widget.cancelLabel,
+              style: TextStyle(
+                fontSize: m.cancelFontSize,
+                fontWeight: FontWeight.w600,
+                color: c.brand,
+              ),
             ),
           ),
         ],

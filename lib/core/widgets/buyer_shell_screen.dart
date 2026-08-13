@@ -100,10 +100,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../../core/router/app_routes.dart';
-import '../../../../../core/widgets/custom_bottom_nav.dart';
-import '../../../../../core/widgets/qr_fab.dart';
-import '../../../../home/presentation/cubit/dashboard_cubit.dart';
+import '../router/app_routes.dart';
+import 'custom_bottom_nav.dart';
+import 'qr_fab.dart';
+import '../../features/home/presentation/cubit/dashboard_cubit.dart';
 
 class BuyerShellScreen extends StatefulWidget {
   final Widget child;
@@ -120,11 +120,6 @@ class BuyerShellScreen extends StatefulWidget {
 }
 
 class _BuyerShellScreenState extends State<BuyerShellScreen> {
-  // Owned here (rather than by HomeScreen) so it survives navigation to
-  // sibling routes pushed on top of the shell (cart, payment, account, ...)
-  // and can be refreshed whenever the user lands back on Home — HomeScreen's
-  // own Element/cubit was being reused as-is by go_router on `context.go`,
-  // so a balance update (e.g. after checkout) never reached it.
   late final HomeCubit _homeCubit = HomeCubit()..loadHome();
 
   @override
@@ -172,10 +167,6 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
     }
   }
 
-  // Only the actual bottom-nav tab roots get the nav bar + FAB — every other
-  // route inside this ShellRoute (transactions, cart, checkout, wallet,
-  // scanner, profile sub-pages, etc.) is a drill-down/pushed screen and
-  // should render full-screen without them.
   static const _tabRootPaths = [
     AppRoutes.home,
     AppRoutes.categories,
@@ -185,8 +176,9 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hideNav =
-        !_tabRootPaths.any((path) => widget.location.startsWith(path));
+    final hideNav = !_tabRootPaths.any(
+      (path) => widget.location.startsWith(path),
+    );
 
     return Scaffold(
       extendBody: true, // ← keep this

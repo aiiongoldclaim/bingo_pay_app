@@ -2,11 +2,6 @@ import 'package:flutter/widgets.dart';
 
 enum HomeDeviceClass { phone, tabletPortrait, tabletLandscape }
 
-/// Centralised sizing for the Home screen.
-///
-/// Phone values scale off a 390dp reference width and are clamped so text
-/// never grows or shrinks past a readable band. Tablet values are fixed dp —
-/// scaling them would oversize badly on 7"–11" devices.
 class HomeMetrics {
   final HomeDeviceClass device;
 
@@ -131,19 +126,15 @@ class HomeMetrics {
       searchIconSize +
       pagePadding * 2.2;
 
-  /// Service tile ki intrinsic height (icon + label + vertical padding).
   double get serviceTileHeight =>
       serviceIconSize + serviceLabelSize * 1.4 + pagePadding * 1.3;
 
-  /// Bottom nav ke peeche content chhupne se bachane ke liye trailing space.
   double get bottomSafeGap => sectionGap * 2 + searchHeight * 1.6;
 
   static const double _tabletBreakpoint = 540;
   static const double _phoneReferenceWidth = 390;
 
   factory HomeMetrics.of(BuildContext context) {
-    // MediaQuery.sizeOf — orientation-independent, LayoutBuilder constraints
-    // se nahi (wo scrollable ancestor ke andar galat aati hain).
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.shortestSide >= _tabletBreakpoint;
     final landscape = size.width > size.height;
@@ -152,9 +143,6 @@ class HomeMetrics {
     return landscape ? _tabletLandscape() : _tabletPortrait();
   }
 
-  // ────────────────────────────────────────────────────────
-  // PHONE — Sizer-style scaling, clamped
-  // ────────────────────────────────────────────────────────
   static HomeMetrics _phone(double screenWidth) {
     final s = (screenWidth / _phoneReferenceWidth).clamp(0.85, 1.15);
     double v(double base, double lo, double hi) =>
@@ -181,7 +169,7 @@ class HomeMetrics {
       tabBarHeight: v(42, 38, 48),
 
       heroHeight: v(230, 210, 260),
-      heroAspectRatio: 1.55,
+      heroAspectRatio: 2.6,
       heroRadius: 14,
       heroEyebrowSize: v(11, 10, 12),
       heroTitleSize: v(22, 19, 25),
@@ -235,7 +223,7 @@ class HomeMetrics {
     tabBarHeight: 52,
 
     heroHeight: 320,
-    heroAspectRatio: 2.2,
+    heroAspectRatio: 2.6,
     heroRadius: 18,
     heroEyebrowSize: 13,
     heroTitleSize: 32,
@@ -288,7 +276,7 @@ class HomeMetrics {
     tabBarHeight: 54,
 
     heroHeight: 340,
-    heroAspectRatio: 2.8,
+    heroAspectRatio: 2.6,
     heroRadius: 20,
     heroEyebrowSize: 13,
     heroTitleSize: 34,

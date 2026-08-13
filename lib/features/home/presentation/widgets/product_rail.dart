@@ -4,6 +4,10 @@ import '../../data/models/product_model.dart';
 import 'home_metrics.dart';
 import 'product_card.dart';
 import 'section_header.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
+import '../../../wishlist/presentation/cubit/wishlist_state.dart';
 
 class ProductRail extends StatelessWidget {
   const ProductRail({
@@ -46,20 +50,32 @@ class ProductRail extends StatelessWidget {
         SizedBox(height: metrics.pagePadding * 0.8),
         SizedBox(
           height: metrics.productCardHeight,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
-            itemCount: products.length,
-            separatorBuilder: (_, __) =>
-                SizedBox(width: metrics.pagePadding * 0.7),
-            itemBuilder: (_, i) {
-              final p = products[i];
-              return ProductCard(
-                metrics: metrics,
-                product: p,
-                onTap: () => onProductTap?.call(p),
-                onWishlistTap: () => onWishlistTap?.call(p),
-                onAddToCart: () => onAddToCart?.call(p),
+          // Wishlist change pe sirf ye rail rebuild hogi, poora screen nahi
+          child: BlocBuilder<WishlistCubit, WishlistState>(
+            builder: (context, wishlistState) {
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
+                itemCount: products.length,
+                separatorBuilder: (_, __) =>
+                    SizedBox(width: metrics.pagePadding * 0.7),
+                itemBuilder: (_, i) {
+                  final p = products[i];
+                  return ProductCard(
+                    metrics: metrics,
+                    product: p,
+                    isWishlisted:
+                        p.uuid != null &&
+                        wishlistState.items.any((e) => e.id == p.uuid),
+                    onTap: () => onProductTap?.call(p),
+                    onWishlistTap: p.uuid == null
+                        ? null
+                        : () => onWishlistTap?.call(p),
+                    onAddToCart: p.variantUuid == null
+                        ? null
+                        : () => onAddToCart?.call(p),
+                  );
+                },
               );
             },
           ),

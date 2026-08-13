@@ -9,7 +9,7 @@ import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
-import '../../features/customer/shop/presentation/screens/buyer_shell_screen.dart';
+import '../widgets/buyer_shell_screen.dart';
 import '../../features/customer/shop/presentation/screens/cart_screen.dart';
 import '../../features/customer/shop/presentation/screens/catalog_screen.dart';
 import '../../features/customer/shop/presentation/screens/category_screen.dart';
@@ -249,15 +249,18 @@ class AppRouter {
               path: AppRoutes.scanner,
               builder: (context, state) => const ScannerScreen(),
             ),
-
             GoRoute(
-              path: AppRoutes.buyerDashboard,
-              builder: (_, _) => BlocProvider<BuyerDashboardCubit>(
-                create: (_) => BuyerDashboardCubit(),
-                child: const BuyerDashboardScreen(),
-              ),
+              path: AppRoutes.buyerWishlist,
+              builder: (_, _) => const WishlistScreen(),
             ),
 
+            // GoRoute(
+            //   path: AppRoutes.buyerDashboard,
+            //   builder: (_, _) => BlocProvider<BuyerDashboardCubit>(
+            //     create: (_) => BuyerDashboardCubit(),
+            //     child: const BuyerDashboardScreen(),
+            //   ),
+            // ),
             GoRoute(
               path: AppRoutes.categories,
               builder: (_, _) => const CategoriesScreen(),
@@ -310,29 +313,28 @@ class AppRouter {
               ),
             ),
 
-            GoRoute(
-              path: AppRoutes.buyerCatalog,
-              builder: (_, _) => const CatalogScreen(),
-            ),
-            GoRoute(
-              path: AppRoutes.buyerSearch,
-              builder: (context, state) => CatalogScreen(
-                title: 'Search results',
-                subtitle: 'Refine what you are looking for.',
-                initialQuery: state.uri.queryParameters['q'] ?? '',
-              ),
-            ),
-            GoRoute(
-              path: AppRoutes.buyerCategory,
-              builder: (context, state) => CategoryScreen(
-                categorySlug: state.pathParameters['slug'] ?? '',
-              ),
-            ),
-
-            GoRoute(
-              path: AppRoutes.buyerCart,
-              builder: (_, _) => const CartScreen(),
-            ),
+            // GoRoute(
+            //   path: AppRoutes.buyerCatalog,
+            //   builder: (_, _) => const CatalogScreen(),
+            // ),
+            // GoRoute(
+            //   path: AppRoutes.buyerSearch,
+            //   builder: (context, state) => CatalogScreen(
+            //     title: 'Search results',
+            //     subtitle: 'Refine what you are looking for.',
+            //     initialQuery: state.uri.queryParameters['q'] ?? '',
+            //   ),
+            // ),
+            // GoRoute(
+            //   path: AppRoutes.buyerCategory,
+            //   builder: (context, state) => CategoryScreen(
+            //     categorySlug: state.pathParameters['slug'] ?? '',
+            //   ),
+            // ),
+            // GoRoute(
+            //   path: AppRoutes.buyerCart,
+            //   builder: (_, _) => const CartScreen(),
+            // ),
             GoRoute(
               path: AppRoutes.buyerCheckout,
               builder: (_, _) => const CheckoutPlaceholderScreen(),
@@ -358,10 +360,7 @@ class AppRouter {
               path: AppRoutes.buyerNotifications,
               builder: (_, _) => const _PlaceholderPage('Notifications'),
             ),
-            GoRoute(
-              path: AppRoutes.buyerWishlist,
-              builder: (_, _) => const WishlistScreen(),
-            ),
+
             GoRoute(
               path: AppRoutes.buyerAddresses,
               builder: (_, _) => const _PlaceholderPage('Addresses'),
