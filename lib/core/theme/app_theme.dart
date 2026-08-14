@@ -128,13 +128,6 @@ import 'theme_colors.dart';
 //     ),
 //   );
 // }
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'app_dimensions.dart';
-import 'app_text_styles.dart';
-import 'app_theme_colors.dart';
-import 'theme_colors.dart';
 
 class AppTheme {
   static ThemeData get light => _buildTheme(Brightness.light);

@@ -9,11 +9,13 @@ class CatSearchField extends StatelessWidget {
     required this.metrics,
     required this.hintText,
     this.onTap,
+    this.onCameraTap,
   });
 
   final CategoriesMetrics metrics;
   final String hintText;
   final VoidCallback? onTap;
+  final VoidCallback? onCameraTap;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,15 @@ class CatSearchField extends StatelessWidget {
                   fontSize: m.searchFontSize,
                   color: c.textMuted,
                 ),
+              ),
+            ),
+            InkResponse(
+              onTap: onCameraTap,
+              radius: m.searchIconSize,
+              child: Icon(
+                Icons.center_focus_weak_rounded,
+                size: m.searchIconSize,
+                color: c.textMuted,
               ),
             ),
           ],

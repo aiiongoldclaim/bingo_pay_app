@@ -102,15 +102,11 @@ class CategoryCard extends StatelessWidget {
     super.key,
     required this.metrics,
     required this.category,
-    this.itemCount,
     this.onTap,
   });
 
   final CategoriesMetrics metrics;
   final CategoryEntity category;
-
-  /// e.g. "1200+ Items" — null hoga to line render nahi hogi
-  final String? itemCount;
   final VoidCallback? onTap;
 
   @override
@@ -121,81 +117,50 @@ class CategoryCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(m.categoryTileRadius),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: m.pagePadding * 0.4,
-          vertical: m.pagePadding * 0.7,
-        ),
-        decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(m.categoryTileRadius),
-          border: Border.all(color: c.border),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: m.categoryCircle,
-              height: m.categoryCircle,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: c.brandSoft,
-                shape: BoxShape.circle,
-              ),
-              child: hasImage
-                  ? ClipOval(
-                      child: Image.network(
-                        category.image!,
-                        width: m.categoryIconSize,
-                        height: m.categoryIconSize,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Icon(
-                          category.icon,
-                          size: m.categoryIconSize,
-                          color: c.brand,
-                        ),
+      borderRadius: BorderRadius.circular(m.categoryCircle),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: m.categoryCircle,
+            height: m.categoryCircle,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: c.brandSoft,
+              shape: BoxShape.circle,
+            ),
+            child: hasImage
+                ? ClipOval(
+                    child: Image.network(
+                      category.image!,
+                      width: m.categoryIconSize,
+                      height: m.categoryIconSize,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Icon(
+                        category.icon,
+                        size: m.categoryIconSize,
+                        color: c.brand,
                       ),
-                    )
-                  : Icon(
-                      category.icon,
-                      size: m.categoryIconSize,
-                      color: c.brand,
                     ),
-            ),
-            SizedBox(height: m.pagePadding * 0.55),
-            Flexible(
-              child: Text(
-                category.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: m.categoryNameSize,
-                  fontWeight: FontWeight.w600,
-                  height: 1.2,
-                  color: c.textPrimary,
-                ),
+                  )
+                : Icon(category.icon, size: m.categoryIconSize, color: c.brand),
+          ),
+          SizedBox(height: m.pagePadding * 0.5),
+          Flexible(
+            child: Text(
+              category.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: m.categoryNameSize,
+                fontWeight: FontWeight.w500,
+                height: 1.2,
+                color: c.textPrimary,
               ),
             ),
-            if (itemCount != null && itemCount!.isNotEmpty) ...[
-              SizedBox(height: m.pagePadding * 0.25),
-              Flexible(
-                child: Text(
-                  itemCount!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: m.categoryCountSize,
-                    height: 1.2,
-                    color: c.textSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

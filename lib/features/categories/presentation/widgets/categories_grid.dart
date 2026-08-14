@@ -53,7 +53,7 @@ class CategoriesGrid extends StatelessWidget {
   final CategoriesMetrics metrics;
   final List<CategoryEntity> categories;
 
-  /// Design me 2 rows dikhti hain, baaki "View All" ke peeche
+  /// Design me 2 rows dikhti hain; baaki "View All" ke peeche
   final int maxRows;
   final ValueChanged<CategoryEntity>? onCategoryTap;
 
@@ -62,8 +62,7 @@ class CategoriesGrid extends StatelessWidget {
     if (categories.isEmpty) return const SizedBox.shrink();
 
     final m = metrics;
-    final limit = m.categoryColumns * maxRows;
-    final visible = categories.take(limit).toList();
+    final visible = categories.take(m.categoryColumns * maxRows).toList();
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
@@ -74,9 +73,9 @@ class CategoriesGrid extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: m.categoryColumns,
-          crossAxisSpacing: m.gridGap,
-          mainAxisSpacing: m.gridGap,
-          mainAxisExtent: m.categoryTileHeight,
+          crossAxisSpacing: m.gridGap * 0.5,
+          mainAxisSpacing: m.gridGap * 1.4,
+          mainAxisExtent: m.categoryRowHeight,
         ),
         itemBuilder: (_, i) => CategoryCard(
           metrics: m,

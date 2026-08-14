@@ -49,7 +49,7 @@ class AppButton extends StatelessWidget {
         height: h,
         child: Container(
           decoration: BoxDecoration(
-            gradient: ThemeColors.buttonBackGroundColor,
+            gradient: ThemeColors.primaryGradient1,
             borderRadius: BorderRadius.circular(m.radius),
           ),
           child: ElevatedButton(
@@ -102,7 +102,7 @@ class AppButton extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontFamily: 'Roboto',
+              fontFamily: 'Inter',
               fontSize: fs,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.2,

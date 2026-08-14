@@ -49,7 +49,7 @@ class BrandChip extends StatelessWidget {
   final CategoriesMetrics metrics;
   final BrandEntity brand;
 
-  /// BrandEntity me logo field ho to screen se pass kar dena
+  /// API se aane wala logo. Null hoga to brand name text fallback dikhega.
   final String? logoUrl;
   final VoidCallback? onTap;
 
@@ -61,37 +61,34 @@ class BrandChip extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(m.categoryTileRadius),
-      child: Container(
+      borderRadius: BorderRadius.circular(m.brandRadius),
+      child: SizedBox(
         width: m.brandTileWidth,
-        padding: EdgeInsets.symmetric(vertical: m.pagePadding * 0.55),
-        decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(m.categoryTileRadius),
-          border: Border.all(color: c.border),
-        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              height: m.brandLogoHeight,
+            Container(
+              width: m.brandTileWidth,
+              height: m.brandTileHeight,
+              padding: EdgeInsets.all(m.pagePadding * 0.6),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.surface,
+                borderRadius: BorderRadius.circular(m.brandRadius),
+                border: Border.all(color: c.border),
+              ),
               child: hasLogo
-                  ? Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: m.pagePadding * 0.5,
-                      ),
-                      child: Image.network(
-                        logoUrl!,
-                        fit: BoxFit.contain,
-                        // Dark mode me dark logos gayab ho jaate hain
-                        color: c.isDark ? c.textPrimary : null,
-                        errorBuilder: (_, __, ___) =>
-                            _NameFallback(metrics: m, name: brand.name),
-                      ),
+                  ? Image.network(
+                      logoUrl!,
+                      fit: BoxFit.contain,
+                      // Dark mode me black logos gayab ho jaate hain
+                      color: c.isDark ? c.textPrimary : null,
+                      errorBuilder: (_, __, ___) =>
+                          _NameFallback(metrics: m, name: brand.name),
                     )
                   : _NameFallback(metrics: m, name: brand.name),
             ),
-            SizedBox(height: m.pagePadding * 0.35),
+            SizedBox(height: m.pagePadding * 0.45),
             Flexible(
               child: Text(
                 brand.name,
@@ -121,18 +118,16 @@ class _NameFallback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding * 0.4),
-        child: Text(
-          name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: metrics.brandNameSize * 1.15,
-            fontWeight: FontWeight.w800,
-            color: c.textPrimary,
-          ),
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        name.toUpperCase(),
+        maxLines: 1,
+        style: TextStyle(
+          fontSize: metrics.brandNameSize * 1.3,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.5,
+          color: c.textPrimary,
         ),
       ),
     );

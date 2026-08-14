@@ -120,6 +120,7 @@ class BrandsGrid extends StatelessWidget {
     required this.brands,
     this.isLoading = false,
     this.error,
+    this.logoResolver,
     this.onBrandTap,
   });
 
@@ -127,6 +128,10 @@ class BrandsGrid extends StatelessWidget {
   final List<BrandEntity> brands;
   final bool isLoading;
   final String? error;
+
+  /// Brand → logo URL. Screen decide karti hai ki logo kahan se aayega
+  /// (API field ya local asset map), widget ko farq nahi padta.
+  final String? Function(BrandEntity brand)? logoResolver;
   final ValueChanged<BrandEntity>? onBrandTap;
 
   @override
@@ -144,9 +149,10 @@ class BrandsGrid extends StatelessWidget {
           separatorBuilder: (_, __) => SizedBox(width: m.gridGap),
           itemBuilder: (_, __) => Container(
             width: m.brandTileWidth,
+            height: m.brandTileHeight,
             decoration: BoxDecoration(
               color: c.surfaceAlt,
-              borderRadius: BorderRadius.circular(m.categoryTileRadius),
+              borderRadius: BorderRadius.circular(m.brandRadius),
             ),
           ),
         ),
@@ -158,7 +164,7 @@ class BrandsGrid extends StatelessWidget {
         metrics: m,
         icon: Icons.error_outline_rounded,
         text: 'Failed to load brands',
-        color: c.isDark ? c.textSecondary : const Color(0xFFE0533B),
+        color: c.textSecondary,
       );
     }
 
@@ -181,6 +187,7 @@ class BrandsGrid extends StatelessWidget {
         itemBuilder: (_, i) => BrandChip(
           metrics: m,
           brand: brands[i],
+          logoUrl: logoResolver?.call(brands[i]),
           onTap: () => onBrandTap?.call(brands[i]),
         ),
       ),

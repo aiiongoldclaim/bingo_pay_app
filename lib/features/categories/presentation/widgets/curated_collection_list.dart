@@ -36,11 +36,13 @@ class CuratedCollectionsList extends StatelessWidget {
     super.key,
     required this.metrics,
     required this.collections,
+    this.imageResolver,
     this.onCollectionTap,
   });
 
   final CategoriesMetrics metrics;
   final List<CuratedCollectionModel> collections;
+  final String? Function(CuratedCollectionModel c)? imageResolver;
   final ValueChanged<CuratedCollectionModel>? onCollectionTap;
 
   @override
@@ -58,6 +60,7 @@ class CuratedCollectionsList extends StatelessWidget {
         itemBuilder: (_, i) => CuratedCollectionCard(
           metrics: m,
           collection: collections[i],
+          imageUrl: imageResolver?.call(collections[i]),
           onTap: () => onCollectionTap?.call(collections[i]),
         ),
       ),

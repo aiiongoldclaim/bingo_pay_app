@@ -71,92 +71,121 @@ class CuratedCollectionCard extends StatelessWidget {
     super.key,
     required this.metrics,
     required this.collection,
+    this.imageUrl,
+    this.ctaLabel = 'Explore',
     this.onTap,
   });
 
   final CategoriesMetrics metrics;
   final CuratedCollectionModel collection;
+
+  /// `CuratedCollectionModel` me abhi image field nahi hai — screen se
+  /// pass karo, ya model me add karke seedha yahan padho.
+  final String? imageUrl;
+  final String ctaLabel;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.c;
     final m = metrics;
+    final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(m.categoryTileRadius),
-      child: Container(
-        width: m.collectionWidth,
-        height: m.collectionHeight,
-        padding: EdgeInsets.all(m.pagePadding * 0.85),
-        decoration: BoxDecoration(
-          // Har collection ka apna tint model se aata hai
+      borderRadius: BorderRadius.circular(m.collectionRadius),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(m.collectionRadius),
+        child: Container(
+          width: m.collectionWidth,
+          height: m.collectionHeight,
           color: c.isDark ? c.surfaceAlt : collection.iconBg,
-          borderRadius: BorderRadius.circular(m.categoryTileRadius),
-          border: c.isDark ? Border.all(color: c.border) : null,
-        ),
-        child: Stack(
-          children: [
-            // Decorative icon — bottom-right
-            Positioned(
-              right: -m.pagePadding * 0.3,
-              bottom: -m.pagePadding * 0.3,
-              child: Icon(
-                collection.icon,
-                size: m.collectionHeight * 0.52,
-                color: c.brand.withValues(alpha: c.isDark ? 0.22 : 0.16),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: m.collectionWidth * 0.6,
-                  child: Text(
-                    collection.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: m.collectionTitleSize,
-                      fontWeight: FontWeight.w700,
-                      height: 1.22,
-                      color: c.isDark ? c.textPrimary : c.brand,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (hasImage)
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.72,
+                    heightFactor: 0.9,
+                    child: Image.network(
+                      imageUrl!,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                     ),
                   ),
-                ),
-                SizedBox(height: m.pagePadding * 0.4),
-                SizedBox(
-                  width: m.collectionWidth * 0.58,
-                  child: Text(
-                    collection.subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: m.collectionBodySize,
-                      height: 1.35,
-                      color: c.textSecondary,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  width: m.collectionFabSize,
-                  height: m.collectionFabSize,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: c.brand,
-                    shape: BoxShape.circle,
-                  ),
+                )
+              else
+                Positioned(
+                  right: -m.pagePadding * 0.4,
+                  bottom: -m.pagePadding * 0.4,
                   child: Icon(
-                    Icons.arrow_forward_rounded,
-                    size: m.collectionFabSize * 0.52,
-                    color: Colors.white,
+                    collection.icon,
+                    size: m.collectionHeight * 0.46,
+                    color: c.brand.withValues(alpha: c.isDark ? 0.22 : 0.15),
                   ),
                 ),
-              ],
-            ),
-          ],
+
+              Padding(
+                padding: EdgeInsets.all(m.pagePadding * 0.8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      collection.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: m.collectionTitleSize,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: m.pagePadding * 0.45),
+                    SizedBox(
+                      width: m.collectionWidth * 0.62,
+                      child: Text(
+                        collection.subtitle,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: m.collectionBodySize,
+                          height: 1.35,
+                          color: c.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      height: m.collectionCtaHeight,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: m.pagePadding * 0.8,
+                      ),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: c.surface,
+                        borderRadius: BorderRadius.circular(
+                          m.collectionCtaHeight,
+                        ),
+                        border: Border.all(color: c.brand, width: 1.2),
+                      ),
+                      child: Text(
+                        ctaLabel,
+                        style: TextStyle(
+                          fontSize: m.collectionCtaSize,
+                          fontWeight: FontWeight.w600,
+                          color: c.brand,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

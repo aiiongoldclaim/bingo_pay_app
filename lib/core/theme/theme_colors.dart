@@ -148,6 +148,12 @@ class ThemeColors {
     end: Alignment.centerRight,
   );
 
+  static const LinearGradient primaryGradient1 = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [deepPurple, primaryPurple, mediumPurple],
+  );
+
   // Benefits strip (NEW)
   static const LinearGradient benefitsStripLight = LinearGradient(
     colors: [Color(0xFF7B50AB), Color(0xFFA48BC2)],

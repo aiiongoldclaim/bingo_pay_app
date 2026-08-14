@@ -45,6 +45,7 @@ dependencies:
   path_provider: ^2.1.5
   open_filex: ^4.7.0
   mobile_scanner: ^7.2.0
+  flutter_svg: ^2.3.0
   # Pure-Dart QR decoding fallback for gallery images — mobile_scanner's
   # native analyzeImage (Vision API) is hard-unsupported on the iOS Simulator.
   zxing2: ^0.2.4
@@ -87,6 +88,7 @@ flutter:
     - assets/icons/
     - assets/fonts_new/
     - assets/data/
+    - assets/svg/
 
 
 
