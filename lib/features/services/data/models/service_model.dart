@@ -57,9 +57,16 @@ class ServiceModel {
 
   String get imageUrl => media.isNotEmpty ? media.first.url : '';
 
+  // double get price => offerings.isNotEmpty
+  //     ? double.parse(offerings.first.salePrice.toString())
+  //     : 0.0;
+
   double get price => offerings.isNotEmpty
-      ? double.parse(offerings.first.salePrice.toString())
-      : 0.0;
+    ? double.tryParse(
+          offerings.first.salePrice ?? offerings.first.basePrice,
+        ) ??
+        0.0
+    : 0.0;
 
   String get displayPrice => offerings.isNotEmpty
       ? CurrencyFormatter.formatPrice(
