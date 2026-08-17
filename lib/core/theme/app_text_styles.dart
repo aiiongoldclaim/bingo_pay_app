@@ -1,113 +1,91 @@
 import 'package:flutter/material.dart';
-import 'theme_colors.dart';
 
 class AppTextStyles {
   const AppTextStyles._();
 
-  /// Display
+  static const String fontBody = 'Inter'; // NEW
+  static const String fontDisplay = 'CormorantGaramond'; // NEW
+
+  /// Brand logo — "TheVaults"  (NEW, spec §1)
+  static const TextStyle brandLogo = TextStyle(
+    fontFamily: fontDisplay,
+    fontSize: 34,
+    fontWeight: FontWeight.w500,
+    height: 1.1,
+  );
+
   static const TextStyle displayLarge = TextStyle(
+    fontFamily: fontBody, // CHANGED: Roboto → Inter
     fontSize: 32,
     fontWeight: FontWeight.w700,
-    color: ThemeColors.ink,
-    fontFamily: 'Roboto',
     letterSpacing: -0.5,
   );
 
-  /// Headings
   static const TextStyle headlineMedium = TextStyle(
+    fontFamily: fontBody, // CHANGED
     fontSize: 24,
     fontWeight: FontWeight.w700,
-    fontFamily: 'Roboto',
-    color: ThemeColors.ink,
   );
 
   static const TextStyle titleLarge = TextStyle(
+    fontFamily:
+        fontBody, // CHANGED: CormorantGaramond → Inter (logo ke liye brandLogo use karo)
     fontSize: 18,
-    fontWeight: FontWeight.bold,
-    fontFamily: 'CormorantGaramond',
-    color: ThemeColors.black,
+    fontWeight: FontWeight.w700,
   );
 
   static const TextStyle titleMedium = TextStyle(
+    fontFamily: fontBody,
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    fontFamily: 'Roboto',
-    color: ThemeColors.ink,
   );
 
-  /// Body
   static const TextStyle bodyLarge = TextStyle(
+    fontFamily: fontBody,
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    fontFamily: 'Roboto',
-    color: ThemeColors.ink,
     height: 1.5,
   );
 
   static const TextStyle bodyMedium = TextStyle(
+    fontFamily: fontBody,
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    color: ThemeColors.inkMid,
-    fontFamily: 'Roboto',
     height: 1.5,
   );
 
   static const TextStyle bodySmall = TextStyle(
+    fontFamily: fontBody,
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    fontFamily: 'Roboto',
-    color: ThemeColors.inkDim,
     height: 1.4,
   );
 
-  /// Labels
   static const TextStyle labelLarge = TextStyle(
+    fontFamily: fontBody,
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    fontFamily: 'Roboto',
-    color: ThemeColors.ink,
     letterSpacing: 0.2,
   );
 
   static const TextStyle labelMedium = TextStyle(
+    fontFamily: fontBody,
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    fontFamily: 'Roboto',
-    color: ThemeColors.inkMid,
     letterSpacing: 0.4,
   );
 
   static const TextStyle labelSmall = TextStyle(
+    fontFamily: fontBody,
     fontSize: 10,
     fontWeight: FontWeight.w500,
-    color: ThemeColors.inkDim,
-    fontFamily: 'Roboto',
     letterSpacing: 0.5,
   );
 
-  /// Buttons
   static const TextStyle buttonText = TextStyle(
-    fontSize: 16,
+    fontFamily: fontBody,
+    fontSize: 15,
     fontWeight: FontWeight.w600,
-    fontFamily: 'Roboto',
-    letterSpacing: 0.2,
-    color: ThemeColors.white,
-  );
-
-  /// Gold Banner Styles
-  static const TextStyle bannerTitle = TextStyle(
-    fontSize: 14,
-    fontWeight: FontWeight.w600,
-    fontFamily: 'Roboto',
-    letterSpacing: 2,
-    color: ThemeColors.accentInk,
-  );
-
-  static const TextStyle bannerHeading = TextStyle(
-    fontSize: 34,
-    fontWeight: FontWeight.w600,
-    fontFamily: 'Roboto',
-    height: 0.95,
-    color: ThemeColors.accentInk,
+    letterSpacing: 0.4,
   );
 }

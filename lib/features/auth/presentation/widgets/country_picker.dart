@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/utils/responsive_utils.dart';
+
 class Country {
   final String name;
   final String code;
@@ -81,95 +84,143 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mediaQuery = MediaQuery.of(context);
+    final mq = MediaQuery.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final m = _PickerMetrics.get();
+
+    // ── explicit colors, textTheme pe bharosa nahi ──
+    final sheetBg = theme.scaffoldBackgroundColor;
+    final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
+    final bodyColor = isDark ? ThemeColors.white : ThemeColors.ink;
+    final mutedColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
+    final border = isDark
+        ? ThemeColors.white.withValues(alpha: 0.12)
+        : ThemeColors.line;
+    final fieldFill = isDark
+        ? ThemeColors.white.withValues(alpha: 0.04)
+        : ThemeColors.surface;
+    final accent = theme.colorScheme.primary;
 
     return Container(
-      height: mediaQuery.size.height * 0.75,
-      padding: EdgeInsets.only(
-        bottom: mediaQuery
-            .viewInsets
-            .bottom, // adjusts layout when keyboard is shown
-      ),
+      height: mq.size.height * (m.isTablet ? 0.80 : 0.75),
+      padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: sheetBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 12),
-          // Pull-down handle bar
+
+          /// handle
           Center(
             child: Container(
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                color: mutedColor.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
+
           const SizedBox(height: 16),
+
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: m.hPad),
             child: Text(
               'Select Country',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: m.titleFont,
+                fontWeight: FontWeight.w700,
+                color: titleColor,
               ),
             ),
           ),
+
           const SizedBox(height: 16),
-          // Search box
+
+          /// search
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: m.hPad),
             child: TextField(
               controller: _searchController,
+              style: TextStyle(
+                fontFamily: 'Roboto',
+                fontSize: m.bodyFont,
+                color: bodyColor,
+              ),
+              cursorColor: accent,
               decoration: InputDecoration(
-                hintText: 'Search country name, code, or dial code...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search country, code, or dial code',
+                hintStyle: TextStyle(
+                  fontFamily: 'Roboto',
+                  fontSize: m.bodyFont,
+                  color: isDark ? ThemeColors.inkDim : ThemeColors.textGrey,
+                ),
+                filled: true,
+                fillColor: fieldFill,
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  size: m.iconSize,
+                  color: isDark ? ThemeColors.gold1 : ThemeColors.textSecondary,
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: Icon(
+                          Icons.clear_rounded,
+                          size: m.iconSize,
+                          color: isDark
+                              ? ThemeColors.gold1
+                              : ThemeColors.textSecondary,
+                        ),
                         onPressed: () => _searchController.clear(),
                       )
                     : null,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: m.isTablet ? 16 : 14,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.colorScheme.outline),
+                  borderSide: BorderSide(color: border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.outline.withOpacity(0.5),
-                  ),
+                  borderSide: BorderSide(color: border),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: theme.colorScheme.primary),
+                  borderSide: BorderSide(color: accent, width: 1.6),
                 ),
               ),
             ),
           ),
+
           const SizedBox(height: 12),
-          // Countries List
+
+          /// list
           Expanded(
             child: _filteredCountries.isEmpty
                 ? Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: const EdgeInsets.all(24),
                       child: Text(
                         'No countries found matching your search.',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSecondary,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontSize: m.bodyFont,
+                          color: mutedColor,
                         ),
                       ),
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: m.hPad * 0.6,
                       vertical: 4,
                     ),
                     itemCount: _filteredCountries.length,
@@ -181,35 +232,38 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                       return Material(
                         color: Colors.transparent,
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
+                          contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 4,
+                            vertical: m.isTablet ? 6 : 4,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           tileColor: isSelected
-                              ? theme.colorScheme.primaryContainer.withOpacity(
-                                  0.3,
-                                )
+                              ? accent.withValues(alpha: isDark ? 0.16 : 0.08)
                               : null,
                           leading: Text(
                             CountryPickerBottomSheet.getFlagEmoji(country.code),
-                            style: const TextStyle(fontSize: 26),
+                            style: TextStyle(fontSize: m.flagSize),
                           ),
                           title: Text(
                             country.name,
-                            style: theme.textTheme.bodyLarge?.copyWith(
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: m.bodyFont,
                               fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: bodyColor,
                             ),
                           ),
                           trailing: Text(
                             country.dialCode,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.primary,
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontSize: m.bodyFont - 1,
                               fontWeight: FontWeight.w600,
+                              color: ThemeColors.purple,
                             ),
                           ),
                           onTap: () {
@@ -223,6 +277,57 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _PickerMetrics {
+  const _PickerMetrics({
+    required this.isTablet,
+    required this.titleFont,
+    required this.bodyFont,
+    required this.iconSize,
+    required this.flagSize,
+    required this.hPad,
+  });
+
+  final bool isTablet;
+  final double titleFont;
+  final double bodyFont;
+  final double iconSize;
+  final double flagSize;
+  final double hPad;
+
+  factory _PickerMetrics.get() {
+    if (ResponsiveUtils.isTabletLandscape) {
+      return const _PickerMetrics(
+        isTablet: true,
+        titleFont: 20,
+        bodyFont: 15,
+        iconSize: 21,
+        flagSize: 26,
+        hPad: 28,
+      );
+    }
+
+    if (ResponsiveUtils.isTabletPortrait) {
+      return const _PickerMetrics(
+        isTablet: true,
+        titleFont: 22,
+        bodyFont: 16,
+        iconSize: 23,
+        flagSize: 28,
+        hPad: 32,
+      );
+    }
+
+    return const _PickerMetrics(
+      isTablet: false,
+      titleFont: 19,
+      bodyFont: 15,
+      iconSize: 21,
+      flagSize: 26,
+      hPad: 20,
     );
   }
 }

@@ -1,5 +1,6 @@
 class AppRoutes {
   static const String splash = '/splash';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String register = '/register';
   static const String registerOtp = '/register/otp';
@@ -61,6 +62,7 @@ class AppRoutes {
   static const List<String> publicRoutes = [
     splash,
     login,
+    onboarding,
     register,
     registerOtp,
     ssoLoginOtp,

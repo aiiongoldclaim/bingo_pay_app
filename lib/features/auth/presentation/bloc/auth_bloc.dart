@@ -23,7 +23,7 @@ import '../../domain/usecases/verify_sso_login_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
-@injectable
+@singleton
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   UserEntity? _currentUser;
   final SecureStorageService _storage;
@@ -126,12 +126,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } on EmailNotVerifiedException {
       final sendResult = await _sendOtp(event.email);
-      await sendResult.fold(
-        (failure) async => emit(AuthError(failure)),
-        (_) async {
-          if (!emit.isDone) emit(AuthOtpRequired(event.email));
-        },
-      );
+      await sendResult.fold((failure) async => emit(AuthError(failure)), (
+        _,
+      ) async {
+        if (!emit.isDone) emit(AuthOtpRequired(event.email));
+      });
     }
   }
 
@@ -250,15 +249,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       VerifySsoLoginParams(email: event.email, otp: event.otp),
     );
 
-    await result.fold(
-      (failure) async => emit(AuthError(failure)),
-      (user) async {
-        _currentUser = user;
-        await _storage.saveEmail(user.email);
-        if (emit.isDone) return;
-        emit(SsoSetPasswordRequired(user.email));
-      },
-    );
+    await result.fold((failure) async => emit(AuthError(failure)), (
+      user,
+    ) async {
+      _currentUser = user;
+      await _storage.saveEmail(user.email);
+      if (emit.isDone) return;
+      emit(SsoSetPasswordRequired(user.email));
+    });
   }
 
   Future<void> _onSetSsoPassword(
@@ -269,13 +267,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await _setPassword(event.password);
 
-    await result.fold(
-      (failure) async => emit(AuthError(failure)),
-      (_) async {
-        if (_currentUser == null || emit.isDone) return;
-        emit(AuthAuthenticated(_currentUser!));
-      },
-    );
+    await result.fold((failure) async => emit(AuthError(failure)), (_) async {
+      if (_currentUser == null || emit.isDone) return;
+      emit(AuthAuthenticated(_currentUser!));
+    });
   }
 
   Future<void> _onCheckEmailExists(
@@ -313,14 +308,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onLogout(LogoutRequested event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     final result = await _logoutUser();
-    await result.fold(
-      (failure) async => emit(AuthError(failure)),
-      (message) async {
-        _currentUser = null;
-        if (emit.isDone) return;
-        emit(AuthLoggedOut(message));
-      },
-    );
+    await result.fold((failure) async => emit(AuthError(failure)), (
+      message,
+    ) async {
+      _currentUser = null;
+      if (emit.isDone) return;
+      emit(AuthLoggedOut(message));
+    });
   }
 
   Future<void> _onKycPersonalDetails(

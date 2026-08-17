@@ -7,6 +7,12 @@ void main() async {
   // Initialize environment variables
   await EnvConfig.init();
 
+  try {
+    await EnvConfig.init();
+  } catch (e) {
+    debugPrint('Env load failed: $e');
+  }
+
   FlavorConfig(
     name: 'dev',
     color: Colors.green,

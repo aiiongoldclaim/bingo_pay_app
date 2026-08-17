@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
@@ -6,7 +8,9 @@ import '../core/di/injection.dart';
 import '../core/network/connectivity_service.dart';
 import '../core/router/app_router.dart';
 import '../core/router/route_guard.dart';
+import '../core/storage/preferences_service.dart';
 import '../core/theme/app_theme.dart';
+import '../core/utils/responsive_utils.dart';
 import '../core/widgets/no_internet_screen.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
@@ -28,20 +32,56 @@ class _AppState extends State<App> {
   final _cartCubit = getIt<CartCubit>();
   bool _authDetermined = false;
 
+  final _prefs = getIt<PreferencesService>();
+  late final bool _onboardingSeen;
+
+  @override
+  void initState() {
+    super.initState();
+    _onboardingSeen = _prefs.isOnboardingSeen();
+  }
+
+  // void _onAuthStateChanged(BuildContext context, AuthState state) {
+  //   if (state is AuthLoading) {
+  //     if (!_authDetermined) {
+  //       _router.updateAuthState(const RouteAuthState.loading());
+  //     }
+  //   } else if (state is AuthAuthenticated) {
+  //     _authDetermined = true;
+  //     _router.updateAuthState(const RouteAuthState.authenticated());
+  //     // Warm the cart in the background so "already in cart" checks and
+  //     // add-to-cart elsewhere don't need to wait on a fresh fetch.
+  //     _cartCubit.loadCart();
+  //   } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
+  //     _authDetermined = true;
+  //     _router.updateAuthState(const RouteAuthState.unauthenticated());
+  //   }
+  // }
+
   void _onAuthStateChanged(BuildContext context, AuthState state) {
     if (state is AuthLoading) {
       if (!_authDetermined) {
-        _router.updateAuthState(const RouteAuthState.loading());
+        unawaited(_router.updateAuthState(const RouteAuthState.loading()));
       }
     } else if (state is AuthAuthenticated) {
       _authDetermined = true;
-      _router.updateAuthState(const RouteAuthState.authenticated());
-      // Warm the cart in the background so "already in cart" checks and
-      // add-to-cart elsewhere don't need to wait on a fresh fetch.
+      unawaited(
+        _router.updateAuthState(
+          RouteAuthState.authenticated(
+            isKycPending: false,
+            // isKycPending: state.user.kycStatus != 'approved',
+            hasSeenOnboarding: _onboardingSeen,
+          ),
+        ),
+      );
       _cartCubit.loadCart();
     } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
       _authDetermined = true;
-      _router.updateAuthState(const RouteAuthState.unauthenticated());
+      unawaited(
+        _router.updateAuthState(
+          RouteAuthState.unauthenticated(hasSeenOnboarding: _onboardingSeen),
+        ),
+      );
     }
   }
 
@@ -54,36 +94,61 @@ class _AppState extends State<App> {
               getIt<AuthBloc>()..add(const CheckAuthStatusRequested()),
         ),
         BlocProvider<CartCubit>.value(value: _cartCubit),
-        BlocProvider<AddressCubit>(
-          create: (_) => getIt<AddressCubit>(),
-        ),
-        BlocProvider<WishlistCubit>(
-          create: (_) => getIt<WishlistCubit>(),
-        ),
+        BlocProvider<AddressCubit>(create: (_) => getIt<AddressCubit>()),
+        BlocProvider<WishlistCubit>(create: (_) => getIt<WishlistCubit>()),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
         child: Sizer(
           builder: (context, orientation, deviceType) {
-            return StreamBuilder<bool>(
-              stream: _connectivity.isConnected,
-              builder: (context, snapshot) {
-                final isConnected = snapshot.data ?? true;
-                return MaterialApp.router(
-                  title: 'Vaults',
-                  theme: AppTheme.light,
-                  themeMode: ThemeMode.light,
-                  debugShowCheckedModeBanner: false,
-                  darkTheme: AppTheme.dark,
-                  routerConfig: _router.router,
-                  builder: (context, child) {
-                    return Stack(
-                      children: [
-                        child ?? const SizedBox.shrink(),
-                        if (!isConnected) const NoInternetScreen(),
-                      ],
-                    );
-                  },
+            ResponsiveUtils.setDeviceType(context);
+            final mq = MediaQuery.of(context);
+            debugPrint(
+              'size: ${mq.size}, shortestSide: ${mq.size.shortestSide}, dpr: ${mq.devicePixelRatio}',
+            );
+            // return StreamBuilder<bool>(
+            //   stream: _connectivity.isConnected,
+            //   builder: (context, snapshot) {
+            //     final isConnected = snapshot.data ?? true;
+            //     return MaterialApp.router(
+            //       title: 'Vaults',
+            //       theme: AppTheme.light,
+            //       themeMode: ThemeMode.system,
+            //       debugShowCheckedModeBanner: false,
+            //       darkTheme: AppTheme.dark,
+            //       routerConfig: _router.router,
+            //       builder: (context, child) {
+            //         return Stack(
+            //           children: [
+            //             child ?? const SizedBox.shrink(),
+            //             if (!isConnected) const NoInternetScreen(),
+            //           ],
+            //         );
+            //       },
+            //     );
+            //   },
+            // );
+            return MaterialApp.router(
+              title: 'Vaults',
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: ThemeMode.system,
+              debugShowCheckedModeBanner: false,
+              routerConfig: _router.router,
+              builder: (context, child) {
+                return Stack(
+                  children: [
+                    child ?? const SizedBox.shrink(),
+                    StreamBuilder<bool>(
+                      stream: _connectivity.isConnected,
+                      builder: (context, snapshot) {
+                        final isConnected = snapshot.data ?? true;
+                        return isConnected
+                            ? const SizedBox.shrink()
+                            : const NoInternetScreen();
+                      },
+                    ),
+                  ],
                 );
               },
             );

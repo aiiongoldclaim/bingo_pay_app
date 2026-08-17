@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class ProductModel {
   final String? uuid;
+  final String? variantUuid;
   final String brand;
   final String name;
   final String price;
@@ -21,6 +22,7 @@ class ProductModel {
     required this.discount,
     required this.icon,
     required this.images,
+    this.variantUuid,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -36,13 +38,17 @@ class ProductModel {
     double price = 0.0;
     double oldPrice = 0.0;
     int discount = 0;
+    String? variantUuid;
     if (variants.isNotEmpty) {
       final v = variants.first as Map<String, dynamic>;
       // API returns salePrice/basePrice as strings; fall back to numeric price/compareAtPrice
-      price = double.tryParse(v['salePrice']?.toString() ?? '') ??
+      variantUuid = v['uuid'] as String?;
+      price =
+          double.tryParse(v['salePrice']?.toString() ?? '') ??
           (v['price'] as num?)?.toDouble() ??
           0.0;
-      oldPrice = double.tryParse(v['basePrice']?.toString() ?? '') ??
+      oldPrice =
+          double.tryParse(v['basePrice']?.toString() ?? '') ??
           (v['compareAtPrice'] as num?)?.toDouble() ??
           0.0;
       if (oldPrice > 0 && price < oldPrice) {
@@ -50,8 +56,7 @@ class ProductModel {
       }
     }
 
-    final averageRating =
-        (json['averageRating'] as num?)?.toDouble() ?? 0.0;
+    final averageRating = (json['averageRating'] as num?)?.toDouble() ?? 0.0;
 
     return ProductModel(
       uuid: json['uuid'] as String?,
@@ -61,6 +66,7 @@ class ProductModel {
       oldPrice: oldPrice > 0 ? '\$${_fmt(oldPrice)}' : '',
       rating: averageRating.toStringAsFixed(1),
       discount: discount,
+      variantUuid: variantUuid,
       icon: Icons.shopping_bag_outlined,
       images: images,
     );
@@ -78,6 +84,7 @@ class ProductModel {
     'discount': discount,
     'images': images,
     'media': images.map((url) => {'url': url}).toList(),
+    'variantUuid': variantUuid,
   };
 
   static String _fmt(double v) {
@@ -93,44 +100,38 @@ class ProductModel {
   }
 
   static List<ProductModel> flashDeals() => [
-        ProductModel(
-          brand: 'NOVA',
-          name: 'Helios 5G Smartphone 256GB',
-          price: '\$64,999',
-          oldPrice: '\$72,999',
-          rating: '4.6',
-          discount: 11,
-          icon: Icons.smartphone_outlined,
-          images: [
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-          ],
-        ),
-        ProductModel(
-          brand: 'SONARA',
-          name: 'Aurora Pro Wireless Headphones',
-          price: '\$18,990',
-          oldPrice: '\$24,990',
-          rating: '4.8',
-          discount: 24,
-          icon: Icons.headphones_outlined,
-          images: [
-            'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-          ],
-        ),
-      ];
+    ProductModel(
+      brand: 'NOVA',
+      name: 'Helios 5G Smartphone 256GB',
+      price: '\$64,999',
+      oldPrice: '\$72,999',
+      rating: '4.6',
+      discount: 11,
+      icon: Icons.smartphone_outlined,
+      images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9'],
+    ),
+    ProductModel(
+      brand: 'SONARA',
+      name: 'Aurora Pro Wireless Headphones',
+      price: '\$18,990',
+      oldPrice: '\$24,990',
+      rating: '4.8',
+      discount: 24,
+      icon: Icons.headphones_outlined,
+      images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e'],
+    ),
+  ];
 
   static List<ProductModel> recommended() => [
-        ProductModel(
-          brand: 'TYDE',
-          name: 'Eclipse Smartwatch',
-          price: '\$32,400',
-          oldPrice: '\$38,000',
-          rating: '4.7',
-          discount: 15,
-          icon: Icons.watch,
-          images: [
-            'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
-          ],
-        ),
-      ];
+    ProductModel(
+      brand: 'TYDE',
+      name: 'Eclipse Smartwatch',
+      price: '\$32,400',
+      oldPrice: '\$38,000',
+      rating: '4.7',
+      discount: 15,
+      icon: Icons.watch,
+      images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30'],
+    ),
+  ];
 }
