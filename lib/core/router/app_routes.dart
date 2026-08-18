@@ -49,6 +49,9 @@ class AppRoutes {
   static const String buyerInvoices = '/buyer/invoices';
   static const String buyerInvoiceDetail = '/buyer/invoices/:id';
 
+  //  Auctions
+  static const auctionScreen = '/auctions'; 
+
   // Vendor shell
   static const String vendorHome = '/vendor/home';
   static const String vendorProducts = '/vendor/products';

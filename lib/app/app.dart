@@ -12,6 +12,7 @@ import '../core/storage/preferences_service.dart';
 import '../core/theme/app_theme.dart';
 import '../core/utils/responsive_utils.dart';
 import '../core/widgets/no_internet_screen.dart';
+import '../features/auctions/presentation/cubit/auction_cubit.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
@@ -96,6 +97,7 @@ class _AppState extends State<App> {
         BlocProvider<CartCubit>.value(value: _cartCubit),
         BlocProvider<AddressCubit>(create: (_) => getIt<AddressCubit>()),
         BlocProvider<WishlistCubit>(create: (_) => getIt<WishlistCubit>()),
+        BlocProvider<AuctionCubit>(create: (_) => getIt<AuctionCubit>()),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,

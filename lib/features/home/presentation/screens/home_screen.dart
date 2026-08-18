@@ -591,7 +591,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 metrics: m,
                                 brandName: 'TheVaults',
                                 cartCount: cartState.totalItems,
-                                onMenuTap: () {},
+                                onMenuTap: () {
+                                  context.push(AppRoutes.auctionScreen);
+                                },
                                 onWishlistTap: () =>
                                     context.push(AppRoutes.buyerWishlist),
                                 onCartTap: () => context.push(AppRoutes.cart),
