@@ -29,6 +29,7 @@ class AppRoutes {
   static const String orderDetail = '/orders/detail';
   static const String orders = '/orders';
   static const String account = '/account';
+  static const String editProfile = '/edit-profile';
   static const String wallet = '/wallet';
   static const String search = '/search';
   static const String scanner = '/scanner';
@@ -53,7 +54,7 @@ class AppRoutes {
   static const String vendorHome = '/vendor/home';
   static const String vendorProducts = '/vendor/products';
   static const String vendorProductCreate = '/vendor/products/create';
-  static const String vendorProductEdit = '/vendor/products/:id/edit';
+  static const String vendorProductEdit = '/vendor/products/:id/edit_profile';
   static const String vendorTransactions = '/vendor/transactions';
   static const String vendorTransactionDetail = '/vendor/transactions/:id';
   static const String vendorInvoices = '/vendor/invoices';

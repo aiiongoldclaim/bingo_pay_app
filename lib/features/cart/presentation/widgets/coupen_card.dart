@@ -129,7 +129,6 @@ class CartCouponCard extends StatelessWidget {
   }
 }
 
-/// Coupon dialog — abhi koi coupon API nahi hai, isliye empty state dikhata hai.
 Future<void> showCouponSheet(BuildContext context) {
   final c = context.c;
   final m = CartMetrics.of(context);

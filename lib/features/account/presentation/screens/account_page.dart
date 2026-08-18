@@ -243,6 +243,7 @@ import '../../../../core/constants/svg_image.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
@@ -451,6 +452,23 @@ class _SecondaryGroup extends StatelessWidget {
 
   const _SecondaryGroup({required this.metrics, required this.isLoggingOut});
 
+  Future<void> _confirmLogout(BuildContext context) async {
+    final authBloc = context.read<AuthBloc>();
+
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: 'Logout?',
+      message: 'Are you sure you want to logOut from your account',
+      confirmLabel: 'Logout',
+      cancelLabel: 'Cancel',
+      isDestructive: true,
+      icon: Icons.logout_rounded,
+    );
+
+    if (!confirmed) return;
+    authBloc.add(const LogoutRequested());
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.c;
@@ -509,9 +527,10 @@ class _SecondaryGroup extends StatelessWidget {
             metrics: m,
             isFirst: false,
             isLast: true,
-            onTap: isLoggingOut
-                ? null
-                : () => context.read<AuthBloc>().add(const LogoutRequested()),
+            onTap: isLoggingOut ? null : () => _confirmLogout(context),
+            // onTap: isLoggingOut
+            //     ? null
+            //     : () => context.read<AuthBloc>().add(const LogoutRequested()),
           ),
         ],
       ),

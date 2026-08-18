@@ -69,7 +69,7 @@
 //       case 'payments':
 //         return Icons.credit_card_outlined;
 //       case 'editProfile':
-//         return Icons.edit;
+//         return Icons.edit_profile;
 //       case 'help':
 //         return Icons.headset_mic_outlined;
 //       default:
@@ -397,7 +397,7 @@ class AccountMenuItem {
       title: 'Edit Profile',
       subtitle: 'Update your personal details',
       iconAsset: 'profile',
-      route: '',
+      route: AppRoutes.editProfile,
     ),
   ];
 
