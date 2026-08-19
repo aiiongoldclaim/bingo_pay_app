@@ -101,7 +101,7 @@ class TransactionOrderRef {
 String _currencySymbol(String currency) {
   switch (currency.toUpperCase()) {
     case 'INR':
-      return '₹';
+      return '\$';
     case 'USD':
       return '\$';
     default:

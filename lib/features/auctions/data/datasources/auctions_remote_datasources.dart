@@ -2,6 +2,8 @@ import 'package:bingo_pay/features/auctions/data/models/auction_model.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
+import '../models/auction_detail_model.dart';
+import '../models/bid_model.dart';
 
 @injectable
 class AuctionsRemoteDatasources {
@@ -48,4 +50,27 @@ class AuctionsRemoteDatasources {
     .map((json) => AuctionModel.fromJson(json))
     .toList();
   }
+
+  Future<AuctionDetailModel> getAuctionDetail(String uuid) async {
+    final response = await _client.dio.get('$baseUrl/auctions/$uuid');
+    final data = response.data;
+    final auctionJson = data is Map<String, dynamic> && data['data'] != null
+        ? data['data']
+        : data;
+
+    return AuctionDetailModel.fromJson(auctionJson);
+  }
+  
+   Future<List<BidModel>> getBids(String auctionUuid) async {
+    final response = await _client.dio.get('$baseUrl/auctions/$auctionUuid/bids');
+    final data = response.data;
+    final bidsJson = data is Map<String, dynamic> && data['data'] != null
+        ? data['data']
+        : data;
+
+    return (bidsJson as List)
+        .map((json) => BidModel.fromJson(json))
+        .toList();
+  } 
+
 }
