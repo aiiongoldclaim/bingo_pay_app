@@ -1,4 +1,7 @@
+import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entity.dart';
+
 import '../entities/auction_entity.dart';
+import '../entities/bid_entity.dart';
 
 abstract class AuctionRepository {
   Future<List<AuctionEntity>> fetchAllAuctions({
@@ -7,9 +10,9 @@ abstract class AuctionRepository {
     required int take,
   });
 
-  // Future<AuctionEntity> fetchAuctionById(String auctionId);
+  Future<AuctionDetailEntity> fetchAuctionById(String auctionId);
 
-  // Future<void> createNewAuction(AuctionEntity auction);
+  Future<List<BidEntity>> getBidsHistory(String auctionId);
 
   // Future<void> updateExistingAuction(String auctionId, AuctionEntity auction);
 
