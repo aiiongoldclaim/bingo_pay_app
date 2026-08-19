@@ -14,6 +14,7 @@ class CartWishlistBridge {
     wishlist.toggle(
       WishlistItem(
         id: item.product.uuid,
+        variantUuid: item.variant.uuid,
         brand: item.vendor.shopName,
         name: item.product.title,
         price: '\$${item.unitPrice.toStringAsFixed(2)}',

@@ -59,6 +59,7 @@ class WishlistCubit extends Cubit<WishlistState> {
 
   Map<String, dynamic> _toJson(WishlistItem item) => {
     'id': item.id,
+    'variantUuid': item.variantUuid,
     'brand': item.brand,
     'name': item.name,
     'price': item.price,
@@ -73,6 +74,7 @@ class WishlistCubit extends Cubit<WishlistState> {
 
   WishlistItem _fromJson(Map<String, dynamic> json) => WishlistItem(
     id: json['id'] as String,
+    variantUuid: json['variantUuid'] as String?,
     brand: json['brand'] as String? ?? '',
     name: json['name'] as String? ?? '',
     price: json['price'] as String? ?? '',

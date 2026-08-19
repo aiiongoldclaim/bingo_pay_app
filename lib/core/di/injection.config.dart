@@ -114,6 +114,8 @@ import 'package:bingo_pay/features/categories/presentation/cubit/categories_cubi
     as _i801;
 import 'package:bingo_pay/features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart'
     as _i709;
+import 'package:bingo_pay/features/edit_profile/presentation/cubit/edit_profile_cubit.dart'
+    as _i126;
 import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
 import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
     as _i705;
@@ -229,6 +231,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i915.AddressRemoteDataSource>(
       () => _i915.AddressRemoteDataSource(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i126.EditProfileCubit>(
+      () => _i126.EditProfileCubit(gh<_i541.ApiClient>()),
     );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),

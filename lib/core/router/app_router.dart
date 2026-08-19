@@ -1,3 +1,4 @@
+import 'package:bingo_pay/features/edit_profile/presentation/screens/edit_profile_screen.dart';
 import 'package:bingo_pay/features/scanner/presentation/screens/payment_success_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
+import '../../features/edit_profile/presentation/cubit/edit_profile_cubit.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
 import '../widgets/buyer_shell_screen.dart';
@@ -42,7 +44,7 @@ import '../../features/transactions/presentation/screens/transactions_screen.dar
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
-import '../../features/account/presentation/screens/help_support_screen.dart';
+import '../../features/help_support/presentation/screens/help_support_screen.dart';
 import '../di/injection.dart';
 import '../storage/preferences_service.dart';
 import 'app_routes.dart';
@@ -238,7 +240,6 @@ class AppRouter {
               path: AppRoutes.home,
               builder: (_, _) => const HomeScreen(),
             ),
-
             GoRoute(
               path: AppRoutes.scanner,
               builder: (context, state) => const ScannerScreen(),
@@ -246,6 +247,14 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.buyerWishlist,
               builder: (_, _) => const WishlistScreen(),
+            ),
+
+            GoRoute(
+              path: AppRoutes.editProfile,
+              builder: (context, state) => BlocProvider(
+                create: (_) => getIt<EditProfileCubit>(),
+                child: const EditProfileScreen(),
+              ),
             ),
 
             // GoRoute(

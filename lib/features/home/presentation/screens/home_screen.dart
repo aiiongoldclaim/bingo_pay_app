@@ -520,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
             controller.start(context);
-            prefs.setBool('hasShownHomeIntro', true);
+            // prefs.setBool('hasShownHomeIntro', true);
           }
         });
       }
