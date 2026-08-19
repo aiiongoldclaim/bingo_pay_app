@@ -34,6 +34,14 @@ import 'package:bingo_pay/features/address/domain/repositories/address_resposito
     as _i874;
 import 'package:bingo_pay/features/address/presentation/cubit/address_cubit.dart'
     as _i456;
+import 'package:bingo_pay/features/auctions/data/datasources/auctions_remote_datasources.dart'
+    as _i230;
+import 'package:bingo_pay/features/auctions/data/repositories/auction_repository_impl.dart'
+    as _i141;
+import 'package:bingo_pay/features/auctions/domain/repositories/auction_repository.dart'
+    as _i321;
+import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dart'
+    as _i1054;
 import 'package:bingo_pay/features/auth/data/datasources/auth_local_datasource.dart'
     as _i763;
 import 'package:bingo_pay/features/auth/data/datasources/auth_remote_datasource.dart'
@@ -232,8 +240,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i915.AddressRemoteDataSource>(
       () => _i915.AddressRemoteDataSource(gh<_i541.ApiClient>()),
     );
-    gh.factory<_i126.EditProfileCubit>(
-      () => _i126.EditProfileCubit(gh<_i541.ApiClient>()),
+      () => _i126.EditProfileCubit(gh<_i541.ApiClient>());
+
+    gh.factory<_i230.AuctionsRemoteDatasources>(
+      () => _i230.AuctionsRemoteDatasources(gh<_i541.ApiClient>()),
     );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
@@ -302,6 +312,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i874.AddressRepository>(
       () => _i279.AddressRepositoryImpl(gh<_i915.AddressRemoteDataSource>()),
+    );
+    gh.factory<_i321.AuctionRepository>(
+      () => _i141.AuctionRepositoryImpl(gh<_i230.AuctionsRemoteDatasources>()),
     );
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
@@ -383,6 +396,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i999.VerifySsoLoginUseCase>(
       () => _i999.VerifySsoLoginUseCase(gh<_i917.AuthRepository>()),
+    );
+    gh.factory<_i1054.AuctionCubit>(
+      () => _i1054.AuctionCubit(gh<_i321.AuctionRepository>()),
     );
     gh.factory<_i393.ServicesCubit>(
       () => _i393.ServicesCubit(gh<_i254.GetServicesUseCase>()),
