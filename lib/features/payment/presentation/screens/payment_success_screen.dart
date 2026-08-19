@@ -54,8 +54,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
         return PopScope(
           canPop: false,
           child: Scaffold(
-            // backgroundColor: const Color(0xFF1A1D4E),
-            backgroundColor: const Color(0xFF2B2FA8),
+            backgroundColor: ThemeColors.lavender,
             bottomNavigationBar: AppBottomActionBar(
               primaryLabel: 'Go to Home',
               secondaryLabel: _generatingPdf ? 'Generating…' : 'Invoice',
@@ -68,37 +67,28 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
               onSecondaryPressed:
                   _generatingPdf ? () {} : () => _downloadInvoice(state),
             ),
-            body: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1A1D4E), Color(0xFF2B2FA8)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              child: SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SuccessHeader(
-                        orderId: state.orderId,
-                        amount: state.formattedTotal,
-                      ),
-                      InvoiceCard(
-                        orderId: state.orderId,
-                        totalAmount: state.formattedTotal,
-                        productName: state.productName,
-                        deliveryCharge: state.deliveryCharge,
-                        customerName: state.deliveryName.isNotEmpty
-                            ? state.deliveryName
-                            : 'Customer',
-                        customerAddress: state.deliveryAddress.isNotEmpty
-                            ? '${state.deliveryAddress}, ${state.deliveryCity} - ${state.deliveryPostal}'
-                            : '',
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SuccessHeader(
+                      orderId: state.orderId,
+                      amount: state.formattedTotal,
+                    ),
+                    InvoiceCard(
+                      orderId: state.orderId,
+                      totalAmount: state.formattedTotal,
+                      productName: state.productName,
+                      deliveryCharge: state.deliveryCharge,
+                      customerName: state.deliveryName.isNotEmpty
+                          ? state.deliveryName
+                          : 'Customer',
+                      customerAddress: state.deliveryAddress.isNotEmpty
+                          ? '${state.deliveryAddress}, ${state.deliveryCity} - ${state.deliveryPostal}'
+                          : '',
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
             ),

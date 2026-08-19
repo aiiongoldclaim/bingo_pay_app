@@ -690,25 +690,6 @@ class CartEmptyView extends StatelessWidget {
                     size: m.emptyIllustration * 0.42,
                     color: c.brand,
                   ),
-                  Positioned(
-                    right: m.emptyIllustration * 0.14,
-                    bottom: m.emptyIllustration * 0.16,
-                    child: Container(
-                      width: m.emptyIllustration * 0.26,
-                      height: m.emptyIllustration * 0.26,
-                      decoration: BoxDecoration(
-                        color: c.surface,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: c.border, width: 1.5),
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: m.emptyIllustration * 0.15,
-                        color: c.textMuted,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -749,7 +730,7 @@ class CartEmptyView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => context.go(AppRoutes.home),
                   child: Center(
                     child: Text(
                       'START SHOPPING',

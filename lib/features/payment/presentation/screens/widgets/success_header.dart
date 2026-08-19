@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/theme_colors.dart';
@@ -164,7 +165,7 @@ class _SuccessHeaderState extends State<SuccessHeader>
                       ),
                       child: const Icon(
                         Icons.check_rounded,
-                        size: 54,
+                        size: 60,
                         color: ThemeColors.green,
                       ),
                     ),
@@ -186,40 +187,38 @@ class _SuccessHeaderState extends State<SuccessHeader>
                   Text(
                     'Payment Successful',
                     style: AppTextStyles.headlineMedium.copyWith(
-                      color: ThemeColors.white,
+                      color: ThemeColors.black,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.2,
                     ),
                   ),
-
-                  const SizedBox(height: 18),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 28, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: ThemeColors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(
-                        color: ThemeColors.white.withValues(alpha: 0.28),
-                      ),
-                    ),
-                    child: Text(
-                      widget.amount,
-                      style: AppTextStyles.titleLarge.copyWith(
-                        color: ThemeColors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 26,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
+                  //
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //       horizontal: 28, vertical: 12),
+                  //   decoration: BoxDecoration(
+                  //     color: ThemeColors.white.withValues(alpha: 0.15),
+                  //     borderRadius: BorderRadius.circular(40),
+                  //     border: Border.all(
+                  //       color: ThemeColors.white.withValues(alpha: 0.28),
+                  //     ),
+                  //   ),
+                  //   child: Text(
+                  //     widget.amount,
+                  //     style: AppTextStyles.titleLarge.copyWith(
+                  //       color: ThemeColors.white,
+                  //       fontWeight: FontWeight.w800,
+                  //       fontSize: 26,
+                  //     ),
+                  //   ),
+                  // ),
+                  //
+                  // const SizedBox(height: 10),
 
                   Text(
                     'Order #${widget.orderId}',
                     style: AppTextStyles.bodyLarge.copyWith(
-                      color: ThemeColors.white.withValues(alpha: 0.65),
+                      color: ThemeColors.black.withValues(alpha: 0.65),
                       letterSpacing: 0.3,
                       fontWeight: FontWeight.w600,
                     ),

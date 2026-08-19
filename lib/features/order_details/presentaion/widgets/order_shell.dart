@@ -1,5 +1,8 @@
+import 'package:bingo_pay/core/router/app_router.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'order_details_metrics.dart';
@@ -37,7 +40,7 @@ class OdHeader extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(m.pagePadding * 0.5),
               child: Icon(
-                Icons.arrow_back_rounded,
+                Icons.arrow_back_ios_rounded,
                 size: m.headerIconSize,
                 color: c.textPrimary,
               ),
@@ -58,7 +61,7 @@ class OdHeader extends StatelessWidget {
             ),
           ),
           InkWell(
-            onTap: onHelp,
+            onTap: ()=> context.push(AppRoutes.help),
             child: Padding(
               padding: EdgeInsets.all(m.pagePadding * 0.4),
               child: Row(

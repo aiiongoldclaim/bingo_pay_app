@@ -296,8 +296,8 @@ class CustomBottomNav extends StatelessWidget {
     ),
     BottomNavItemData(
       activeIcon: Icons.shopping_bag,
-      inactiveIcon: Icons.shopping_bag,
-      label: 'Bag',
+      inactiveIcon: Icons.shopping_bag_outlined,
+      label: 'Order',
     ),
     BottomNavItemData(
       activeIcon: Icons.person_rounded,

@@ -1,5 +1,4 @@
 import 'package:bingo_pay/features/edit_profile/presentation/screens/edit_profile_screen.dart';
-import 'package:bingo_pay/features/scanner/presentation/screens/payment_success_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +13,8 @@ import '../../features/customer/shop/presentation/bloc/shop_event.dart';
 import '../../features/edit_profile/presentation/cubit/edit_profile_cubit.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
+import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
+import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
 import '../widgets/buyer_shell_screen.dart';
 import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
 import '../../features/customer/profile/presentation/screens/profile_screen.dart';
@@ -196,10 +197,25 @@ class AppRouter {
 
         GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
 
+        // GoRoute(
+        //   path: AppRoutes.reviewPayment,
+        //   builder: (context, state) {
+        //     final data = state.extra as Map<String, dynamic>;
+        //
+        //     return BlocProvider(
+        //       create: (_) => getIt<PaymentCubit>(),
+        //       child: ReviewPaymentScreen(
+        //         merchantName: data['merchantName'] ?? '',
+        //         merchantEmail: data['merchantEmail'] ?? '',
+        //       ),
+        //     );
+        //   },
+        // ),
+
         GoRoute(
           path: AppRoutes.reviewPayment,
           builder: (context, state) {
-            final data = state.extra as Map<String, dynamic>;
+            final data = state.extra as Map<String, dynamic>? ?? const {};
 
             return BlocProvider(
               create: (_) => getIt<PaymentCubit>(),

@@ -150,23 +150,15 @@ class _HelpTopBar extends StatelessWidget {
                 'Help & Support',
                 style: AppTextStyles.titleLarge.copyWith(
                   color: c.textPrimary,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
+                  fontFamily: 'CormorantGaramond',
+                  fontWeight: FontWeight.bold,
                   fontSize: m.titleSize,
                   height: 1.2,
                 ),
               ),
             ),
           ),
-          IconButton(
-            onPressed: () => context.push(AppRoutes.search),
-            splashRadius: m.topIconSize * 1.2,
-            icon: Icon(
-              Icons.search_rounded,
-              size: m.topIconSize,
-              color: c.textPrimary,
-            ),
-          ),
+
         ],
       ),
     );
@@ -296,7 +288,7 @@ class _SectionHeading extends StatelessWidget {
             title,
             style: AppTextStyles.titleMedium.copyWith(
               color: c.textPrimary,
-              fontFamily: 'Inter',
+              fontFamily: 'CormorantGaramond',
               fontWeight: FontWeight.w700,
               fontSize: m.sectionTitleSize,
             ),
@@ -398,7 +390,8 @@ class _HeroCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
-                        onTap: onContact,
+                        onTap: (){},
+                        // onTap: onContact,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: m.heroPad * 0.9,

@@ -43,7 +43,7 @@ class InvoiceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1A1D4E).withValues(alpha: 0.18),
+            color: ThemeColors.deepPurple.withValues(alpha: 0.18),
             blurRadius: 32,
             offset: const Offset(0, 8),
           ),
@@ -56,7 +56,7 @@ class InvoiceCard extends StatelessWidget {
             padding: const EdgeInsets.all(AppSizes.paddingMd),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1A1D4E), Color(0xFF2B2FA8)],
+                colors: [Color(0xFF4C1E76), Color(0xFF3F185F)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
@@ -85,29 +85,30 @@ class InvoiceCard extends StatelessWidget {
                         style: AppTextStyles.titleMedium
                             .copyWith(color: Colors.white),
                       ),
-                      Text(
-                        'Tax Invoice',
-                        style: AppTextStyles.bodyMedium.copyWith(
-                            color: Colors.white.withValues(alpha: 0.75)),
+                          Text(
+                            'Invoice INV-${orderId.replaceAll('BG-', '')}',
+                            style: AppTextStyles.labelLarge
+                                .copyWith(color: Colors.white),
+                          ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Tax Invoice',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                                color: Colors.white.withValues(alpha: 0.75)),
+                          ),
+
+                              Text(
+                                dateStr,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.75)),
+                              ),
+                        ],
                       ),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'INV-${orderId.replaceAll('BG-', '')}',
-                      style: AppTextStyles.labelLarge
-                          .copyWith(color: Colors.white),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      dateStr,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                          color: Colors.white.withValues(alpha: 0.75)),
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -126,7 +127,7 @@ class InvoiceCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.location_on_outlined,
-                      size: 18, color: Color(0xFF2B2FA8)),
+                      size: 18, color: ThemeColors.black),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -135,7 +136,7 @@ class InvoiceCard extends StatelessWidget {
                     children: [
                       Text('BILLED TO',
                           style: AppTextStyles.labelMedium
-                              .copyWith(color: ThemeColors.inkMid)),
+                              .copyWith(color: ThemeColors.black)),
                       const SizedBox(height: 4),
                       Text(customerName,
                           style: AppTextStyles.titleMedium),
@@ -159,7 +160,6 @@ class InvoiceCard extends StatelessWidget {
 
           // ── Item ────────────────────────────────────────────────────
           Padding(
-            // padding: const EdgeInsets.all(AppSizes.paddingMd),
             padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingMd, vertical: AppSizes.paddingX),
             child: InvoiceItemTile(
               title: productName.isNotEmpty ? productName : 'Product',
@@ -167,8 +167,6 @@ class InvoiceCard extends StatelessWidget {
               price: totalAmount,
             ),
           ),
-
-          // Divider(height: 1, color: ThemeColors.inkDim.withValues(alpha: 0.12)),
 
           // ── Summary ─────────────────────────────────────────────────
           Padding(
@@ -216,7 +214,7 @@ class InvoiceCard extends StatelessWidget {
           value,
           style: isBold
               ? AppTextStyles.titleLarge.copyWith(
-                  color: const Color(0xFF1A1D4E),
+                  color: ThemeColors.green,
                   fontWeight: FontWeight.w800,
                 )
               : AppTextStyles.bodyMedium.copyWith(color: color),

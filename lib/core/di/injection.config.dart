@@ -240,10 +240,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i915.AddressRemoteDataSource>(
       () => _i915.AddressRemoteDataSource(gh<_i541.ApiClient>()),
     );
-      () => _i126.EditProfileCubit(gh<_i541.ApiClient>());
-
     gh.factory<_i230.AuctionsRemoteDatasources>(
       () => _i230.AuctionsRemoteDatasources(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i126.EditProfileCubit>(
+      () => _i126.EditProfileCubit(gh<_i541.ApiClient>()),
     );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),

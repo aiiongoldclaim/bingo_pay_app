@@ -532,6 +532,17 @@ class _SecondaryGroup extends StatelessWidget {
             //     ? null
             //     : () => context.read<AuthBloc>().add(const LogoutRequested()),
           ),
+          // _SecondaryTile(
+          //   iconAsset: AppSvgImages.logout,
+          //   title: 'Scanner Pay and Review',
+          //   subtitle: '',
+          //   metrics: m,
+          //   isFirst: false,
+          //   isLast: true,
+          //   onTap: () {
+          //     context.go(AppRoutes.reviewPayment);
+          //   },
+          // ),
         ],
       ),
     );
