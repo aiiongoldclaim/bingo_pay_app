@@ -40,21 +40,63 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _pickPhoto() {
     final cubit = context.read<EditProfileCubit>();
 
-    showAppActionsSheet(
+    showAppSheet<void>(
       context: context,
-      title: 'Change Photo',
-      actions: [
-        SheetAction(
-          label: 'Take Photo',
-          icon: Icons.photo_camera_outlined,
-          onTap: () => cubit.pickImage(fromCamera: true),
-        ),
-        SheetAction(
-          label: 'Choose from Gallery',
-          icon: Icons.photo_library_outlined,
-          onTap: () => cubit.pickImage(),
-        ),
-      ],
+      builder: (sheetContext) {
+        final c = sheetContext.c;
+        final m = EditProfileMetrics.of(sheetContext);
+
+        Widget tile(IconData icon, String label, VoidCallback onTap) =>
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  onTap();
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: m.gapSm * 1.1),
+                  child: Row(
+                    children: [
+                      Icon(icon, size: m.fieldIconSize, color: c.brand),
+                      SizedBox(width: m.cardPad * 0.7),
+                      Text(
+                        label,
+                        style: AppTextStyles.labelLarge.copyWith(
+                          color: c.textPrimary,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w500,
+                          fontSize: m.fieldTextSize,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+
+        return AppSheetShell(
+          title: 'Change Photo',
+          scrollable: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              tile(
+                Icons.photo_camera_outlined,
+                'Take Photo',
+                    () => cubit.pickImage(fromCamera: true),
+              ),
+              Divider(height: 1, thickness: 1, color: c.border),
+              tile(
+                Icons.photo_library_outlined,
+                'Choose from Gallery',
+                    () => cubit.pickImage(),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -241,24 +283,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ],
                         ),
-                      )
-                          : SingleChildScrollView(
-                        padding: EdgeInsets.fromLTRB(
-                          m.pageHPad,
-                          m.gapLg,
-                          m.pageHPad,
-                          m.gapLg,
-                        ),
-                        child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.stretch,
-                          children: [
-                            avatar,
-                            SizedBox(height: m.gapLg),
-                            fields,
-                          ],
-                        ),
-                      ),
+                      ) : SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                    m.pageHPad,
+                      m.gapMd,
+                      m.pageHPad,
+                      m.gapLg,
+                    ),
+                    child: Column(
+                      crossAxisAlignment:
+                      CrossAxisAlignment.stretch,
+                      children: [
+                        avatar,
+                        SizedBox(height: m.gapMd),
+                        fields,
+                      ],
+                    ),
+                  ),
                     ),
                   ),
                 ),
@@ -284,51 +325,54 @@ class _EditTopBar extends StatelessWidget {
     final c = context.c;
     final m = metrics;
 
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.go(AppRoutes.account),
-          splashRadius: m.backIconSize * 1.2,
-          icon: Icon(
-            Icons.arrow_back_ios_rounded,
-            size: m.backIconSize,
-            color: c.brand,
+    return Padding(
+      padding: EdgeInsets.only(bottom: m.gapSm),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => context.canPop()
+                ? context.pop()
+                : context.go(AppRoutes.account),
+            splashRadius: m.backIconSize * 1.2,
+            icon: Icon(
+              Icons.arrow_back_ios_rounded,
+              size: m.backIconSize,
+              color: c.brand,
+            ),
           ),
-        ),
 
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Edit Profile',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: c.textPrimary,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: m.titleSize,
-                  height: 1.2,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Edit Profile',
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: c.textPrimary,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: m.titleSize,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-              SizedBox(height: m.gapXs * 0.6),
-              Text(
-                'Manage your personal information',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
-                  fontFamily: 'Inter',
-                  fontSize: m.avatarHintSize,
-                  height: 1.2,
+                SizedBox(height: m.gapXs * 0.6),
+                Text(
+                  'Manage your personal information',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: c.textSecondary,
+                    fontFamily: 'Inter',
+                    fontSize: m.avatarHintSize,
+                    height: 1.2,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -473,8 +517,18 @@ class _Initials extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final initials = profile?.initials;
+
+    if (initials == null || initials == '?' || initials.toString().isEmpty) {
+      return Icon(
+        Icons.person_rounded,
+        size: metrics.avatarSize * 0.5,
+        color: c.brand,
+      );
+    }
+
     return Text(
-      profile?.initials ?? '?',
+      initials,
       style: AppTextStyles.titleLarge.copyWith(
         color: c.brand,
         fontFamily: 'Inter',

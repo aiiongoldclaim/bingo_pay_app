@@ -352,8 +352,10 @@ class _AccountScreenState extends State<AccountScreen> {
                 children: [
                   Scaffold(
                     appBar: AccountAppBar(
-                      onSettingsTap: () {},
-                      onNotificationTap: () {},
+                      onSettingsTap: () => context.push(AppRoutes.buyerSettings),
+                      onNotificationTap: ()
+                      =>
+                          context.push(AppRoutes.buyerNotifications),
                     ),
                     backgroundColor: c.background,
                     body: RefreshIndicator(
@@ -376,7 +378,14 @@ class _AccountScreenState extends State<AccountScreen> {
                                   maxWidth: m.maxContentWidth,
                                 ),
                                 child: Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.stretch,
                                   children: [
+                                    _SectionHeading(
+                                      metrics: m,
+                                      label: 'My Orders & Shopping',
+                                    ),
+                                    SizedBox(height: m.sectionHeadingGap),
                                     AccountMenuList(
                                       items: AccountMenuItem.primaryItems,
                                       onTap: (item) {
@@ -385,13 +394,19 @@ class _AccountScreenState extends State<AccountScreen> {
                                         }
                                       },
                                     ),
-                                    SizedBox(height: m.gapMd),
+                                    SizedBox(height: m.gapLg),
+                                    _SectionHeading(
+                                      metrics: m,
+                                      label: 'Account & Support',
+                                    ),
+                                    SizedBox(height: m.sectionHeadingGap),
                                     _SecondaryGroup(
                                       metrics: m,
                                       isLoggingOut: isLoggingOut,
                                     ),
+                                    // SizedBox(height: m.gapLg),
                                     const AccountBenefitsStrip(),
-                                    SizedBox(height: m.bottomPad * 2),
+                                    SizedBox(height: m.bottomPad * 3),
                                   ],
                                 ),
                               ),
@@ -549,6 +564,35 @@ class _SecondaryGroup extends StatelessWidget {
   }
 }
 
+class _SectionHeading extends StatelessWidget {
+  final AccountMetrics metrics;
+  final String label;
+
+  const _SectionHeading({required this.metrics, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: m.pageHPad),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          label,
+          style: AppTextStyles.titleMedium.copyWith(
+            color: c.textPrimary,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: m.sectionHeadingSize,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _SecondaryTile extends StatelessWidget {
   final String iconAsset;
   final String title;
@@ -588,7 +632,20 @@ class _SecondaryTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              _Icon(asset: iconAsset, size: m.menuIconSize, color: c.brand),
+              Container(
+                width: m.menuIconBox,
+                height: m.menuIconBox,
+                decoration: BoxDecoration(
+                  color: c.brandSoft,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: _Icon(
+                  asset: iconAsset,
+                  size: m.menuIconSize,
+                  color: c.brand,
+                ),
+              ),
               SizedBox(width: m.menuIconGap),
               Expanded(
                 child: Column(

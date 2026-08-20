@@ -200,16 +200,15 @@ class AccountMenuList extends StatelessWidget {
       decoration: BoxDecoration(
         color: c.surface,
         borderRadius: BorderRadius.circular(m.menuRadius),
-        border: Border.all(color: c.border, width: 1),
         boxShadow: c.isDark
             ? null
             : [
-                BoxShadow(
-                  color: c.textPrimary.withValues(alpha: 0.04),
-                  blurRadius: 14,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+          BoxShadow(
+            color: c.textPrimary.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: List.generate(items.length, (index) {
@@ -271,6 +270,8 @@ class _MenuItem extends StatelessWidget {
         return AppSvgImages.securePayments;
       case 'editProfile':
         return AppSvgImages.editProfile;
+      case 'memberShip':
+        return AppSvgImages.easyReturns;
       case 'help':
         return AppSvgImages.support;
       default:
@@ -298,12 +299,22 @@ class _MenuItem extends StatelessWidget {
           ),
           child: Row(
             children: [
-              SvgPicture.asset(
-                _iconFor(item.iconAsset),
-                width: m.menuIconSize,
-                height: m.menuIconSize,
-                colorFilter: ColorFilter.mode(c.brand, BlendMode.srcIn),
+              Container(
+                width: m.menuIconBox,
+                height: m.menuIconBox,
+                decoration: BoxDecoration(
+                  color: c.brandSoft,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: SvgPicture.asset(
+                  _iconFor(item.iconAsset),
+                  width: m.menuIconSize,
+                  height: m.menuIconSize,
+                  colorFilter: ColorFilter.mode(c.brand, BlendMode.srcIn),
+                ),
               ),
+
               SizedBox(width: m.menuIconGap),
               Expanded(
                 child: Column(
@@ -395,6 +406,12 @@ class AccountMenuItem {
     ),
     AccountMenuItem(
       title: 'Edit Profile',
+      subtitle: 'Update your personal details',
+      iconAsset: 'profile',
+      route: AppRoutes.editProfile,
+    ),
+    AccountMenuItem(
+      title: 'MemberShip',
       subtitle: 'Update your personal details',
       iconAsset: 'profile',
       route: AppRoutes.editProfile,

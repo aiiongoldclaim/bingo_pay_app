@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
+import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../order_details/presentaion/widgets/od_item_tile.dart';
@@ -58,7 +61,7 @@ class _OrderDetailView extends StatelessWidget {
                   metrics: m,
                   brandName: 'TheVaults',
                   onBack: () => context.pop(),
-                  onHelp: () => context.push(AppRoutes.help),
+                  onHelp: () => context.go(AppRoutes.help),
                 ),
                 Expanded(
                   child: BlocListener<OrderDetailCubit, OrderDetailState>(
@@ -159,45 +162,25 @@ class _OrderDetailView extends StatelessWidget {
     }
   }
 
-  void _showCancelConfirmation(BuildContext context, OrderModel order) {
-    final c = context.c;
-    showDialog(
+  Future<void> _showCancelConfirmation(
+      BuildContext context,
+      OrderModel order,
+      ) async {
+    final cubit = context.read<OrderDetailCubit>();
+
+    final confirmed = await showAppConfirmDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: c.surface,
-        title: Text(
-          'Cancel Order',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: c.textPrimary,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to cancel this order? This action cannot be undone.',
-          style: TextStyle(fontSize: 14, color: c.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text('Keep Order', style: TextStyle(color: c.brand)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<OrderDetailCubit>().cancelOrder(order);
-            },
-            child: const Text(
-              'Cancel Order',
-              style: TextStyle(
-                color: Color(0xFFE0533B),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
+      title: 'Cancel Order?',
+      message:
+      'Are you sure you want to cancel this order? This action cannot be undone.',
+      confirmLabel: 'Cancel Order',
+      cancelLabel: 'Keep Order',
+      isDestructive: true,
+      icon: Icons.close_rounded,
     );
+
+    if (!confirmed) return;
+    cubit.cancelOrder(order);
   }
 }
 
@@ -269,7 +252,9 @@ class _Body extends StatelessWidget {
           metrics: m,
           title: 'Reason for Cancellation',
           subtitle: order.notes!,
-          onTap: () {},
+          onTap: () {
+
+          },
         ),
         SizedBox(height: m.sectionGap),
       ],
@@ -333,7 +318,8 @@ class _Body extends StatelessWidget {
         subtitle: isCancelled
             ? 'Read our cancellation policy or chat with our support team.'
             : 'We ensure 100% secure payments for a worry-free shopping',
-        onTap: () => context.push(AppRoutes.help),
+
+
       ),
 
       SizedBox(height: m.sectionGap + MediaQuery.paddingOf(context).bottom),

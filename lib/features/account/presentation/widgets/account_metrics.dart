@@ -42,6 +42,9 @@ class AccountMetrics {
   final double menuItemVPad;
   final double menuIconSize;
   final double menuIconGap;
+  final double menuIconBox;
+  final double sectionHeadingSize;
+  final double sectionHeadingGap;
   final double menuTitleSize;
   final double menuSubtitleSize;
   final double chevronSize;
@@ -100,6 +103,10 @@ class AccountMetrics {
     required this.gapMd,
     required this.gapLg,
     required this.bottomPad,
+
+    required this.menuIconBox,
+    required this.sectionHeadingSize,
+    required this.sectionHeadingGap,
   });
 
   static AccountMetrics of(BuildContext context) {
@@ -155,6 +162,10 @@ class AccountMetrics {
     gapMd: 2.2.h,
     gapLg: 3.h,
     bottomPad: 4.h,
+
+    menuIconBox: 12.w,
+    sectionHeadingSize: 16.sp,
+    sectionHeadingGap: 1.4.h,
   );
 
   // ── TABLET PORTRAIT ──────────────────────────────────────────────────────
@@ -200,6 +211,10 @@ class AccountMetrics {
       gapMd: 22,
       gapLg: 30,
       bottomPad: 40,
+
+      menuIconBox: 56,
+      sectionHeadingSize: 20,
+      sectionHeadingGap: 14,
     );
   }
 
@@ -246,6 +261,9 @@ class AccountMetrics {
       gapMd: 16,
       gapLg: 22,
       bottomPad: 28,
+      menuIconBox: 50,
+      sectionHeadingSize: 19,
+      sectionHeadingGap: 12,
     );
   }
 

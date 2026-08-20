@@ -16,4 +16,7 @@ class AppImages {
   static const String onboard1Dark = '$base/Image_6.png';
   static const String onboard2Dark = '$base/Image_5.png';
   static const String onboard3Dark = '$base/Image_10.png';
+
+  //help&suport
+  static const String help = '$base/help.png';
 }
