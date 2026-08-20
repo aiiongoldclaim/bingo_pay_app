@@ -323,7 +323,7 @@ class AccountAppBar extends StatelessWidget implements PreferredSizeWidget {
                 size: m.appBarIconSize,
                 color: c.textPrimary,
               ),
-              onPressed: onSettingsTap ?? () {},
+              onPressed: onNotificationTap ?? () {},
             ),
           ],
         ),
@@ -441,7 +441,7 @@ class _AvatarRow extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: m.avatarSize + m.cameraBadgeSize * 0.30,
+            width: m.avatarSize + m.cameraBadgeSize * 0.35,
             height: m.avatarSize + m.cameraBadgeSize * 0.20,
             child: Stack(
               clipBehavior: Clip.none,
@@ -450,33 +450,32 @@ class _AvatarRow extends StatelessWidget {
                   width: m.avatarSize,
                   height: m.avatarSize,
                   decoration: BoxDecoration(
-                    color: c.brand,
+                    color: c.surface,
                     shape: BoxShape.circle,
-                    border: Border.all(color: c.surface, width: 3),
+                    border: Border.all(
+                      color: c.brand.withValues(alpha: 0.25),
+                      width: 2,
+                    ),
                   ),
                   alignment: Alignment.center,
                   child: hasImage
                       ? ClipOval(
-                          child: Image.network(
-                            account.profileImageUrl!,
-                            width: m.avatarSize,
-                            height: m.avatarSize,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      : Text(
-                          account.initials,
-                          style: AppTextStyles.titleLarge.copyWith(
-                            color: ThemeColors.white,
-                            fontFamily: 'Inter',
-                            fontSize: m.avatarInitialSize,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                    child: Image.network(
+                      account.profileImageUrl!,
+                      width: m.avatarSize,
+                      height: m.avatarSize,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                      : Icon(
+                    Icons.person,
+                    size: m.avatarSize * 0.55,
+                    color: c.brand,
+                  ),
                 ),
                 Positioned(
                   right: 0,
-                  bottom: 0,
+                  bottom: m.avatarSize * 0.06,
                   child: GestureDetector(
                     onTap: onEdit,
                     child: Container(
@@ -485,7 +484,7 @@ class _AvatarRow extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: c.textSecondary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: c.surface, width: 2),
+                        border: Border.all(color: c.surfaceAlt, width: 2),
                       ),
                       alignment: Alignment.center,
                       child: Icon(

@@ -107,14 +107,14 @@ class OdInfoBanner extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.subtitle,
-    this.onTap,
+
   });
 
   final OrderDetailMetrics metrics;
   final IconData icon;
   final String title;
   final String subtitle;
-  final VoidCallback? onTap;
+
 
   @override
   Widget build(BuildContext context) {
@@ -123,52 +123,43 @@ class OdInfoBanner extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(m.cardRadius),
-        child: Container(
-          padding: EdgeInsets.all(m.cardPadding * 0.9),
-          decoration: BoxDecoration(
-            color: c.brandSoft,
-            borderRadius: BorderRadius.circular(m.cardRadius),
-            border: c.isDark ? Border.all(color: c.border) : null,
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: m.addressIconSize * 1.15, color: c.brand),
-              SizedBox(width: m.cardPadding * 0.7),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: m.bannerTitleSize,
-                        fontWeight: FontWeight.w700,
-                        color: c.brand,
-                      ),
+      child: Container(
+        padding: EdgeInsets.all(m.cardPadding * 0.9),
+        decoration: BoxDecoration(
+          color: c.brandSoft,
+          borderRadius: BorderRadius.circular(m.cardRadius),
+          border: c.isDark ? Border.all(color: c.border) : null,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: m.addressIconSize * 1.15, color: c.brand),
+            SizedBox(width: m.cardPadding * 0.7),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: m.bannerTitleSize,
+                      fontWeight: FontWeight.w700,
+                      color: c.brand,
                     ),
-                    SizedBox(height: m.cardPadding * 0.15),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: m.bannerBodySize,
-                        height: 1.35,
-                        color: c.textSecondary,
-                      ),
+                  ),
+                  SizedBox(height: m.cardPadding * 0.15),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: m.bannerBodySize,
+                      height: 1.35,
+                      color: c.textSecondary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: m.addressIconSize,
-                color: c.brand,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

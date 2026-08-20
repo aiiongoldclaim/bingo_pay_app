@@ -29,6 +29,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color statusSuccessSoft;
   final Color statusWarningSoft;
 
+  final Color success;
+  final Color warning;
+
   const AppThemeColors({
     required this.background,
     required this.surface,
@@ -52,7 +55,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.statusWarning,
     required this.statusInfo,
     required this.statusSuccessSoft,
-    required this.statusWarningSoft,
+    required this.statusWarningSoft, required this.success, required this.warning,
   });
 
   static const lightColors = AppThemeColors(
@@ -75,10 +78,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     navSelected: ThemeColors.primaryPurple,
     navUnselected: ThemeColors.textSecondary1,
     statusSuccess: ThemeColors.green,
-    statusWarning: ThemeColors.orange,
+    statusWarning: ThemeColors.red,
     statusInfo: ThemeColors.primaryPurple,
     statusSuccessSoft: ThemeColors.greenSoft,
-    statusWarningSoft: Color(0xFFFFF3E5),
+    statusWarningSoft: Color(0xFFFFF3E5), success: ThemeColors.green, warning: ThemeColors.red,
   );
 
   static const darkColors = AppThemeColors(
@@ -104,7 +107,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarning: Color(0xFFFBBF24),
     statusInfo: ThemeColors.darkPurple,
     statusSuccessSoft: Color(0xFF13291F),
-    statusWarningSoft: Color(0xFF2B2113),
+    statusWarningSoft: Color(0xFF2B2113), success: ThemeColors.green, warning: ThemeColors.red,
   );
 
   static AppThemeColors of(BuildContext context) =>
@@ -159,7 +162,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarning: statusWarning ?? this.statusWarning,
     statusInfo: statusInfo ?? this.statusInfo,
     statusSuccessSoft: statusSuccessSoft ?? this.statusSuccessSoft,
-    statusWarningSoft: statusWarningSoft ?? this.statusWarningSoft,
+    statusWarningSoft: statusWarningSoft ?? this.statusWarningSoft, success: this.success, warning: this.warning,
   );
 
   @override
@@ -204,6 +207,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusWarningSoft: Color.lerp(
         statusWarningSoft,
         other.statusWarningSoft,
+        t,
+      )!,
+      success: Color.lerp(
+      success,
+      other.success,
+      t,
+    )!,
+      warning: Color.lerp(warning,
+        other.warning,
         t,
       )!,
     );

@@ -61,7 +61,7 @@ class OdHeader extends StatelessWidget {
             ),
           ),
           InkWell(
-            onTap: ()=> context.push(AppRoutes.help),
+            onTap: onHelp,
             child: Padding(
               padding: EdgeInsets.all(m.pagePadding * 0.4),
               child: Row(

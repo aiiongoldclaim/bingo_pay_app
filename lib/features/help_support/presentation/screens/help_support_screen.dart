@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -449,10 +450,13 @@ class _HeadsetArt extends StatelessWidget {
               shape: BoxShape.circle,
             ),
           ),
-          Icon(
-            Icons.support_agent_rounded,
-            size: m.heroArtSize * 0.58,
-            color: c.brand,
+          SizedBox(
+            width: m.heroArtSize * 0.58,
+            height: m.heroArtSize * 0.58,
+            child: Image.asset(
+              AppImages.help,
+              fit: BoxFit.contain,
+            ),
           ),
           Positioned(
             top: m.heroArtSize * 0.08,

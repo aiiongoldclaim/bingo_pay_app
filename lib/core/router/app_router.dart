@@ -11,10 +11,12 @@ import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
 import '../../features/edit_profile/presentation/cubit/edit_profile_cubit.dart';
+import '../../features/notification/features/screens/notidication_screen.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
 import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
+import '../../features/setting/features/screens/setting_screen.dart';
 import '../widgets/buyer_shell_screen.dart';
 import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
 import '../../features/customer/profile/presentation/screens/profile_screen.dart';
@@ -245,6 +247,19 @@ class AppRouter {
           },
         ),
 
+        GoRoute(
+          path: AppRoutes.buyerSettings,
+          builder: (_, _) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.buyerNotifications,
+          builder: (_, _) => const NotificationsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.help,
+          builder: (_, _) => const HelpSupportScreen(),
+        ),
+
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider<ShopBloc>(
@@ -389,10 +404,7 @@ class AppRouter {
               path: AppRoutes.buyerPayments,
               builder: (_, _) => const _PlaceholderPage('Payment Methods'),
             ),
-            GoRoute(
-              path: AppRoutes.help,
-              builder: (_, _) => const HelpSupportScreen(),
-            ),
+
             GoRoute(
               path: AppRoutes.auctionScreen,
               builder: (_, _) => const AuctionScreen(),
