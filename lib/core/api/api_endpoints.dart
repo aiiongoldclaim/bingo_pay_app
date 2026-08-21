@@ -31,4 +31,14 @@ class ApiEndpoints {
   static const String checkout = '/api/v1/checkout';
   static const String bigodIntent = '/api/v1/payments/bigod/intent';
   static const String bigodConfirm = '/api/v1/payments/bigod/confirm';
+
+  static const String membership = '/api/v1/customer/membership';
+  static const String membershipPlans = '/api/v1/customer/membership/plans';
+  static const String membershipSubscribe = '/api/v1/customer/membership/subscribe';
+
+  static String membershipCancel(String uuid) =>
+      '/api/v1/customer/membership/$uuid/cancel';
+
+  static String membershipResume(String uuid) =>
+      '/api/v1/customer/membership/$uuid/resume';
 }

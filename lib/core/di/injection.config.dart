@@ -124,6 +124,14 @@ import 'package:bingo_pay/features/customer/dashboard/presentation/cubit/buyer_d
     as _i709;
 import 'package:bingo_pay/features/edit_profile/presentation/cubit/edit_profile_cubit.dart'
     as _i126;
+import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
+    as _i578;
+import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository.dart'
+    as _i378;
+import 'package:bingo_pay/features/membershipNew/presentation/cubit/member_ship_cubit.dart'
+    as _i752;
+import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_dashboard_cubit.dart'
+    as _i308;
 import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
 import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
     as _i705;
@@ -222,6 +230,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i705.OrdersRemoteDataSource>(
       () => _i705.OrdersRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
+    gh.lazySingleton<_i578.MembershipRemoteDataSource>(
+      () => _i578.MembershipRemoteDataSourceImpl(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i152.GetBrandsUseCase>(
       () => _i152.GetBrandsUseCase(gh<_i105.BrandRepository>()),
     );
@@ -258,6 +269,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i805.ProcessPaymentUseCase>(
       () => _i805.ProcessPaymentUseCase(gh<_i758.PaymentRepository>()),
     );
+    gh.lazySingleton<_i378.MembershipRepository>(
+      () => _i378.MembershipRepositoryImpl(
+        gh<_i578.MembershipRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i298.CategoryRepository>(
       () => _i611.CategoryRepositoryImpl(gh<_i298.CategoryRemoteDataSource>()),
     );
@@ -286,6 +302,15 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i838.GetServiceAvailabilityUseCase(
         gh<_i447.ServiceDetailDataSource>(),
       ),
+    );
+    gh.factory<_i752.MembershipCubit>(
+      () => _i752.MembershipCubit(gh<_i378.MembershipRepository>()),
+    );
+    gh.factory<_i752.MembershipCheckoutCubit>(
+      () => _i752.MembershipCheckoutCubit(gh<_i378.MembershipRepository>()),
+    );
+    gh.factory<_i308.MembershipPlansCubit>(
+      () => _i308.MembershipPlansCubit(gh<_i378.MembershipRepository>()),
     );
     gh.factory<_i728.CartCubit>(
       () => _i728.CartCubit(

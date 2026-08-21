@@ -6,11 +6,18 @@ import 'package:injectable/injectable.dart';
 import '../../features/account/presentation/cubit/account_cubit.dart';
 import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/auctions/presentation/screens/auction_screen.dart';
+import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
 import '../../features/edit_profile/presentation/cubit/edit_profile_cubit.dart';
+import '../../features/membershipNew/data/models/membership_plan_model.dart';
+import '../../features/membershipNew/presentation/screens/membership_checkout_screen.dart';
+import '../../features/membershipNew/presentation/screens/membership_dashbord.dart';
+import '../../features/membershipNew/presentation/screens/membership_screen.dart';
+import '../../features/membershipNew/presentation/screens/membership_success_screen.dart';
+import '../../features/membershipNew/presentation/widgets/membership_checkout_args.dart';
 import '../../features/notification/features/screens/notidication_screen.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
@@ -112,11 +119,11 @@ class AppRouter {
           path: AppRoutes.register,
           builder: (_, _) => const RegisterScreen(),
         ),
-        // GoRoute(
-        //   path: AppRoutes.registerOtp,
-        //   builder: (_, state) =>
-        //       OtpVerificationScreen(email: state.extra as String? ?? ''),
-        // ),
+        GoRoute(
+          path: AppRoutes.registerOtp,
+          builder: (_, state) =>
+              OtpVerificationScreen(email: state.extra as String? ?? ''),
+        ),
         GoRoute(
           path: AppRoutes.ssoLoginOtp,
           builder: (_, state) =>
@@ -394,6 +401,34 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.buyerNotifications,
               builder: (_, _) => const _PlaceholderPage('Notifications'),
+            ),
+
+            // ShellRoute ke BAHAR
+            // GoRoute(
+            //   path: AppRoutes.membership,
+            //   name: 'membership',
+            //   builder: (context, state) => const MembershipScreen(),
+            // ),
+            GoRoute(
+              path: AppRoutes.membershipPlans,          // '/membership-plans'
+              name: 'membershipPlans',
+              builder: (context, state) =>
+                  MembershipPlansScreen(preselectPlanUuid: state.extra as String?),
+            ),
+            GoRoute(
+              path: AppRoutes.membershipCheckout,
+              redirect: (context, state) =>
+              state.extra is MembershipCheckoutArgs ? null : AppRoutes.membershipPlans,
+              builder: (context, state) =>
+                  MembershipCheckoutScreen(args: state.extra as MembershipCheckoutArgs),
+            ),
+
+            GoRoute(
+              path: AppRoutes.membershipSuccess,
+              redirect: (context, state) =>
+              state.extra is MembershipCheckoutArgs ? null : AppRoutes.membershipPlans,
+              builder: (context, state) =>
+                  MembershipSuccessScreen(args: state.extra as MembershipCheckoutArgs),
             ),
 
             GoRoute(

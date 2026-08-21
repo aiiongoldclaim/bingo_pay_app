@@ -413,8 +413,8 @@ class AccountMenuItem {
     AccountMenuItem(
       title: 'MemberShip',
       subtitle: 'Update your personal details',
-      iconAsset: 'profile',
-      route: AppRoutes.editProfile,
+      iconAsset: 'membership',
+      route: AppRoutes.membershipPlans,
     ),
   ];
 

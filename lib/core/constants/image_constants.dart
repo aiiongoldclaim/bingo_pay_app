@@ -19,4 +19,6 @@ class AppImages {
 
   //help&suport
   static const String help = '$base/help.png';
+  static const String membership = '$base/membership.png';
+  static const String membershipCard = '$base/membership_card.jpeg';
 }
