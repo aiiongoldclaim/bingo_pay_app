@@ -4,6 +4,8 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
 import '../models/auction_detail_model.dart';
 import '../models/bid_model.dart';
+import '../models/my_bids_model.dart';
+import '../models/place_bid_model.dart';
 
 @injectable
 class AuctionsRemoteDatasources {
@@ -70,7 +72,59 @@ class AuctionsRemoteDatasources {
 
     return (bidsJson as List)
         .map((json) => BidModel.fromJson(json))
-        .toList();
+        .toList(); 
   } 
+
+  Future<PlaceBidModel> placeBid({
+  required String auctionUuid,
+  required String amount,
+  required String idempotencyKey,
+}) async {
+  final response = await _client.dio.post(
+    '$baseUrl/auctions/$auctionUuid/bids',
+    data: {
+      'amount': amount,
+      'idempotencyKey': idempotencyKey,
+    },
+  );
+
+  final data = response.data;
+
+  final bidJson =
+      data is Map<String, dynamic> && data['data'] != null
+          ? data['data']
+          : data;
+
+  return PlaceBidModel.fromJson(
+    bidJson as Map<String, dynamic>,
+  );
+}
+
+Future<MyBidsModel> getMyBids({
+  int take = 20,
+  int skip = 0,
+  String? state,
+}) async {
+  final response = await _client.dio.get(
+    '$baseUrl/auctions/me/bids',
+    queryParameters: {
+      'take': take,
+      'skip': skip,
+      if (state != null && state.isNotEmpty)
+        'state': state,
+    },
+  );
+
+  final data = response.data;
+
+  final myBidsJson =
+      data is Map<String, dynamic> && data['data'] != null
+          ? data['data']
+          : data;
+
+  return MyBidsModel.fromJson(
+    myBidsJson as Map<String, dynamic>,
+  );
+}
 
 }

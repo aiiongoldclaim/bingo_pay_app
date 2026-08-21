@@ -56,7 +56,8 @@ class AppRoutes {
   static const String membershipSuccess = '/membership-success';
 
   //  Auctions
-  static const auctionScreen = '/auctions'; 
+  static const auctionScreen = '/auctions';
+  static const String myBids = '/my-bids'; 
 
   // Vendor shell
   static const String vendorHome = '/vendor/home';

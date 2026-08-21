@@ -2,6 +2,8 @@ import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entit
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
 import '../../domain/entities/bid_entity.dart';
+import '../../domain/entities/my_bids_entity.dart';
+import '../../domain/entities/place_bid_entity.dart';
 import '../../domain/repositories/auction_repository.dart';
 import '../datasources/auctions_remote_datasources.dart';
 import 'package:injectable/injectable.dart';
@@ -37,4 +39,39 @@ class AuctionRepositoryImpl implements AuctionRepository {
     final result = await remoteDataSource.getBids(auctionId);
     return result.map((e) => e.toEntity()).toList();
   }
+
+  @override
+Future<PlaceBidEntity> placeBid({
+  required String auctionUuid,
+  required String amount,
+  required String idempotencyKey,
+}) async {
+  final response = await remoteDataSource.placeBid(
+    auctionUuid: auctionUuid,
+    amount: amount,
+    idempotencyKey: idempotencyKey,
+  );
+
+  return response.toEntity();
+}
+
+  // ============================================================
+  // MY BIDS
+  // ============================================================
+
+
+@override
+Future<MyBidsEntity> getMyBids({
+  int take = 20,
+  int skip = 0,
+  String? state,
+}) async {
+  final model = await remoteDataSource.getMyBids(
+    take: take,
+    skip: skip,
+    state: state,
+  );
+
+  return model.toEntity();
+}
 }

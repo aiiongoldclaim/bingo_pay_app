@@ -6,6 +6,9 @@ import 'package:injectable/injectable.dart';
 import '../../features/account/presentation/cubit/account_cubit.dart';
 import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/auctions/presentation/screens/auction_screen.dart';
+
+import '../../features/auctions/presentation/screens/my_bids_screen.dart';
+
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
@@ -114,7 +117,6 @@ class AppRouter {
         ),
 
         GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
-        // GoRoute(path: AppRoutes.login, builder: (_, _) => const HomeScreen()),
         GoRoute(
           path: AppRoutes.register,
           builder: (_, _) => const RegisterScreen(),
@@ -239,7 +241,6 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.paymentSuccess,
           builder: (context, state) {
-            final data = state.extra as Map<String, dynamic>;
 
             return PaymentSuccessScreen();
           },
@@ -443,6 +444,10 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.auctionScreen,
               builder: (_, _) => const AuctionScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.myBids,
+              builder: (_, _) => const MyBidsScreen(),
             ),
           ],
         ),

@@ -7,6 +7,7 @@
 // import 'package:flutter_bloc/flutter_bloc.dart';
 
 // import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entity.dart';
+// import 'package:bingo_pay/features/auctions/domain/entities/bid_entity.dart';
 // import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dart';
 // import 'package:bingo_pay/features/auctions/presentation/cubit/auction_state.dart';
 
@@ -109,15 +110,28 @@
 //       },
 //       child: SingleChildScrollView(
 //         physics: const AlwaysScrollableScrollPhysics(),
-//         padding: const EdgeInsets.fromLTRB(16, 20, 16, 50),
+//         padding: const EdgeInsets.fromLTRB(
+//           16,
+//           20,
+//           16,
+//           50,
+//         ),
 //         child: Column(
 //           crossAxisAlignment: CrossAxisAlignment.start,
 //           children: [
+//             // ================================================================
+//             // PRODUCT
+//             // ================================================================
+
 //             _ProductSection(
 //               auction: auction,
 //             ),
 
 //             const SizedBox(height: 24),
+
+//             // ================================================================
+//             // BID PANEL
+//             // ================================================================
 
 //             _BidPanel(
 //               auction: auction,
@@ -125,7 +139,11 @@
 
 //             const SizedBox(height: 28),
 
-//             _SectionTitle(
+//             // ================================================================
+//             // ABOUT
+//             // ================================================================
+
+//             const _SectionTitle(
 //               title: 'About this lot',
 //             ),
 
@@ -137,7 +155,11 @@
 
 //             const SizedBox(height: 32),
 
-//             _SectionTitle(
+//             // ================================================================
+//             // BIDDING HISTORY
+//             // ================================================================
+
+//             const _SectionTitle(
 //               title: 'Bidding history',
 //             ),
 
@@ -149,7 +171,11 @@
 
 //             const SizedBox(height: 32),
 
-//             _SectionTitle(
+//             // ================================================================
+//             // AUCTION INFORMATION
+//             // ================================================================
+
+//             const _SectionTitle(
 //               title: 'Auction information',
 //             ),
 
@@ -192,7 +218,9 @@
 //             _StatusBadge(
 //               status: auction.status,
 //             ),
+
 //             const SizedBox(width: 10),
+
 //             if (auction.badge.isNotEmpty)
 //               Flexible(
 //                 child: Text(
@@ -402,7 +430,7 @@
 // // BID PANEL
 // // ============================================================================
 
-// class _BidPanel extends StatelessWidget {
+// class _BidPanel extends StatefulWidget {
 //   final AuctionDetailEntity auction;
 
 //   const _BidPanel({
@@ -410,7 +438,53 @@
 //   });
 
 //   @override
+//   State<_BidPanel> createState() => _BidPanelState();
+// }
+
+// class _BidPanelState extends State<_BidPanel> {
+//   late final TextEditingController _bidController;
+
+//   String? _lastHandledBidUuid;
+//   String? _lastHandledBidError;
+
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     _bidController = TextEditingController(
+//       text: widget.auction.minimumNextBid,
+//     );
+//   }
+
+//   @override
+//   void didUpdateWidget(
+//     covariant _BidPanel oldWidget,
+//   ) {
+//     super.didUpdateWidget(oldWidget);
+
+//     if (oldWidget.auction.minimumNextBid !=
+//         widget.auction.minimumNextBid) {
+//       // Update the amount after the minimum next bid changes,
+//       // but don't overwrite a value the user is currently editing.
+//       if (_bidController.text.trim().isEmpty ||
+//           _bidController.text.trim() ==
+//               oldWidget.auction.minimumNextBid.trim()) {
+//         _bidController.text =
+//             widget.auction.minimumNextBid;
+//       }
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     _bidController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
 //   Widget build(BuildContext context) {
+//     final auction = widget.auction;
+
 //     final currentBid =
 //         auction.currentBid ?? auction.startingPrice;
 
@@ -419,201 +493,437 @@
 //     final isEligible =
 //         auction.viewer?.isEligible == true;
 
-//     return Container(
-//       width: double.infinity,
-//       padding: const EdgeInsets.all(22),
-//       decoration: BoxDecoration(
-//         color: const Color(0xFF07152D),
-//         borderRadius: BorderRadius.circular(22),
-//         boxShadow: [
-//           BoxShadow(
-//             color: const Color(0xFF07152D).withOpacity(0.16),
-//             blurRadius: 20,
-//             offset: const Offset(0, 10),
-//           ),
-//         ],
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Text(
-//             'CURRENT BID',
-//             style: TextStyle(
-//               color: Colors.white54,
-//               fontSize: 10,
-//               fontWeight: FontWeight.w700,
-//               letterSpacing: 1.8,
-//             ),
-//           ),
+//     return BlocConsumer<AuctionCubit, AuctionState>(
+//       listenWhen: (previous, current) {
+//         if (current is! AuctionDetailLoaded) {
+//           return false;
+//         }
 
-//           const SizedBox(height: 6),
+//         final previousState =
+//             previous is AuctionDetailLoaded
+//                 ? previous
+//                 : null;
 
-//           Text(
-//             '${auction.currency} $currentBid',
-//             style: const TextStyle(
-//               color: Colors.white,
-//               fontSize: 32,
-//               fontWeight: FontWeight.w800,
-//             ),
-//           ),
+//         return previousState?.placedBid !=
+//                 current.placedBid ||
+//             previousState?.placeBidError !=
+//                 current.placeBidError;
+//       },
+//       listener: (context, state) {
+//         if (state is! AuctionDetailLoaded) {
+//           return;
+//         }
 
-//           const SizedBox(height: 4),
+//         // --------------------------------------------------------------
+//         // PLACE BID ERROR
+//         // --------------------------------------------------------------
 
-//           Text(
-//             '${auction.bidCount} '
-//             '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
-//             style: const TextStyle(
-//               color: Colors.white54,
-//               fontSize: 12,
-//             ),
-//           ),
+//         final error = state.placeBidError;
 
-//           if (isLive &&
-//               auction.secondsRemaining != null) ...[
-//             const SizedBox(height: 24),
-//             _Countdown(
-//               secondsRemaining:
-//                   auction.secondsRemaining!,
-//             ),
-//           ],
+//         if (error != null &&
+//             error.isNotEmpty &&
+//             error != _lastHandledBidError) {
+//           _lastHandledBidError = error;
 
-//           const SizedBox(height: 24),
-
-//           Text(
-//             'NEXT VALID BID — '
-//             '${auction.currency} ${auction.minimumNextBid}',
-//             style: const TextStyle(
-//               color: Colors.white70,
-//               fontSize: 10,
-//               fontWeight: FontWeight.w600,
-//               letterSpacing: 1.1,
-//             ),
-//           ),
-
-//           const SizedBox(height: 10),
-
-//           LayoutBuilder(
-//             builder: (context, constraints) {
-//               final isSmall = constraints.maxWidth < 360;
-
-//               if (isSmall) {
-//                 return Column(
-//                   children: [
-//                     _NextBidBox(
-//                       value: auction.minimumNextBid,
-//                       currency: auction.currency,
-//                       minimumValue: auction.minimumNextBid,
-//                     ),
-
-//                     const SizedBox(height: 10),
-
-//                     _BidButton(
-//                       enabled: isLive && isEligible,
-//                       onPressed: () {
-//                         _showBidMessage(
-//                           context,
-//                           auction.minimumNextBid,
-//                         );
-//                       },
-//                     ),
-//                   ],
-//                 );
-//               }
-
-//               return Row(
-//                 children: [
-//                   Expanded(
-//                     child: _NextBidBox(
-//                       value: auction.minimumNextBid,
-//                       currency: auction.currency,
-//                       minimumValue: auction.minimumNextBid,
-//                     ),
-//                   ),
-
-//                   const SizedBox(width: 12),
-
-//                   SizedBox(
-//                     width: 125,
-//                     height: 52,
-//                     child: _BidButton(
-//                       enabled: isLive && isEligible,
-//                       onPressed: () {
-//                         _showBidMessage(
-//                           context,
-//                           auction.minimumNextBid,
-//                         );
-//                       },
-//                     ),
-//                   ),
-//                 ],
-//               );
-//             },
-//           ),
-
-//           const SizedBox(height: 8),
-
-//           Text(
-//             'Minimum bid is ${auction.currency} ${auction.minimumNextBid}',
-//             style: const TextStyle(
-//               color: Colors.white54,
-//               fontSize: 11,
-//             ),
-//           ),
-
-//           if (!isEligible &&
-//               auction.viewer?.ineligibleReason != null) ...[
-//             const SizedBox(height: 12),
-//             Text(
-//               auction.viewer!.ineligibleReason!,
-//               style: const TextStyle(
-//                 color: Colors.white54,
-//                 fontSize: 11,
-//                 height: 1.4,
+//           ScaffoldMessenger.of(context)
+//             ..hideCurrentSnackBar()
+//             ..showSnackBar(
+//               SnackBar(
+//                 content: Text(error),
+//                 backgroundColor: Colors.red.shade700,
 //               ),
-//             ),
-//           ],
-//         ],
-//       ),
+//             );
+//         }
+
+//         // --------------------------------------------------------------
+//         // PLACE BID SUCCESS
+//         // --------------------------------------------------------------
+
+//         final placedBid = state.placedBid;
+
+//         if (placedBid != null &&
+//             placedBid.bidUuid.isNotEmpty &&
+//             placedBid.bidUuid !=
+//                 _lastHandledBidUuid) {
+//           _lastHandledBidUuid =
+//               placedBid.bidUuid;
+
+//           ScaffoldMessenger.of(context)
+//             ..hideCurrentSnackBar()
+//             ..showSnackBar(
+//               const SnackBar(
+//                 content:
+//                     Text('Bid placed successfully'),
+//               ),
+//             );
+
+//           // Keep the input synchronized with the
+//           // new minimum next bid returned by the API.
+//           if (placedBid.minimumNextBid
+//                   .trim()
+//                   .isNotEmpty) {
+//             _bidController.text =
+//                 placedBid.minimumNextBid;
+//           }
+//         }
+//       },
+//       buildWhen: (previous, current) {
+//         if (previous is AuctionDetailLoaded &&
+//             current is AuctionDetailLoaded) {
+//           return previous.isPlacingBid !=
+//                   current.isPlacingBid ||
+//               previous.placedBid !=
+//                   current.placedBid ||
+//               previous.placeBidError !=
+//                   current.placeBidError;
+//         }
+
+//         return true;
+//       },
+//       builder: (context, state) {
+//         final isPlacingBid =
+//             state is AuctionDetailLoaded
+//                 ? state.isPlacingBid
+//                 : false;
+
+//         return Container(
+//           width: double.infinity,
+//           padding: const EdgeInsets.all(22),
+//           decoration: BoxDecoration(
+//             color: const Color(0xFF07152D),
+//             borderRadius:
+//                 BorderRadius.circular(22),
+//             boxShadow: [
+//               BoxShadow(
+//                 color: const Color(0xFF07152D)
+//                     .withOpacity(0.16),
+//                 blurRadius: 20,
+//                 offset: const Offset(0, 10),
+//               ),
+//             ],
+//           ),
+//           child: Column(
+//             crossAxisAlignment:
+//                 CrossAxisAlignment.start,
+//             children: [
+//               const Text(
+//                 'CURRENT BID',
+//                 style: TextStyle(
+//                   color: Colors.white54,
+//                   fontSize: 10,
+//                   fontWeight: FontWeight.w700,
+//                   letterSpacing: 1.8,
+//                 ),
+//               ),
+
+//               const SizedBox(height: 6),
+
+//               Text(
+//                 '${auction.currency} $currentBid',
+//                 style: const TextStyle(
+//                   color: Colors.white,
+//                   fontSize: 32,
+//                   fontWeight: FontWeight.w800,
+//                 ),
+//               ),
+
+//               const SizedBox(height: 4),
+
+//               Text(
+//                 '${auction.bidCount} '
+//                 '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
+//                 style: const TextStyle(
+//                   color: Colors.white54,
+//                   fontSize: 12,
+//                 ),
+//               ),
+
+//               // ================================================================
+//               // TIMER
+//               // ================================================================
+
+//               if (isLive &&
+//                   auction.secondsRemaining != null) ...[
+//                 const SizedBox(height: 24),
+//                 _Countdown(
+//                   secondsRemaining:
+//                       auction.secondsRemaining!,
+//                 ),
+//               ],
+
+//               const SizedBox(height: 24),
+
+//               // ================================================================
+//               // NEXT BID
+//               // ================================================================
+
+//               Text(
+//                 'NEXT VALID BID — '
+//                 '${auction.currency} ${auction.minimumNextBid}',
+//                 style: const TextStyle(
+//                   color: Colors.white70,
+//                   fontSize: 10,
+//                   fontWeight: FontWeight.w600,
+//                   letterSpacing: 1.1,
+//                 ),
+//               ),
+
+//               const SizedBox(height: 10),
+
+//               LayoutBuilder(
+//                 builder: (context, constraints) {
+//                   final isSmall =
+//                       constraints.maxWidth < 360;
+
+//                   if (isSmall) {
+//                     return Column(
+//                       children: [
+//                         _NextBidBox(
+//                           value:
+//                               auction.minimumNextBid,
+//                           currency:
+//                               auction.currency,
+//                           minimumValue:
+//                               auction.minimumNextBid,
+//                           controller:
+//                               _bidController,
+//                         ),
+
+//                         const SizedBox(height: 10),
+
+//                         SizedBox(
+//                           width: double.infinity,
+//                           height: 52,
+//                           child: _BidButton(
+//                             enabled:
+//                                 isLive &&
+//                                 isEligible,
+//                             isLoading:
+//                                 isPlacingBid,
+//                             onPressed: () {
+//                               _placeBid(
+//                                 context,
+//                                 auction,
+//                               );
+//                             },
+//                           ),
+//                         ),
+//                       ],
+//                     );
+//                   }
+
+//                   return Row(
+//                     children: [
+//                       Expanded(
+//                         child: _NextBidBox(
+//                           value:
+//                               auction.minimumNextBid,
+//                           currency:
+//                               auction.currency,
+//                           minimumValue:
+//                               auction.minimumNextBid,
+//                           controller:
+//                               _bidController,
+//                         ),
+//                       ),
+
+//                       const SizedBox(width: 12),
+
+//                       SizedBox(
+//                         width: 125,
+//                         height: 52,
+//                         child: _BidButton(
+//                           enabled:
+//                               isLive &&
+//                               isEligible,
+//                           isLoading:
+//                               isPlacingBid,
+//                           onPressed: () {
+//                             _placeBid(
+//                               context,
+//                               auction,
+//                             );
+//                           },
+//                         ),
+//                       ),
+//                     ],
+//                   );
+//                 },
+//               ),
+
+//               const SizedBox(height: 8),
+
+//               Text(
+//                 'Minimum bid is '
+//                 '${auction.currency} '
+//                 '${auction.minimumNextBid}',
+//                 style: const TextStyle(
+//                   color: Colors.white54,
+//                   fontSize: 11,
+//                 ),
+//               ),
+
+//               if (!isEligible &&
+//                   auction.viewer?.ineligibleReason !=
+//                       null) ...[
+//                 const SizedBox(height: 12),
+//                 Text(
+//                   auction.viewer!.ineligibleReason!,
+//                   style: const TextStyle(
+//                     color: Colors.white54,
+//                     fontSize: 11,
+//                     height: 1.4,
+//                   ),
+//                 ),
+//               ],
+//             ],
+//           ),
+//         );
+//       },
 //     );
 //   }
 
-//   void _showBidMessage(
+//   // ==========================================================================
+//   // PLACE BID
+//   // ==========================================================================
+
+//   void _placeBid(
 //     BuildContext context,
-//     String amount,
+//     AuctionDetailEntity auction,
 //   ) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Text(
-//           'Bid amount: $amount',
-//         ),
-//       ),
+//     final amount =
+//         _bidController.text.trim();
+
+//     if (amount.isEmpty) {
+//       _showError(
+//         context,
+//         'Please enter a bid amount.',
+//       );
+//       return;
+//     }
+
+//     final enteredAmount =
+//         double.tryParse(
+//       amount.replaceAll(',', ''),
 //     );
+
+//     final minimumAmount =
+//         double.tryParse(
+//       auction.minimumNextBid
+//           .replaceAll(',', ''),
+//     );
+
+//     if (enteredAmount == null) {
+//       _showError(
+//         context,
+//         'Please enter a valid bid amount.',
+//       );
+//       return;
+//     }
+
+//     if (minimumAmount != null &&
+//         enteredAmount < minimumAmount) {
+//       _showError(
+//         context,
+//         'Bid must be at least '
+//         '${auction.currency} '
+//         '${auction.minimumNextBid}.',
+//       );
+//       return;
+//     }
+
+//     final currentState =
+//         context.read<AuctionCubit>().state;
+
+//     if (currentState is AuctionDetailLoaded &&
+//         currentState.isPlacingBid) {
+//       return;
+//     }
+
+//     context.read<AuctionCubit>().placeBid(
+//       auctionId: auction.uuid,
+//       amount: amount,
+//     );
+//   }
+
+//   void _showError(
+//     BuildContext context,
+//     String message,
+//   ) {
+//     ScaffoldMessenger.of(context)
+//       ..hideCurrentSnackBar()
+//       ..showSnackBar(
+//         SnackBar(
+//           content: Text(message),
+//           backgroundColor:
+//               Colors.red.shade700,
+//         ),
+//       );
 //   }
 // }
 
 // // ============================================================================
-// // NEXT BID BOX
+// // NEXT BID INPUT
 // // ============================================================================
 
 // class _NextBidBox extends StatefulWidget {
 //   final String value;
 //   final String currency;
 //   final String minimumValue;
+//   final TextEditingController controller;
 
 //   const _NextBidBox({
 //     required this.value,
 //     required this.currency,
 //     required this.minimumValue,
+//     required this.controller,
 //   });
 
 //   @override
-//   State<_NextBidBox> createState() => _NextBidBoxState();
+//   State<_NextBidBox> createState() =>
+//       _NextBidBoxState();
 // }
 
 // class _NextBidBoxState extends State<_NextBidBox> {
-//   late final TextEditingController _controller;
-
 //   bool _hasError = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     widget.controller.addListener(
+//       _validateBid,
+//     );
+
+//     _validateBid();
+//   }
+
+//   @override
+//   void didUpdateWidget(
+//     covariant _NextBidBox oldWidget,
+//   ) {
+//     super.didUpdateWidget(oldWidget);
+
+//     if (oldWidget.controller !=
+//         widget.controller) {
+//       oldWidget.controller.removeListener(
+//         _validateBid,
+//       );
+
+//       widget.controller.addListener(
+//         _validateBid,
+//       );
+//     }
+
+//     if (oldWidget.value != widget.value) {
+//       if (widget.controller.text.trim().isEmpty ||
+//           widget.controller.text.trim() ==
+//               oldWidget.value.trim()) {
+//         widget.controller.text =
+//             widget.value;
+//       }
+//     }
+//   }
 
 //   double _toNumber(String value) {
 //     final cleaned = value
@@ -624,38 +934,19 @@
 //     return double.tryParse(cleaned) ?? 0;
 //   }
 
-//   @override
-//   void initState() {
-//     super.initState();
-
-//     _controller = TextEditingController(
-//       text: widget.value,
-//     );
-
-//     _controller.addListener(_validateBid);
-//   }
-
-//   @override
-//   void didUpdateWidget(
-//     covariant _NextBidBox oldWidget,
-//   ) {
-//     super.didUpdateWidget(oldWidget);
-
-//     if (oldWidget.value != widget.value &&
-//         !_controller.text.isNotEmpty) {
-//       _controller.text = widget.value;
-//     }
-//   }
-
 //   void _validateBid() {
-//     final minimum = _toNumber(widget.minimumValue);
-//     final entered = _toNumber(_controller.text);
+//     final minimum =
+//         _toNumber(widget.minimumValue);
+
+//     final entered =
+//         _toNumber(widget.controller.text);
 
 //     final hasError =
-//         _controller.text.trim().isEmpty ||
-//         entered < minimum;
+//         widget.controller.text.trim().isEmpty ||
+//             entered < minimum;
 
-//     if (_hasError != hasError) {
+//     if (_hasError != hasError &&
+//         mounted) {
 //       setState(() {
 //         _hasError = hasError;
 //       });
@@ -664,81 +955,82 @@
 
 //   @override
 //   void dispose() {
-//     _controller.removeListener(_validateBid);
-//     _controller.dispose();
+//     widget.controller.removeListener(
+//       _validateBid,
+//     );
+
+//     // The controller belongs to _BidPanel.
+//     // Do not dispose it here.
 //     super.dispose();
 //   }
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
+//       crossAxisAlignment:
+//           CrossAxisAlignment.start,
 //       children: [
 //         Container(
 //           height: 52,
 //           width: double.infinity,
 //           decoration: BoxDecoration(
-//             // IMPORTANT:
-//             // Keep the same dark navy surroundings.
-//             // The input itself is NOT white.
 //             color: Colors.white.withOpacity(0.08),
 //             border: Border.all(
 //               color: _hasError
-//                   ? Colors.redAccent.withOpacity(0.7)
+//                   ? Colors.redAccent
+//                       .withOpacity(0.7)
 //                   : Colors.white24,
 //             ),
-//             borderRadius: BorderRadius.circular(5),
+//             borderRadius:
+//                 BorderRadius.circular(5),
 //           ),
 //           child: Theme(
 //             data: Theme.of(context).copyWith(
 //               textSelectionTheme:
 //                   const TextSelectionThemeData(
-//                 selectionColor: Color(0x66E4B94F),
-//                 selectionHandleColor: Color(0xFFE4B94F),
+//                 selectionColor:
+//                     Color(0x66E4B94F),
+//                 selectionHandleColor:
+//                     Color(0xFFE4B94F),
 //               ),
 //             ),
 //             child: TextField(
-//               controller: _controller,
-
-//               // No selectionColor parameter here.
-//               // It is configured through TextSelectionThemeData above.
-
-//               cursorColor: const Color(0xFFE4B94F),
-
+//               controller:
+//                   widget.controller,
+//               cursorColor:
+//                   const Color(0xFFE4B94F),
 //               keyboardType:
 //                   const TextInputType.numberWithOptions(
 //                 decimal: true,
 //               ),
-
 //               inputFormatters: [
 //                 FilteringTextInputFormatter.allow(
 //                   RegExp(r'^\d*\.?\d{0,2}'),
 //                 ),
 //               ],
-
-//               textInputAction: TextInputAction.done,
-
+//               textInputAction:
+//                   TextInputAction.done,
 //               style: const TextStyle(
 //                 color: Colors.white,
 //                 fontSize: 18,
-//                 fontWeight: FontWeight.w600,
+//                 fontWeight:
+//                     FontWeight.w600,
 //               ),
-
-//               decoration: const InputDecoration(
+//               decoration:
+//                   const InputDecoration(
 //                 filled: true,
-
-//                 // Explicitly keep TextField dark.
-//                 fillColor: Color(0x14000000),
-
-//                 border: InputBorder.none,
-
-//                 enabledBorder: InputBorder.none,
-
-//                 focusedBorder: InputBorder.none,
-
-//                 disabledBorder: InputBorder.none,
-
-//                 contentPadding: EdgeInsets.symmetric(
+//                 fillColor:
+//                     Color(0x14000000),
+//                 border:
+//                     InputBorder.none,
+//                 enabledBorder:
+//                     InputBorder.none,
+//                 focusedBorder:
+//                     InputBorder.none,
+//                 disabledBorder:
+//                     InputBorder.none,
+//                 contentPadding:
+//                     EdgeInsets.symmetric(
 //                   horizontal: 16,
 //                   vertical: 14,
 //                 ),
@@ -751,7 +1043,8 @@
 //           const SizedBox(height: 5),
 //           Text(
 //             'Bid must be at least '
-//             '${widget.currency} ${widget.minimumValue}',
+//             '${widget.currency} '
+//             '${widget.minimumValue}',
 //             style: const TextStyle(
 //               color: Colors.redAccent,
 //               fontSize: 10,
@@ -769,46 +1062,72 @@
 
 // class _BidButton extends StatelessWidget {
 //   final bool enabled;
+//   final bool isLoading;
 //   final VoidCallback onPressed;
 
 //   const _BidButton({
 //     required this.enabled,
+//     required this.isLoading,
 //     required this.onPressed,
 //   });
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return ElevatedButton(
-//       onPressed: enabled ? onPressed : null,
+//       onPressed:
+//           enabled && !isLoading
+//               ? onPressed
+//               : null,
 //       style: ElevatedButton.styleFrom(
-//         backgroundColor: const Color(0xFFE4B94F),
+//         backgroundColor:
+//             const Color(0xFFE4B94F),
 //         foregroundColor: Colors.black,
-//         disabledBackgroundColor: Colors.grey.shade700,
-//         disabledForegroundColor: Colors.white54,
+//         disabledBackgroundColor:
+//             Colors.grey.shade700,
+//         disabledForegroundColor:
+//             Colors.white54,
 //         elevation: 0,
 //         padding: EdgeInsets.zero,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(5),
+//         shape:
+//             RoundedRectangleBorder(
+//           borderRadius:
+//               BorderRadius.circular(5),
 //         ),
 //       ),
-//       child: const Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           Icon(
-//             Icons.gavel,
-//             size: 17,
-//           ),
-//           SizedBox(width: 7),
-//           Text(
-//             'PLACE BID',
-//             style: TextStyle(
-//               fontSize: 11,
-//               fontWeight: FontWeight.w800,
-//               letterSpacing: 1.3,
+//       child: isLoading
+//           ? const SizedBox(
+//               width: 19,
+//               height: 19,
+//               child:
+//                   CircularProgressIndicator(
+//                 strokeWidth: 2,
+//                 valueColor:
+//                     AlwaysStoppedAnimation<
+//                         Color>(
+//                   Colors.black,
+//                 ),
+//               ),
+//             )
+//           : const Row(
+//               mainAxisAlignment:
+//                   MainAxisAlignment.center,
+//               children: [
+//                 Icon(
+//                   Icons.gavel,
+//                   size: 17,
+//                 ),
+//                 SizedBox(width: 7),
+//                 Text(
+//                   'PLACE BID',
+//                   style: TextStyle(
+//                     fontSize: 11,
+//                     fontWeight:
+//                         FontWeight.w800,
+//                     letterSpacing: 1.3,
+//                   ),
+//                 ),
+//               ],
 //             ),
-//           ),
-//         ],
-//       ),
 //     );
 //   }
 // }
@@ -825,10 +1144,12 @@
 //   });
 
 //   @override
-//   State<_Countdown> createState() => _CountdownState();
+//   State<_Countdown> createState() =>
+//       _CountdownState();
 // }
 
-// class _CountdownState extends State<_Countdown> {
+// class _CountdownState
+//     extends State<_Countdown> {
 //   Timer? _timer;
 
 //   late int _remaining;
@@ -837,7 +1158,8 @@
 //   void initState() {
 //     super.initState();
 
-//     _remaining = widget.secondsRemaining;
+//     _remaining =
+//         widget.secondsRemaining;
 
 //     _startTimer();
 //   }
@@ -850,7 +1172,10 @@
 
 //     if (oldWidget.secondsRemaining !=
 //         widget.secondsRemaining) {
-//       _remaining = widget.secondsRemaining;
+//       _remaining =
+//           widget.secondsRemaining;
+
+//       _startTimer();
 //     }
 //   }
 
@@ -860,9 +1185,7 @@
 //     _timer = Timer.periodic(
 //       const Duration(seconds: 1),
 //       (_) {
-//         if (!mounted) {
-//           return;
-//         }
+//         if (!mounted) return;
 
 //         if (_remaining <= 0) {
 //           _timer?.cancel();
@@ -889,29 +1212,41 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final duration = Duration(
-//       seconds: _remaining,
-//     );
+//     final duration =
+//         Duration(seconds: _remaining);
 
-//     final days = duration.inDays;
-//     final hours = duration.inHours % 24;
-//     final minutes = duration.inMinutes % 60;
-//     final seconds = duration.inSeconds % 60;
+//     final days =
+//         duration.inDays;
+
+//     final hours =
+//         duration.inHours % 24;
+
+//     final minutes =
+//         duration.inMinutes % 60;
+
+//     final seconds =
+//         duration.inSeconds % 60;
 
 //     return Container(
-//       padding: const EdgeInsets.symmetric(
+//       padding:
+//           const EdgeInsets.symmetric(
 //         vertical: 16,
 //         horizontal: 16,
 //       ),
-//       decoration: BoxDecoration(
-//         color: Colors.white.withOpacity(0.055),
-//         borderRadius: BorderRadius.circular(12),
+//       decoration:
+//           BoxDecoration(
+//         color:
+//             Colors.white.withOpacity(0.055),
+//         borderRadius:
+//             BorderRadius.circular(12),
 //         border: Border.all(
-//           color: Colors.white.withOpacity(0.08),
+//           color:
+//               Colors.white.withOpacity(0.08),
 //         ),
 //       ),
 //       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
+//         crossAxisAlignment:
+//             CrossAxisAlignment.start,
 //         children: [
 //           const Text(
 //             'BIDDING CLOSES IN',
@@ -919,7 +1254,8 @@
 //               color: Colors.white60,
 //               fontSize: 9,
 //               letterSpacing: 2,
-//               fontWeight: FontWeight.w700,
+//               fontWeight:
+//                   FontWeight.w700,
 //             ),
 //           ),
 
@@ -931,17 +1267,23 @@
 //                 value: days,
 //                 label: 'DAYS',
 //               ),
+
 //               const _CountdownColon(),
+
 //               _CountdownValue(
 //                 value: hours,
 //                 label: 'HRS',
 //               ),
+
 //               const _CountdownColon(),
+
 //               _CountdownValue(
 //                 value: minutes,
 //                 label: 'MIN',
 //               ),
+
 //               const _CountdownColon(),
+
 //               _CountdownValue(
 //                 value: seconds,
 //                 label: 'SEC',
@@ -954,7 +1296,8 @@
 //   }
 // }
 
-// class _CountdownValue extends StatelessWidget {
+// class _CountdownValue
+//     extends StatelessWidget {
 //   final int value;
 //   final String label;
 
@@ -966,17 +1309,23 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
+//       crossAxisAlignment:
+//           CrossAxisAlignment.start,
 //       children: [
 //         Text(
-//           value.toString().padLeft(2, '0'),
+//           value
+//               .toString()
+//               .padLeft(2, '0'),
 //           style: const TextStyle(
 //             color: Colors.white,
 //             fontSize: 25,
-//             fontWeight: FontWeight.w700,
+//             fontWeight:
+//                 FontWeight.w700,
 //           ),
 //         ),
+
 //         const SizedBox(height: 2),
+
 //         Text(
 //           label,
 //           style: const TextStyle(
@@ -990,13 +1339,15 @@
 //   }
 // }
 
-// class _CountdownColon extends StatelessWidget {
+// class _CountdownColon
+//     extends StatelessWidget {
 //   const _CountdownColon();
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return const Padding(
-//       padding: EdgeInsets.symmetric(
+//       padding:
+//           EdgeInsets.symmetric(
 //         horizontal: 7,
 //       ),
 //       child: Text(
@@ -1014,7 +1365,8 @@
 // // ABOUT
 // // ============================================================================
 
-// class _AboutCard extends StatelessWidget {
+// class _AboutCard
+//     extends StatelessWidget {
 //   final AuctionDetailEntity auction;
 
 //   const _AboutCard({
@@ -1024,36 +1376,48 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     final description =
-//         auction.description?.trim() ?? '';
+//         auction.description
+//                 ?.trim() ??
+//             '';
 
 //     final itemName =
-//         auction.itemName?.trim() ?? '';
+//         auction.itemName?.trim() ??
+//             '';
 
 //     return Container(
 //       width: double.infinity,
-//       padding: const EdgeInsets.all(20),
+//       padding:
+//           const EdgeInsets.all(20),
 //       decoration: BoxDecoration(
 //         color: Colors.white,
-//         borderRadius: BorderRadius.circular(18),
+//         borderRadius:
+//             BorderRadius.circular(18),
 //         border: Border.all(
 //           color: Colors.grey.shade200,
 //         ),
 //       ),
 //       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
+//         crossAxisAlignment:
+//             CrossAxisAlignment.start,
 //         children: [
 //           if (itemName.isNotEmpty) ...[
 //             Text(
 //               itemName,
-//               style: const TextStyle(
-//                 color: Color(0xFF07152D),
+//               style:
+//                   const TextStyle(
+//                 color:
+//                     Color(0xFF07152D),
 //                 fontSize: 16,
-//                 fontWeight: FontWeight.w700,
+//                 fontWeight:
+//                     FontWeight.w700,
 //                 height: 1.4,
 //               ),
 //             ),
+
 //             if (description.isNotEmpty)
-//               const SizedBox(height: 12),
+//               const SizedBox(
+//                 height: 12,
+//               ),
 //           ],
 
 //           Text(
@@ -1063,7 +1427,8 @@
 //             style: TextStyle(
 //               fontSize: 14,
 //               height: 1.65,
-//               color: Colors.grey.shade700,
+//               color:
+//                   Colors.grey.shade700,
 //             ),
 //           ),
 //         ],
@@ -1076,7 +1441,8 @@
 // // BIDDING HISTORY
 // // ============================================================================
 
-// class _BiddingHistorySection extends StatelessWidget {
+// class _BiddingHistorySection
+//     extends StatelessWidget {
 //   final AuctionDetailEntity auction;
 
 //   const _BiddingHistorySection({
@@ -1085,212 +1451,150 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final history = _extractHistory(auction);
+//     return BlocBuilder<
+//         AuctionCubit,
+//         AuctionState>(
+//       buildWhen:
+//           (previous, current) {
+//         if (previous
+//                 is AuctionDetailLoaded &&
+//             current
+//                 is AuctionDetailLoaded) {
+//           return previous.bids !=
+//                   current.bids ||
+//               previous.isBidsLoading !=
+//                   current.isBidsLoading ||
+//               previous.bidsError !=
+//                   current.bidsError;
+//         }
 
-//     if (history.isEmpty) {
-//       return _EmptyHistoryCard(
-//         bidCount: auction.bidCount,
-//       );
-//     }
+//         return true;
+//       },
+//       builder:
+//           (context, state) {
+//         // ================================================================
+//         // LOADING
+//         // ================================================================
 
-//     return Container(
-//       width: double.infinity,
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(18),
-//         border: Border.all(
-//           color: Colors.grey.shade200,
-//         ),
-//       ),
-//       child: Column(
-//         children: List.generate(
-//           history.length,
-//           (index) {
-//             final item = history[index];
+//         if (state
+//                 is AuctionDetailLoaded &&
+//             state.isBidsLoading) {
+//           return const _BidsLoadingCard();
+//         }
 
-//             return _HistoryItem(
-//               item: item,
-//               isLast: index == history.length - 1,
+//         // ================================================================
+//         // ERROR
+//         // ================================================================
+
+//         if (state
+//                 is AuctionDetailLoaded &&
+//             state.bidsError != null &&
+//             state.bidsError!.isNotEmpty) {
+//           return _BidsErrorCard(
+//             message:
+//                 state.bidsError!,
+//             onRetry: () {
+//               context
+//                   .read<AuctionCubit>()
+//                   .getBidsHistory(
+//                     auction.uuid,
+//                   );
+//             },
+//           );
+//         }
+
+//         // ================================================================
+//         // BIDS FROM API
+//         // ================================================================
+
+//         if (state
+//             is AuctionDetailLoaded) {
+//           final List<BidEntity> bids =
+//               state.bids;
+
+//           if (bids.isEmpty) {
+//             return _EmptyHistoryCard(
+//               bidCount:
+//                   auction.bidCount,
 //             );
-//           },
-//         ),
-//       ),
+//           }
+
+//           return Container(
+//             width: double.infinity,
+//             decoration:
+//                 BoxDecoration(
+//               color: Colors.white,
+//               borderRadius:
+//                   BorderRadius.circular(
+//                 18,
+//               ),
+//               border: Border.all(
+//                 color:
+//                     Colors.grey.shade200,
+//               ),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black
+//                       .withOpacity(
+//                     0.025,
+//                   ),
+//                   blurRadius: 12,
+//                   offset:
+//                       const Offset(
+//                     0,
+//                     4,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               children:
+//                   List.generate(
+//                 bids.length,
+//                 (index) {
+//                   final bid =
+//                       bids[index];
+
+//                   return _HistoryItem(
+//                     bid: bid,
+//                     currency:
+//                         auction.currency,
+//                     isLast: index ==
+//                         bids.length - 1,
+//                   );
+//                 },
+//               ),
+//             ),
+//           );
+//         }
+
+//         return const _BidsLoadingCard();
+//       },
 //     );
-//   }
-
-//   List<dynamic> _extractHistory(
-//     AuctionDetailEntity auction,
-//   ) {
-//     try {
-//       final dynamic detail = auction;
-
-//       dynamic history;
-
-//       try {
-//         history = detail.biddingHistory;
-//       } catch (_) {}
-
-//       if (history == null) {
-//         try {
-//           history = detail.bidHistory;
-//         } catch (_) {}
-//       }
-
-//       if (history == null) {
-//         try {
-//           history = detail.bids;
-//         } catch (_) {}
-//       }
-
-//       if (history is List) {
-//         return history;
-//       }
-//     } catch (_) {}
-
-//     return [];
 //   }
 // }
 
 // // ============================================================================
-// // HISTORY ITEM
+// // BID HISTORY ITEM
+// // ============================================================================
+
+// // ============================================================================
+// // BID HISTORY ITEM
 // // ============================================================================
 
 // class _HistoryItem extends StatelessWidget {
-//   final dynamic item;
+//   final BidEntity bid;
+//   final String currency;
 //   final bool isLast;
 
 //   const _HistoryItem({
-//     required this.item,
+//     required this.bid,
+//     required this.currency,
 //     required this.isLast,
 //   });
 
-//   String _readString(
-//     List<String> fields, {
-//     String fallback = '',
-//   }) {
-//     for (final field in fields) {
-//       try {
-//         dynamic value;
-
-//         switch (field) {
-//           case 'bidderName':
-//             value = item.bidderName;
-//             break;
-//           case 'name':
-//             value = item.name;
-//             break;
-//           case 'username':
-//             value = item.username;
-//             break;
-//           case 'displayName':
-//             value = item.displayName;
-//             break;
-//           case 'bidder':
-//             value = item.bidder;
-//             break;
-//           case 'amount':
-//             value = item.amount;
-//             break;
-//           case 'bidAmount':
-//             value = item.bidAmount;
-//             break;
-//           case 'price':
-//             value = item.price;
-//             break;
-//           case 'bid':
-//             value = item.bid;
-//             break;
-//           case 'createdAt':
-//             value = item.createdAt;
-//             break;
-//           case 'date':
-//             value = item.date;
-//             break;
-//           case 'timestamp':
-//             value = item.timestamp;
-//             break;
-//           case 'currency':
-//             value = item.currency;
-//             break;
-//         }
-
-//         if (value != null &&
-//             value.toString().trim().isNotEmpty) {
-//           return value.toString();
-//         }
-//       } catch (_) {}
-//     }
-
-//     return fallback;
-//   }
-
-//   String _bidderName() {
-//     return _readString(
-//       [
-//         'bidderName',
-//         'displayName',
-//         'username',
-//         'name',
-//         'bidder',
-//       ],
-//       fallback: 'Anonymous bidder',
-//     );
-//   }
-
-//   String _amount() {
-//     return _readString(
-//       [
-//         'bidAmount',
-//         'amount',
-//         'price',
-//         'bid',
-//       ],
-//       fallback: '—',
-//     );
-//   }
-
-//   String _date() {
-//     final value = _readString(
-//       [
-//         'createdAt',
-//         'timestamp',
-//         'date',
-//       ],
-//     );
-
-//     if (value.isEmpty) {
-//       return '';
-//     }
-
-//     try {
-//       final date = DateTime.parse(value).toLocal();
-
-//       final day =
-//           date.day.toString().padLeft(2, '0');
-//       final month =
-//           date.month.toString().padLeft(2, '0');
-//       final year = date.year;
-
-//       final hour =
-//           date.hour.toString().padLeft(2, '0');
-//       final minute =
-//           date.minute.toString().padLeft(2, '0');
-//       final second =
-//           date.second.toString().padLeft(2, '0');
-
-//       return '$day/$month/$year • '
-//           '$hour:$minute:$second';
-//     } catch (_) {
-//       return value;
-//     }
-//   }
-
 //   @override
 //   Widget build(BuildContext context) {
-//     final bidder = _bidderName();
-//     final amount = _amount();
-//     final date = _date();
-
 //     return Container(
 //       padding: const EdgeInsets.all(16),
 //       decoration: isLast
@@ -1305,30 +1609,36 @@
 //       child: Row(
 //         crossAxisAlignment: CrossAxisAlignment.center,
 //         children: [
+//           // ================================================================
+//           // AVATAR
+//           // ================================================================
+
 //           Container(
-//             width: 42,
-//             height: 42,
+//             width: 44,
+//             height: 44,
 //             decoration: BoxDecoration(
-//               color: const Color(0xFFE4B94F)
-//                   .withOpacity(0.12),
+//               color: const Color(0xFFE4B94F).withOpacity(0.12),
 //               shape: BoxShape.circle,
 //             ),
 //             child: const Icon(
 //               Icons.person_outline,
 //               color: Color(0xFF07152D),
-//               size: 20,
+//               size: 21,
 //             ),
 //           ),
 
 //           const SizedBox(width: 12),
 
+//           // ================================================================
+//           // BIDDER
+//           // ================================================================
+
 //           Expanded(
 //             child: Column(
-//               crossAxisAlignment:
-//                   CrossAxisAlignment.start,
+//               crossAxisAlignment: CrossAxisAlignment.start,
 //               children: [
 //                 Text(
-//                   bidder,
+//                   _bidderName(),
 //                   maxLines: 1,
 //                   overflow: TextOverflow.ellipsis,
 //                   style: const TextStyle(
@@ -1338,28 +1648,32 @@
 //                   ),
 //                 ),
 
-//                 if (date.isNotEmpty) ...[
-//                   const SizedBox(height: 4),
-//                   Text(
-//                     date,
-//                     style: TextStyle(
-//                       color: Colors.grey.shade500,
-//                       fontSize: 10,
-//                     ),
+//                 const SizedBox(height: 5),
+
+//                 Text(
+//                   _date(),
+//                   maxLines: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                   style: TextStyle(
+//                     color: Colors.grey.shade500,
+//                     fontSize: 10,
 //                   ),
-//                 ],
+//                 ),
 //               ],
 //             ),
 //           ),
 
 //           const SizedBox(width: 12),
 
+//           // ================================================================
+//           // AMOUNT
+//           // ================================================================
+
 //           Column(
-//             crossAxisAlignment:
-//                 CrossAxisAlignment.end,
+//             crossAxisAlignment: CrossAxisAlignment.end,
 //             children: [
 //               Text(
-//                 amount,
+//                 '$currency ${bid.amount}',
 //                 style: const TextStyle(
 //                   color: Color(0xFF1F6B45),
 //                   fontSize: 15,
@@ -1384,13 +1698,232 @@
 //       ),
 //     );
 //   }
+
+//   // ========================================================================
+//   // BIDDER NAME
+//   // ========================================================================
+
+//   String _bidderName() {
+//     final bidder = bid.bidder;
+
+//     if (bidder == null) {
+//       return 'Anonymous bidder';
+//     }
+
+//     if (bidder.maskedName.trim().isNotEmpty) {
+//       return bidder.maskedName.trim();
+//     }
+
+//     if (bidder.alias.trim().isNotEmpty) {
+//       return bidder.alias.trim();
+//     }
+
+//     return 'Anonymous bidder';
+//   }
+
+//   // ========================================================================
+//   // DATE
+//   // ========================================================================
+
+//   String _date() {
+//     if (bid.placedAt.trim().isEmpty) {
+//       return '';
+//     }
+
+//     try {
+//       final date = DateTime.parse(
+//         bid.placedAt,
+//       ).toLocal();
+
+//       final day = date.day.toString().padLeft(2, '0');
+//       final month = date.month.toString().padLeft(2, '0');
+//       final year = date.year;
+
+//       final hour = date.hour.toString().padLeft(2, '0');
+//       final minute = date.minute.toString().padLeft(2, '0');
+
+//       return '$day/$month/$year • $hour:$minute';
+//     } catch (_) {
+//       // If API returns a date format that DateTime.parse
+//       // cannot understand, show the original value.
+//       return bid.placedAt;
+//     }
+//   }
+// }
+
+// // ============================================================================
+// // BIDS LOADING
+// // ============================================================================
+
+// class _BidsLoadingCard
+//     extends StatelessWidget {
+//   const _BidsLoadingCard();
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: double.infinity,
+//       padding:
+//           const EdgeInsets.symmetric(
+//         vertical: 35,
+//       ),
+//       decoration:
+//           BoxDecoration(
+//         color: Colors.white,
+//         borderRadius:
+//             BorderRadius.circular(
+//           18,
+//         ),
+//         border: Border.all(
+//           color: Colors.grey.shade200,
+//         ),
+//       ),
+//       child: const Column(
+//         children: [
+//           SizedBox(
+//             width: 28,
+//             height: 28,
+//             child:
+//                 CircularProgressIndicator(
+//               strokeWidth: 2.5,
+//             ),
+//           ),
+
+//           SizedBox(height: 14),
+
+//           Text(
+//             'Loading bidding history...',
+//             style: TextStyle(
+//               color:
+//                   Color(0xFF697593),
+//               fontSize: 12,
+//               fontWeight:
+//                   FontWeight.w500,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// // ============================================================================
+// // BIDS ERROR
+// // ============================================================================
+
+// class _BidsErrorCard
+//     extends StatelessWidget {
+//   final String message;
+//   final VoidCallback onRetry;
+
+//   const _BidsErrorCard({
+//     required this.message,
+//     required this.onRetry,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: double.infinity,
+//       padding:
+//           const EdgeInsets.all(20),
+//       decoration:
+//           BoxDecoration(
+//         color: Colors.white,
+//         borderRadius:
+//             BorderRadius.circular(18),
+//         border: Border.all(
+//           color: Colors.red.shade100,
+//         ),
+//       ),
+//       child: Column(
+//         children: [
+//           Container(
+//             width: 45,
+//             height: 45,
+//             decoration:
+//                 BoxDecoration(
+//               color: Colors.red
+//                   .withOpacity(0.08),
+//               shape: BoxShape.circle,
+//             ),
+//             child: const Icon(
+//               Icons.error_outline,
+//               color: Colors.red,
+//             ),
+//           ),
+
+//           const SizedBox(height: 12),
+
+//           const Text(
+//             'Unable to load bidding history',
+//             style: TextStyle(
+//               color:
+//                   Color(0xFF07152D),
+//               fontSize: 14,
+//               fontWeight:
+//                   FontWeight.w700,
+//             ),
+//           ),
+
+//           const SizedBox(height: 6),
+
+//           Text(
+//             message,
+//             textAlign:
+//                 TextAlign.center,
+//             style: TextStyle(
+//               color:
+//                   Colors.grey.shade600,
+//               fontSize: 11,
+//               height: 1.4,
+//             ),
+//           ),
+
+//           const SizedBox(height: 14),
+
+//           OutlinedButton(
+//             onPressed: onRetry,
+//             style:
+//                 OutlinedButton.styleFrom(
+//               foregroundColor:
+//                   const Color(
+//                 0xFF07152D,
+//               ),
+//               side:
+//                   const BorderSide(
+//                 color:
+//                     Color(0xFFE4B94F),
+//               ),
+//               shape:
+//                   RoundedRectangleBorder(
+//                 borderRadius:
+//                     BorderRadius.circular(
+//                   8,
+//                 ),
+//               ),
+//             ),
+//             child: const Text(
+//               'Retry',
+//               style: TextStyle(
+//                 fontSize: 12,
+//                 fontWeight:
+//                     FontWeight.w700,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 // }
 
 // // ============================================================================
 // // EMPTY HISTORY
 // // ============================================================================
 
-// class _EmptyHistoryCard extends StatelessWidget {
+// class _EmptyHistoryCard
+//     extends StatelessWidget {
 //   final int bidCount;
 
 //   const _EmptyHistoryCard({
@@ -1401,15 +1934,21 @@
 //   Widget build(BuildContext context) {
 //     return Container(
 //       width: double.infinity,
-//       padding: const EdgeInsets.symmetric(
+//       padding:
+//           const EdgeInsets.symmetric(
 //         horizontal: 20,
 //         vertical: 28,
 //       ),
-//       decoration: BoxDecoration(
+//       decoration:
+//           BoxDecoration(
 //         color: Colors.white,
-//         borderRadius: BorderRadius.circular(18),
+//         borderRadius:
+//             BorderRadius.circular(
+//           18,
+//         ),
 //         border: Border.all(
-//           color: Colors.grey.shade200,
+//           color:
+//               Colors.grey.shade200,
 //         ),
 //       ),
 //       child: Column(
@@ -1417,13 +1956,16 @@
 //           Container(
 //             width: 48,
 //             height: 48,
-//             decoration: const BoxDecoration(
-//               color: Color(0xFFF3F5F8),
+//             decoration:
+//                 const BoxDecoration(
+//               color:
+//                   Color(0xFFF3F5F8),
 //               shape: BoxShape.circle,
 //             ),
 //             child: const Icon(
 //               Icons.gavel_outlined,
-//               color: Color(0xFF697593),
+//               color:
+//                   Color(0xFF697593),
 //             ),
 //           ),
 
@@ -1432,9 +1974,11 @@
 //           const Text(
 //             'No bidding history',
 //             style: TextStyle(
-//               color: Color(0xFF07152D),
+//               color:
+//                   Color(0xFF07152D),
 //               fontSize: 15,
-//               fontWeight: FontWeight.w700,
+//               fontWeight:
+//                   FontWeight.w700,
 //             ),
 //           ),
 
@@ -1444,9 +1988,11 @@
 //             bidCount == 0
 //                 ? 'Be the first person to place a bid.'
 //                 : 'Bidding history is not available.',
-//             textAlign: TextAlign.center,
+//             textAlign:
+//                 TextAlign.center,
 //             style: TextStyle(
-//               color: Colors.grey.shade600,
+//               color:
+//                   Colors.grey.shade600,
 //               fontSize: 12,
 //               height: 1.4,
 //             ),
@@ -1461,7 +2007,8 @@
 // // AUCTION META
 // // ============================================================================
 
-// class _AuctionMetaSection extends StatelessWidget {
+// class _AuctionMetaSection
+//     extends StatelessWidget {
 //   final AuctionDetailEntity auction;
 
 //   const _AuctionMetaSection({
@@ -1472,12 +2019,18 @@
 //   Widget build(BuildContext context) {
 //     return Container(
 //       width: double.infinity,
-//       padding: const EdgeInsets.all(18),
-//       decoration: BoxDecoration(
+//       padding:
+//           const EdgeInsets.all(18),
+//       decoration:
+//           BoxDecoration(
 //         color: Colors.white,
-//         borderRadius: BorderRadius.circular(18),
+//         borderRadius:
+//             BorderRadius.circular(
+//           18,
+//         ),
 //         border: Border.all(
-//           color: Colors.grey.shade200,
+//           color:
+//               Colors.grey.shade200,
 //         ),
 //       ),
 //       child: Column(
@@ -1485,76 +2038,90 @@
 //           _InfoRow(
 //             title: 'Opening bid',
 //             value:
-//                 '${auction.currency} ${auction.startingPrice}',
+//                 '${auction.currency} '
+//                 '${auction.startingPrice}',
 //           ),
 
 //           _InfoRow(
 //             title: 'Current bid',
-//             value: auction.currentBid != null
-//                 ? '${auction.currency} ${auction.currentBid}'
-//                 : 'No bids',
+//             value:
+//                 auction.currentBid !=
+//                         null
+//                     ? '${auction.currency} '
+//                         '${auction.currentBid}'
+//                     : 'No bids',
 //           ),
 
 //           _InfoRow(
 //             title: 'Bid increment',
 //             value:
-//                 '${auction.currency} ${auction.bidIncrement}',
+//                 '${auction.currency} '
+//                 '${auction.bidIncrement}',
 //           ),
 
 //           _InfoRow(
 //             title: 'Reserve',
-//             value: _reserveText(),
+//             value:
+//                 _reserveText(),
 //           ),
 
 //           _InfoRow(
 //             title: 'Payment window',
 //             value:
-//                 '${auction.paymentWindowHours} hours from close',
+//                 '${auction.paymentWindowHours} '
+//                 'hours from close',
 //           ),
 
 //           _InfoRow(
 //             title: 'Anti-sniping',
-//             value: _antiSnipingText(),
-//             isLast: true,
+//             value:
+//                 _antiSnipingText(),
 //           ),
-
-//           const SizedBox(height: 8),
 
 //           _InfoRow(
 //             title: 'Auction number',
-//             value: auction.number,
+//             value:
+//                 auction.number,
 //           ),
 
 //           _InfoRow(
 //             title: 'Status',
-//             value: auction.status,
+//             value:
+//                 auction.status,
 //           ),
 
 //           _InfoRow(
 //             title: 'Auction type',
-//             value: auction.type,
+//             value:
+//                 auction.type,
 //           ),
 
 //           _InfoRow(
 //             title: 'Listing level',
-//             value: auction.listingLevel,
+//             value:
+//                 auction.listingLevel,
 //           ),
 
 //           _InfoRow(
 //             title: 'Bid count',
-//             value: auction.bidCount.toString(),
+//             value:
+//                 auction.bidCount
+//                     .toString(),
 //           ),
 
 //           _InfoRow(
 //             title: 'Unique bidders',
 //             value:
-//                 auction.uniqueBidderCount.toString(),
+//                 auction
+//                     .uniqueBidderCount
+//                     .toString(),
 //           ),
 
 //           _InfoRow(
 //             title: 'Views',
 //             value:
-//                 auction.viewCount.toString(),
+//                 auction.viewCount
+//                     .toString(),
 //             isLast: true,
 //           ),
 //         ],
@@ -1567,7 +2134,8 @@
 //       return 'No reserve';
 //     }
 
-//     if (auction.reserveStatus == 'MET') {
+//     if (auction.reserveStatus ==
+//         'MET') {
 //       return 'Met';
 //     }
 
@@ -1575,7 +2143,8 @@
 //   }
 
 //   String _antiSnipingText() {
-//     final extension = auction.extension;
+//     final extension =
+//         auction.extension;
 
 //     if (extension == null ||
 //         extension.enabled != true) {
@@ -1583,17 +2152,21 @@
 //     }
 
 //     final windowMinutes =
-//         extension.windowSeconds ~/ 60;
+//         extension.windowSeconds ~/
+//             60;
 
 //     final durationMinutes =
-//         extension.durationSeconds ~/ 60;
+//         extension.durationSeconds ~/
+//             60;
 
 //     if (windowMinutes <= 0) {
 //       return 'Enabled';
 //     }
 
-//     return 'Extends $durationMinutes min if bid '
-//         'within $windowMinutes min of close';
+//     return 'Extends '
+//         '$durationMinutes min if bid '
+//         'within $windowMinutes min '
+//         'of close';
 //   }
 // }
 
@@ -1601,7 +2174,8 @@
 // // SECTION TITLE
 // // ============================================================================
 
-// class _SectionTitle extends StatelessWidget {
+// class _SectionTitle
+//     extends StatelessWidget {
 //   final String title;
 
 //   const _SectionTitle({
@@ -1615,7 +2189,8 @@
 //         Container(
 //           width: 45,
 //           height: 1,
-//           color: const Color(0xFFE4B94F),
+//           color:
+//               const Color(0xFFE4B94F),
 //         ),
 
 //         const SizedBox(width: 9),
@@ -1623,9 +2198,12 @@
 //         Container(
 //           width: 6,
 //           height: 6,
-//           decoration: const BoxDecoration(
-//             color: Color(0xFFE4B94F),
-//             shape: BoxShape.circle,
+//           decoration:
+//               const BoxDecoration(
+//             color:
+//                 Color(0xFFE4B94F),
+//             shape:
+//                 BoxShape.circle,
 //           ),
 //         ),
 
@@ -1634,7 +2212,8 @@
 //         Expanded(
 //           child: Container(
 //             height: 1,
-//             color: const Color(0xFFE4B94F),
+//             color:
+//                 const Color(0xFFE4B94F),
 //           ),
 //         ),
 
@@ -1643,11 +2222,15 @@
 //         Flexible(
 //           child: Text(
 //             title,
-//             textAlign: TextAlign.right,
-//             style: const TextStyle(
-//               color: Color(0xFF07152D),
+//             textAlign:
+//                 TextAlign.right,
+//             style:
+//                 const TextStyle(
+//               color:
+//                   Color(0xFF07152D),
 //               fontSize: 22,
-//               fontWeight: FontWeight.w800,
+//               fontWeight:
+//                   FontWeight.w800,
 //             ),
 //           ),
 //         ),
@@ -1660,7 +2243,8 @@
 // // INFO ROW
 // // ============================================================================
 
-// class _InfoRow extends StatelessWidget {
+// class _InfoRow
+//     extends StatelessWidget {
 //   final String title;
 //   final String value;
 //   final bool isLast;
@@ -1674,23 +2258,29 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return Container(
-//       constraints: const BoxConstraints(
+//       constraints:
+//           const BoxConstraints(
 //         minHeight: 54,
 //       ),
-//       padding: const EdgeInsets.symmetric(
+//       padding:
+//           const EdgeInsets.symmetric(
 //         vertical: 14,
 //       ),
 //       decoration: isLast
 //           ? null
 //           : BoxDecoration(
-//               border: Border(
-//                 bottom: BorderSide(
-//                   color: Colors.grey.shade200,
+//               border:
+//                   Border(
+//                 bottom:
+//                     BorderSide(
+//                   color:
+//                       Colors.grey.shade200,
 //                 ),
 //               ),
 //             ),
 //       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
+//         crossAxisAlignment:
+//             CrossAxisAlignment.start,
 //         children: [
 //           Expanded(
 //             flex: 5,
@@ -1698,8 +2288,10 @@
 //               title,
 //               style: TextStyle(
 //                 fontSize: 13,
-//                 color: Colors.grey.shade600,
-//                 fontWeight: FontWeight.w500,
+//                 color:
+//                     Colors.grey.shade600,
+//                 fontWeight:
+//                     FontWeight.w500,
 //               ),
 //             ),
 //           ),
@@ -1710,11 +2302,15 @@
 //             flex: 6,
 //             child: Text(
 //               value,
-//               textAlign: TextAlign.right,
-//               style: const TextStyle(
+//               textAlign:
+//                   TextAlign.right,
+//               style:
+//                   const TextStyle(
 //                 fontSize: 13,
-//                 color: Color(0xFF07152D),
-//                 fontWeight: FontWeight.w700,
+//                 color:
+//                     Color(0xFF07152D),
+//                 fontWeight:
+//                     FontWeight.w700,
 //                 height: 1.35,
 //               ),
 //             ),
@@ -1729,7 +2325,8 @@
 // // STATUS BADGE
 // // ============================================================================
 
-// class _StatusBadge extends StatelessWidget {
+// class _StatusBadge
+//     extends StatelessWidget {
 //   final String status;
 
 //   const _StatusBadge({
@@ -1762,34 +2359,48 @@
 //     }
 
 //     return Container(
-//       padding: const EdgeInsets.symmetric(
+//       padding:
+//           const EdgeInsets.symmetric(
 //         horizontal: 10,
 //         vertical: 6,
 //       ),
-//       decoration: BoxDecoration(
-//         color: color.withOpacity(0.10),
-//         borderRadius: BorderRadius.circular(20),
+//       decoration:
+//           BoxDecoration(
+//         color:
+//             color.withOpacity(0.10),
+//         borderRadius:
+//             BorderRadius.circular(
+//           20,
+//         ),
 //       ),
 //       child: Row(
-//         mainAxisSize: MainAxisSize.min,
+//         mainAxisSize:
+//             MainAxisSize.min,
 //         children: [
 //           Container(
 //             width: 6,
 //             height: 6,
-//             decoration: BoxDecoration(
+//             decoration:
+//                 BoxDecoration(
 //               color: color,
-//               shape: BoxShape.circle,
+//               shape:
+//                   BoxShape.circle,
 //             ),
 //           ),
 
 //           const SizedBox(width: 6),
 
 //           Text(
-//             status.replaceAll('_', ' '),
-//             style: TextStyle(
+//             status.replaceAll(
+//               '_',
+//               ' ',
+//             ),
+//             style:
+//                 TextStyle(
 //               color: color,
 //               fontSize: 10,
-//               fontWeight: FontWeight.w800,
+//               fontWeight:
+//                   FontWeight.w800,
 //               letterSpacing: 0.5,
 //             ),
 //           ),
@@ -1803,7 +2414,8 @@
 // // ERROR VIEW
 // // ============================================================================
 
-// class _ErrorView extends StatelessWidget {
+// class _ErrorView
+//     extends StatelessWidget {
 //   final String message;
 //   final VoidCallback onRetry;
 
@@ -1816,18 +2428,24 @@
 //   Widget build(BuildContext context) {
 //     return Center(
 //       child: Padding(
-//         padding: const EdgeInsets.all(24),
+//         padding:
+//             const EdgeInsets.all(24),
 //         child: Column(
-//           mainAxisSize: MainAxisSize.min,
+//           mainAxisSize:
+//               MainAxisSize.min,
 //           children: [
 //             Container(
 //               width: 70,
 //               height: 70,
-//               decoration: BoxDecoration(
-//                 color: Colors.red.withOpacity(0.08),
-//                 shape: BoxShape.circle,
+//               decoration:
+//                   BoxDecoration(
+//                 color: Colors.red
+//                     .withOpacity(0.08),
+//                 shape:
+//                     BoxShape.circle,
 //               ),
-//               child: const Icon(
+//               child:
+//                   const Icon(
 //                 Icons.error_outline,
 //                 size: 38,
 //                 color: Colors.red,
@@ -1838,10 +2456,13 @@
 
 //             const Text(
 //               'Unable to load auction',
-//               style: TextStyle(
+//               style:
+//                   TextStyle(
 //                 fontSize: 18,
-//                 fontWeight: FontWeight.w700,
-//                 color: Color(0xFF07152D),
+//                 fontWeight:
+//                     FontWeight.w700,
+//                 color:
+//                     Color(0xFF07152D),
 //               ),
 //             ),
 
@@ -1849,9 +2470,11 @@
 
 //             Text(
 //               message,
-//               textAlign: TextAlign.center,
+//               textAlign:
+//                   TextAlign.center,
 //               style: TextStyle(
-//                 color: Colors.grey.shade600,
+//                 color:
+//                     Colors.grey.shade600,
 //                 height: 1.4,
 //               ),
 //             ),
@@ -1860,20 +2483,29 @@
 
 //             ElevatedButton(
 //               onPressed: onRetry,
-//               style: ElevatedButton.styleFrom(
+//               style:
+//                   ElevatedButton.styleFrom(
 //                 backgroundColor:
-//                     const Color(0xFFE4B94F),
-//                 foregroundColor: Colors.black,
+//                     const Color(
+//                   0xFFE4B94F,
+//                 ),
+//                 foregroundColor:
+//                     Colors.black,
 //                 elevation: 0,
-//                 padding: const EdgeInsets.symmetric(
+//                 padding:
+//                     const EdgeInsets
+//                         .symmetric(
 //                   horizontal: 25,
 //                   vertical: 13,
 //                 ),
 //               ),
-//               child: const Text(
+//               child:
+//                   const Text(
 //                 'Retry',
-//                 style: TextStyle(
-//                   fontWeight: FontWeight.w700,
+//                 style:
+//                     TextStyle(
+//                   fontWeight:
+//                       FontWeight.w700,
 //                 ),
 //               ),
 //             ),
@@ -1883,6 +2515,7 @@
 //     );
 //   }
 // }
+
 
 import 'dart:async';
 
@@ -2004,7 +2637,7 @@ class _AuctionDetailContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ================================================================
-            // PRODUCT
+            // EXISTING UPPER PORTION — UNCHANGED
             // ================================================================
 
             _ProductSection(
@@ -2013,61 +2646,35 @@ class _AuctionDetailContent extends StatelessWidget {
 
             const SizedBox(height: 24),
 
+            _BidPanel(
+              auction: auction,
+            ),
+
             // ================================================================
-            // BID PANEL
+            // REDESIGNED LOWER PORTION
             // ================================================================
 
-            _BidPanel(
+            const SizedBox(height: 30),
+
+            _ModernAboutSection(
               auction: auction,
             ),
 
             const SizedBox(height: 28),
 
-            // ================================================================
-            // ABOUT
-            // ================================================================
-
-            const _SectionTitle(
-              title: 'About this lot',
-            ),
-
-            const SizedBox(height: 16),
-
-            _AboutCard(
+            _ModernBidActivitySection(
               auction: auction,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
 
-            // ================================================================
-            // BIDDING HISTORY
-            // ================================================================
-
-            const _SectionTitle(
-              title: 'Bidding history',
-            ),
-
-            const SizedBox(height: 16),
-
-            _BiddingHistorySection(
+            _ModernAuctionDetailsSection(
               auction: auction,
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
-            // ================================================================
-            // AUCTION INFORMATION
-            // ================================================================
-
-            const _SectionTitle(
-              title: 'Auction information',
-            ),
-
-            const SizedBox(height: 16),
-
-            _AuctionMetaSection(
-              auction: auction,
-            ),
+            _ModernTrustCard(),
           ],
         ),
       ),
@@ -2076,7 +2683,7 @@ class _AuctionDetailContent extends StatelessWidget {
 }
 
 // ============================================================================
-// PRODUCT SECTION
+// PRODUCT SECTION — ORIGINAL
 // ============================================================================
 
 class _ProductSection extends StatelessWidget {
@@ -2175,7 +2782,7 @@ class _ProductSection extends StatelessWidget {
 }
 
 // ============================================================================
-// IMAGE CAROUSEL
+// IMAGE CAROUSEL — ORIGINAL
 // ============================================================================
 
 class _AuctionImage extends StatefulWidget {
@@ -2283,7 +2890,8 @@ class _AuctionImageState extends State<_AuctionImage> {
                     color: selected
                         ? const Color(0xFFE4B94F)
                         : Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius:
+                        BorderRadius.circular(10),
                   ),
                 );
               },
@@ -2311,10 +2919,10 @@ class _AuctionImageState extends State<_AuctionImage> {
 }
 
 // ============================================================================
-// BID PANEL
+// BID PANEL — ORIGINAL
 // ============================================================================
 
-class _BidPanel extends StatelessWidget {
+class _BidPanel extends StatefulWidget {
   final AuctionDetailEntity auction;
 
   const _BidPanel({
@@ -2322,7 +2930,51 @@ class _BidPanel extends StatelessWidget {
   });
 
   @override
+  State<_BidPanel> createState() => _BidPanelState();
+}
+
+class _BidPanelState extends State<_BidPanel> {
+  late final TextEditingController _bidController;
+
+  String? _lastHandledBidUuid;
+  String? _lastHandledBidError;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bidController = TextEditingController(
+      text: widget.auction.minimumNextBid,
+    );
+  }
+
+  @override
+  void didUpdateWidget(
+    covariant _BidPanel oldWidget,
+  ) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.auction.minimumNextBid !=
+        widget.auction.minimumNextBid) {
+      if (_bidController.text.trim().isEmpty ||
+          _bidController.text.trim() ==
+              oldWidget.auction.minimumNextBid.trim()) {
+        _bidController.text =
+            widget.auction.minimumNextBid;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _bidController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auction = widget.auction;
+
     final currentBid =
         auction.currentBid ?? auction.startingPrice;
 
@@ -2331,212 +2983,365 @@ class _BidPanel extends StatelessWidget {
     final isEligible =
         auction.viewer?.isEligible == true;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: const Color(0xFF07152D),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF07152D).withOpacity(0.16),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'CURRENT BID',
-            style: TextStyle(
-              color: Colors.white54,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.8,
-            ),
-          ),
+    return BlocConsumer<AuctionCubit, AuctionState>(
+      listenWhen: (previous, current) {
+        if (current is! AuctionDetailLoaded) {
+          return false;
+        }
 
-          const SizedBox(height: 6),
+        final previousState =
+            previous is AuctionDetailLoaded
+                ? previous
+                : null;
 
-          Text(
-            '${auction.currency} $currentBid',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+        return previousState?.placedBid !=
+                current.placedBid ||
+            previousState?.placeBidError !=
+                current.placeBidError;
+      },
+      listener: (context, state) {
+        if (state is! AuctionDetailLoaded) {
+          return;
+        }
 
-          const SizedBox(height: 4),
+        final error = state.placeBidError;
 
-          Text(
-            '${auction.bidCount} '
-            '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 12,
-            ),
-          ),
+        if (error != null &&
+            error.isNotEmpty &&
+            error != _lastHandledBidError) {
+          _lastHandledBidError = error;
 
-          // ================================================================
-          // TIMER
-          // ================================================================
-
-          if (isLive &&
-              auction.secondsRemaining != null) ...[
-            const SizedBox(height: 24),
-            _Countdown(
-              secondsRemaining:
-                  auction.secondsRemaining!,
-            ),
-          ],
-
-          const SizedBox(height: 24),
-
-          // ================================================================
-          // NEXT BID
-          // ================================================================
-
-          Text(
-            'NEXT VALID BID — '
-            '${auction.currency} ${auction.minimumNextBid}',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.1,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isSmall =
-                  constraints.maxWidth < 360;
-
-              if (isSmall) {
-                return Column(
-                  children: [
-                    _NextBidBox(
-                      value: auction.minimumNextBid,
-                      currency: auction.currency,
-                      minimumValue:
-                          auction.minimumNextBid,
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: _BidButton(
-                        enabled:
-                            isLive && isEligible,
-                        onPressed: () {
-                          _showBidMessage(
-                            context,
-                            auction.minimumNextBid,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              }
-
-              return Row(
-                children: [
-                  Expanded(
-                    child: _NextBidBox(
-                      value:
-                          auction.minimumNextBid,
-                      currency:
-                          auction.currency,
-                      minimumValue:
-                          auction.minimumNextBid,
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  SizedBox(
-                    width: 125,
-                    height: 52,
-                    child: _BidButton(
-                      enabled:
-                          isLive && isEligible,
-                      onPressed: () {
-                        _showBidMessage(
-                          context,
-                          auction.minimumNextBid,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            'Minimum bid is '
-            '${auction.currency} '
-            '${auction.minimumNextBid}',
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 11,
-            ),
-          ),
-
-          if (!isEligible &&
-              auction.viewer?.ineligibleReason != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              auction.viewer!.ineligibleReason!,
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 11,
-                height: 1.4,
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(error),
+                backgroundColor: Colors.red.shade700,
               ),
-            ),
-          ],
-        ],
-      ),
+            );
+        }
+
+        final placedBid = state.placedBid;
+
+        if (placedBid != null &&
+            placedBid.bidUuid.isNotEmpty &&
+            placedBid.bidUuid !=
+                _lastHandledBidUuid) {
+          _lastHandledBidUuid =
+              placedBid.bidUuid;
+
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                content:
+                    Text('Bid placed successfully'),
+              ),
+            );
+
+          if (placedBid.minimumNextBid
+              .trim()
+              .isNotEmpty) {
+            _bidController.text =
+                placedBid.minimumNextBid;
+          }
+        }
+      },
+      buildWhen: (previous, current) {
+        if (previous is AuctionDetailLoaded &&
+            current is AuctionDetailLoaded) {
+          return previous.isPlacingBid !=
+                  current.isPlacingBid ||
+              previous.placedBid !=
+                  current.placedBid ||
+              previous.placeBidError !=
+                  current.placeBidError;
+        }
+
+        return true;
+      },
+      builder: (context, state) {
+        final isPlacingBid =
+            state is AuctionDetailLoaded
+                ? state.isPlacingBid
+                : false;
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: const Color(0xFF07152D),
+            borderRadius:
+                BorderRadius.circular(22),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF07152D)
+                    .withOpacity(0.16),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'CURRENT BID',
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.8,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                '${auction.currency} $currentBid',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                '${auction.bidCount} '
+                '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 14,
+                ),
+              ),
+
+              if (isLive &&
+                  auction.secondsRemaining != null) ...[
+                const SizedBox(height: 24),
+                _Countdown(
+                  secondsRemaining:
+                      auction.secondsRemaining!,
+                ),
+              ],
+
+              const SizedBox(height: 24),
+
+              Text(
+                'NEXT VALID BID — '
+                '${auction.currency} ${auction.minimumNextBid}',
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmall =
+                      constraints.maxWidth < 360;
+
+                  if (isSmall) {
+                    return Column(
+                      children: [
+                        _NextBidBox(
+                          value:
+                              auction.minimumNextBid,
+                          currency:
+                              auction.currency,
+                          minimumValue:
+                              auction.minimumNextBid,
+                          controller:
+                              _bidController,
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: _BidButton(
+                            enabled:
+                                isLive &&
+                                    isEligible,
+                            isLoading:
+                                isPlacingBid,
+                            onPressed: () {
+                              _placeBid(
+                                context,
+                                auction,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: _NextBidBox(
+                          value:
+                              auction.minimumNextBid,
+                          currency:
+                              auction.currency,
+                          minimumValue:
+                              auction.minimumNextBid,
+                          controller:
+                              _bidController,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 125,
+                        height: 52,
+                        child: _BidButton(
+                          enabled:
+                              isLive &&
+                                  isEligible,
+                          isLoading:
+                              isPlacingBid,
+                          onPressed: () {
+                            _placeBid(
+                              context,
+                              auction,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Minimum bid is '
+                '${auction.currency} '
+                '${auction.minimumNextBid}',
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+
+              if (!isEligible &&
+                  auction.viewer?.ineligibleReason !=
+                      null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  auction.viewer!.ineligibleReason!,
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 11,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 
-  void _showBidMessage(
+  void _placeBid(
     BuildContext context,
-    String amount,
+    AuctionDetailEntity auction,
   ) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Bid amount: $amount',
-        ),
-      ),
+    final amount =
+        _bidController.text.trim();
+
+    if (amount.isEmpty) {
+      _showError(
+        context,
+        'Please enter a bid amount.',
+      );
+      return;
+    }
+
+    final enteredAmount =
+        double.tryParse(
+      amount.replaceAll(',', ''),
     );
+
+    final minimumAmount =
+        double.tryParse(
+      auction.minimumNextBid
+          .replaceAll(',', ''),
+    );
+
+    if (enteredAmount == null) {
+      _showError(
+        context,
+        'Please enter a valid bid amount.',
+      );
+      return;
+    }
+
+    if (minimumAmount != null &&
+        enteredAmount < minimumAmount) {
+      _showError(
+        context,
+        'Bid must be at least '
+        '${auction.currency} '
+        '${auction.minimumNextBid}.',
+      );
+      return;
+    }
+
+    final currentState =
+        context.read<AuctionCubit>().state;
+
+    if (currentState is AuctionDetailLoaded &&
+        currentState.isPlacingBid) {
+      return;
+    }
+
+    context.read<AuctionCubit>().placeBid(
+      auctionId: auction.uuid,
+      amount: amount,
+    );
+  }
+
+  void _showError(
+    BuildContext context,
+    String message,
+  ) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor:
+              Colors.red.shade700,
+        ),
+      );
   }
 }
 
 // ============================================================================
-// NEXT BID INPUT
+// NEXT BID INPUT — ORIGINAL
 // ============================================================================
 
 class _NextBidBox extends StatefulWidget {
   final String value;
   final String currency;
   final String minimumValue;
+  final TextEditingController controller;
 
   const _NextBidBox({
     required this.value,
     required this.currency,
     required this.minimumValue,
+    required this.controller,
   });
 
   @override
@@ -2544,20 +3349,19 @@ class _NextBidBox extends StatefulWidget {
       _NextBidBoxState();
 }
 
-class _NextBidBoxState extends State<_NextBidBox> {
-  late final TextEditingController _controller;
-
+class _NextBidBoxState
+    extends State<_NextBidBox> {
   bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = TextEditingController(
-      text: widget.value,
+    widget.controller.addListener(
+      _validateBid,
     );
 
-    _controller.addListener(_validateBid);
+    _validateBid();
   }
 
   @override
@@ -2566,9 +3370,23 @@ class _NextBidBoxState extends State<_NextBidBox> {
   ) {
     super.didUpdateWidget(oldWidget);
 
+    if (oldWidget.controller !=
+        widget.controller) {
+      oldWidget.controller.removeListener(
+        _validateBid,
+      );
+
+      widget.controller.addListener(
+        _validateBid,
+      );
+    }
+
     if (oldWidget.value != widget.value) {
-      if (_controller.text.trim().isEmpty) {
-        _controller.text = widget.value;
+      if (widget.controller.text.trim().isEmpty ||
+          widget.controller.text.trim() ==
+              oldWidget.value.trim()) {
+        widget.controller.text =
+            widget.value;
       }
     }
   }
@@ -2587,13 +3405,14 @@ class _NextBidBoxState extends State<_NextBidBox> {
         _toNumber(widget.minimumValue);
 
     final entered =
-        _toNumber(_controller.text);
+        _toNumber(widget.controller.text);
 
     final hasError =
-        _controller.text.trim().isEmpty ||
+        widget.controller.text.trim().isEmpty ||
             entered < minimum;
 
-    if (_hasError != hasError) {
+    if (_hasError != hasError &&
+        mounted) {
       setState(() {
         _hasError = hasError;
       });
@@ -2602,8 +3421,9 @@ class _NextBidBoxState extends State<_NextBidBox> {
 
   @override
   void dispose() {
-    _controller.removeListener(_validateBid);
-    _controller.dispose();
+    widget.controller.removeListener(
+      _validateBid,
+    );
     super.dispose();
   }
 
@@ -2620,7 +3440,8 @@ class _NextBidBoxState extends State<_NextBidBox> {
             color: Colors.white.withOpacity(0.08),
             border: Border.all(
               color: _hasError
-                  ? Colors.redAccent.withOpacity(0.7)
+                  ? Colors.redAccent
+                      .withOpacity(0.7)
                   : Colors.white24,
             ),
             borderRadius:
@@ -2637,7 +3458,8 @@ class _NextBidBoxState extends State<_NextBidBox> {
               ),
             ),
             child: TextField(
-              controller: _controller,
+              controller:
+                  widget.controller,
               cursorColor:
                   const Color(0xFFE4B94F),
               keyboardType:
@@ -2646,7 +3468,9 @@ class _NextBidBoxState extends State<_NextBidBox> {
               ),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(
-                  RegExp(r'^\d*\.?\d{0,2}'),
+                  RegExp(
+                    r'^\d*\.?\d{0,2}',
+                  ),
                 ),
               ],
               textInputAction:
@@ -2654,14 +3478,16 @@ class _NextBidBoxState extends State<_NextBidBox> {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontWeight:
+                    FontWeight.w600,
               ),
               decoration:
                   const InputDecoration(
                 filled: true,
                 fillColor:
                     Color(0x14000000),
-                border: InputBorder.none,
+                border:
+                    InputBorder.none,
                 enabledBorder:
                     InputBorder.none,
                 focusedBorder:
@@ -2696,15 +3522,17 @@ class _NextBidBoxState extends State<_NextBidBox> {
 }
 
 // ============================================================================
-// BID BUTTON
+// BID BUTTON — ORIGINAL
 // ============================================================================
 
 class _BidButton extends StatelessWidget {
   final bool enabled;
+  final bool isLoading;
   final VoidCallback onPressed;
 
   const _BidButton({
     required this.enabled,
+    required this.isLoading,
     required this.onPressed,
   });
 
@@ -2712,8 +3540,11 @@ class _BidButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed:
-          enabled ? onPressed : null,
-      style: ElevatedButton.styleFrom(
+          enabled && !isLoading
+              ? onPressed
+              : null,
+      style:
+          ElevatedButton.styleFrom(
         backgroundColor:
             const Color(0xFFE4B94F),
         foregroundColor: Colors.black,
@@ -2729,32 +3560,46 @@ class _BidButton extends StatelessWidget {
               BorderRadius.circular(5),
         ),
       ),
-      child: const Row(
-        mainAxisAlignment:
-            MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.gavel,
-            size: 17,
-          ),
-          SizedBox(width: 7),
-          Text(
-            'PLACE BID',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight:
-                  FontWeight.w800,
-              letterSpacing: 1.3,
+      child: isLoading
+          ? const SizedBox(
+              width: 19,
+              height: 19,
+              child:
+                  CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor:
+                    AlwaysStoppedAnimation<
+                        Color>(
+                  Colors.black,
+                ),
+              ),
+            )
+          : const Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.gavel,
+                  size: 17,
+                ),
+                SizedBox(width: 7),
+                Text(
+                  'PLACE BID',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight:
+                        FontWeight.w800,
+                    letterSpacing: 1.3,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
 
 // ============================================================================
-// COUNTDOWN
+// COUNTDOWN — ORIGINAL
 // ============================================================================
 
 class _Countdown extends StatefulWidget {
@@ -2873,7 +3718,7 @@ class _CountdownState
             'BIDDING CLOSES IN',
             style: TextStyle(
               color: Colors.white60,
-              fontSize: 9,
+              fontSize: 12,
               letterSpacing: 2,
               fontWeight:
                   FontWeight.w700,
@@ -2888,23 +3733,17 @@ class _CountdownState
                 value: days,
                 label: 'DAYS',
               ),
-
               const _CountdownColon(),
-
               _CountdownValue(
                 value: hours,
                 label: 'HRS',
               ),
-
               const _CountdownColon(),
-
               _CountdownValue(
                 value: minutes,
                 label: 'MIN',
               ),
-
               const _CountdownColon(),
-
               _CountdownValue(
                 value: seconds,
                 label: 'SEC',
@@ -2944,14 +3783,12 @@ class _CountdownValue
                 FontWeight.w700,
           ),
         ),
-
         const SizedBox(height: 2),
-
         Text(
           label,
           style: const TextStyle(
             color: Colors.white54,
-            fontSize: 8,
+            fontSize: 12,
             letterSpacing: 1.2,
           ),
         ),
@@ -2983,14 +3820,21 @@ class _CountdownColon
 }
 
 // ============================================================================
-// ABOUT
+// ============================================================================
+// REDESIGNED LOWER SECTION STARTS HERE
+// ============================================================================
 // ============================================================================
 
-class _AboutCard
+
+// ============================================================================
+// ABOUT THIS LOT
+// ============================================================================
+
+class _ModernAboutSection
     extends StatelessWidget {
   final AuctionDetailEntity auction;
 
-  const _AboutCard({
+  const _ModernAboutSection({
     required this.auction,
   });
 
@@ -2998,319 +3842,456 @@ class _AboutCard
   Widget build(BuildContext context) {
     final description =
         auction.description
-                ?.trim() ??
-            '';
+            ?.trim() ??
+        '';
 
     final itemName =
-        auction.itemName?.trim() ??
-            '';
+        auction.itemName
+            ?.trim() ??
+        '';
 
-    return Container(
-      width: double.infinity,
-      padding:
-          const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.grey.shade200,
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        const _ModernSectionHeader(
+          title: 'About this lot',
+          icon: Icons
+              .auto_awesome_outlined,
         ),
-      ),
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          if (itemName.isNotEmpty) ...[
-            Text(
-              itemName,
-              style:
-                  const TextStyle(
-                color:
-                    Color(0xFF07152D),
-                fontSize: 16,
-                fontWeight:
-                    FontWeight.w700,
-                height: 1.4,
-              ),
-            ),
 
-            if (description.isNotEmpty)
-              const SizedBox(
-                height: 12,
-              ),
-          ],
+        const SizedBox(height: 12),
 
-          Text(
-            description.isNotEmpty
-                ? description
-                : 'No description available for this auction.',
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.65,
-              color:
-                  Colors.grey.shade700,
-            ),
+        Container(
+          width: double.infinity,
+          padding:
+              const EdgeInsets.all(18),
+          decoration:
+              BoxDecoration(
+            color: Colors.white,
+            borderRadius:
+                BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black
+                    .withOpacity(0.035),
+                blurRadius: 18,
+                offset:
+                    const Offset(0, 7),
+              ),
+            ],
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              if (itemName.isNotEmpty) ...[
+                Text(
+                  itemName,
+                  style:
+                       TextStyle(
+                    color:
+                        Color(0xFF07152D),
+                    fontSize: 16,
+                    fontWeight:
+                        FontWeight.w700,
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+
+              Text(
+                description.isNotEmpty
+                    ? description
+                    : 'No description available for this auction.',
+                style:
+                    const TextStyle(
+                  color:
+                      Color(0xFF697593),
+                  fontSize: 13,
+                  height: 1.65,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              Wrap(
+                spacing: 7,
+                runSpacing: 7,
+                children: [
+                  if (auction
+                      .listingLevel
+                      .isNotEmpty)
+                    _ModernChip(
+                      icon:
+                          Icons.verified_outlined,
+                      text:
+                          auction.listingLevel,
+                    ),
+                  if (auction.type
+                      .isNotEmpty)
+                    _ModernChip(
+                      icon:
+                          Icons.sell_outlined,
+                      text:
+                          auction.type,
+                    ),
+                  _ModernChip(
+                    icon:
+                        Icons.visibility_outlined,
+                    text:
+                        '${auction.viewCount} views',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
+
 // ============================================================================
-// BIDDING HISTORY
+// MODERN BID ACTIVITY
 // ============================================================================
 
-class _BiddingHistorySection
+class _ModernBidActivitySection
     extends StatelessWidget {
   final AuctionDetailEntity auction;
 
-  const _BiddingHistorySection({
+  const _ModernBidActivitySection({
     required this.auction,
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<
-        AuctionCubit,
-        AuctionState>(
-      buildWhen:
-          (previous, current) {
-        if (previous
-                is AuctionDetailLoaded &&
-            current
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        _ModernSectionHeader(
+          title: 'Bid activity',
+          icon:
+              Icons.trending_up_rounded,
+          trailing:
+              auction.bidCount > 0
+                  ? '${auction.bidCount} bids'
+                  : null,
+        ),
+
+        const SizedBox(height: 12),
+
+        BlocBuilder<
+            AuctionCubit,
+            AuctionState>(
+          buildWhen:
+              (previous, current) {
+            if (previous
+                    is AuctionDetailLoaded &&
+                current
+                    is AuctionDetailLoaded) {
+              return previous.bids !=
+                      current.bids ||
+                  previous.isBidsLoading !=
+                      current.isBidsLoading ||
+                  previous.bidsError !=
+                      current.bidsError;
+            }
+
+            return true;
+          },
+          builder:
+              (context, state) {
+            if (state
+                    is AuctionDetailLoaded &&
+                state.isBidsLoading) {
+              return const _ModernLoadingCard();
+            }
+
+            if (state
+                    is AuctionDetailLoaded &&
+                state.bidsError != null &&
+                state.bidsError!
+                    .isNotEmpty) {
+              return _ModernErrorCard(
+                message:
+                    state.bidsError!,
+                onRetry: () {
+                  context
+                      .read<AuctionCubit>()
+                      .getBidsHistory(
+                        auction.uuid,
+                      );
+                },
+              );
+            }
+
+            if (state
                 is AuctionDetailLoaded) {
-          return previous.bids !=
-                  current.bids ||
-              previous.isBidsLoading !=
-                  current.isBidsLoading ||
-              previous.bidsError !=
-                  current.bidsError;
-        }
+              final bids =
+                  state.bids;
 
-        return true;
-      },
-      builder:
-          (context, state) {
-        // ================================================================
-        // LOADING
-        // ================================================================
+              if (bids.isEmpty) {
+                return _ModernEmptyBidCard(
+                  bidCount:
+                      auction.bidCount,
+                );
+              }
 
-        if (state
-                is AuctionDetailLoaded &&
-            state.isBidsLoading) {
-          return const _BidsLoadingCard();
-        }
-
-        // ================================================================
-        // ERROR
-        // ================================================================
-
-        if (state
-                is AuctionDetailLoaded &&
-            state.bidsError != null &&
-            state.bidsError!.isNotEmpty) {
-          return _BidsErrorCard(
-            message:
-                state.bidsError!,
-            onRetry: () {
-              context
-                  .read<AuctionCubit>()
-                  .getBidsHistory(
-                    auction.uuid,
-                  );
-            },
-          );
-        }
-
-        // ================================================================
-        // BIDS FROM API
-        // ================================================================
-
-        if (state
-            is AuctionDetailLoaded) {
-          final List<BidEntity> bids =
-              state.bids;
-
-          if (bids.isEmpty) {
-            return _EmptyHistoryCard(
-              bidCount:
-                  auction.bidCount,
-            );
-          }
-
-          return Container(
-            width: double.infinity,
-            decoration:
-                BoxDecoration(
-              color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(
-                18,
-              ),
-              border: Border.all(
-                color:
-                    Colors.grey.shade200,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black
-                      .withOpacity(
-                    0.025,
+              return Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets
+                        .symmetric(
+                  vertical: 5,
+                ),
+                decoration:
+                    BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.circular(
+                    20,
                   ),
-                  blurRadius: 12,
-                  offset:
-                      const Offset(
-                    0,
-                    4,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black
+                          .withOpacity(
+                        0.035,
+                      ),
+                      blurRadius: 18,
+                      offset:
+                          const Offset(
+                        0,
+                        7,
+                      ),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children:
+                      List.generate(
+                    bids.length,
+                    (index) {
+                      return _ModernBidItem(
+                        bid:
+                            bids[index],
+                        currency:
+                            auction.currency,
+                        isLeading:
+                            index == 0,
+                        isLast:
+                            index ==
+                                bids.length -
+                                    1,
+                      );
+                    },
                   ),
                 ),
-              ],
-            ),
-            child: Column(
-              children:
-                  List.generate(
-                bids.length,
-                (index) {
-                  final bid =
-                      bids[index];
+              );
+            }
 
-                  return _HistoryItem(
-                    bid: bid,
-                    currency:
-                        auction.currency,
-                    isLast: index ==
-                        bids.length - 1,
-                  );
-                },
-              ),
-            ),
-          );
-        }
-
-        return const _BidsLoadingCard();
-      },
+            return const _ModernLoadingCard();
+          },
+        ),
+      ],
     );
   }
 }
 
-// ============================================================================
-// BID HISTORY ITEM
-// ============================================================================
 
 // ============================================================================
-// BID HISTORY ITEM
+// BID ITEM
 // ============================================================================
 
-class _HistoryItem extends StatelessWidget {
+class _ModernBidItem
+    extends StatelessWidget {
   final BidEntity bid;
   final String currency;
+  final bool isLeading;
   final bool isLast;
 
-  const _HistoryItem({
+  const _ModernBidItem({
     required this.bid,
     required this.currency,
+    required this.isLeading,
     required this.isLast,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: isLast
-          ? null
-          : BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.shade200,
-                ),
-              ),
-            ),
+    return Padding(
+      padding:
+          const EdgeInsets.fromLTRB(
+        16,
+        13,
+        16,
+        13,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ================================================================
-          // AVATAR
-          // ================================================================
-
           Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE4B94F).withOpacity(0.12),
-              shape: BoxShape.circle,
+            width: 40,
+            height: 40,
+            decoration:
+                BoxDecoration(
+              color: isLeading
+                  ? const Color(
+                      0xFFE4B94F,
+                    ).withOpacity(0.16)
+                  : const Color(
+                      0xFFF2F4F7,
+                    ),
+              shape:
+                  BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.person_outline,
-              color: Color(0xFF07152D),
-              size: 21,
+            child: Icon(
+              isLeading
+                  ? Icons
+                      .emoji_events_outlined
+                  : Icons
+                      .person_outline_rounded,
+              size: 18,
+              color: isLeading
+                  ? const Color(
+                      0xFF07152D,
+                    )
+                  : const Color(
+                      0xFF697593,
+                    ),
             ),
           ),
 
-          const SizedBox(width: 12),
-
-          // ================================================================
-          // BIDDER
-          // ================================================================
+          const SizedBox(width: 11),
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
-                Text(
-                  _bidderName(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF07152D),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _bidderName(),
+                        maxLines: 1,
+                        overflow:
+                            TextOverflow.ellipsis,
+                        style:
+                            const TextStyle(
+                          color:
+                              Color(
+                            0xFF07152D,
+                          ),
+                          fontSize: 13,
+                          fontWeight:
+                              FontWeight.w700,
+                        ),
+                      ),
+                    ),
+
+                    if (isLeading) ...[
+                      const SizedBox(
+                        width: 6,
+                      ),
+                      Container(
+                        padding:
+                            const EdgeInsets
+                                .symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              const Color(
+                            0xFFE4B94F,
+                          ).withOpacity(
+                            0.15,
+                          ),
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            6,
+                          ),
+                        ),
+                        child:
+                            const Text(
+                          'LEADING',
+                          style:
+                              TextStyle(
+                            color:
+                                Color(
+                              0xFF80651A,
+                            ),
+                            fontSize: 10,
+                            fontWeight:
+                                FontWeight
+                                    .w800,
+                            letterSpacing:
+                                .4,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
 
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
 
                 Text(
                   _date(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 10,
+                  style:
+                      const TextStyle(
+                    color:
+                        Color(0xFF9AA3B2),
+                    fontSize: 11.5,
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(width: 12),
-
-          // ================================================================
-          // AMOUNT
-          // ================================================================
+          const SizedBox(width: 10),
 
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment:
+                CrossAxisAlignment.end,
             children: [
               Text(
                 '$currency ${bid.amount}',
-                style: const TextStyle(
-                  color: Color(0xFF1F6B45),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                style:
+                    TextStyle(
+                  color: isLeading
+                      ? const Color(
+                          0xFF1F6B45,
+                        )
+                      : const Color(
+                          0xFF07152D,
+                        ),
+                  fontSize: 14,
+                  fontWeight:
+                      FontWeight.w800,
                 ),
               ),
 
               const SizedBox(height: 3),
 
-              const Text(
-                'BID',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
+              Text(
+                isLeading
+                    ? 'CURRENT'
+                    : 'BID',
+                style:
+                    const TextStyle(
+                  color:
+                      Color(0xFF9AA3B2),
+                  fontSize: 10,
+                  fontWeight:
+                      FontWeight.w800,
+                  letterSpacing:
+                      .8,
                 ),
               ),
             ],
@@ -3320,65 +4301,516 @@ class _HistoryItem extends StatelessWidget {
     );
   }
 
-  // ========================================================================
-  // BIDDER NAME
-  // ========================================================================
-
   String _bidderName() {
-    final bidder = bid.bidder;
+    final bidder =
+        bid.bidder;
 
     if (bidder == null) {
       return 'Anonymous bidder';
     }
 
-    if (bidder.maskedName.trim().isNotEmpty) {
+    if (bidder.maskedName
+        .trim()
+        .isNotEmpty) {
       return bidder.maskedName.trim();
     }
 
-    if (bidder.alias.trim().isNotEmpty) {
+    if (bidder.alias
+        .trim()
+        .isNotEmpty) {
       return bidder.alias.trim();
     }
 
     return 'Anonymous bidder';
   }
 
-  // ========================================================================
-  // DATE
-  // ========================================================================
-
   String _date() {
-    if (bid.placedAt.trim().isEmpty) {
+    if (bid.placedAt
+        .trim()
+        .isEmpty) {
       return '';
     }
 
     try {
-      final date = DateTime.parse(
+      final date =
+          DateTime.parse(
         bid.placedAt,
       ).toLocal();
 
-      final day = date.day.toString().padLeft(2, '0');
-      final month = date.month.toString().padLeft(2, '0');
-      final year = date.year;
+      final day =
+          date.day
+              .toString()
+              .padLeft(2, '0');
 
-      final hour = date.hour.toString().padLeft(2, '0');
-      final minute = date.minute.toString().padLeft(2, '0');
+      final month =
+          date.month
+              .toString()
+              .padLeft(2, '0');
+
+      final year =
+          date.year;
+
+      final hour =
+          date.hour
+              .toString()
+              .padLeft(2, '0');
+
+      final minute =
+          date.minute
+              .toString()
+              .padLeft(2, '0');
 
       return '$day/$month/$year • $hour:$minute';
     } catch (_) {
-      // If API returns a date format that DateTime.parse
-      // cannot understand, show the original value.
       return bid.placedAt;
     }
   }
 }
 
+
 // ============================================================================
-// BIDS LOADING
+// AUCTION DETAILS
 // ============================================================================
 
-class _BidsLoadingCard
+class _ModernAuctionDetailsSection
     extends StatelessWidget {
-  const _BidsLoadingCard();
+  final AuctionDetailEntity auction;
+
+  const _ModernAuctionDetailsSection({
+    required this.auction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final details = [
+      _AuctionDetailItem(
+        icon:
+            Icons.account_balance_wallet_outlined,
+        title: 'Opening bid',
+        value:
+            '${auction.currency} ${auction.startingPrice}',
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.trending_up_rounded,
+        title: 'Bid increment',
+        value:
+            '${auction.currency} ${auction.bidIncrement}',
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.shield_outlined,
+        title: 'Reserve',
+        value:
+            _reserveText(),
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.schedule_outlined,
+        title: 'Payment',
+        value:
+            '${auction.paymentWindowHours} hrs',
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.confirmation_number_outlined,
+        title: 'Auction no.',
+        value:
+            auction.number,
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.category_outlined,
+        title: 'Auction type',
+        value:
+            auction.type,
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.layers_outlined,
+        title: 'Listing',
+        value:
+            auction.listingLevel,
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.people_outline_rounded,
+        title: 'Bidders',
+        value:
+            auction.uniqueBidderCount
+                .toString(),
+      ),
+
+      _AuctionDetailItem(
+        icon:
+            Icons.visibility_outlined,
+        title: 'Views',
+        value:
+            auction.viewCount
+                .toString(),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        const _ModernSectionHeader(
+          title: 'Auction details',
+          icon:
+              Icons.tune_rounded,
+        ),
+
+        const SizedBox(height: 12),
+
+        Container(
+          width: double.infinity,
+          padding:
+              const EdgeInsets.all(10),
+          decoration:
+              BoxDecoration(
+            color: Colors.white,
+            borderRadius:
+                BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black
+                    .withOpacity(0.035),
+                blurRadius: 18,
+                offset:
+                    const Offset(0, 7),
+              ),
+            ],
+          ),
+          child:
+              LayoutBuilder(
+            builder:
+                (context, constraints) {
+              final columns =
+                  constraints.maxWidth >
+                          520
+                      ? 3
+                      : 2;
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics:
+                    const NeverScrollableScrollPhysics(),
+                itemCount:
+                    details.length,
+                gridDelegate:
+                    SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount:
+                      columns,
+                  crossAxisSpacing:
+                      7,
+                  mainAxisSpacing:
+                      7,
+                  childAspectRatio:
+                      columns == 3
+                          ? 2.25
+                          : 2.15,
+                ),
+                itemBuilder:
+                    (context, index) {
+                  return _AuctionDetailTile(
+                    item:
+                        details[index],
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _reserveText() {
+    if (!auction.hasReserve) {
+      return 'No reserve';
+    }
+
+    if (auction.reserveStatus ==
+        'MET') {
+      return 'Met';
+    }
+
+    return 'Not met';
+  }
+}
+
+
+// ============================================================================
+// AUCTION DETAIL TILE
+// ============================================================================
+
+class _AuctionDetailItem {
+  final IconData icon;
+  final String title;
+  final String value;
+
+  const _AuctionDetailItem({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+}
+
+class _AuctionDetailTile
+    extends StatelessWidget {
+  final _AuctionDetailItem item;
+
+  const _AuctionDetailTile({
+    required this.item,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 9,
+      ),
+      decoration:
+          BoxDecoration(
+        color:
+            const Color(0xFFF7F8FA),
+        borderRadius:
+            BorderRadius.circular(13),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration:
+                BoxDecoration(
+              color:
+                  const Color(
+                0xFFE4B94F,
+              ).withOpacity(
+                .13,
+              ),
+              borderRadius:
+                  BorderRadius.circular(
+                9,
+              ),
+            ),
+            child: Icon(
+              item.icon,
+              size: 15,
+              color:
+                  const Color(
+                0xFF07152D,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+              children: [
+                Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(
+                    color:
+                        Color(0xFF9AA3B2),
+                    fontSize: 12.5,
+                    fontWeight:
+                        FontWeight.w600,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  item.value,
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(
+                    color:
+                        Color(0xFF07152D),
+                    fontSize: 11.5,
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+// ============================================================================
+// MODERN SECTION HEADER
+// ============================================================================
+
+class _ModernSectionHeader
+    extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final String? trailing;
+
+  const _ModernSectionHeader({
+    required this.title,
+    required this.icon,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration:
+              BoxDecoration(
+            color:
+                const Color(0xFFE4B94F)
+                    .withOpacity(.14),
+            borderRadius:
+                BorderRadius.circular(
+              10,
+            ),
+          ),
+          child: Icon(
+            icon,
+            size: 17,
+            color:
+                const Color(0xFF07152D),
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Text(
+          title,
+          style:
+              const TextStyle(
+            color:
+                Color(0xFF07152D),
+            fontSize: 17,
+            fontWeight:
+                FontWeight.w800,
+          ),
+        ),
+
+        const Spacer(),
+
+        if (trailing != null)
+          Text(
+            trailing!,
+            style:
+                const TextStyle(
+              color:
+                  Color(0xFF697593),
+              fontSize: 12,
+              fontWeight:
+                  FontWeight.w600,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+
+// ============================================================================
+// MODERN CHIP
+// ============================================================================
+
+class _ModernChip
+    extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ModernChip({
+    required this.icon,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 9,
+        vertical: 7,
+      ),
+      decoration:
+          BoxDecoration(
+        color:
+            const Color(0xFFF4F5F7),
+        borderRadius:
+            BorderRadius.circular(
+          9,
+        ),
+      ),
+      child: Row(
+        mainAxisSize:
+            MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 13,
+            color:
+                const Color(
+              0xFF697593,
+            ),
+          ),
+
+          const SizedBox(width: 5),
+
+          Text(
+            text,
+            style:
+                 TextStyle(
+              color:
+                  Color(0xFF4F5C73),
+              fontSize: 11,
+              fontWeight:
+                  FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+// ============================================================================
+// MODERN LOADING
+// ============================================================================
+
+class _ModernLoadingCard
+    extends StatelessWidget {
+  const _ModernLoadingCard();
 
   @override
   Widget build(BuildContext context) {
@@ -3393,31 +4825,27 @@ class _BidsLoadingCard
         color: Colors.white,
         borderRadius:
             BorderRadius.circular(
-          18,
-        ),
-        border: Border.all(
-          color: Colors.grey.shade200,
+          20,
         ),
       ),
       child: const Column(
         children: [
           SizedBox(
-            width: 28,
-            height: 28,
+            width: 26,
+            height: 26,
             child:
                 CircularProgressIndicator(
-              strokeWidth: 2.5,
+              strokeWidth: 2.2,
             ),
           ),
-
-          SizedBox(height: 14),
-
+          SizedBox(height: 12),
           Text(
-            'Loading bidding history...',
-            style: TextStyle(
+            'Loading bid activity...',
+            style:
+                TextStyle(
               color:
                   Color(0xFF697593),
-              fontSize: 12,
+              fontSize: 11,
               fontWeight:
                   FontWeight.w500,
             ),
@@ -3428,16 +4856,17 @@ class _BidsLoadingCard
   }
 }
 
+
 // ============================================================================
-// BIDS ERROR
+// MODERN ERROR
 // ============================================================================
 
-class _BidsErrorCard
+class _ModernErrorCard
     extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _BidsErrorCard({
+  const _ModernErrorCard({
     required this.message,
     required this.onRetry,
   });
@@ -3452,82 +4881,73 @@ class _BidsErrorCard
           BoxDecoration(
         color: Colors.white,
         borderRadius:
-            BorderRadius.circular(18),
-        border: Border.all(
-          color: Colors.red.shade100,
+            BorderRadius.circular(
+          20,
         ),
       ),
       child: Column(
         children: [
           Container(
-            width: 45,
-            height: 45,
+            width: 44,
+            height: 44,
             decoration:
                 BoxDecoration(
-              color: Colors.red
-                  .withOpacity(0.08),
-              shape: BoxShape.circle,
+              color:
+                  Colors.red.withOpacity(
+                .08,
+              ),
+              shape:
+                  BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.error_outline,
+            child:
+                const Icon(
+              Icons.cloud_off_outlined,
               color: Colors.red,
+              size: 21,
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           const Text(
-            'Unable to load bidding history',
-            style: TextStyle(
+            'Unable to load bid activity',
+            style:
+                TextStyle(
               color:
                   Color(0xFF07152D),
-              fontSize: 14,
+              fontSize: 13,
               fontWeight:
                   FontWeight.w700,
             ),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
 
           Text(
             message,
             textAlign:
                 TextAlign.center,
-            style: TextStyle(
+            style:
+                const TextStyle(
               color:
-                  Colors.grey.shade600,
-              fontSize: 11,
+                  Color(0xFF697593),
+              fontSize: 10,
               height: 1.4,
             ),
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
-          OutlinedButton(
+          TextButton(
             onPressed: onRetry,
-            style:
-                OutlinedButton.styleFrom(
-              foregroundColor:
-                  const Color(
-                0xFF07152D,
-              ),
-              side:
-                  const BorderSide(
+            child:
+                const Text(
+              'Try again',
+              style:
+                  TextStyle(
                 color:
-                    Color(0xFFE4B94F),
-              ),
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  8,
-                ),
-              ),
-            ),
-            child: const Text(
-              'Retry',
-              style: TextStyle(
-                fontSize: 12,
+                    Color(0xFF07152D),
+                fontSize: 11,
                 fontWeight:
                     FontWeight.w700,
               ),
@@ -3539,15 +4959,16 @@ class _BidsErrorCard
   }
 }
 
+
 // ============================================================================
-// EMPTY HISTORY
+// MODERN EMPTY BID
 // ============================================================================
 
-class _EmptyHistoryCard
+class _ModernEmptyBidCard
     extends StatelessWidget {
   final int bidCount;
 
-  const _EmptyHistoryCard({
+  const _ModernEmptyBidCard({
     required this.bidCount,
   });
 
@@ -3565,11 +4986,7 @@ class _EmptyHistoryCard
         color: Colors.white,
         borderRadius:
             BorderRadius.circular(
-          18,
-        ),
-        border: Border.all(
-          color:
-              Colors.grey.shade200,
+          20,
         ),
       ),
       child: Column(
@@ -3581,9 +4998,11 @@ class _EmptyHistoryCard
                 const BoxDecoration(
               color:
                   Color(0xFFF3F5F8),
-              shape: BoxShape.circle,
+              shape:
+                  BoxShape.circle,
             ),
-            child: const Icon(
+            child:
+                const Icon(
               Icons.gavel_outlined,
               color:
                   Color(0xFF697593),
@@ -3593,11 +5012,12 @@ class _EmptyHistoryCard
           const SizedBox(height: 12),
 
           const Text(
-            'No bidding history',
-            style: TextStyle(
+            'No bids yet',
+            style:
+                TextStyle(
               color:
                   Color(0xFF07152D),
-              fontSize: 15,
+              fontSize: 14,
               fontWeight:
                   FontWeight.w700,
             ),
@@ -3607,14 +5027,15 @@ class _EmptyHistoryCard
 
           Text(
             bidCount == 0
-                ? 'Be the first person to place a bid.'
-                : 'Bidding history is not available.',
+                ? 'Be the first to place a bid on this item.'
+                : 'Bidding activity is currently unavailable.',
             textAlign:
                 TextAlign.center,
-            style: TextStyle(
+            style:
+                const TextStyle(
               color:
-                  Colors.grey.shade600,
-              fontSize: 12,
+                  Color(0xFF697593),
+              fontSize: 10.5,
               height: 1.4,
             ),
           ),
@@ -3624,316 +5045,81 @@ class _EmptyHistoryCard
   }
 }
 
+
 // ============================================================================
-// AUCTION META
+// TRUST CARD
 // ============================================================================
 
-class _AuctionMetaSection
+class _ModernTrustCard
     extends StatelessWidget {
-  final AuctionDetailEntity auction;
-
-  const _AuctionMetaSection({
-    required this.auction,
-  });
+  const _ModernTrustCard();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding:
-          const EdgeInsets.all(18),
+          const EdgeInsets.all(15),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color:
+            const Color(0xFFEEF7F2),
         borderRadius:
             BorderRadius.circular(
           18,
         ),
-        border: Border.all(
-          color:
-              Colors.grey.shade200,
-        ),
       ),
-      child: Column(
-        children: [
-          _InfoRow(
-            title: 'Opening bid',
-            value:
-                '${auction.currency} '
-                '${auction.startingPrice}',
-          ),
-
-          _InfoRow(
-            title: 'Current bid',
-            value:
-                auction.currentBid !=
-                        null
-                    ? '${auction.currency} '
-                        '${auction.currentBid}'
-                    : 'No bids',
-          ),
-
-          _InfoRow(
-            title: 'Bid increment',
-            value:
-                '${auction.currency} '
-                '${auction.bidIncrement}',
-          ),
-
-          _InfoRow(
-            title: 'Reserve',
-            value:
-                _reserveText(),
-          ),
-
-          _InfoRow(
-            title: 'Payment window',
-            value:
-                '${auction.paymentWindowHours} '
-                'hours from close',
-          ),
-
-          _InfoRow(
-            title: 'Anti-sniping',
-            value:
-                _antiSnipingText(),
-          ),
-
-          _InfoRow(
-            title: 'Auction number',
-            value:
-                auction.number,
-          ),
-
-          _InfoRow(
-            title: 'Status',
-            value:
-                auction.status,
-          ),
-
-          _InfoRow(
-            title: 'Auction type',
-            value:
-                auction.type,
-          ),
-
-          _InfoRow(
-            title: 'Listing level',
-            value:
-                auction.listingLevel,
-          ),
-
-          _InfoRow(
-            title: 'Bid count',
-            value:
-                auction.bidCount
-                    .toString(),
-          ),
-
-          _InfoRow(
-            title: 'Unique bidders',
-            value:
-                auction
-                    .uniqueBidderCount
-                    .toString(),
-          ),
-
-          _InfoRow(
-            title: 'Views',
-            value:
-                auction.viewCount
-                    .toString(),
-            isLast: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _reserveText() {
-    if (!auction.hasReserve) {
-      return 'No reserve';
-    }
-
-    if (auction.reserveStatus ==
-        'MET') {
-      return 'Met';
-    }
-
-    return 'Not yet met';
-  }
-
-  String _antiSnipingText() {
-    final extension =
-        auction.extension;
-
-    if (extension == null ||
-        extension.enabled != true) {
-      return 'Not enabled';
-    }
-
-    final windowMinutes =
-        extension.windowSeconds ~/
-            60;
-
-    final durationMinutes =
-        extension.durationSeconds ~/
-            60;
-
-    if (windowMinutes <= 0) {
-      return 'Enabled';
-    }
-
-    return 'Extends '
-        '$durationMinutes min if bid '
-        'within $windowMinutes min '
-        'of close';
-  }
-}
-
-// ============================================================================
-// SECTION TITLE
-// ============================================================================
-
-class _SectionTitle
-    extends StatelessWidget {
-  final String title;
-
-  const _SectionTitle({
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 45,
-          height: 1,
-          color:
-              const Color(0xFFE4B94F),
-        ),
-
-        const SizedBox(width: 9),
-
-        Container(
-          width: 6,
-          height: 6,
-          decoration:
-              const BoxDecoration(
-            color:
-                Color(0xFFE4B94F),
-            shape:
-                BoxShape.circle,
-          ),
-        ),
-
-        const SizedBox(width: 9),
-
-        Expanded(
-          child: Container(
-            height: 1,
-            color:
-                const Color(0xFFE4B94F),
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        Flexible(
-          child: Text(
-            title,
-            textAlign:
-                TextAlign.right,
-            style:
-                const TextStyle(
-              color:
-                  Color(0xFF07152D),
-              fontSize: 22,
-              fontWeight:
-                  FontWeight.w800,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ============================================================================
-// INFO ROW
-// ============================================================================
-
-class _InfoRow
-    extends StatelessWidget {
-  final String title;
-  final String value;
-  final bool isLast;
-
-  const _InfoRow({
-    required this.title,
-    required this.value,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints:
-          const BoxConstraints(
-        minHeight: 54,
-      ),
-      padding:
-          const EdgeInsets.symmetric(
-        vertical: 14,
-      ),
-      decoration: isLast
-          ? null
-          : BoxDecoration(
-              border:
-                  Border(
-                bottom:
-                    BorderSide(
-                  color:
-                      Colors.grey.shade200,
-                ),
-              ),
-            ),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 5,
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 13,
-                color:
-                    Colors.grey.shade600,
-                fontWeight:
-                    FontWeight.w500,
-              ),
+          Container(
+            width: 38,
+            height: 38,
+            decoration:
+                const BoxDecoration(
+              color: Colors.white,
+              shape:
+                  BoxShape.circle,
+            ),
+            child:
+                const Icon(
+              Icons
+                  .verified_user_outlined,
+              color:
+                  Color(0xFF1F6B45),
+              size: 19,
             ),
           ),
 
-          const SizedBox(width: 15),
+          const SizedBox(width: 11),
 
-          Expanded(
-            flex: 6,
-            child: Text(
-              value,
-              textAlign:
-                  TextAlign.right,
-              style:
-                  const TextStyle(
-                fontSize: 13,
-                color:
-                    Color(0xFF07152D),
-                fontWeight:
-                    FontWeight.w700,
-                height: 1.35,
-              ),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Secure auction experience',
+                  style:
+                      TextStyle(
+                    color:
+                        Color(0xFF164A32),
+                    fontSize: 12.5,
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  'Your bids and auction activity are handled securely.',
+                  style:
+                      TextStyle(
+                    color:
+                        Color(0xFF5D806D),
+                    fontSize: 12.5,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -3942,8 +5128,9 @@ class _InfoRow
   }
 }
 
+
 // ============================================================================
-// STATUS BADGE
+// STATUS BADGE — ORIGINAL
 // ============================================================================
 
 class _StatusBadge
@@ -4031,8 +5218,9 @@ class _StatusBadge
   }
 }
 
+
 // ============================================================================
-// ERROR VIEW
+// ERROR VIEW — ORIGINAL
 // ============================================================================
 
 class _ErrorView
@@ -4093,7 +5281,8 @@ class _ErrorView
               message,
               textAlign:
                   TextAlign.center,
-              style: TextStyle(
+              style:
+                  TextStyle(
                 color:
                     Colors.grey.shade600,
                 height: 1.4,
