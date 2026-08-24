@@ -509,22 +509,41 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // ─────────── UNCHANGED ───────────
-  void _startIntroIfReady(HomeState state) async {
-    if (!_introStarted && state.status == HomeStatus.loaded) {
-      _introStarted = true;
-      final prefs = await SharedPreferences.getInstance();
-      final hasShownIntro = prefs.getBool('hasShownHomeIntro') ?? false;
-
-      if (!hasShownIntro) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            controller.start(context);
-            // prefs.setBool('hasShownHomeIntro', true);
-          }
-        });
-      }
+  void _startIntroIfReady(HomeState state) {
+    if (_introStarted || state.status != HomeStatus.loaded) {
+      return;
     }
+
+    _introStarted = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      SharedPreferences.getInstance().then((prefs) {
+        final hasShownIntro = prefs.getBool('hasShownHomeIntro') ?? false;
+
+        if (hasShownIntro) {
+          return;
+        }
+
+        Future.delayed(
+          const Duration(milliseconds: 500),
+          () {
+            if (!mounted) {
+              return;
+            }
+
+            try {
+              controller.start(context);
+              prefs.setBool('hasShownHomeIntro', true);
+            } catch (e) {
+              debugPrint('Intro start error: $e');
+              _introStarted = false;
+            }
+          },
+        );
+      });
+    });
   }
 
   void _openCategory(CategoryModel cat) {
@@ -706,7 +725,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       else ...[
                         if (state.flashDeals.isNotEmpty) ...[
                           SliverToBoxAdapter(
-                            child: _buildStep6(
+                            child: _buildStep5(
                               ProductRail(
                                 metrics: m,
                                 title: 'Flash Deals',
@@ -732,7 +751,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                         if (state.recommended.isNotEmpty) ...[
                           SliverToBoxAdapter(
-                            child: _buildStep7(
+                            child: _buildStep6(
                               ProductRail(
                                 metrics: m,
                                 title: 'Recommended For You',
@@ -847,7 +866,7 @@ class _HomeScreenState extends State<HomeScreen> {
       controller: controller,
       cardContents: const TextSpan(
         text:
-            "Featured Services\n\nCheck out our partner services and exclusive offerings.",
+            "Flash Deals\n\nDon't miss out on our limited-time flash deals with huge discounts!",
       ),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 5),
       child: child,
@@ -860,22 +879,9 @@ class _HomeScreenState extends State<HomeScreen> {
       controller: controller,
       cardContents: const TextSpan(
         text:
-            "Flash Deals\n\nDon't miss out on our limited-time flash deals with huge discounts!",
-      ),
-      onStepWillActivate: (fromStep) => _scrollToTarget(step: 6),
-      child: child,
-    );
-  }
-
-  Widget _buildStep7(Widget child) {
-    return IntroStepTarget(
-      step: 7,
-      controller: controller,
-      cardContents: const TextSpan(
-        text:
             "Recommended For You\n\nPersonalized recommendations based on your preferences.",
       ),
-      onStepWillActivate: (fromStep) => _scrollToTarget(step: 7),
+      onStepWillActivate: (fromStep) => _scrollToTarget(step: 6),
       child: child,
     );
   }
@@ -894,7 +900,7 @@ class _HomeScreenState extends State<HomeScreen> {
         case 5:
           targetScroll = (currentScroll + 250).clamp(0.0, maxScroll);
           break;
-        case 6 || 7:
+        case 6:
           targetScroll = maxScroll;
           break;
         default:

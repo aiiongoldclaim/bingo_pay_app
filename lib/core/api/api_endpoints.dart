@@ -41,4 +41,16 @@ class ApiEndpoints {
 
   static String membershipResume(String uuid) =>
       '/api/v1/customer/membership/$uuid/resume';
+
+  static const String services = '/api/v1/services';
+  static const String brands = '/api/v1/brands';
+  static const String auctions = '/api/v1/auctions';
+  static const String addresses = '/api/v1/addresses';
+  static const String myAuctionBids = '/api/v1/auctions/me/bids';
+
+  static String auctionDetail(String uuid) => '/api/v1/auctions/$uuid';
+  static String auctionBids(String uuid) => '/api/v1/auctions/$uuid/bids';
+  static String addressDetail(String id) => '/api/v1/addresses/$id';
+  static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
+  static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';
 }

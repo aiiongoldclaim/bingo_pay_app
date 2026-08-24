@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
+import '../../../../core/api/api_endpoints.dart';
 import '../models/address_model.dart';
 
 @injectable
@@ -9,10 +10,8 @@ class AddressRemoteDataSource {
 
   AddressRemoteDataSource(this._client);
 
-  final baseUrl = "http://13.159.7.199:5001/api/v1";
-
   Future<List<AddressModel>> getAllAddresses() async {
-    final response = await _client.dio.get('$baseUrl/addresses');
+    final response = await _client.dio.get(ApiEndpoints.addresses);
     final responseData = response.data;
 
     if (responseData is! Map<String, dynamic>) {
@@ -33,7 +32,7 @@ class AddressRemoteDataSource {
   }
 
   Future<AddressModel> getAddressDetails(String addressId) async {
-    final response = await _client.dio.get('$baseUrl/addresses/$addressId');
+    final response = await _client.dio.get(ApiEndpoints.addressDetail(addressId));
     final data = response.data;
     final addressJson = data is Map<String, dynamic> && data['data'] != null
         ? data['data']
@@ -43,17 +42,20 @@ class AddressRemoteDataSource {
   }
 
   Future<void> createAddress(AddressModel model) async {
-    await _client.dio.post('$baseUrl/addresses', data: model.toJson());
+    await _client.dio.post(
+      ApiEndpoints.addresses,
+      data: model.toJson(),
+    );
   }
 
   Future<void> updateAddress(String addressId, AddressModel model) async {
     await _client.dio.patch(
-      '$baseUrl/addresses/$addressId',
+      ApiEndpoints.addressDetail(addressId),
       data: model.toJson(),
     );
   }
 
   Future<void> deleteAddress(String addressId) async {
-    await _client.dio.delete('$baseUrl/addresses/$addressId');
+    await _client.dio.delete(ApiEndpoints.addressDetail(addressId));
   }
 }

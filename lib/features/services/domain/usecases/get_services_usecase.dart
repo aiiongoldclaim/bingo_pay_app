@@ -1,5 +1,5 @@
 import 'package:injectable/injectable.dart';
-import '../../data/datasources/service_remote_datasource.dart';
+import '../../data/datasources/services_remote_datasource.dart';
 import '../entities/service_entity.dart';
 
 @injectable

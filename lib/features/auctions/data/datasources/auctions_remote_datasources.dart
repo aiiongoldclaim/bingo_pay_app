@@ -2,6 +2,7 @@ import 'package:bingo_pay/features/auctions/data/models/auction_model.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
+import '../../../../core/api/api_endpoints.dart';
 import '../models/auction_detail_model.dart';
 import '../models/bid_model.dart';
 import '../models/my_bids_model.dart';
@@ -11,9 +12,7 @@ import '../models/place_bid_model.dart';
 class AuctionsRemoteDatasources {
   final ApiClient _client;
 
-  AuctionsRemoteDatasources(this._client); 
-
-  final baseUrl = "http://13.159.7.199:5001/api/v1";
+  AuctionsRemoteDatasources(this._client);
 
   Future<List<AuctionModel>> getAuctions({
     int take = 24,
@@ -27,7 +26,7 @@ class AuctionsRemoteDatasources {
     required String status,
   }) async {
     final response = await _client.dio.get(
-      '$baseUrl/auctions',
+      ApiEndpoints.auctions,
       queryParameters: {
         'take': take,
         // 'skip': skip,
@@ -54,7 +53,7 @@ class AuctionsRemoteDatasources {
   }
 
   Future<AuctionDetailModel> getAuctionDetail(String uuid) async {
-    final response = await _client.dio.get('$baseUrl/auctions/$uuid');
+    final response = await _client.dio.get(ApiEndpoints.auctionDetail(uuid));
     final data = response.data;
     final auctionJson = data is Map<String, dynamic> && data['data'] != null
         ? data['data']
@@ -62,9 +61,9 @@ class AuctionsRemoteDatasources {
 
     return AuctionDetailModel.fromJson(auctionJson);
   }
-  
+
    Future<List<BidModel>> getBids(String auctionUuid) async {
-    final response = await _client.dio.get('$baseUrl/auctions/$auctionUuid/bids');
+    final response = await _client.dio.get(ApiEndpoints.auctionBids(auctionUuid));
     final data = response.data;
     final bidsJson = data is Map<String, dynamic> && data['data'] != null
         ? data['data']
@@ -72,8 +71,8 @@ class AuctionsRemoteDatasources {
 
     return (bidsJson as List)
         .map((json) => BidModel.fromJson(json))
-        .toList(); 
-  } 
+        .toList();
+  }
 
   Future<PlaceBidModel> placeBid({
   required String auctionUuid,
@@ -81,7 +80,7 @@ class AuctionsRemoteDatasources {
   required String idempotencyKey,
 }) async {
   final response = await _client.dio.post(
-    '$baseUrl/auctions/$auctionUuid/bids',
+    ApiEndpoints.auctionBids(auctionUuid),
     data: {
       'amount': amount,
       'idempotencyKey': idempotencyKey,
@@ -106,7 +105,7 @@ Future<MyBidsModel> getMyBids({
   String? state,
 }) async {
   final response = await _client.dio.get(
-    '$baseUrl/auctions/me/bids',
+    ApiEndpoints.myAuctionBids,
     queryParameters: {
       'take': take,
       'skip': skip,
