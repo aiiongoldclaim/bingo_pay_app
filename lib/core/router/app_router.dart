@@ -6,18 +6,15 @@ import 'package:injectable/injectable.dart';
 import '../../features/account/presentation/cubit/account_cubit.dart';
 import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/auctions/presentation/screens/auction_screen.dart';
-
 import '../../features/auctions/presentation/screens/my_bids_screen.dart';
-
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
 import '../../features/edit_profile/presentation/cubit/edit_profile_cubit.dart';
-import '../../features/membershipNew/data/models/membership_plan_model.dart';
 import '../../features/membershipNew/presentation/screens/membership_checkout_screen.dart';
-import '../../features/membershipNew/presentation/screens/membership_dashbord.dart';
+import '../../features/membershipNew/presentation/screens/membership_plan.dart';
 import '../../features/membershipNew/presentation/screens/membership_screen.dart';
 import '../../features/membershipNew/presentation/screens/membership_success_screen.dart';
 import '../../features/membershipNew/presentation/widgets/membership_checkout_args.dart';
@@ -73,15 +70,6 @@ class AppRouter {
   static const _minSplashDuration = Duration(milliseconds: 1500);
   final DateTime _startedAt = DateTime.now();
 
-  // void markOnboardingSeen() {
-  //   _authState = RouteAuthState(
-  //     isAuthenticated: _authState.isAuthenticated,
-  //     isLoading: _authState.isLoading,
-  //     isKycPending: _authState.isKycPending,
-  //     hasSeenOnboarding: true,
-  //   );
-  //   router.refresh();
-  // }
 
   void markOnboardingSeen() {
     _authState = RouteAuthState(
@@ -268,6 +256,39 @@ class AppRouter {
           builder: (_, _) => const HelpSupportScreen(),
         ),
 
+        // ---------------- membership (ShellRoute ke BAHAR) ----------------
+        GoRoute(
+          path: AppRoutes.membership,
+          name: 'membership',
+          builder: (_, _) => const MembershipScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.membershipPlans,
+          name: 'membershipPlans',
+          builder: (context, state) => MembershipPlansScreen(
+            preselectPlanUuid:
+            state.extra is String ? state.extra as String : null,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.membershipCheckout,
+          builder: (context, state) => MembershipCheckoutScreen(
+            args: state.extra as MembershipCheckoutArgs,
+          ),
+          redirect: (context, state) => state.extra is MembershipCheckoutArgs
+              ? null
+              : AppRoutes.membershipPlans,
+        ),
+        GoRoute(
+          path: AppRoutes.membershipActivated,
+          builder: (context, state) => MembershipActivatedScreen(
+            args: state.extra as MembershipCheckoutArgs,
+          ),
+          redirect: (context, state) => state.extra is MembershipCheckoutArgs
+              ? null
+              : AppRoutes.membership,
+        ),
+
         ShellRoute(
           builder: (context, state, child) {
             return BlocProvider<ShopBloc>(
@@ -395,14 +416,14 @@ class AppRouter {
               path: AppRoutes.buyerProfile,
               builder: (_, _) => const ProfileScreen(),
             ),
-            GoRoute(
-              path: AppRoutes.buyerSettings,
-              builder: (_, _) => const _PlaceholderPage('Settings'),
-            ),
-            GoRoute(
-              path: AppRoutes.buyerNotifications,
-              builder: (_, _) => const _PlaceholderPage('Notifications'),
-            ),
+            // GoRoute(
+            //   path: AppRoutes.buyerSettings,
+            //   builder: (_, _) => const _PlaceholderPage('Settings'),
+            // ),
+            // GoRoute(
+            //   path: AppRoutes.buyerNotifications,
+            //   builder: (_, _) => const _PlaceholderPage('Notifications'),
+            // ),
 
             // ShellRoute ke BAHAR
             // GoRoute(
@@ -410,27 +431,8 @@ class AppRouter {
             //   name: 'membership',
             //   builder: (context, state) => const MembershipScreen(),
             // ),
-            GoRoute(
-              path: AppRoutes.membershipPlans,          // '/membership-plans'
-              name: 'membershipPlans',
-              builder: (context, state) =>
-                  MembershipPlansScreen(preselectPlanUuid: state.extra as String?),
-            ),
-            GoRoute(
-              path: AppRoutes.membershipCheckout,
-              redirect: (context, state) =>
-              state.extra is MembershipCheckoutArgs ? null : AppRoutes.membershipPlans,
-              builder: (context, state) =>
-                  MembershipCheckoutScreen(args: state.extra as MembershipCheckoutArgs),
-            ),
 
-            GoRoute(
-              path: AppRoutes.membershipSuccess,
-              redirect: (context, state) =>
-              state.extra is MembershipCheckoutArgs ? null : AppRoutes.membershipPlans,
-              builder: (context, state) =>
-                  MembershipSuccessScreen(args: state.extra as MembershipCheckoutArgs),
-            ),
+
 
             GoRoute(
               path: AppRoutes.buyerAddresses,
@@ -476,7 +478,7 @@ class AppRouter {
       'onboarding=${state.hasSeenOnboarding} '
       'kyc=${state.isKycPending}',
     );
-    // Sirf pehli baar (loading -> resolved) wait karo
+
     if (_authState.isLoading && !state.isLoading) {
       final elapsed = DateTime.now().difference(_startedAt);
       final remaining = _minSplashDuration - elapsed;
@@ -490,14 +492,6 @@ class AppRouter {
   }
 }
 
-// class _SplashPage extends StatelessWidget {
-//   const _SplashPage();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Scaffold(body: Center(child: CircularProgressIndicator()));
-//   }
-// }
 
 class _PlaceholderPage extends StatelessWidget {
   final String name;

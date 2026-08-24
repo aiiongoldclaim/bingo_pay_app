@@ -50,10 +50,10 @@ class AppRoutes {
   static const String buyerInvoices = '/buyer/invoices';
   static const String buyerInvoiceDetail = '/buyer/invoices/:id';
   // membership
-  static const String membership = '/membership';
-  static const String membershipCheckout = '/membership-checkout';
-  static const String membershipPlans = '/membership-plans';
-  static const String membershipSuccess = '/membership-success';
+  static const membership = '/membership';
+  static const membershipPlans = '/membership-plans';
+  static const membershipCheckout = '/membership-checkout';
+  static const membershipActivated = '/membership-activated';
 
   //  Auctions
   static const auctionScreen = '/auctions';

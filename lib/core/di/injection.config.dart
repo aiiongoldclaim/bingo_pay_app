@@ -128,10 +128,8 @@ import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remo
     as _i578;
 import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository.dart'
     as _i378;
-import 'package:bingo_pay/features/membershipNew/presentation/cubit/member_ship_cubit.dart'
-    as _i752;
-import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_dashboard_cubit.dart'
-    as _i308;
+import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_cubit.dart'
+    as _i359;
 import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
 import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
     as _i705;
@@ -303,14 +301,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i447.ServiceDetailDataSource>(),
       ),
     );
-    gh.factory<_i752.MembershipCubit>(
-      () => _i752.MembershipCubit(gh<_i378.MembershipRepository>()),
-    );
-    gh.factory<_i752.MembershipCheckoutCubit>(
-      () => _i752.MembershipCheckoutCubit(gh<_i378.MembershipRepository>()),
-    );
-    gh.factory<_i308.MembershipPlansCubit>(
-      () => _i308.MembershipPlansCubit(gh<_i378.MembershipRepository>()),
+    gh.factory<_i359.MembershipCubit>(
+      () => _i359.MembershipCubit(gh<_i378.MembershipRepository>()),
     );
     gh.factory<_i728.CartCubit>(
       () => _i728.CartCubit(

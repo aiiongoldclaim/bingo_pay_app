@@ -2,6 +2,8 @@ import 'package:injectable/injectable.dart';
 
 import '../datasource/membership_remote_data_source.dart';
 import '../models/member_ship_model.dart';
+import '../models/membership_balance_model.dart';
+import '../models/membership_cancel_model.dart';
 import '../models/membership_plan_model.dart';
 import '../models/membership_subscribe_model.dart';
 
@@ -12,9 +14,13 @@ abstract class MembershipRepository {
 
   Future<MembershipQuote> subscribe(String planUuid);
 
-  Future<MembershipActionResult> cancel(String subscriptionUuid);
+  Future<MembershipCancelModel> cancel(String subscriptionUuid);
 
-  Future<MembershipActionResult> resume(String subscriptionUuid);
+  Future<BigodBalance> getBigodBalance();
+
+  Future<BigodConfirmResult> confirmBigodPayment(
+      String token,
+      );
 }
 
 @LazySingleton(as: MembershipRepository)
@@ -34,10 +40,21 @@ class MembershipRepositoryImpl implements MembershipRepository {
       _remote.subscribe(planUuid: planUuid);
 
   @override
-  Future<MembershipActionResult> cancel(String subscriptionUuid) =>
+  Future<MembershipCancelModel> cancel(String subscriptionUuid) =>
       _remote.cancel(subscriptionUuid: subscriptionUuid);
 
+
   @override
-  Future<MembershipActionResult> resume(String subscriptionUuid) =>
-      _remote.resume(subscriptionUuid: subscriptionUuid);
+  Future<BigodBalance> getBigodBalance() {
+    return _remote.fetchBigodBalance();
+  }
+
+  @override
+  Future<BigodConfirmResult> confirmBigodPayment(
+      String token,
+      ) {
+    return _remote.confirmBigodPayment(
+      token: token,
+    );
+  }
 }

@@ -1,746 +1,1597 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:bingo_pay/core/di/injection.dart';
-// import 'package:bingo_pay/core/router/app_routes.dart';
-// import 'package:bingo_pay/core/theme/app_theme_colors.dart';
-// import 'package:bingo_pay/core/theme/theme_colors.dart';
-//
-// import '../../data/models/member_ship_model.dart';
-// import '../../data/models/membership_plan_model.dart';
-// import '../cubit/member_ship_cubit.dart';
-// import '../cubit/member_ship_state.dart';
-// import '../widgets/action_sheets.dart';
-// import '../widgets/benifits_tile.dart';
-// import '../widgets/details_card.dart';
-// import '../widgets/feature_strip.dart';
-// import '../widgets/hero_card.dart';
-// import '../widgets/landing_widgets.dart';
-// import '../widgets/membership_formatters.dart';
-// import '../widgets/membership_metrices.dart';
-// import '../widgets/membership_plan_widgets.dart';
-// import '../widgets/status_view.dart';
-//
-// class MembershipScreen extends StatelessWidget {
-//   const MembershipScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return MultiBlocProvider(
-//       providers: [
-//         BlocProvider<MembershipCubit>(
-//           create: (_) => getIt<MembershipCubit>()..load(),
-//         ),
-//         BlocProvider<MembershipPlansCubit>(
-//           create: (_) => getIt<MembershipPlansCubit>()..load(),
-//         ),
-//       ],
-//       child: const _MembershipView(),
-//     );
-//   }
-// }
-//
-// class _MembershipView extends StatefulWidget {
-//   const _MembershipView();
-//
-//   @override
-//   State<_MembershipView> createState() => _MembershipViewState();
-// }
-//
-// class _MembershipViewState extends State<_MembershipView> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     // cancel / resume ka backend message snackbar me
-//     context.read<MembershipCubit>().events.listen(_onEvent);
-//   }
-//
-//   void _onEvent(MembershipEvent event) {
-//     if (!mounted) return;
-//     final c = context.c;
-//
-//     final (String text, Color bg) = switch (event) {
-//       MembershipActionSuccess(:final result) => (
-//       result.message.isEmpty ? 'Done' : result.message,
-//       c.statusSuccess,
-//       ),
-//       MembershipActionFailed(:final message) => (message, c.statusWarning),
-//     };
-//
-//     ScaffoldMessenger.of(context)
-//       ..hideCurrentSnackBar()
-//       ..showSnackBar(
-//         SnackBar(
-//           content: Text(text),
-//           backgroundColor: bg,
-//           behavior: SnackBarBehavior.floating,
-//         ),
-//       );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final c = context.c;
-//
-//     return LayoutBuilder(
-//       builder: (context, _) {
-//         final m = MembershipMetrics.of(context);
-//
-//         return Scaffold(
-//           backgroundColor: c.background,
-//           appBar: AppBar(
-//             backgroundColor: c.background,
-//             leading: IconButton(
-//               onPressed: () {
-//                 if (context.canPop()) context.pop();
-//               },
-//               icon: Icon(
-//                 Icons.arrow_back_ios_new_rounded,
-//                 size: m.smallIcon,
-//                 color: c.textPrimary,
-//               ),
-//             ),
-//             title: Text(
-//               'Membership',
-//               style: TextStyle(
-//                 fontSize: m.screenTitleSize,
-//                 fontWeight: FontWeight.w600,
-//                 color: c.textPrimary,
-//               ),
-//             ),
-//           ),
-//           body: SafeArea(
-//             top: false,
-//             child: BlocBuilder<MembershipCubit, MembershipState>(
-//               builder: (context, state) => switch (state) {
-//                 MembershipInitial() ||
-//                 MembershipLoading() => MembershipLoadingView(metrics: m),
-//                 MembershipError(:final message) => MembershipErrorView(
-//                   metrics: m,
-//                   message: message,
-//                   onRetry: () => context.read<MembershipCubit>().load(),
-//                 ),
-//                 MembershipLoaded() => _Body(
-//                   state: state,
-//                   metrics: m,
-//                   onCancel: _onCancel,
-//                   onResume: _onResume,
-//                 ),
-//               },
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-//
-//   // ---------------- cancel / resume ----------------
-//
-//   Future<void> _onCancel(
-//       MembershipModel membership,
-//       MembershipMetrics m,
-//       ) async {
-//     final sub = membership.subscription;
-//     if (sub == null) return;
-//
-//     final ok = await MembershipActionSheets.confirmCancel(
-//       context,
-//       metrics: m,
-//       planName: membership.plan?.name ?? 'Membership',
-//       validTill: formatMembershipDate(sub.endAt),
-//     );
-//     if (!ok || !mounted) return;
-//     context.read<MembershipCubit>().cancel(sub.uuid);
-//   }
-//
-//   Future<void> _onResume(
-//       MembershipModel membership,
-//       MembershipMetrics m,
-//       ) async {
-//     final sub = membership.subscription;
-//     if (sub == null) return;
-//
-//     final ok = await MembershipActionSheets.confirmResume(
-//       context,
-//       metrics: m,
-//       planName: membership.plan?.name ?? 'Membership',
-//     );
-//     if (!ok || !mounted) return;
-//     context.read<MembershipCubit>().resume(sub.uuid);
-//   }
-// }
-//
-//
-// class _Body extends StatelessWidget {
-//   const _Body({
-//     required this.state,
-//     required this.metrics,
-//     required this.onCancel,
-//     required this.onResume,
-//   });
-//
-//   final MembershipLoaded state;
-//   final MembershipMetrics metrics;
-//   final Future<void> Function(MembershipModel, MembershipMetrics) onCancel;
-//   final Future<void> Function(MembershipModel, MembershipMetrics) onResume;
-//
-//   MembershipModel get membership => state.membership;
-//
-//   bool get isMember => membership.subscription != null;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final c = context.c;
-//     final m = metrics;
-//
-//     return Column(
-//       mainAxisSize: MainAxisSize.max,
-//       children: [
-//         Expanded(
-//           child: RefreshIndicator(
-//             color: c.brand,
-//             backgroundColor: c.surface,
-//             onRefresh: () async {
-//               await context.read<MembershipCubit>().refresh();
-//               if (!context.mounted) return;
-//               await context.read<MembershipPlansCubit>().load();
-//             },
-//             child: SingleChildScrollView(
-//               physics: const AlwaysScrollableScrollPhysics(),
-//               padding: EdgeInsets.fromLTRB(
-//                 m.hPad,
-//                 m.vPad,
-//                 m.hPad,
-//                 m.sectionGap * 0.6,
-//               ),
-//               child: Center(
-//                 child: ConstrainedBox(
-//                   constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.stretch,
-//                     children: isMember
-//                         ? _memberSections(context, m)
-//                         : _guestSections(context, m),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//         _BottomBar(
-//           state: state,
-//           metrics: m,
-//           onCancel: () => onCancel(membership, m),
-//           onResume: () => onResume(membership, m),
-//         ),
-//       ],
-//     );
-//   }
-//
-//   // ---------------- member view ----------------
-//
-//   List<Widget> _memberSections(BuildContext context, MembershipMetrics m) {
-//     final sub = membership.subscription!;
-//
-//     final enabled = [
-//       ...membership.benefits.where((e) => e.enabled),
-//       ...membership.accessRights.where((e) => e.enabled),
-//     ];
-//     final locked = [
-//       ...membership.benefits.where((e) => !e.enabled),
-//       ...membership.accessRights.where((e) => !e.enabled),
-//     ];
-//
-//     return [
-//       MembershipHeroCard(
-//         plan: membership.plan,
-//         subscription: sub,
-//         metrics: m,
-//         activeBenefitCount: membership.activeBenefitCount,
-//       ),
-//       SizedBox(height: m.sectionGap),
-//
-//       if (enabled.isNotEmpty) ...[
-//         MembershipSectionHeader(title: 'Your benefits', metrics: m),
-//         SizedBox(height: m.rowGap),
-//         MembershipBenefitsStrip(items: enabled.take(4).toList(), metrics: m),
-//         SizedBox(height: m.sectionGap),
-//       ],
-//
-//       MembershipSectionHeader(title: 'Subscription details', metrics: m),
-//       SizedBox(height: m.tileGap),
-//       MembershipDetailsCard(
-//         plan: membership.plan,
-//         subscription: sub,
-//         metrics: m,
-//       ),
-//
-//       if (locked.isNotEmpty) ...[
-//         SizedBox(height: m.sectionGap),
-//         MembershipSectionHeader(title: 'Not in your plan', metrics: m),
-//         SizedBox(height: m.tileGap),
-//         _EntitlementGrid(items: locked, metrics: m),
-//       ],
-//
-//       SizedBox(height: m.sectionGap),
-//       _PlansSection(title: 'Other plans', metrics: m, currentPlan: membership.plan),
-//
-//       SizedBox(height: m.sectionGap * 0.8),
-//       MembershipInfoStrip(metrics: m),
-//     ];
-//   }
-//
-//   // ---------------- guest view ----------------
-//
-//   List<Widget> _guestSections(BuildContext context, MembershipMetrics m) => [
-//     MembershipPlansHero(metrics: m),
-//     SizedBox(height: m.sectionGap),
-//     _PlanBenefitsPreview(metrics: m),
-//     SizedBox(height: m.sectionGap),
-//     _PlansSection(title: 'Choose your plan', metrics: m, currentPlan: null),
-//     SizedBox(height: m.sectionGap * 0.8),
-//     MembershipInfoStrip(metrics: m),
-//   ];
-// }
-//
-//
-//
-// class _PlanBenefitsPreview extends StatelessWidget {
-//   const _PlanBenefitsPreview({required this.metrics});
-//
-//   final MembershipMetrics metrics;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final m = metrics;
-//
-//     return BlocBuilder<MembershipPlansCubit, MembershipPlansState>(
-//       builder: (context, state) {
-//         if (state is! MembershipPlansLoaded || state.plans.isEmpty) {
-//           return const SizedBox.shrink();
-//         }
-//
-//         // unique features, order preserve
-//         final seen = <String>{};
-//         final features = <MembershipPlanFeature>[];
-//         for (final plan in state.plans) {
-//           for (final f in plan.features) {
-//             if (f.isIncluded && seen.add(f.key)) features.add(f);
-//           }
-//         }
-//         if (features.isEmpty) return const SizedBox.shrink();
-//
-//         return Column(
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             MembershipSectionHeader(
-//               title: 'Membership Benefits',
-//               metrics: m,
-//             ),
-//             SizedBox(height: m.rowGap),
-//             MembershipFeatureStrip(
-//               features: features.take(4).toList(),
-//               metrics: m,
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
-//
-//
-// class _PlansSection extends StatelessWidget {
-//   const _PlansSection({
-//     required this.title,
-//     required this.metrics,
-//     required this.currentPlan,
-//   });
-//
-//   final String title;
-//   final MembershipMetrics metrics;
-//   final MembershipPlan? currentPlan;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final m = metrics;
-//
-//     final cubit = context.read<MembershipPlansCubit?>();
-//     if (cubit == null) return const SizedBox.shrink();
-//
-//     return BlocBuilder<MembershipPlansCubit, MembershipPlansState>(
-//       builder: (context, state) {
-//         if (state is MembershipPlansLoading ||
-//             state is MembershipPlansInitial) {
-//           return const SizedBox.shrink();
-//         }
-//
-//         if (state is MembershipPlansError) {
-//           return _PlansErrorRow(message: state.message, metrics: m);
-//         }
-//
-//         final loaded = state as MembershipPlansLoaded;
-//
-//         // member view me current plan hata do
-//         final plans = currentPlan == null
-//             ? loaded.plans
-//             : loaded.plans.where((p) => p.uuid != currentPlan!.uuid).toList();
-//
-//         if (plans.isEmpty) return const SizedBox.shrink();
-//
-//         final cubit = context.read<MembershipPlansCubit>();
-//
-//         Widget card(MembershipPlanOption plan) => MembershipPlanTierCard(
-//           plan: plan,
-//           selected: loaded.selectedPlan?.uuid == plan.uuid,
-//           metrics: m,
-//           onTap: () => cubit.selectPlan(plan.uuid),
-//         );
-//
-//         return Column(
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             MembershipSectionHeader(title: title, metrics: m),
-//             SizedBox(height: m.rowGap),
-//             if (m.isPhone && !m.isLandscape)
-//               SizedBox(
-//                 height: m.iconCircle * 7.6,
-//                 child: ListView.separated(
-//                   scrollDirection: Axis.horizontal,
-//                   padding: EdgeInsets.zero,
-//                   itemCount: plans.length,
-//                   separatorBuilder: (_, __) => SizedBox(width: m.tileGap),
-//                   itemBuilder: (context, i) => SizedBox(
-//                     width: MediaQuery.sizeOf(context).width * 0.64,
-//                     child: card(plans[i]),
-//                   ),
-//                 ),
-//               )
-//             else
-//               LayoutBuilder(
-//                 builder: (context, constraints) {
-//                   final columns = plans.length <= 3 ? plans.length : 3;
-//                   final itemWidth =
-//                       (constraints.maxWidth - m.tileGap * (columns - 1)) /
-//                           columns;
-//
-//                   return Wrap(
-//                     spacing: m.tileGap,
-//                     runSpacing: m.tileGap,
-//                     children: [
-//                       for (final plan in plans)
-//                         SizedBox(width: itemWidth, child: card(plan)),
-//                     ],
-//                   );
-//                 },
-//               ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
-//
-// class _PlansErrorRow extends StatelessWidget {
-//   const _PlansErrorRow({required this.message, required this.metrics});
-//
-//   final String message;
-//   final MembershipMetrics metrics;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final c = context.c;
-//     final m = metrics;
-//
-//     return Container(
-//       padding: EdgeInsets.all(m.cardPad * 0.8),
-//       decoration: BoxDecoration(
-//         color: c.statusWarningSoft,
-//         borderRadius: BorderRadius.circular(m.radiusMd),
-//       ),
-//       child: Row(
-//         children: [
-//           Icon(
-//             Icons.error_outline_rounded,
-//             size: m.smallIcon,
-//             color: c.statusWarning,
-//           ),
-//           SizedBox(width: m.cardPad * 0.5),
-//           Expanded(
-//             child: Text(
-//               'Plans could not be loaded. $message',
-//               style: TextStyle(
-//                 fontSize: m.captionSize,
-//                 fontWeight: FontWeight.w500,
-//                 color: c.textPrimary,
-//               ),
-//             ),
-//           ),
-//           TextButton(
-//             onPressed: () => context.read<MembershipPlansCubit>().load(),
-//             style: TextButton.styleFrom(foregroundColor: c.brand),
-//             child: Text(
-//               'Retry',
-//               style: TextStyle(
-//                 fontSize: m.captionSize,
-//                 fontWeight: FontWeight.w700,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-//
-// class _BottomBar extends StatelessWidget {
-//   const _BottomBar({
-//     required this.state,
-//     required this.metrics,
-//     required this.onCancel,
-//     required this.onResume,
-//   });
-//
-//   final MembershipLoaded state;
-//   final MembershipMetrics metrics;
-//   final VoidCallback onCancel;
-//   final VoidCallback onResume;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final c = context.c;
-//     final m = metrics;
-//     final sub = state.membership.subscription;
-//     final busy = state.isActionInProgress;
-//
-//     return Container(
-//       padding: EdgeInsets.fromLTRB(m.hPad, m.rowGap * 0.7, m.hPad, m.rowGap),
-//       decoration: BoxDecoration(
-//         color: c.background,
-//         border: Border(top: BorderSide(color: c.border)),
-//       ),
-//       child: Center(
-//         child: ConstrainedBox(
-//           constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-//           child: sub == null
-//               ? _joinButton(context, m)
-//               : _manageRow(context, m, sub, busy),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   // guest -> "Join <plan>"
-//   Widget _joinButton(BuildContext context, MembershipMetrics m) {
-//     final c = context.c;
-//
-//     return BlocBuilder<MembershipPlansCubit, MembershipPlansState>(
-//       builder: (context, plansState) {
-//         final plan = plansState is MembershipPlansLoaded
-//             ? plansState.selectedPlan
-//             : null;
-//
-//         return SizedBox(
-//           width: double.infinity,
-//           height: m.buttonHeight,
-//           child: ElevatedButton(
-//             onPressed: plan == null
-//                 ? null
-//                 : () => context.push(AppRoutes.membershipCheckout, extra: plan),
-//             style: ElevatedButton.styleFrom(
-//               backgroundColor: c.brand,
-//               foregroundColor: ThemeColors.white,
-//               disabledBackgroundColor: c.brand.withValues(alpha: 0.45),
-//               elevation: 0,
-//               minimumSize: Size.zero,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(m.radiusMd),
-//               ),
-//             ),
-//             child: Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Icon(
-//                   Icons.diamond_outlined,
-//                   size: m.smallIcon,
-//                   color: ThemeColors.gold1,
-//                 ),
-//                 SizedBox(width: m.cardPad * 0.4),
-//                 Flexible(
-//                   child: Text(
-//                     plan == null ? 'Join membership' : 'Join ${plan.name}',
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                     style: TextStyle(
-//                       fontSize: m.sectionTitleSize,
-//                       fontWeight: FontWeight.w700,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-//
-//   // member -> cancel / resume + upgrade
-//   Widget _manageRow(
-//       BuildContext context,
-//       MembershipMetrics m,
-//       MembershipSubscription sub,
-//       bool busy,
-//       ) {
-//     final c = context.c;
-//     final active = sub.isActive;
-//
-//     Widget spinner(Color color) => SizedBox(
-//       width: m.smallIcon,
-//       height: m.smallIcon,
-//       child: CircularProgressIndicator(
-//         strokeWidth: 2,
-//         valueColor: AlwaysStoppedAnimation<Color>(color),
-//       ),
-//     );
-//
-//     final primary = active
-//         ? OutlinedButton.icon(
-//       onPressed: busy ? null : onCancel,
-//       style: OutlinedButton.styleFrom(
-//         foregroundColor: c.statusWarning,
-//         side: BorderSide(color: c.statusWarning),
-//         minimumSize: Size.zero,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(m.radiusMd),
-//         ),
-//       ),
-//       icon: busy
-//           ? spinner(c.statusWarning)
-//           : Icon(Icons.pause_circle_outline_rounded, size: m.smallIcon),
-//       label: Text(
-//         'Cancel',
-//         style: TextStyle(
-//           fontSize: m.labelSize,
-//           fontWeight: FontWeight.w700,
-//         ),
-//       ),
-//     )
-//         : ElevatedButton.icon(
-//       onPressed: busy ? null : onResume,
-//       style: ElevatedButton.styleFrom(
-//         backgroundColor: c.brand,
-//         foregroundColor: ThemeColors.white,
-//         disabledBackgroundColor: c.brand.withValues(alpha: 0.45),
-//         elevation: 0,
-//         minimumSize: Size.zero,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(m.radiusMd),
-//         ),
-//       ),
-//       icon: busy
-//           ? spinner(ThemeColors.white)
-//           : Icon(Icons.play_circle_outline_rounded, size: m.smallIcon),
-//       label: Text(
-//         'Resume',
-//         style: TextStyle(
-//           fontSize: m.labelSize,
-//           fontWeight: FontWeight.w700,
-//         ),
-//       ),
-//     );
-//
-//     return Row(
-//       children: [
-//         Expanded(child: SizedBox(height: m.buttonHeight, child: primary)),
-//         SizedBox(width: m.cardPad * 0.6),
-//         Expanded(
-//           child: SizedBox(
-//             height: m.buttonHeight,
-//             child: BlocBuilder<MembershipPlansCubit, MembershipPlansState>(
-//               builder: (context, plansState) {
-//                 final plan = plansState is MembershipPlansLoaded
-//                     ? plansState.selectedPlan
-//                     : null;
-//                 final canUpgrade =
-//                     plan != null && plan.uuid != state.membership.plan?.uuid;
-//
-//                 return TextButton.icon(
-//                   onPressed: busy || !canUpgrade
-//                       ? null
-//                       : () => context.push(
-//                     AppRoutes.membershipCheckout,
-//                     extra: plan,
-//                   ),
-//                   style: TextButton.styleFrom(
-//                     foregroundColor: c.brand,
-//                     backgroundColor: c.brandSoft.withValues(alpha: 0.4),
-//                     disabledForegroundColor: c.textMuted,
-//                     minimumSize: Size.zero,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(m.radiusMd),
-//                     ),
-//                   ),
-//                   icon: Icon(Icons.upgrade_rounded, size: m.smallIcon),
-//                   label: Text(
-//                     'Change plan',
-//                     style: TextStyle(
-//                       fontSize: m.labelSize,
-//                       fontWeight: FontWeight.w700,
-//                     ),
-//                   ),
-//                 );
-//               },
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-//
-//
-// class _EntitlementGrid extends StatelessWidget {
-//   const _EntitlementGrid({required this.items, required this.metrics});
-//
-//   final List<MembershipEntitlement> items;
-//   final MembershipMetrics metrics;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final m = metrics;
-//
-//     if (m.benefitColumns <= 1) {
-//       return Column(
-//         crossAxisAlignment: CrossAxisAlignment.stretch,
-//         children: [
-//           for (var i = 0; i < items.length; i++) ...[
-//             MembershipBenefitTile(entitlement: items[i], metrics: m),
-//             if (i != items.length - 1) SizedBox(height: m.tileGap),
-//           ],
-//         ],
-//       );
-//     }
-//
-//     return LayoutBuilder(
-//       builder: (context, constraints) {
-//         final columns = m.benefitColumns;
-//         final itemWidth =
-//             (constraints.maxWidth - m.tileGap * (columns - 1)) / columns;
-//
-//         return Wrap(
-//           spacing: m.tileGap,
-//           runSpacing: m.tileGap,
-//           children: [
-//             for (final item in items)
-//               SizedBox(
-//                 width: itemWidth,
-//                 child: MembershipBenefitTile(entitlement: item, metrics: m),
-//               ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:bingo_pay/core/di/injection.dart';
+import 'package:bingo_pay/core/router/app_routes.dart';
+import 'package:bingo_pay/core/theme/app_theme_colors.dart';
+import 'package:bingo_pay/core/theme/theme_colors.dart';
+
+import '../../../../core/constants/image_constants.dart';
+import '../../data/models/member_ship_model.dart';
+
+import '../cubit/membership_cubit.dart';
+import '../cubit/membership_state.dart';
+import '../widgets/membership_metrices.dart';
+import '../widgets/status_view.dart';
+
+/// Account page se khulti hai — "My Membership"
+class MembershipScreen extends StatelessWidget {
+  const MembershipScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<MembershipCubit>(
+      create: (_) => getIt<MembershipCubit>()..load(),
+      child: const _MyMembershipView(),
+    );
+  }
+}
+
+class _MyMembershipView extends StatefulWidget {
+  const _MyMembershipView();
+
+  @override
+  State<_MyMembershipView> createState() => _MyMembershipViewState();
+}
+
+class _MyMembershipViewState extends State<_MyMembershipView> {
+  StreamSubscription<MembershipEvent>? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    _sub = context.read<MembershipCubit>().events.listen(_onEvent);
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  void _onEvent(MembershipEvent event) {
+    if (!mounted) return;
+    final c = context.c;
+
+    final (String text, Color bg) = switch (event) {
+      MembershipMessage(
+          :final text,
+          :final isError,
+      ) => (
+      text,
+      isError
+          ? c.statusWarning
+          : c.statusSuccess,
+      ),
+
+      MembershipCancelled() => (
+      'Membership cancelled',
+      c.statusSuccess,
+      ),
+
+      MembershipQuoteCreated() => (
+      '',
+      Colors.transparent,
+      ),
+
+      MembershipPaymentConfirmed() => (
+      '',
+      Colors.transparent,
+      ),
+    };
+
+    if (text.isEmpty) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(text),
+          backgroundColor: bg,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+
+    return LayoutBuilder(
+      builder: (context, _) {
+        final m = MembershipMetrics.of(context);
+
+        return Scaffold(
+          backgroundColor: c.background,
+          appBar: AppBar(
+            backgroundColor: c.background,
+            leading: IconButton(
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go(AppRoutes.account);
+                }
+              },
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: m.smallIcon,
+                color: c.textPrimary,
+              ),
+            ),
+            title: Text(
+              'My Membership',
+              style: TextStyle(
+                fontSize: m.screenTitleSize,
+                fontWeight: FontWeight.w700,
+                color: c.textPrimary,
+              ),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () => context.push(AppRoutes.help),
+                icon: Icon(
+                  Icons.help_outline_rounded,
+                  size: m.smallIcon * 1.2,
+                  color: c.textPrimary,
+                ),
+              ),
+              SizedBox(width: m.hPad * 0.3),
+            ],
+          ),
+          body: SafeArea(
+            top: false,
+            child: BlocBuilder<MembershipCubit, MembershipState>(
+              builder: (context, state) => switch (state) {
+                MembershipInitial() ||
+                MembershipLoading() =>
+                    MembershipLoadingView(metrics: m),
+
+                MembershipError(:final message) => MembershipErrorView(
+                  metrics: m,
+                  message: message,
+                  onRetry: () => context.read<MembershipCubit>().load(),
+                ),
+
+                MembershipLoaded() => _stateView(state, m),
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _stateView(MembershipLoaded state, MembershipMetrics m) {
+    final membership = state.membership;
+
+    if (membership.subscription != null) {
+      return _Loaded(state: state, metrics: m);
+    }
+    if (membership.pending != null) {
+      return _PendingView(pending: membership.pending!, metrics: m);
+    }
+    return _NoMembershipView(metrics: m);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// membership hai hi nahi -> plans par bhejo
+// ---------------------------------------------------------------------------
+
+class _NoMembershipView extends StatelessWidget {
+  const _NoMembershipView({required this.metrics});
+
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(m.hPad),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: m.iconCircle * 1.6,
+                height: m.iconCircle * 1.6,
+                decoration: BoxDecoration(
+                  color: c.brandSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.diamond_outlined,
+                  size: m.iconCircle * 0.75,
+                  color: c.brand,
+                ),
+              ),
+              SizedBox(height: m.rowGap),
+              Text(
+                "You're not a member yet",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: m.sectionTitleSize,
+                  fontWeight: FontWeight.w700,
+                  color: c.textPrimary,
+                ),
+              ),
+              SizedBox(height: m.rowGap * 0.5),
+              Text(
+                'Join The Vaults Membership and enjoy premium shopping benefits every day.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: m.bodySize,
+                  fontWeight: FontWeight.w400,
+                  height: 1.45,
+                  color: c.textSecondary,
+                ),
+              ),
+              SizedBox(height: m.sectionGap),
+              SizedBox(
+                width: m.isTablet ? m.iconCircle * 5 : double.infinity,
+                height: m.buttonHeight,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push(AppRoutes.membershipPlans),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: c.brand,
+                    foregroundColor: ThemeColors.white,
+                    elevation: 0,
+                    minimumSize: Size.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(m.radiusMd),
+                    ),
+                  ),
+                  icon: Icon(
+                    Icons.diamond_outlined,
+                    size: m.smallIcon,
+                    color: ThemeColors.gold1,
+                  ),
+                  label: Text(
+                    'View plans',
+                    style: TextStyle(
+                      fontSize: m.bodySize,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// payment abhi confirm nahi hua
+// ---------------------------------------------------------------------------
+
+class _PendingView extends StatefulWidget {
+  const _PendingView({required this.pending, required this.metrics});
+
+  final MembershipPending pending;
+  final MembershipMetrics metrics;
+
+  @override
+  State<_PendingView> createState() => _PendingViewState();
+}
+
+class _PendingViewState extends State<_PendingView> {
+  Timer? _poll;
+
+  @override
+  void initState() {
+    super.initState();
+    _poll = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (!mounted) return;
+      context.read<MembershipCubit>().refresh();
+    });
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = widget.metrics;
+    final p = widget.pending;
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.all(m.hPad),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: m.sectionGap * 1.6),
+              Container(
+                width: m.iconCircle * 1.6,
+                height: m.iconCircle * 1.6,
+                decoration: BoxDecoration(
+                  color: c.statusWarningSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.hourglass_bottom_rounded,
+                  size: m.iconCircle * 0.75,
+                  color: c.statusWarning,
+                ),
+              ),
+              SizedBox(height: m.rowGap),
+              Text(
+                'Payment is being confirmed',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: m.sectionTitleSize,
+                  fontWeight: FontWeight.w700,
+                  color: c.textPrimary,
+                ),
+              ),
+              SizedBox(height: m.rowGap * 0.5),
+              Text(
+                'Your membership will activate as soon as the payment clears on-chain.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: m.bodySize,
+                  fontWeight: FontWeight.w400,
+                  height: 1.45,
+                  color: c.textSecondary,
+                ),
+              ),
+              SizedBox(height: m.sectionGap),
+              Container(
+                padding: EdgeInsets.all(m.cardPad),
+                decoration: BoxDecoration(
+                  color: c.surface,
+                  borderRadius: BorderRadius.circular(m.radiusLg),
+                  border: Border.all(color: c.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.diamond_outlined,
+                          size: m.smallIcon,
+                          color: ThemeColors.gold1,
+                        ),
+                        SizedBox(width: m.cardPad * 0.4),
+                        Expanded(
+                          child: Text(
+                            p.planName.isEmpty ? 'Membership' : p.planName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: m.sectionTitleSize,
+                              fontWeight: FontWeight.w700,
+                              color: c.textPrimary,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: m.cardPad * 0.5,
+                            vertical: m.cardPad * 0.22,
+                          ),
+                          decoration: BoxDecoration(
+                            color: c.statusWarningSoft,
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Text(
+                            'PENDING',
+                            style: TextStyle(
+                              fontSize: m.captionSize * 0.9,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: c.statusWarning,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: m.rowGap * 0.6),
+                    Divider(height: 1, color: c.border),
+                    SizedBox(height: m.rowGap * 0.6),
+                    _row(context, m, 'Amount', p.priceLabel),
+                    SizedBox(height: m.rowGap * 0.5),
+                    _row(context, m, 'Order ID', p.reference, copyable: true),
+                    SizedBox(height: m.rowGap * 0.5),
+                    _row(context, m, 'Created', _dateTime(p.createdAt)),
+                  ],
+                ),
+              ),
+              SizedBox(height: m.sectionGap),
+              SizedBox(
+                width: m.isTablet ? m.iconCircle * 5 : double.infinity,
+                height: m.buttonHeight,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.read<MembershipCubit>().refresh(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: c.brand,
+                    foregroundColor: ThemeColors.white,
+                    elevation: 0,
+                    minimumSize: Size.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(m.radiusMd),
+                    ),
+                  ),
+                  icon: Icon(Icons.refresh_rounded, size: m.smallIcon),
+                  label: Text(
+                    'Check again',
+                    style: TextStyle(
+                      fontSize: m.bodySize,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: m.rowGap * 0.8),
+              Text(
+                'Checking automatically every few seconds\u2026',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: m.captionSize,
+                  fontWeight: FontWeight.w400,
+                  color: c.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _row(
+      BuildContext context,
+      MembershipMetrics m,
+      String label,
+      String value, {
+        bool copyable = false,
+      }) {
+    final c = context.c;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: m.labelSize,
+              fontWeight: FontWeight.w500,
+              color: c.textSecondary,
+            ),
+          ),
+        ),
+        SizedBox(width: m.cardPad * 0.3),
+        Flexible(
+          child: InkWell(
+            onTap: copyable
+                ? () {
+              Clipboard.setData(ClipboardData(text: value));
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(
+                    content: Text('Order ID copied'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+            }
+                : null,
+            borderRadius: BorderRadius.circular(m.radiusSm),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.right,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: m.labelSize,
+                      fontWeight: FontWeight.w700,
+                      color: copyable ? c.brand : c.textPrimary,
+                    ),
+                  ),
+                ),
+                if (copyable) ...[
+                  SizedBox(width: m.cardPad * 0.25),
+                  Icon(
+                    Icons.copy_rounded,
+                    size: m.smallIcon * 0.75,
+                    color: c.brand,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _dateTime(DateTime? d) {
+    if (d == null) return '--';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    final hh = d.hour.toString().padLeft(2, '0');
+    final mm = d.minute.toString().padLeft(2, '0');
+    return '${months[d.month - 1]} ${d.day}, $hh:$mm';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// member — Image 4
+// ---------------------------------------------------------------------------
+
+class _Loaded extends StatelessWidget {
+  const _Loaded({required this.state, required this.metrics});
+
+  final MembershipLoaded state;
+  final MembershipMetrics metrics;
+
+  MembershipModel get membership => state.membership;
+
+  MembershipSubscription get sub => membership.subscription!;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshIndicator(
+            color: c.brand,
+            backgroundColor: c.surface,
+            onRefresh: () => context.read<MembershipCubit>().refresh(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                m.hPad,
+                m.vPad,
+                m.hPad,
+                m.sectionGap * 0.6,
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _HeroCard(
+                        plan: membership.plan,
+                        subscription: sub,
+                        metrics: m,
+                      ),
+                      SizedBox(height: m.sectionGap * 0.8),
+                      _BenefitsCard(
+                        entitlements: membership.entitlements.values.toList(),
+                        metrics: m,
+                      ),
+                      SizedBox(height: m.sectionGap * 0.8),
+                      _DetailsCard(
+                        plan: membership.plan,
+                        subscription: sub,
+                        metrics: m,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        _BottomBar(state: state, metrics: m),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HERO
+// ---------------------------------------------------------------------------
+
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({
+    required this.plan,
+    required this.subscription,
+    required this.metrics,
+  });
+
+  final MembershipPlan? plan;
+  final MembershipSubscription subscription;
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+
+    const onHero = ThemeColors.white;
+    final onHeroMuted = onHero.withValues(alpha: 0.78);
+    final hairline = onHero.withValues(alpha: 0.14);
+
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: c.isDark
+            ? ThemeColors.heroBannerDark
+            : ThemeColors.primaryGradient1,
+        borderRadius: BorderRadius.circular(m.radiusLg),
+        border: c.isDark ? Border.all(color: c.border) : null,
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -m.cardPad * 0.5,
+            top: 0,
+            width: m.iconCircle * 3.4,
+            height: m.iconCircle * 3.4,
+            child: Image.asset(
+              AppImages.membership,
+              fit: BoxFit.contain,
+              alignment: Alignment.topRight,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(m.cardPad),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.diamond_outlined,
+                      size: m.brandWordSize * 1.3,
+                      color: ThemeColors.gold1,
+                    ),
+                    SizedBox(width: m.cardPad * 0.35),
+                    Text(
+                      'THE VAULTS',
+                      style: TextStyle(
+                        fontSize: m.brandWordSize,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1.6,
+                        color: ThemeColors.gold1,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: m.rowGap),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: m.cardPad * 0.55,
+                    vertical: m.cardPad * 0.26,
+                  ),
+                  decoration: BoxDecoration(
+                    color: subscription.isActive
+                        ? c.statusSuccess
+                        : c.statusWarning,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        subscription.isActive
+                            ? Icons.check_circle_rounded
+                            : Icons.info_rounded,
+                        size: m.captionSize * 1.25,
+                        color: ThemeColors.white,
+                      ),
+                      SizedBox(width: m.cardPad * 0.25),
+                      Text(
+                        subscription.statusLabel.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: m.captionSize,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                          color: ThemeColors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: m.rowGap * 0.8),
+                SizedBox(
+                  width: m.isTablet
+                      ? double.infinity
+                      : MediaQuery.sizeOf(context).width * 0.55,
+                  child: Text(
+                    plan?.name ?? 'Membership',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: m.heroTitleSize * 0.72,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                      color: onHero,
+                    ),
+                  ),
+                ),
+                SizedBox(height: m.rowGap * 0.35),
+                SizedBox(
+                  width: m.isTablet
+                      ? double.infinity
+                      : MediaQuery.sizeOf(context).width * 0.55,
+                  child: Text(
+                    'You\u2019re enjoying premium benefits with The Vaults.',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: m.heroBodySize,
+                      fontWeight: FontWeight.w400,
+                      height: 1.4,
+                      color: onHeroMuted,
+                    ),
+                  ),
+                ),
+                SizedBox(height: m.rowGap * 1.2),
+                Divider(height: 1, color: hairline),
+                SizedBox(height: m.rowGap),
+                _stats(context, m, onHero, onHeroMuted, hairline),
+                SizedBox(height: m.rowGap),
+                _autoRenewBar(context, m, onHero, onHeroMuted),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stats(
+      BuildContext context,
+      MembershipMetrics m,
+      Color onHero,
+      Color onHeroMuted,
+      Color hairline,
+      ) {
+    final c = context.c;
+
+    Widget cell({
+      required IconData icon,
+      required String label,
+      required String value,
+      String? extra,
+    }) =>
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: m.iconCircle * 0.62,
+                height: m.iconCircle * 0.62,
+                decoration: BoxDecoration(
+                  color: onHero.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(m.radiusSm),
+                ),
+                child: Icon(icon, size: m.iconSize * 0.72, color: onHero),
+              ),
+              SizedBox(width: m.cardPad * 0.35),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: m.captionSize * 0.92,
+                        fontWeight: FontWeight.w400,
+                        color: onHeroMuted,
+                      ),
+                    ),
+                    SizedBox(height: m.rowGap * 0.15),
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: m.labelSize,
+                        fontWeight: FontWeight.w700,
+                        color: onHero,
+                      ),
+                    ),
+                    if (extra != null) ...[
+                      SizedBox(height: m.rowGap * 0.15),
+                      Text(
+                        extra,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: m.captionSize * 0.92,
+                          fontWeight: FontWeight.w600,
+                          color: c.statusSuccess,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+
+    Widget divider() => Container(
+      width: 1,
+      height: m.iconCircle * 0.9,
+      margin: EdgeInsets.symmetric(horizontal: m.cardPad * 0.3),
+      color: hairline,
+    );
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          cell(
+            icon: Icons.event_available_outlined,
+            label: 'Started On',
+            value: _date(subscription.startAt),
+          ),
+          divider(),
+          cell(
+            icon: Icons.event_busy_outlined,
+            label: 'Expires On',
+            value: _date(subscription.endAt),
+            extra: '${subscription.daysRemaining} days left',
+          ),
+          divider(),
+          cell(
+            icon: Icons.autorenew_rounded,
+            label: 'Billing Cycle',
+            value: subscription.billingCycleLabel,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _autoRenewBar(
+      BuildContext context,
+      MembershipMetrics m,
+      Color onHero,
+      Color onHeroMuted,
+      ) {
+    final c = context.c;
+    final on = subscription.autoRenew;
+
+    return Container(
+      padding: EdgeInsets.all(m.cardPad * 0.6),
+      decoration: BoxDecoration(
+        color: onHero.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(m.radiusMd),
+        border: Border.all(color: onHero.withValues(alpha: 0.14)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: m.iconCircle * 0.66,
+            height: m.iconCircle * 0.66,
+            decoration: BoxDecoration(
+              color: ThemeColors.gold1.withValues(alpha: 0.16),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.bolt_rounded,
+              size: m.iconSize * 0.78,
+              color: ThemeColors.gold1,
+            ),
+          ),
+          SizedBox(width: m.cardPad * 0.5),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Auto Renewal is ${on ? 'ON' : 'OFF'}',
+                  style: TextStyle(
+                    fontSize: m.labelSize,
+                    fontWeight: FontWeight.w700,
+                    color: ThemeColors.gold1,
+                  ),
+                ),
+                SizedBox(height: m.rowGap * 0.15),
+                Text(
+                  on
+                      ? 'Your membership will renew automatically.'
+                      : 'Your membership will not renew automatically.',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: m.captionSize * 0.94,
+                    fontWeight: FontWeight.w400,
+                    height: 1.3,
+                    color: onHeroMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: m.cardPad * 0.35),
+          // API me toggle ka endpoint nahi hai -> abhi display-only
+          Switch(
+            value: on,
+            onChanged: null,
+            activeThumbColor: ThemeColors.white,
+            activeTrackColor: c.statusSuccess,
+            inactiveThumbColor: ThemeColors.white,
+            inactiveTrackColor: onHero.withValues(alpha: 0.25),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _date(DateTime? d) {
+    if (d == null) return '--';
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[d.month - 1]} ${d.day}, ${d.year}';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// BENEFITS
+// ---------------------------------------------------------------------------
+
+class _BenefitsCard extends StatelessWidget {
+  const _BenefitsCard({required this.entitlements, required this.metrics});
+
+  final List<MembershipEntitlement> entitlements;
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+
+    if (entitlements.isEmpty) return const SizedBox.shrink();
+
+    final items = [...entitlements]..sort((a, b) {
+      if (a.enabled == b.enabled) return 0;
+      return a.enabled ? -1 : 1;
+    });
+
+    return Container(
+      padding: EdgeInsets.all(m.cardPad),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(m.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Your Membership Benefits',
+                  style: TextStyle(
+                    fontSize: m.sectionTitleSize,
+                    fontWeight: FontWeight.w700,
+                    color: c.textPrimary,
+                  ),
+                ),
+              ),
+              SizedBox(width: m.cardPad * 0.4),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: m.cardPad * 0.5,
+                  vertical: m.cardPad * 0.25,
+                ),
+                decoration: BoxDecoration(
+                  color: ThemeColors.gold1.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.workspace_premium_outlined,
+                      size: m.captionSize * 1.3,
+                      color: ThemeColors.gold500,
+                    ),
+                    SizedBox(width: m.cardPad * 0.25),
+                    Text(
+                      'Powered by Your Plan',
+                      style: TextStyle(
+                        fontSize: m.captionSize * 0.92,
+                        fontWeight: FontWeight.w600,
+                        color: ThemeColors.gold500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: m.rowGap),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = m.isTablet ? 4 : 3;
+              final itemWidth =
+                  (constraints.maxWidth - m.tileGap * (columns - 1)) / columns;
+
+              return Wrap(
+                spacing: m.tileGap,
+                runSpacing: m.tileGap,
+                children: [
+                  for (final e in items)
+                    SizedBox(
+                      width: itemWidth,
+                      child: _BenefitTile(entitlement: e, metrics: m),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BenefitTile extends StatelessWidget {
+  const _BenefitTile({required this.entitlement, required this.metrics});
+
+  final MembershipEntitlement entitlement;
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+    final on = entitlement.enabled;
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: m.cardPad * 0.4,
+        vertical: m.cardPad * 0.7,
+      ),
+      decoration: BoxDecoration(
+        color: on ? c.surfaceAlt : c.surface,
+        borderRadius: BorderRadius.circular(m.radiusMd),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: m.iconCircle * 0.78,
+            height: m.iconCircle * 0.78,
+            decoration: BoxDecoration(
+              color: on ? c.brandSoft : c.surfaceAlt,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _icon(entitlement.key),
+              size: m.iconSize * 0.9,
+              color: on ? c.brand : c.textMuted,
+            ),
+          ),
+          SizedBox(height: m.rowGap * 0.5),
+          Text(
+            entitlement.name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: m.captionSize * 1.05,
+              fontWeight: FontWeight.w700,
+              height: 1.25,
+              color: on ? c.textPrimary : c.textSecondary,
+            ),
+          ),
+          SizedBox(height: m.rowGap * 0.35),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: m.cardPad * 0.35,
+              vertical: m.cardPad * 0.18,
+            ),
+            decoration: BoxDecoration(
+              color: on ? c.statusSuccessSoft : c.surfaceAlt,
+              borderRadius: BorderRadius.circular(99),
+            ),
+            child: Text(
+              _chipLabel(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: m.captionSize * 0.88,
+                fontWeight: FontWeight.w700,
+                color: on ? c.statusSuccess : c.textMuted,
+              ),
+            ),
+          ),
+          SizedBox(height: m.rowGap * 0.35),
+          Text(
+            _subtitle(),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: m.captionSize * 0.85,
+              fontWeight: FontWeight.w400,
+              height: 1.3,
+              color: c.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _chipLabel() {
+    if (!entitlement.enabled) return 'Not Included';
+
+    switch (entitlement.type.toUpperCase()) {
+      case 'PERCENTAGE':
+        final n = entitlement.numeric;
+        if (n == null) return 'Enabled';
+        return '${_trim(n)}${entitlement.unitLabel ?? '%'} OFF';
+      case 'DURATION':
+        final n = entitlement.numeric;
+        if (n == null) return 'Enabled';
+        return '${_trim(n)} ${entitlement.unitLabel ?? ''}'.trim();
+      default:
+        return 'Enabled';
+    }
+  }
+
+  String _subtitle() {
+    if (!entitlement.enabled) return 'Available on higher plans';
+
+    switch (entitlement.key.toUpperCase()) {
+      case 'AUCTION_BUYER_ACCESS':
+        return 'Access to exclusive auctions';
+      case 'DISCOUNT_PERCENT':
+        return 'On eligible products';
+      case 'LUXE_EARLY_ACCESS':
+        return 'Be the first to shop';
+      case 'ULTRA_LUXE_EARLY_ACCESS':
+        return 'Earliest access to drops';
+      case 'EXCLUSIVE_ACCESS':
+        return 'Access to member-only items';
+      case 'EARLY_ACCESS_DURATION':
+        final n = entitlement.numeric;
+        return n == null
+            ? 'Shop before others'
+            : 'Shop ${_trim(n)} ${entitlement.unitLabel ?? ''} before others'
+            .trim();
+      case 'FREE_DELIVERY':
+        return 'On every eligible order';
+      default:
+        return 'Included in your plan';
+    }
+  }
+
+  String _trim(num v) => v % 1 == 0 ? v.toInt().toString() : v.toString();
+
+  IconData _icon(String key) => switch (key.toUpperCase()) {
+    'AUCTION_BUYER_ACCESS' => Icons.gavel_rounded,
+    'FREE_DELIVERY' => Icons.local_shipping_outlined,
+    'DISCOUNT_PERCENT' => Icons.local_offer_outlined,
+    'LUXE_EARLY_ACCESS' => Icons.access_time_rounded,
+    'ULTRA_LUXE_EARLY_ACCESS' => Icons.diamond_outlined,
+    'EXCLUSIVE_ACCESS' => Icons.workspace_premium_outlined,
+    'EARLY_ACCESS_DURATION' => Icons.timer_outlined,
+    _ => Icons.card_giftcard_rounded,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// DETAILS
+// ---------------------------------------------------------------------------
+
+class _DetailsCard extends StatelessWidget {
+  const _DetailsCard({
+    required this.plan,
+    required this.subscription,
+    required this.metrics,
+  });
+
+  final MembershipPlan? plan;
+  final MembershipSubscription subscription;
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+
+    return Container(
+      padding: EdgeInsets.all(m.cardPad),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(m.radiusLg),
+        border: Border.all(color: c.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: m.cardPad * 0.4,
+            runSpacing: m.rowGap * 0.4,
+            children: [
+              Text(
+                'Membership Details',
+                style: TextStyle(
+                  fontSize: m.sectionTitleSize,
+                  fontWeight: FontWeight.w700,
+                  color: c.textPrimary,
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  Clipboard.setData(
+                    ClipboardData(text: subscription.reference),
+                  );
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      const SnackBar(
+                        content: Text('Reference copied'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                },
+                borderRadius: BorderRadius.circular(m.radiusSm),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Reference: ',
+                      style: TextStyle(
+                        fontSize: m.captionSize,
+                        fontWeight: FontWeight.w400,
+                        color: c.textSecondary,
+                      ),
+                    ),
+                    Text(
+                      subscription.reference,
+                      style: TextStyle(
+                        fontSize: m.captionSize,
+                        fontWeight: FontWeight.w700,
+                        color: c.brand,
+                      ),
+                    ),
+                    SizedBox(width: m.cardPad * 0.25),
+                    Icon(
+                      Icons.copy_rounded,
+                      size: m.smallIcon * 0.8,
+                      color: c.brand,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: m.rowGap * 0.6),
+          _row(
+            context,
+            icon: Icons.calendar_month_outlined,
+            label: 'Plan Name',
+            value: plan?.name ?? '--',
+          ),
+          Divider(height: 1, color: c.border),
+          _row(
+            context,
+            icon: Icons.receipt_long_outlined,
+            label: 'Billing Cycle',
+            value: subscription.billingCycleLabel,
+          ),
+          Divider(height: 1, color: c.border),
+          _row(
+            context,
+            icon: Icons.attach_money_rounded,
+            label: 'Amount Paid',
+            value:
+            '${subscription.priceLabel}  (${subscription.currency.toUpperCase()})',
+          ),
+          Divider(height: 1, color: c.border),
+          _row(
+            context,
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Payment Method',
+            value: 'BIGOD',
+          ),
+          Divider(height: 1, color: c.border),
+          _row(
+            context,
+            icon: Icons.verified_outlined,
+            label: 'Plan Version',
+            value: 'v${subscription.planVersion}',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(
+      BuildContext context, {
+        required IconData icon,
+        required String label,
+        required String value,
+      }) {
+    final c = context.c;
+    final m = metrics;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: m.rowGap * 0.55),
+      child: Row(
+        children: [
+          Container(
+            width: m.iconCircle * 0.6,
+            height: m.iconCircle * 0.6,
+            decoration: BoxDecoration(
+              color: c.brandSoft,
+              borderRadius: BorderRadius.circular(m.radiusSm),
+            ),
+            child: Icon(icon, size: m.iconSize * 0.7, color: c.brand),
+          ),
+          SizedBox(width: m.cardPad * 0.5),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: m.labelSize,
+                fontWeight: FontWeight.w500,
+                color: c.textPrimary,
+              ),
+            ),
+          ),
+          SizedBox(width: m.cardPad * 0.3),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: m.labelSize,
+                fontWeight: FontWeight.w600,
+                color: c.textSecondary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// BOTTOM BAR — Cancel Plan
+// ---------------------------------------------------------------------------
+
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({required this.state, required this.metrics});
+
+  final MembershipLoaded state;
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+    final sub = state.membership.subscription!;
+    final busy = state.isCancelling;
+    final active = sub.isActive;
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(m.hPad, m.rowGap * 0.8, m.hPad, m.rowGap),
+      decoration: BoxDecoration(
+        color: c.background,
+        border: Border(top: BorderSide(color: c.border)),
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+          child: SizedBox(
+            width: double.infinity,
+            height: m.buttonHeight,
+            child: OutlinedButton.icon(
+              onPressed: busy || !active
+                  ? null
+                  : () => _confirmCancel(context, m, sub),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: c.statusWarning,
+                disabledForegroundColor: c.textMuted,
+                side: BorderSide(color: active ? c.statusWarning : c.border),
+                minimumSize: Size.zero,
+                padding: EdgeInsets.symmetric(horizontal: m.cardPad * 0.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(m.radiusMd),
+                ),
+              ),
+              icon: busy
+                  ? SizedBox(
+                width: m.smallIcon,
+                height: m.smallIcon,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    c.statusWarning,
+                  ),
+                ),
+              )
+                  : Icon(Icons.cancel_outlined, size: m.smallIcon),
+              label: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  active ? 'Cancel Plan' : 'Plan cancelled',
+                  style: TextStyle(
+                    fontSize: m.labelSize,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmCancel(
+      BuildContext context,
+      MembershipMetrics m,
+      MembershipSubscription sub,
+      ) async {
+    final cubit = context.read<MembershipCubit>();
+
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(m.radiusLg)),
+      ),
+      builder: (sheetContext) {
+        final c = sheetContext.c;
+
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              m.hPad,
+              m.cardPad,
+              m.hPad,
+              m.sectionGap * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: m.iconBox,
+                    height: m.progressHeight * 0.6,
+                    decoration: BoxDecoration(
+                      color: c.border,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                ),
+                SizedBox(height: m.sectionGap * 0.7),
+                Center(
+                  child: Container(
+                    width: m.iconCircle * 1.2,
+                    height: m.iconCircle * 1.2,
+                    decoration: BoxDecoration(
+                      color: c.statusWarningSoft,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.cancel_outlined,
+                      size: m.iconCircle * 0.6,
+                      color: c.statusWarning,
+                    ),
+                  ),
+                ),
+                SizedBox(height: m.rowGap),
+                Text(
+                  'Cancel membership?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: m.sectionTitleSize,
+                    fontWeight: FontWeight.w700,
+                    color: c.textPrimary,
+                  ),
+                ),
+                SizedBox(height: m.rowGap * 0.5),
+                Text(
+                  'Your benefits stay active till the end of the term. After that you go back to the free plan.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: m.labelSize,
+                    fontWeight: FontWeight.w400,
+                    height: 1.45,
+                    color: c.textSecondary,
+                  ),
+                ),
+                SizedBox(height: m.sectionGap * 0.8),
+                SizedBox(
+                  height: m.buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(sheetContext).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: c.statusWarning,
+                      foregroundColor: ThemeColors.white,
+                      elevation: 0,
+                      minimumSize: Size.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(m.radiusMd),
+                      ),
+                    ),
+                    child: Text(
+                      'Yes, cancel',
+                      style: TextStyle(
+                        fontSize: m.sectionTitleSize,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: m.rowGap * 0.6),
+                SizedBox(
+                  height: m.buttonHeight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(sheetContext).pop(false),
+                    style: TextButton.styleFrom(
+                      foregroundColor: c.textSecondary,
+                      minimumSize: Size.zero,
+                    ),
+                    child: Text(
+                      'Keep membership',
+                      style: TextStyle(
+                        fontSize: m.labelSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (ok == true) cubit.cancel(sub.uuid);
+  }
+}

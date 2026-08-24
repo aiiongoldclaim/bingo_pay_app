@@ -5,6 +5,8 @@ import 'package:bingo_pay/core/error/exceptions.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../models/member_ship_model.dart';
+import '../models/membership_balance_model.dart';
+import '../models/membership_cancel_model.dart';
 import '../models/membership_plan_model.dart';
 import '../models/membership_subscribe_model.dart';
 
@@ -18,11 +20,14 @@ abstract class MembershipRemoteDataSource {
   /// POST /membership/subscribe
   Future<MembershipQuote> subscribe({required String planUuid});
 
-  /// POST /membership/{uuid}/cancel
-  Future<MembershipActionResult> cancel({required String subscriptionUuid});
+  /// PATCH /membership/{uuid}/cancel
+  Future<MembershipCancelModel> cancel({required String subscriptionUuid});
+  /// GET /payments/bigod/balance
+  Future<BigodBalance> fetchBigodBalance();
 
-  /// POST /membership/{uuid}/resume
-  Future<MembershipActionResult> resume({required String subscriptionUuid});
+  /// POST /payments/bigod/confirm
+  Future<BigodConfirmResult> confirmBigodPayment({required String token});
+
 }
 
 @LazySingleton(as: MembershipRemoteDataSource)
@@ -36,7 +41,6 @@ class MembershipRemoteDataSourceImpl implements MembershipRemoteDataSource {
   // -------------------------------------------------------------------------
   @override
   Future<MembershipModel> fetchMembership() async {
-    // Auth token AuthInterceptor se lag jaata hai.
     final response = await _apiClient.dio.get(ApiEndpoints.membership);
 
     final inner = _innerMap(
@@ -76,7 +80,7 @@ class MembershipRemoteDataSourceImpl implements MembershipRemoteDataSource {
         .where((p) => p.version?.isPublished ?? false)
         .toList();
 
-    // rank ascending, phir price ascending
+
     plans.sort((a, b) {
       final byRank = a.rank.compareTo(b.rank);
       if (byRank != 0) return byRank;
@@ -87,13 +91,13 @@ class MembershipRemoteDataSourceImpl implements MembershipRemoteDataSource {
   }
 
   // -------------------------------------------------------------------------
-  // POST /membership/subscribe
+  // POST /membership/subscribe    body: { planUuid }
   // -------------------------------------------------------------------------
   @override
   Future<MembershipQuote> subscribe({required String planUuid}) async {
     final response = await _apiClient.dio.post(
       ApiEndpoints.membershipSubscribe,
-      data: {'planUuid': planUuid},          // ← planVersionUuid nahi
+      data: {'planUuid': planUuid},
     );
 
     final outer = _outerMap(
@@ -118,38 +122,31 @@ class MembershipRemoteDataSourceImpl implements MembershipRemoteDataSource {
   }
 
   // -------------------------------------------------------------------------
-  // POST /membership/{uuid}/cancel
+  // PATCH /membership/{uuid}/cancel
   // -------------------------------------------------------------------------
   @override
-  Future<MembershipActionResult> cancel({
+  Future<MembershipCancelModel> cancel({
     required String subscriptionUuid,
   }) async {
-    final response = await _apiClient.dio.post(
+    final response = await _apiClient.dio.patch(
       ApiEndpoints.membershipCancel(subscriptionUuid),
     );
 
-    return _actionResult(
-      response.data,
-      response.statusCode,
-      'Could not cancel the membership',
-    );
-  }
+    const fallback = 'Could not cancel the membership';
 
-  // -------------------------------------------------------------------------
-  // POST /membership/{uuid}/resume
-  // -------------------------------------------------------------------------
-  @override
-  Future<MembershipActionResult> resume({
-    required String subscriptionUuid,
-  }) async {
-    final response = await _apiClient.dio.post(
-      ApiEndpoints.membershipResume(subscriptionUuid),
-    );
+    final outer = _outerMap(response.data, response.statusCode, fallback);
+    final inner = outer['data'];
 
-    return _actionResult(
-      response.data,
-      response.statusCode,
-      'Could not resume the membership',
+    if (inner is! Map) {
+      throw ServerException(
+        statusCode: response.statusCode,
+        message: outer['message']?.toString() ?? fallback,
+      );
+    }
+
+    return MembershipCancelModel.fromJson(
+      Map<String, dynamic>.from(inner),
+      message: outer['message']?.toString() ?? '',
     );
   }
 
@@ -196,24 +193,104 @@ class MembershipRemoteDataSourceImpl implements MembershipRemoteDataSource {
     return Map<String, dynamic>.from(inner);
   }
 
-  MembershipActionResult _actionResult(
-      dynamic body,
-      int? statusCode,
-      String fallback,
-      ) {
-    final outer = _outerMap(body, statusCode, fallback);
+
+  @override
+  Future<BigodBalance> fetchBigodBalance() async {
+    print('>>> GET BIGOD BALANCE');
+
+    final response = await _apiClient.dio.get(
+      ApiEndpoints.bigodBalance,
+    );
+
+    print(
+      '<<< BIGOD BALANCE STATUS: ${response.statusCode}',
+    );
+
+    print(
+      '<<< BIGOD BALANCE RESPONSE: ${response.data}',
+    );
+
+    final outer = _outerMap(
+      response.data,
+      response.statusCode,
+      'Could not fetch balance',
+    );
+
     final inner = outer['data'];
 
     if (inner is! Map) {
       throw ServerException(
-        statusCode: statusCode,
-        message: outer['message']?.toString() ?? fallback,
+        statusCode: response.statusCode,
+        message: 'Could not fetch balance',
       );
     }
 
-    return MembershipActionResult.fromJson(
-      Map<String, dynamic>.from(inner),
-      message: outer['message']?.toString() ?? '',
+    final payload =
+        inner['data'] ?? inner;
+
+    if (payload is! Map) {
+      throw ServerException(
+        statusCode: response.statusCode,
+        message: 'Invalid balance response',
+      );
+    }
+
+    return BigodBalance.fromJson(
+      Map<String, dynamic>.from(payload),
     );
   }
+
+  @override
+  Future<BigodConfirmResult> confirmBigodPayment({
+    required String token,
+  }) async {
+    print('>>> POST BIGOD CONFIRM');
+    print('>>> TOKEN: $token');
+
+    final response = await _apiClient.dio.post(
+      ApiEndpoints.bigodConfirm,
+      data: {
+        'token': token,
+      },
+    );
+
+    print(
+      '<<< BIGOD CONFIRM STATUS: ${response.statusCode}',
+    );
+
+    print(
+      '<<< BIGOD CONFIRM RESPONSE: ${response.data}',
+    );
+
+    final outer = _outerMap(
+      response.data,
+      response.statusCode,
+      'Payment confirmation failed',
+    );
+
+    final inner = outer['data'];
+
+    if (inner is! Map) {
+      throw ServerException(
+        statusCode: response.statusCode,
+        message: 'Payment confirmation failed',
+      );
+    }
+
+    final payload =
+        inner['data'] ?? inner;
+
+    if (payload is! Map) {
+      throw ServerException(
+        statusCode: response.statusCode,
+        message: 'Invalid confirmation response',
+      );
+    }
+
+    return BigodConfirmResult.fromJson(
+      Map<String, dynamic>.from(payload),
+    );
+  }
+
+
 }

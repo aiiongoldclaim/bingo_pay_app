@@ -272,6 +272,8 @@ class _MenuItem extends StatelessWidget {
         return AppSvgImages.editProfile;
       case 'memberShip':
         return AppSvgImages.easyReturns;
+      case 'memberShip':
+        return AppSvgImages.easyReturns;
       case 'help':
         return AppSvgImages.support;
       default:
@@ -415,6 +417,12 @@ class AccountMenuItem {
       subtitle: 'Update your personal details',
       iconAsset: 'membership',
       route: AppRoutes.membershipPlans,
+    ),
+    AccountMenuItem(
+      title: 'MyMemberShip',
+      subtitle: 'Update your personal details',
+      iconAsset: 'my_membership',
+      route: AppRoutes.membership,
     ),
   ];
 

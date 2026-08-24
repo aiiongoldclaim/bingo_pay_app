@@ -28,8 +28,18 @@ String _titleCase(String raw) => raw
 /// 10.0 -> "10", 10.5 -> "10.5"
 String trimNumber(num v) => v % 1 == 0 ? v.toInt().toString() : v.toString();
 
+String _currencySymbol(String currency) => switch (currency.toUpperCase()) {
+  'USD' => '\$',
+  'SGD' => 'S\$',
+  'INR' => '\u20B9',
+  'EUR' => '\u20AC',
+  'GBP' => '\u00A3',
+  '' => '',
+  _ => '${currency.toUpperCase()} ',
+};
+
 // ---------------------------------------------------------------------------
-// root model  (maps `data.data` of the membership response)
+// root model  (maps `data.data` of GET /membership)
 // ---------------------------------------------------------------------------
 
 class MembershipModel extends Equatable {
@@ -37,8 +47,8 @@ class MembershipModel extends Equatable {
   final MembershipSubscription? subscription;
   final List<MembershipSubscriptionSummary> allSubscriptions;
 
-  /// Backend shape not finalised yet -> raw map, UI only shows a banner.
-  final Map<String, dynamic>? pending;
+  /// subscribe ho chuka hai par payment on-chain confirm nahi hua
+  final MembershipPending? pending;
 
   /// Insertion order of the API is preserved.
   final Map<String, MembershipEntitlement> entitlements;
@@ -60,7 +70,10 @@ class MembershipModel extends Equatable {
 
   bool get isActive => subscription?.isActive ?? false;
 
-  bool get hasPending => pending != null && pending!.isNotEmpty;
+  bool get hasPending => pending != null;
+
+  /// na member hai na pending -> free plan
+  bool get isGuest => subscription == null && pending == null;
 
   List<MembershipEntitlement> _group(String group) {
     final list = entitlements.values
@@ -125,7 +138,9 @@ class MembershipModel extends Equatable {
           .toList()
           : const [],
       pending: json['pending'] is Map
-          ? Map<String, dynamic>.from(json['pending'])
+          ? MembershipPending.fromJson(
+        Map<String, dynamic>.from(json['pending']),
+      )
           : null,
       entitlements: parsed,
       resolvedAt: _date(json['resolvedAt']),
@@ -213,7 +228,7 @@ class MembershipSubscription extends Equatable {
   bool get isActive => status.toUpperCase() == 'ACTIVE';
 
   bool get isExpired =>
-      endAt != null && endAt!.isBefore(DateTime.now()) || !isActive;
+      (endAt != null && endAt!.isBefore(DateTime.now())) || !isActive;
 
   String get statusLabel => _titleCase(status);
 
@@ -238,14 +253,7 @@ class MembershipSubscription extends Equatable {
     return (used / totalDays).clamp(0.0, 1.0);
   }
 
-  String get currencySymbol => switch (currency.toUpperCase()) {
-    'USD' => '\$',
-    'SGD' => 'S\$',
-    'INR' => '\u20B9',
-    'EUR' => '\u20AC',
-    'GBP' => '\u00A3',
-    _ => '${currency.toUpperCase()} ',
-  };
+  String get currencySymbol => _currencySymbol(currency);
 
   String get priceLabel =>
       price == null ? '--' : '$currencySymbol${trimNumber(price!)}';
@@ -278,6 +286,62 @@ class MembershipSubscription extends Equatable {
     currency,
     autoRenew,
     planVersion,
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// pending subscription — payment abhi on-chain confirm nahi hua
+//
+// { uuid, reference, planName, price, currency, createdAt }
+// ---------------------------------------------------------------------------
+
+class MembershipPending extends Equatable {
+  final String uuid;
+  final String reference;
+  final String planName;
+  final num? price;
+  final String currency;
+  final DateTime? createdAt;
+
+  const MembershipPending({
+    required this.uuid,
+    required this.reference,
+    required this.planName,
+    required this.price,
+    required this.currency,
+    required this.createdAt,
+  });
+
+  String get currencySymbol => _currencySymbol(currency);
+
+  String get priceLabel =>
+      price == null ? '--' : '$currencySymbol${trimNumber(price!)}';
+
+  /// order kitni der pehle bana
+  Duration get age {
+    if (createdAt == null) return Duration.zero;
+    final d = DateTime.now().difference(createdAt!);
+    return d.isNegative ? Duration.zero : d;
+  }
+
+  factory MembershipPending.fromJson(Map<String, dynamic> json) =>
+      MembershipPending(
+        uuid: json['uuid']?.toString() ?? '',
+        reference: json['reference']?.toString() ?? '',
+        planName: json['planName']?.toString() ?? '',
+        price: _num(json['price']),
+        currency: json['currency']?.toString() ?? '',
+        createdAt: _date(json['createdAt']),
+      );
+
+  @override
+  List<Object?> get props => [
+    uuid,
+    reference,
+    planName,
+    price,
+    currency,
+    createdAt,
   ];
 }
 

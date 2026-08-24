@@ -41,4 +41,8 @@ class ApiEndpoints {
 
   static String membershipResume(String uuid) =>
       '/api/v1/customer/membership/$uuid/resume';
+
+  // api_endpoints.dart
+  static const String bigodBalance = '/api/v1/payments/bigod/balance';
+
 }

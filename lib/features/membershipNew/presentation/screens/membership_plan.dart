@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,10 +8,8 @@ import 'package:bingo_pay/core/router/app_routes.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/core/theme/theme_colors.dart';
 
-import '../cubit/member_ship_cubit.dart';
-import '../cubit/member_ship_state.dart';
-import '../cubit/membership_dashboard_cubit.dart';
-import '../cubit/membership_dashboard_state.dart';
+import '../cubit/membership_cubit.dart';
+import '../cubit/membership_state.dart';
 import '../widgets/membership_checkout_args.dart';
 import '../widgets/membership_metrices.dart';
 import '../widgets/membership_plan_widgets.dart';
@@ -22,9 +22,9 @@ class MembershipPlansScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<MembershipPlansCubit>(
-      create: (_) => getIt<MembershipPlansCubit>()
-        ..load(preselectPlanUuid: preselectPlanUuid),
+    return BlocProvider<MembershipCubit>(
+      create: (_) =>
+      getIt<MembershipCubit>()..load(preselectPlanUuid: preselectPlanUuid),
       child: const _MembershipPlansView(),
     );
   }
@@ -38,23 +38,67 @@ class _MembershipPlansView extends StatefulWidget {
 }
 
 class _MembershipPlansViewState extends State<_MembershipPlansView> {
+  StreamSubscription<MembershipEvent>? _sub;
+
   @override
   void initState() {
     super.initState();
-    context.read<MembershipPlansCubit>().messages.listen((msg) {
-      if (!mounted) return;
-      final c = context.c;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(msg.text),
-            backgroundColor: msg.isError ? c.statusWarning : c.statusSuccess,
-            behavior: SnackBarBehavior.floating,
+    _sub = context.read<MembershipCubit>().events.listen(_onEvent);
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onEvent(MembershipEvent event) async {
+    if (!mounted) return;
+    final c = context.c;
+
+    switch (event) {
+      case MembershipMessage(
+          :final text,
+          :final isError,
+      ):
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(text),
+              backgroundColor:
+              isError
+                  ? c.statusWarning
+                  : c.statusSuccess,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+      case MembershipQuoteCreated(
+          :final quote,
+          :final plan,
+      ):
+        final cubit =
+        context.read<MembershipCubit>();
+
+        await context.push(
+          AppRoutes.membershipCheckout,
+          extra: MembershipCheckoutArgs(
+            plan: plan,
+            quote: quote,
           ),
         );
-    });
+
+        cubit.clearQuote();
+
+      case MembershipCancelled():
+        break;
+
+      case MembershipPaymentConfirmed():
+        break;
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     final c = context.c;
@@ -84,17 +128,17 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
                 Text(
                   'Choose Your Plan',
                   style: TextStyle(
-                    fontSize: m.screenTitleSize*1,
+                    fontSize: m.screenTitleSize * 1,
                     fontWeight: FontWeight.w700,
                     color: c.textPrimary,
-                    fontFamily: "CormorantGaramond"
+                    fontFamily: "CormorantGaramond",
                   ),
                 ),
                 SizedBox(height: m.rowGap * 0.2),
                 Text(
                   'Select the perfect membership for you',
                   style: TextStyle(
-                    fontSize: m.captionSize*1.5,
+                    fontSize: m.captionSize * 1.5,
                     fontWeight: FontWeight.w400,
                     color: c.textSecondary,
                   ),
@@ -104,19 +148,27 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
           ),
           body: SafeArea(
             top: false,
-            child: BlocBuilder<MembershipPlansCubit, MembershipPlansState>(
+            child: BlocBuilder<MembershipCubit, MembershipState>(
               builder: (context, state) => switch (state) {
-                MembershipPlansInitial() ||
-                MembershipPlansLoading() => MembershipLoadingView(metrics: m),
+                MembershipInitial() ||
+                MembershipLoading() =>
+                    MembershipLoadingView(metrics: m),
 
-                MembershipPlansError(:final message) => MembershipErrorView(
+                MembershipError(:final message) => MembershipErrorView(
                   metrics: m,
                   message: message,
-                  onRetry: () => context.read<MembershipPlansCubit>().load(),
+                  onRetry: () => context.read<MembershipCubit>().load(),
                 ),
 
-                MembershipPlansLoaded() => state.plans.isEmpty
-                    ? MembershipEmptyView(metrics: m)
+                MembershipLoaded() => state.plans.isEmpty
+                    ? (state.plansError != null
+                    ? MembershipErrorView(
+                  metrics: m,
+                  message: state.plansError!,
+                  onRetry: () =>
+                      context.read<MembershipCubit>().load(),
+                )
+                    : MembershipEmptyView(metrics: m))
                     : _Loaded(state: state, metrics: m),
               },
             ),
@@ -132,32 +184,14 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
 class _Loaded extends StatelessWidget {
   const _Loaded({required this.state, required this.metrics});
 
-  final MembershipPlansLoaded state;
+  final MembershipLoaded state;
   final MembershipMetrics metrics;
 
   @override
   Widget build(BuildContext context) {
     final m = metrics;
 
-    return BlocListener<MembershipPlansCubit, MembershipPlansState>(
-      listenWhen: (prev, curr) =>
-      prev is MembershipPlansLoaded &&
-          curr is MembershipPlansLoaded &&
-          prev.quote == null &&
-          curr.quote != null,
-      listener: (context, s) async {
-        final loaded = s as MembershipPlansLoaded;
-        await context.push(
-          AppRoutes.membershipCheckout,
-          extra: MembershipCheckoutArgs(
-            plan: loaded.selectedPlan!,
-            quote: loaded.quote!,
-          ),
-        );
-        if (!context.mounted) return;
-        context.read<MembershipPlansCubit>().clearQuote();
-      },
-      child: Column(
+    return Column(
       children: [
         Expanded(
           child: SingleChildScrollView(
@@ -182,7 +216,7 @@ class _Loaded extends StatelessWidget {
                       selectedUuid: state.selectedPlan?.uuid,
                       metrics: m,
                       onPlanChanged: (uuid) =>
-                          context.read<MembershipPlansCubit>().selectPlan(uuid),
+                          context.read<MembershipCubit>().selectPlan(uuid),
                     ),
 
                     SizedBox(height: m.rowGap * 1.2),
@@ -219,10 +253,8 @@ class _Loaded extends StatelessWidget {
         ),
         _BottomBar(state: state, metrics: m),
       ],
-    ),
-);
+    );
   }
-
 }
 
 // ---------------------------------------------------------------------------
@@ -230,7 +262,7 @@ class _Loaded extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   const _BottomBar({required this.state, required this.metrics});
 
-  final MembershipPlansLoaded state;
+  final MembershipLoaded state;
   final MembershipMetrics metrics;
 
   @override
@@ -255,7 +287,7 @@ class _BottomBar extends StatelessWidget {
             child: ElevatedButton(
               onPressed: plan == null || busy
                   ? null
-                  : () => context.read<MembershipPlansCubit>().subscribe(),
+                  : () => context.read<MembershipCubit>().subscribe(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: c.brand,
                 foregroundColor: ThemeColors.white,

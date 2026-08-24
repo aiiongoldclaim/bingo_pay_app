@@ -123,8 +123,6 @@ class CheckoutHeroCard extends StatelessWidget {
   final MembershipPlanOption plan;
   final MembershipMetrics metrics;
   final String? renewsOn;
-
-  /// Sirf artwork (bina text wala) asset ho to pass karna
   final String? artworkAsset;
 
   @override
@@ -580,7 +578,6 @@ class _QrExpansion extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(m.cardPad * 0.6),
               decoration: BoxDecoration(
-                // QR ke peeche hamesha white, warna dark mode me scan nahi hota
                 color: ThemeColors.white,
                 borderRadius: BorderRadius.circular(m.radiusSm),
               ),
@@ -597,29 +594,7 @@ class _QrExpansion extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: m.rowGap * 0.5),
-            TextButton.icon(
-              onPressed: () {
-                Clipboard.setData(ClipboardData(text: payment.payUrl));
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
-                    const SnackBar(
-                      content: Text('Payment link copied'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-              },
-              style: TextButton.styleFrom(foregroundColor: c.brand),
-              icon: Icon(Icons.copy_rounded, size: m.smallIcon),
-              label: Text(
-                'Copy payment link',
-                style: TextStyle(
-                  fontSize: m.labelSize,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+
           ],
         ),
       ),
