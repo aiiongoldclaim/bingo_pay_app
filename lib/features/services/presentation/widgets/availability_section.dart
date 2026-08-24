@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/theme/theme_colors.dart';
-import '../cubit/service_detail_cubit.dart';
-import '../cubit/service_detail_state.dart';
+import '../cubit/services_cubit.dart';
+import '../cubit/services_state.dart';
 
 class AvailabilitySection extends StatefulWidget {
   final String serviceUuid;

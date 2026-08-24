@@ -1,12 +1,19 @@
 import 'package:injectable/injectable.dart';
 import '../../../../core/api/api_client.dart';
-import '../../../../core/config/app_config.dart';
+import '../../../../core/api/api_endpoints.dart';
 import '../models/availability_model.dart';
 import '../models/service_detail_model.dart';
 import '../models/service_detail_response_model.dart';
+import '../models/services_response_model.dart';
 
-abstract class ServiceDetailDataSource {
+abstract class ServiceRemoteDataSource {
+  // List services
+  Future<ServicesResponseModel> getServices({int limit = 8, int page = 1});
+  
+  // Service detail
   Future<ServiceDetailModel> getServiceDetail(String serviceUuid);
+  
+  // Service availability
   Future<AvailabilityResponseModel> getServiceAvailability({
     required String serviceUuid,
     required String offeringUuid,
@@ -14,16 +21,34 @@ abstract class ServiceDetailDataSource {
   });
 }
 
-@Injectable(as: ServiceDetailDataSource)
-class ServiceDetailDataSourceImpl implements ServiceDetailDataSource {
+@Injectable(as: ServiceRemoteDataSource)
+class ServiceRemoteDataSourceImpl implements ServiceRemoteDataSource {
   final ApiClient _client;
 
-  const ServiceDetailDataSourceImpl(this._client);
+  const ServiceRemoteDataSourceImpl(this._client);
+
+  @override
+  Future<ServicesResponseModel> getServices({
+    int limit = 8,
+    int page = 1,
+  }) async {
+    final response = await _client.dio.get(
+      ApiEndpoints.services,
+      queryParameters: {
+        'limit': limit,
+        'page': page,
+      },
+    );
+
+    return ServicesResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
 
   @override
   Future<ServiceDetailModel> getServiceDetail(String serviceUuid) async {
     final response = await _client.dio.get(
-      '${AppConfig.apiBaseUrl}/api/v1/services/$serviceUuid',
+      ApiEndpoints.serviceDetail(serviceUuid),
     );
 
     final detailResponse = ServiceDetailResponseModel.fromJson(
@@ -40,7 +65,7 @@ class ServiceDetailDataSourceImpl implements ServiceDetailDataSource {
     int participants = 1,
   }) async {
     final response = await _client.dio.get(
-      '${AppConfig.apiBaseUrl}/api/v1/services/$serviceUuid/availability',
+      ApiEndpoints.serviceAvailability(serviceUuid),
       queryParameters: {
         'offeringUuid': offeringUuid,
         'participants': participants,

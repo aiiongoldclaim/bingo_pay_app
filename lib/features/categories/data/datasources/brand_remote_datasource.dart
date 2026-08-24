@@ -1,7 +1,7 @@
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
-import '../../../../core/config/app_config.dart';
+import '../../../../core/api/api_endpoints.dart';
 import '../models/brand_model.dart';
 
 abstract class BrandRemoteDataSource {
@@ -16,8 +16,7 @@ class BrandRemoteDataSourceImpl implements BrandRemoteDataSource {
 
   @override
   Future<List<BrandModel>> getBrands() async {
-    final url = '${AppConfig.apiBaseUrl}/api/v1/brands';
-    final response = await _client.dio.get(url);
+    final response = await _client.dio.get(ApiEndpoints.brands);
 
     final raw = response.data as Map<String, dynamic>;
     final dataWrapper = raw['data'] as Map<String, dynamic>?;

@@ -1,11 +1,11 @@
 import 'package:injectable/injectable.dart';
-import '../../data/datasources/service_detail_datasource.dart';
+import '../../data/datasources/services_remote_datasource.dart';
 import '../entities/service_entity.dart';
 import '../entities/availability_entity.dart';
 
 @injectable
 class GetServiceDetailUseCase {
-  final ServiceDetailDataSource _dataSource;
+  final ServiceRemoteDataSource _dataSource;
 
   GetServiceDetailUseCase(this._dataSource);
 
@@ -51,7 +51,7 @@ class GetServiceDetailUseCase {
 
 @injectable
 class GetServiceAvailabilityUseCase {
-  final ServiceDetailDataSource _dataSource;
+  final ServiceRemoteDataSource _dataSource;
 
   GetServiceAvailabilityUseCase(this._dataSource);
 

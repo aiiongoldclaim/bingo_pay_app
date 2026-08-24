@@ -1,3 +1,4 @@
+import 'package:bingo_pay/features/services/presentation/cubit/services_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
@@ -5,8 +6,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../domain/entities/service_entity.dart';
-import '../cubit/service_detail_cubit.dart';
-import '../cubit/service_detail_state.dart';
+import '../cubit/services_cubit.dart';
+import '../cubit/services_state.dart';
 import '../widgets/service_detail_header.dart';
 import '../widgets/offerings_list.dart';
 import '../widgets/availability_section.dart';
