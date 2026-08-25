@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../cubit/services_cubit.dart';
 import '../cubit/services_state.dart';
+import '../screens/service_checkout_screen.dart';
 
 class AvailabilitySection extends StatefulWidget {
   final String serviceUuid;
@@ -488,7 +489,18 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                   child: InkWell(
                     onTap: selectedSlotUuid != null
                         ? () {
-                            _showBookingConfirmation();
+                            // _showBookingConfirmation();
+                            Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (_) => ServiceCheckoutScreen(
+      serviceUuid: widget.serviceUuid,
+      offeringUuid: widget.offeringUuid,
+      bookingDate: 'Mon 31 Aug',
+      bookingTime: '10:00 – 11:00',
+    ),
+  ),
+);
                           }
                         : null,
                     borderRadius: BorderRadius.circular(14),
