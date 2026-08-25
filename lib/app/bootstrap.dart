@@ -94,4 +94,5 @@ Future<void> bootstrap() async {
           : FlavorBanner(child: const App()),
     ),
   );
+
 }

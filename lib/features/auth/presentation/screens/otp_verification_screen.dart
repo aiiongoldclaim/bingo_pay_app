@@ -194,7 +194,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         Text(
           'Enter OTP',
           style: TextStyle(
-            fontFamily: 'Roboto',
+            fontFamily: 'Inter',
             fontSize: m.footerText + 1,
             fontWeight: FontWeight.w600,
             color: isDark ? ThemeColors.white : ThemeColors.ink,
@@ -294,7 +294,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     final boxH = m.isTablet ? (m.isLandscape ? 58.0 : 64.0) : 56.0;
 
     final pinTextStyle = TextStyle(
-      fontFamily: 'Roboto',
+      fontFamily: 'Inter',
       fontSize: m.isTablet ? 22 : 20,
       fontWeight: FontWeight.w700,
       color: isDark ? ThemeColors.white : ThemeColors.ink,

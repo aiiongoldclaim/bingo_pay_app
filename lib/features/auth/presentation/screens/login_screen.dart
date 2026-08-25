@@ -172,6 +172,7 @@
 //NEW
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
@@ -321,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 'Forgot Password?',
                 style: AppTextStyles.labelLarge.copyWith(
                   fontSize: m.linkText,
-                  color: ThemeColors.purple,
+                  color: ThemeColors.primaryPurple,
                 ),
               ),
             ),
@@ -346,7 +347,7 @@ class _LoginScreenState extends State<LoginScreen> {
           /// OR DIVIDER
           Row(
             children: [
-              Expanded(child: Divider(color: _lineColor(isDark))),
+              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
                 child: Text(
@@ -357,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: _lineColor(isDark))),
+              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
             ],
           ),
 
@@ -375,6 +376,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Color _lineColor(bool isDark) =>
-      isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
+  // Color _lineColor(bool isDark) =>
+  //     isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
 }

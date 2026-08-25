@@ -42,14 +42,16 @@ class AppButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(m.radius),
     );
 
-    // ---------- LOADING ----------
+    // ------------------------------------------------------------
+    // LOADING
+    // ------------------------------------------------------------
     if (isLoading) {
       return SizedBox(
         width: double.infinity,
         height: h,
         child: Container(
           decoration: BoxDecoration(
-            gradient: ThemeColors.primaryGradient1,
+            gradient: ThemeColors.primaryButtonGradient,
             borderRadius: BorderRadius.circular(m.radius),
           ),
           child: ElevatedButton(
@@ -68,7 +70,9 @@ class AppButton extends StatelessWidget {
                 height: m.loaderSize,
                 child: CircularProgressIndicator(
                   strokeWidth: m.loaderStroke,
-                  valueColor: const AlwaysStoppedAnimation(ThemeColors.white),
+                  valueColor: const AlwaysStoppedAnimation(
+                    ThemeColors.white,
+                  ),
                 ),
               ),
             ),
@@ -79,9 +83,14 @@ class AppButton extends StatelessWidget {
 
     final isDisabled = onPressed == null;
 
+    // ------------------------------------------------------------
+    // COLORS
+    // ------------------------------------------------------------
+
     final effectiveTextColor = isDisabled
         ? ThemeColors.inkDim
         : (textColor ?? _textColor(isDark));
+
     final effectiveIconColor = isDisabled
         ? ThemeColors.inkDim
         : (iconColor ?? _textColor(isDark));
@@ -90,12 +99,20 @@ class AppButton extends StatelessWidget {
         ? ThemeColors.white.withValues(alpha: 0.10)
         : ThemeColors.line;
 
+    // ------------------------------------------------------------
+    // BUTTON CONTENT
+    // ------------------------------------------------------------
+
     Widget child = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (prefixIcon != null) ...[
-          Icon(prefixIcon, size: m.iconSize, color: effectiveIconColor),
+          Icon(
+            prefixIcon,
+            size: m.iconSize,
+            color: effectiveIconColor,
+          ),
           SizedBox(width: m.iconGap),
         ],
         Flexible(
@@ -114,26 +131,33 @@ class AppButton extends StatelessWidget {
       ],
     );
 
+    // ============================================================
+    // PRIMARY
+    // ============================================================
+
     switch (variant) {
-      // ---------- PRIMARY (gradient) ----------
       case AppButtonVariant.primary:
         return SizedBox(
           width: double.infinity,
           height: h,
           child: Container(
             decoration: BoxDecoration(
-              gradient: isDisabled ? null : ThemeColors.buttonBackGroundColor,
+              gradient: isDisabled
+                  ? null
+                  : ThemeColors.primaryButtonGradient,
               color: isDisabled ? disabledFill : null,
               borderRadius: BorderRadius.circular(m.radius),
               boxShadow: isDisabled
                   ? null
                   : [
-                      BoxShadow(
-                        color: ThemeColors.purple.withValues(alpha: 0.26),
-                        blurRadius: m.shadowBlur,
-                        offset: Offset(0, m.shadowOffset),
-                      ),
-                    ],
+                BoxShadow(
+                  color: ThemeColors.primaryPurple.withValues(
+                    alpha: 0.28,
+                  ),
+                  blurRadius: m.shadowBlur,
+                  offset: Offset(0, m.shadowOffset),
+                ),
+              ],
             ),
             child: ElevatedButton(
               onPressed: onPressed,
@@ -143,7 +167,9 @@ class AppButton extends StatelessWidget {
                 shadowColor: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
                 elevation: 0,
-                padding: EdgeInsets.symmetric(horizontal: m.hPad),
+                padding: EdgeInsets.symmetric(
+                  horizontal: m.hPad,
+                ),
                 shape: shape,
               ),
               child: child,
@@ -151,27 +177,43 @@ class AppButton extends StatelessWidget {
           ),
         );
 
-      // ---------- SECONDARY ----------
+    // ============================================================
+    // SECONDARY
+    // ============================================================
+
       case AppButtonVariant.secondary:
         return SizedBox(
           width: double.infinity,
           height: h,
-          child: FilledButton(
-            onPressed: onPressed,
-            style: FilledButton.styleFrom(
-              backgroundColor: isDisabled
-                  ? disabledFill
-                  : (isDark ? ThemeColors.surface2 : ThemeColors.white),
-              foregroundColor: effectiveTextColor,
-              elevation: 0,
-              padding: EdgeInsets.symmetric(horizontal: m.hPad),
-              shape: shape,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: isDisabled
+                  ? null
+                  : ThemeColors.secondaryButtonGradient,
+              color: isDisabled ? disabledFill : null,
+              borderRadius: BorderRadius.circular(m.radius),
             ),
-            child: child,
+            child: FilledButton(
+              onPressed: onPressed,
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                disabledBackgroundColor: Colors.transparent,
+                foregroundColor: effectiveTextColor,
+                elevation: 0,
+                padding: EdgeInsets.symmetric(
+                  horizontal: m.hPad,
+                ),
+                shape: shape,
+              ),
+              child: child,
+            ),
           ),
         );
 
-      // ---------- OUTLINED ----------
+    // ============================================================
+    // OUTLINED
+    // ============================================================
+
       case AppButtonVariant.outlined:
         return SizedBox(
           width: double.infinity,
@@ -179,15 +221,21 @@ class AppButton extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onPressed,
             style: OutlinedButton.styleFrom(
-              backgroundColor: isDisabled ? disabledFill : Colors.transparent,
+              backgroundColor: isDisabled
+                  ? disabledFill
+                  : ThemeColors.primaryPurple.withValues(
+                alpha: 0.04,
+              ),
               foregroundColor: effectiveTextColor,
               side: BorderSide(
                 color: isDisabled
                     ? ThemeColors.line
-                    : (isDark ? ThemeColors.purpleLight : ThemeColors.purple),
+                    : ThemeColors.primaryPurple,
                 width: m.borderWidth,
               ),
-              padding: EdgeInsets.symmetric(horizontal: m.hPad),
+              padding: EdgeInsets.symmetric(
+                horizontal: m.hPad,
+              ),
               shape: shape,
             ),
             child: child,
@@ -196,17 +244,31 @@ class AppButton extends StatelessWidget {
     }
   }
 
+  // ==============================================================
+  // TEXT COLOR
+  // ==============================================================
+
   Color _textColor(bool isDark) {
     switch (variant) {
       case AppButtonVariant.primary:
         return ThemeColors.white;
 
       case AppButtonVariant.secondary:
+        return isDark
+            ? ThemeColors.white
+            : ThemeColors.primaryPurple;
+
       case AppButtonVariant.outlined:
-        return isDark ? ThemeColors.purpleLight : ThemeColors.purple;
+        return isDark
+            ? ThemeColors.mediumPurple
+            : ThemeColors.primaryPurple;
     }
   }
 }
+
+// ==================================================================
+// BUTTON METRICS
+// ==================================================================
 
 class _ButtonMetrics {
   const _ButtonMetrics({
@@ -268,7 +330,7 @@ class _ButtonMetrics {
       );
     }
 
-    // phone
+    // Phone
     return const _ButtonMetrics(
       height: 54,
       fontSize: 16,

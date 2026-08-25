@@ -3,9 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 
 class ThemeColors {
-  // =========================
-  // BLUE PALETTE
-  // =========================
+
 
   static const primaryPurple = Color(0xFF4C1E76);
   static const deepPurple = Color(0xFF3F185F);
@@ -79,8 +77,8 @@ class ThemeColors {
   // BACKGROUND
   // =========================
 
-  static const Color purple = Color(0xFF6D28D9);
-  static const Color purpleLight = Color(0xFF8B5CF6);
+  // static const Color purple = Color(0xFF6D28D9);
+  // static const Color purpleLight = Color(0xFF8B5CF6);
 
   // static const Color background = Color(0xFFF4F6FB);
 
@@ -191,11 +189,11 @@ class ThemeColors {
     end: Alignment.bottomCenter,
   );
 
-  static const LinearGradient buttonBackGroundColor = LinearGradient(
-    colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-  );
+  // static const LinearGradient buttonBackGroundColor = LinearGradient(
+  //   colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+  //   begin: Alignment.centerLeft,
+  //   end: Alignment.centerRight,
+  // );
 
   static const LinearGradient banner = LinearGradient(
     colors: [Color(0xFFEDE6F5), Color(0xFFDCD0EA)],
@@ -213,5 +211,23 @@ class ThemeColors {
     colors: [Color(0xFFFDF4ED), Color(0xFFF8EEF4)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
+  );
+
+  static const LinearGradient primaryButtonGradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [
+      primaryPurple,
+      mediumPurple,
+    ],
+  );
+
+  static const LinearGradient secondaryButtonGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color(0xFFF3ECF8),
+        Color(0xFFE9DDF1),
+      ],
   );
 }

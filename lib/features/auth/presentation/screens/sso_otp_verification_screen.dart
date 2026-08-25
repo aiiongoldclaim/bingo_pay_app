@@ -35,12 +35,16 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
   Timer? _cooldownTimer;
   int _secondsLeft = _resendCooldownSeconds;
 
-  // ------------------------- LOGIC — same, kuchh nahi badla -------------------------
 
   @override
   void initState() {
     super.initState();
     _startCooldown();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _otpFocusNode.requestFocus();
+      }
+    });
   }
 
   @override
@@ -48,6 +52,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     _otpController.dispose();
     _otpFocusNode.dispose();
     _cooldownTimer?.cancel();
+    _otpFocusNode.dispose();
     super.dispose();
   }
 
@@ -68,18 +73,42 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     final otp = _otpController.text.trim();
 
     if (otp.length != _otpLength) {
-      AppSnackbar.showError(context, 'Enter the $_otpLength-digit code');
+      _otpFocusNode.requestFocus();
+
+      AppSnackbar.showError(
+        context,
+        'Enter the $_otpLength-digit code',
+      );
+
       return;
     }
 
+    FocusScope.of(context).unfocus();
+
     context.read<AuthBloc>().add(
-      SsoOtpVerifyRequested(email: widget.email, otp: otp),
+      SsoOtpVerifyRequested(
+        email: widget.email,
+        otp: otp,
+      ),
     );
   }
 
   void _resend() {
     if (_secondsLeft > 0) return;
-    context.read<AuthBloc>().add(SsoOtpSendRequested(email: widget.email));
+
+    _otpController.clear();
+
+    context.read<AuthBloc>().add(
+      SsoOtpSendRequested(
+        email: widget.email,
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _otpFocusNode.requestFocus();
+      }
+    });
   }
 
   // ------------------------------------ UI ------------------------------------
@@ -350,8 +379,8 @@ class _TopBar extends StatelessWidget {
                     text: 'Vault',
                     style: TextStyle(
                       color: isDark
-                          ? ThemeColors.purpleLight
-                          : ThemeColors.purple,
+                          ? ThemeColors.primaryPurple
+                          : ThemeColors.deepPurple,
                     ),
                   ),
                 ],
@@ -461,7 +490,7 @@ class _OtpInput extends StatelessWidget {
     final boxBorder = isDark
         ? ThemeColors.white.withValues(alpha: 0.14)
         : ThemeColors.line;
-    final accent = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
+    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -480,7 +509,7 @@ class _OtpInput extends StatelessWidget {
             width: w,
             height: h,
             textStyle: TextStyle(
-              fontFamily: 'Roboto',
+              fontFamily: 'Inter',
               fontSize: w * 0.44,
               fontWeight: FontWeight.w700,
               color: digitColor,
@@ -534,7 +563,7 @@ class _ResendRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canResend = secondsLeft == 0;
-    final accent = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
+    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
     final muted = isDark ? ThemeColors.textGrey : ThemeColors.inkDim;
     final mm = (secondsLeft ~/ 60).toString().padLeft(2, '0');
     final ss = (secondsLeft % 60).toString().padLeft(2, '0');

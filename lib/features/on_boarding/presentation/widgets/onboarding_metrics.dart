@@ -230,7 +230,7 @@ class OnboardingPalette {
       backText: isDark ? ThemeColors.white : ThemeColors.textDark,
 
       nextFill: null,
-      nextGradient: ThemeColors.buttonBackGroundColor,
+      nextGradient: ThemeColors.bottomSection,
       nextText: ThemeColors.white,
 
       skip: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,

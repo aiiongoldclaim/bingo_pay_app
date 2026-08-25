@@ -17,7 +17,7 @@ class AppPalette {
 
   static const purple = AppPalette(
     type: AppPaletteType.purple,
-    primary: ThemeColors.purple,
+    primary: ThemeColors.primaryPurple,
     accent: ThemeColors.accent,
   );
 

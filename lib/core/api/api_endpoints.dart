@@ -39,8 +39,9 @@ class ApiEndpoints {
   static String membershipCancel(String uuid) =>
       '/api/v1/customer/membership/$uuid/cancel';
 
-  static String membershipResume(String uuid) =>
-      '/api/v1/customer/membership/$uuid/resume';
+  static String membershipResume(String subscriptionUuid) =>
+      '/api/v1/customer/membership/$subscriptionUuid/resume';
+
 
 
   static const String bigodBalance = '/api/v1/payments/bigod/balance';

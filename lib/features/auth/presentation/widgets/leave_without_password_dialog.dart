@@ -20,7 +20,7 @@ class LeaveWithoutPasswordDialog extends StatelessWidget {
         : ThemeColors.white;
     final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
     final bodyColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
-    final accent = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
+    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -147,7 +147,7 @@ class _ShieldBadge extends StatelessWidget {
         height: m.badgeRing * 0.62,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: ThemeColors.buttonBackGroundColor,
+          gradient: ThemeColors.bottomSection,
           boxShadow: [
             BoxShadow(
               color: accent.withValues(alpha: 0.35),
@@ -247,7 +247,7 @@ class _FilledAction extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(m.radius * 0.6),
-          gradient: ThemeColors.buttonBackGroundColor,
+          gradient: ThemeColors.bottomSection,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

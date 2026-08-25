@@ -8,6 +8,7 @@ import '../models/member_ship_model.dart';
 import '../models/membership_balance_model.dart';
 import '../models/membership_cancel_model.dart';
 import '../models/membership_plan_model.dart';
+import '../models/membership_resume_model.dart';
 import '../models/membership_subscribe_model.dart';
 
 abstract class MembershipRemoteDataSource {
@@ -27,6 +28,11 @@ abstract class MembershipRemoteDataSource {
 
   /// POST /payments/bigod/confirm
   Future<BigodConfirmResult> confirmBigodPayment({required String token});
+
+  /// PATCH /membership/{uuid}/resume
+  Future<MembershipResumeModel> resume({
+    required String subscriptionUuid,
+  });
 
 }
 
@@ -292,5 +298,45 @@ class MembershipRemoteDataSourceImpl implements MembershipRemoteDataSource {
     );
   }
 
+
+// PATCH /membership/{uuid}/resume
+
+  @override
+  Future<MembershipResumeModel> resume({
+    required String subscriptionUuid,
+  }) async {
+    final response = await _apiClient.dio.patch(
+      ApiEndpoints.membershipResume(
+        subscriptionUuid,
+      ),
+    );
+
+    const fallback =
+        'Could not resume the membership';
+
+    final outer = _outerMap(
+      response.data,
+      response.statusCode,
+      fallback,
+    );
+
+    final inner = outer['data'];
+
+    if (inner is! Map) {
+      throw ServerException(
+        statusCode: response.statusCode,
+        message:
+        outer['message']?.toString() ??
+            fallback,
+      );
+    }
+
+    return MembershipResumeModel.fromJson(
+      Map<String, dynamic>.from(inner),
+      message:
+      outer['message']?.toString() ??
+          '',
+    );
+  }
 
 }

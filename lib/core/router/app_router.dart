@@ -473,15 +473,21 @@ class AppRouter {
   // }
   Future<void> updateAuthState(RouteAuthState state) async {
     debugPrint(
-      'AUTH → auth=${state.isAuthenticated} '
-      'loading=${state.isLoading} '
-      'onboarding=${state.hasSeenOnboarding} '
-      'kyc=${state.isKycPending}',
+      'AUTH → '
+          'auth=${state.isAuthenticated} '
+          'loading=${state.isLoading} '
+          'onboarding=${state.hasSeenOnboarding} '
+          'kyc=${state.isKycPending}',
     );
 
-    if (_authState.isLoading && !state.isLoading) {
-      final elapsed = DateTime.now().difference(_startedAt);
-      final remaining = _minSplashDuration - elapsed;
+    if (_authState.isLoading &&
+        !state.isLoading) {
+      final elapsed =
+      DateTime.now().difference(_startedAt);
+
+      final remaining =
+          _minSplashDuration - elapsed;
+
       if (remaining > Duration.zero) {
         await Future.delayed(remaining);
       }

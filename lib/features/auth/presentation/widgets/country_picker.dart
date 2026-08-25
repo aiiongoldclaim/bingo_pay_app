@@ -132,7 +132,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
             child: Text(
               'Select Country',
               style: TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontSize: m.titleFont,
                 fontWeight: FontWeight.w700,
                 color: titleColor,
@@ -148,7 +148,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
             child: TextField(
               controller: _searchController,
               style: TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontSize: m.bodyFont,
                 color: bodyColor,
               ),
@@ -156,7 +156,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
               decoration: InputDecoration(
                 hintText: 'Search country, code, or dial code',
                 hintStyle: TextStyle(
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Inter',
                   fontSize: m.bodyFont,
                   color: isDark ? ThemeColors.inkDim : ThemeColors.textGrey,
                 ),
@@ -165,7 +165,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                 prefixIcon: Icon(
                   Icons.search_rounded,
                   size: m.iconSize,
-                  color: isDark ? ThemeColors.gold1 : ThemeColors.textSecondary,
+                  color: isDark ? ThemeColors.mediumPurple : ThemeColors.textSecondary,
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -211,7 +211,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                         'No countries found matching your search.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: 'Roboto',
+                          fontFamily: 'Inter',
                           fontSize: m.bodyFont,
                           color: mutedColor,
                         ),
@@ -249,7 +249,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                           title: Text(
                             country.name,
                             style: TextStyle(
-                              fontFamily: 'Roboto',
+                              fontFamily: 'Inter',
                               fontSize: m.bodyFont,
                               fontWeight: isSelected
                                   ? FontWeight.w700
@@ -260,10 +260,10 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                           trailing: Text(
                             country.dialCode,
                             style: TextStyle(
-                              fontFamily: 'Roboto',
+                              fontFamily: 'Inter',
                               fontSize: m.bodyFont - 1,
                               fontWeight: FontWeight.w600,
-                              color: ThemeColors.purple,
+                              color: ThemeColors.mediumPurple,
                             ),
                           ),
                           onTap: () {

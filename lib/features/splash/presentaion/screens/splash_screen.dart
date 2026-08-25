@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import '../../../../core/theme/theme_colors.dart';
 import '../widgets/splash_background..dart';
@@ -26,11 +25,6 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..forward();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FlutterNativeSplash.remove();
-      _controller.forward();
-    });
 
     _fade = CurvedAnimation(
       parent: _controller,

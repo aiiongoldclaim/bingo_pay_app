@@ -1,98 +1,76 @@
 import 'package:flutter/material.dart';
 
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
-
-import '../../data/models/member_ship_model.dart';
-import 'membership_formatters.dart';
 import 'membership_metrices.dart';
 
+const List<String> _months = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 class MembershipDetailsCard extends StatelessWidget {
   const MembershipDetailsCard({
     super.key,
-    required this.plan,
-    required this.subscription,
     required this.metrics,
+    required this.items,
+    this.title = 'Membership Details',
   });
 
-  final MembershipPlan? plan;
-  final MembershipSubscription subscription;
   final MembershipMetrics metrics;
+  final List<MembershipDetailItem> items;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
     final c = context.c;
     final m = metrics;
 
-    final rows = <Widget>[
-      if (plan != null)
-        MembershipDetailRow(
-          label: 'Plan',
-          value: plan!.name,
-          metrics: m,
-        ),
-      if (plan != null)
-        MembershipDetailRow(
-          label: 'Membership type',
-          value: plan!.kindLabel,
-          metrics: m,
-        ),
-      MembershipDetailRow(
-        label: 'Reference',
-        value: subscription.reference,
-        metrics: m,
-      ),
-      MembershipDetailRow(
-        label: 'Billing cycle',
-        value: subscription.billingCycleLabel,
-        metrics: m,
-      ),
-      MembershipDetailRow(
-        label: 'Amount',
-        value: subscription.priceLabel,
-        metrics: m,
-      ),
-      MembershipDetailRow(
-        label: 'Started on',
-        value: formatMembershipDate(subscription.startAt),
-        metrics: m,
-      ),
-      MembershipDetailRow(
-        label: 'Expires on',
-        value: formatMembershipDate(subscription.endAt),
-        metrics: m,
-      ),
-      MembershipDetailRow(
-        label: 'Auto renew',
-        metrics: m,
-        valueWidget: MembershipTonePill(
-          label: subscription.autoRenew ? 'On' : 'Off',
-          metrics: m,
-          foreground: subscription.autoRenew
-              ? c.statusSuccess
-              : c.textSecondary,
-          background: subscription.autoRenew
-              ? c.statusSuccessSoft
-              : c.surfaceAlt,
-        ),
-      ),
-    ];
-
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: m.cardPad,
-        vertical: m.cardPad * 0.35,
-      ),
+      padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
         color: c.surface,
-        borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: c.border),
+        borderRadius: BorderRadius.circular(
+          m.radiusLg,
+        ),
+        border: Border.all(
+          color: c.border,
+        ),
       ),
       child: Column(
+        crossAxisAlignment:
+        CrossAxisAlignment.stretch,
         children: [
-          for (var i = 0; i < rows.length; i++) ...[
-            rows[i],
-            if (i != rows.length - 1) Divider(height: 1, color: c.border),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: m.sectionTitleSize,
+              fontWeight: FontWeight.w700,
+              color: c.textPrimary,
+            ),
+          ),
+          SizedBox(
+            height: m.rowGap * 0.6,
+          ),
+          for (int i = 0; i < items.length; i++) ...[
+            MembershipDetailRow(
+              item: items[i],
+              metrics: m,
+            ),
+            if (i != items.length - 1)
+              Divider(
+                height: 1,
+                color: c.border,
+              ),
           ],
         ],
       ),
@@ -100,18 +78,26 @@ class MembershipDetailsCard extends StatelessWidget {
   }
 }
 
+class MembershipDetailItem {
+  const MembershipDetailItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+}
+
 class MembershipDetailRow extends StatelessWidget {
   const MembershipDetailRow({
     super.key,
-    required this.label,
+    required this.item,
     required this.metrics,
-    this.value,
-    this.valueWidget,
   });
 
-  final String label;
-  final String? value;
-  final Widget? valueWidget;
+  final MembershipDetailItem item;
   final MembershipMetrics metrics;
 
   @override
@@ -120,39 +106,50 @@ class MembershipDetailRow extends StatelessWidget {
     final m = metrics;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: m.rowGap * 0.62),
+      padding: EdgeInsets.symmetric(
+        vertical: m.rowGap * 0.55,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Container(
+            width: m.iconCircle * 0.6,
+            height: m.iconCircle * 0.6,
+            decoration: BoxDecoration(
+              color: c.brandSoft,
+              borderRadius: BorderRadius.circular(
+                m.radiusSm,
+              ),
+            ),
+            child: Icon(
+              item.icon,
+              size: m.iconSize * 0.7,
+              color: c.brand,
+            ),
+          ),
+          SizedBox(
+            width: m.cardPad * 0.5,
+          ),
           Expanded(
-            flex: 4,
             child: Text(
-              label,
+              item.label,
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w500,
-                color: c.textSecondary,
+                color: c.textPrimary,
               ),
             ),
           ),
-          SizedBox(width: m.cardPad * 0.4),
-          Expanded(
-            flex: 5,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child:
-              valueWidget ??
-                  Text(
-                    value ?? '--',
-                    textAlign: TextAlign.right,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: m.labelSize,
-                      fontWeight: FontWeight.w600,
-                      color: c.textPrimary,
-                    ),
-                  ),
+          Flexible(
+            child: Text(
+              item.value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: m.labelSize,
+                fontWeight: FontWeight.w600,
+                color: c.textSecondary,
+              ),
             ),
           ),
         ],
@@ -161,40 +158,23 @@ class MembershipDetailRow extends StatelessWidget {
   }
 }
 
-class MembershipTonePill extends StatelessWidget {
-  const MembershipTonePill({
-    super.key,
-    required this.label,
-    required this.metrics,
-    required this.foreground,
-    required this.background,
-  });
+String formatMembershipDate(DateTime? date) {
+  if (date == null) return '--';
 
-  final String label;
-  final MembershipMetrics metrics;
-  final Color foreground;
-  final Color background;
+  final day = date.day.toString().padLeft(2, '0');
 
-  @override
-  Widget build(BuildContext context) {
-    final m = metrics;
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: m.cardPad * 0.4,
-        vertical: m.cardPad * 0.16,
-      ),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(99),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: m.captionSize,
-          fontWeight: FontWeight.w700,
-          color: foreground,
-        ),
-      ),
-    );
-  }
+  return '$day ${_months[date.month - 1]} ${date.year}';
+}
+
+String formatMembershipMonth(DateTime? date) {
+  if (date == null) return '--';
+
+  return '${_months[date.month - 1]} ${date.year}';
+}
+
+String formatDaysLeft(int days) {
+  if (days <= 0) return 'Expires today';
+  if (days == 1) return '1 day left';
+
+  return '$days days left';
 }

@@ -70,7 +70,8 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
               isError
                   ? c.statusWarning
                   : c.statusSuccess,
-              behavior: SnackBarBehavior.floating,
+              behavior:
+              SnackBarBehavior.floating,
             ),
           );
 
@@ -95,6 +96,9 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
         break;
 
       case MembershipPaymentConfirmed():
+        break;
+
+      case MembershipResumed():
         break;
     }
   }
@@ -179,7 +183,6 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
   }
 }
 
-// ---------------------------------------------------------------------------
 
 class _Loaded extends StatelessWidget {
   const _Loaded({required this.state, required this.metrics});

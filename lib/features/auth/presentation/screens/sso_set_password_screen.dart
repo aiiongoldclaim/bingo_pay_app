@@ -33,7 +33,6 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
-  // ------------------------- LOGIC — same, kuchh nahi badla -------------------------
 
   @override
   void dispose() {
@@ -205,8 +204,8 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                     text: 'Vaults',
                     style: TextStyle(
                       color: isDark
-                          ? ThemeColors.purpleLight
-                          : ThemeColors.purple,
+                          ? ThemeColors.primaryPurple
+                          : ThemeColors.deepPurple,
                     ),
                   ),
                 ],
@@ -445,7 +444,6 @@ class _WideLayout extends StatelessWidget {
   }
 }
 
-/// Content available height me na aaye to proportionally shrink — scroll nahi.
 class _FitPane extends StatelessWidget {
   const _FitPane({required this.child, this.minScale = 0.85});
 

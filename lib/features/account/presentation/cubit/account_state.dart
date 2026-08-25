@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import '../../domain/enities/account_entity.dart';
 
 sealed class AccountState extends Equatable {
@@ -16,8 +17,18 @@ class AccountLoading extends AccountState {
   const AccountLoading();
 }
 
+class AccountRefreshing extends AccountState {
+  final AccountEntity account;
+
+  const AccountRefreshing(this.account);
+
+  @override
+  List<Object?> get props => [account];
+}
+
 class AccountLoaded extends AccountState {
   final AccountEntity account;
+
   const AccountLoaded(this.account);
 
   @override
@@ -26,6 +37,7 @@ class AccountLoaded extends AccountState {
 
 class AccountError extends AccountState {
   final String message;
+
   const AccountError(this.message);
 
   @override

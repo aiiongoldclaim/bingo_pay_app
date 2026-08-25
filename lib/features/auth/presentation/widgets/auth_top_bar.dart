@@ -3,8 +3,6 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import 'auth_metrics.dart';
 
-/// Saare auth screens ka top bar.
-/// [onBack] diya to back arrow, warna logo box dikhta hai.
 class AuthTopBar extends StatelessWidget {
   const AuthTopBar({
     super.key,
@@ -51,7 +49,7 @@ class AuthTopBar extends StatelessWidget {
             width: m.logoBox,
             height: m.logoBox,
             decoration: BoxDecoration(
-              gradient: ThemeColors.buttonBackGroundColor,
+              gradient: ThemeColors.bottomSection,
               borderRadius: BorderRadius.circular(m.logoBox * 0.28),
             ),
             child: Icon(
@@ -69,7 +67,7 @@ class AuthTopBar extends StatelessWidget {
               TextSpan(
                 text: brandFirst,
                 style: TextStyle(
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Inter',
                   fontSize: m.brandTitle,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
@@ -80,8 +78,8 @@ class AuthTopBar extends StatelessWidget {
                     text: brandSecond,
                     style: TextStyle(
                       color: isDark
-                          ? ThemeColors.purpleLight
-                          : ThemeColors.purple,
+                          ? ThemeColors.primaryPurple
+                          : ThemeColors.deepPurple,
                     ),
                   ),
                 ],
@@ -107,7 +105,7 @@ class AuthTopBar extends StatelessWidget {
               actionLabel!,
               style: AppTextStyles.labelLarge.copyWith(
                 fontSize: m.linkText,
-                color: isDark ? ThemeColors.purpleLight : ThemeColors.purple,
+                color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/constants/image_constants.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import 'auth_metrics.dart';
@@ -342,7 +343,7 @@ class _BrandRow extends StatelessWidget {
           width: m.logoBox,
           height: m.logoBox,
           decoration: BoxDecoration(
-            gradient: ThemeColors.buttonBackGroundColor,
+            gradient: ThemeColors.bottomSection,
             borderRadius: BorderRadius.circular(m.logoBox * 0.28),
           ),
           child: Icon(
@@ -360,7 +361,7 @@ class _BrandRow extends StatelessWidget {
               TextSpan(
                 text: brandFirst,
                 style: TextStyle(
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Inter',
                   fontSize: m.brandTitle,
                   fontWeight: FontWeight.w800,
                   color: isDark ? ThemeColors.white : ThemeColors.ink,
@@ -368,7 +369,7 @@ class _BrandRow extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: brandSecond,
-                    style: TextStyle(color: ThemeColors.purple),
+                    style: TextStyle(color: ThemeColors.primaryPurple),
                   ),
                 ],
               ),
@@ -392,7 +393,7 @@ class _BrandRow extends StatelessWidget {
               actionLabel!,
               style: AppTextStyles.labelLarge.copyWith(
                 fontSize: m.linkText,
-                color: isDark ? ThemeColors.purpleLight : ThemeColors.purple,
+                color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
               ),
             ),
           ),
@@ -463,7 +464,7 @@ class _HeroImage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
         child: Image.asset(
-          isDark ? 'assets/images/Image_8.png' : 'assets/images/Image_7.png',
+          isDark ? AppImages.dashbordDark: AppImages.dashboardLight,
           fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),
@@ -493,14 +494,14 @@ class _FeatureTile extends StatelessWidget {
       height: m.featureIconBox,
       decoration: BoxDecoration(
         color: isDark
-            ? ThemeColors.purple.withValues(alpha: 0.18)
+            ? ThemeColors.primaryPurple.withValues(alpha: 0.18)
             : ThemeColors.blueSoft,
         shape: BoxShape.circle,
       ),
       child: Icon(
         feature.icon,
         size: m.featureIconBox * 0.5,
-        color: ThemeColors.purple,
+        color: ThemeColors.deepPurple,
       ),
     );
 

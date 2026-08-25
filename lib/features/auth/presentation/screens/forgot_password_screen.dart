@@ -15,7 +15,6 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_metrics.dart';
 import '../widgets/auth_tablet_layout.dart';
-import '../widgets/auth_terms_text.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -28,18 +27,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
+  final _emailFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _emailFocusNode.unfocus();
+      FocusScope.of(context).unfocus();
+    });
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
+    _emailFocusNode.dispose();
     super.dispose();
   }
 
   void _submit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(
-        ForgotPasswordRequested(email: _emailController.text.trim()),
-      );
+    FocusScope.of(context).unfocus();
+
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
     }
+
+    context.read<AuthBloc>().add(
+      ForgotPasswordRequested(
+        email: _emailController.text.trim(),
+      ),
+    );
   }
 
   @override
@@ -80,12 +98,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         children: [
           AppTextField(
             controller: _emailController,
+            focusNode: _emailFocusNode,
             label: 'Email',
             hint: 'Enter your email',
             isRequired: true,
-            keyboardType: TextInputType.emailAddress,
+            keyboardType:
+            TextInputType.emailAddress,
+            textInputAction:
+            TextInputAction.done,
+            onFieldSubmitted: (_) {
+              _submit();
+            },
             validator: Validators.email,
-            prefixIcon: const Icon(Icons.mail_outline_rounded),
+            prefixIcon: const Icon(
+              Icons.mail_outline_rounded,
+            ),
           ),
 
           SizedBox(height: m.blockGap),
@@ -104,7 +131,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           /// OR DIVIDER
           Row(
             children: [
-              Expanded(child: Divider(color: _lineColor(isDark))),
+              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
                 child: Text(
@@ -115,7 +142,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: _lineColor(isDark))),
+              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
             ],
           ),
 
@@ -134,6 +161,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Color _lineColor(bool isDark) =>
-      isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
 }

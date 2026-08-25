@@ -45,6 +45,7 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+
 import '../../domain/usecase/get_account_usecase.dart';
 import 'account_state.dart';
 
@@ -54,22 +55,60 @@ export 'account_state.dart';
 class AccountCubit extends Cubit<AccountState> {
   final GetProfileUseCase _getProfile;
 
-  AccountCubit(this._getProfile) : super(const AccountInitial());
+  AccountCubit(this._getProfile)
+      : super(const AccountInitial());
 
   Future<void> loadProfile() async {
     emit(const AccountLoading());
+
     final result = await _getProfile();
+
     result.fold(
-      (failure) => emit(AccountError(failure.message)),
-      (account) => emit(AccountLoaded(account)),
+          (failure) => emit(
+        AccountError(failure.message),
+      ),
+          (account) => emit(
+        AccountLoaded(account),
+      ),
     );
   }
 
   Future<void> refresh() async {
-    await loadProfile();
+    final currentState = state;
+
+    if (currentState is AccountLoaded) {
+      emit(
+        AccountRefreshing(
+          currentState.account,
+        ),
+      );
+    }
+
+    final result = await _getProfile();
+
+    result.fold(
+          (failure) {
+        if (currentState is AccountLoaded) {
+          emit(
+            AccountLoaded(
+              currentState.account,
+            ),
+          );
+        } else {
+          emit(
+            AccountError(
+              failure.message,
+            ),
+          );
+        }
+      },
+          (account) {
+        emit(
+          AccountLoaded(account),
+        );
+      },
+    );
   }
 
-  void onEditProfile() {
-    // TODO
-  }
+  void onEditProfile() {}
 }

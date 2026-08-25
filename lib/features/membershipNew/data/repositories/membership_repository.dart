@@ -5,6 +5,7 @@ import '../models/member_ship_model.dart';
 import '../models/membership_balance_model.dart';
 import '../models/membership_cancel_model.dart';
 import '../models/membership_plan_model.dart';
+import '../models/membership_resume_model.dart';
 import '../models/membership_subscribe_model.dart';
 
 abstract class MembershipRepository {
@@ -17,6 +18,10 @@ abstract class MembershipRepository {
   Future<MembershipCancelModel> cancel(String subscriptionUuid);
 
   Future<BigodBalance> getBigodBalance();
+
+  Future<MembershipResumeModel> resume(
+      String subscriptionUuid,
+      );
 
   Future<BigodConfirmResult> confirmBigodPayment(
       String token,
@@ -55,6 +60,15 @@ class MembershipRepositoryImpl implements MembershipRepository {
       ) {
     return _remote.confirmBigodPayment(
       token: token,
+    );
+  }
+
+  @override
+  Future<MembershipResumeModel> resume(
+      String subscriptionUuid,
+      ) {
+    return _remote.resume(
+      subscriptionUuid: subscriptionUuid,
     );
   }
 }

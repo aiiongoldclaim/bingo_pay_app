@@ -2,147 +2,390 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+
 import 'package:bingo_pay/core/error/error_handler.dart';
 
 import '../../data/models/member_ship_model.dart';
 import '../../data/models/membership_plan_model.dart';
 import '../../data/repositories/membership_repository.dart';
+
 import 'membership_state.dart';
 
 
+// ============================================================================
+// MEMBERSHIP CUBIT
+// ============================================================================
+
 @injectable
-class MembershipCubit extends Cubit<MembershipState> {
+class MembershipCubit
+    extends Cubit<MembershipState> {
   final MembershipRepository _repository;
 
-  MembershipCubit(this._repository) : super(const MembershipInitial());
+  MembershipCubit(
+      this._repository,
+      ) : super(
+    const MembershipInitial(),
+  );
 
-  final StreamController<MembershipEvent> _events =
+  // ==========================================================================
+  // EVENTS
+  // ==========================================================================
+
+  final StreamController<MembershipEvent>
+  _events =
   StreamController<MembershipEvent>.broadcast();
 
-  Stream<MembershipEvent> get events => _events.stream;
+  Stream<MembershipEvent> get events =>
+      _events.stream;
 
-  // ------------------------------------------------------------------- load
+  void _emitEvent(
+      MembershipEvent event,
+      ) {
+    if (isClosed ||
+        _events.isClosed) {
+      return;
+    }
 
-  /// pehli baar — full screen loader
-  Future<void> load({String? preselectPlanUuid}) async {
-    if (state is MembershipLoading) return;
-    emit(const MembershipLoading());
-    await _fetch(preselectPlanUuid: preselectPlanUuid);
+    _events.add(event);
   }
 
-  /// pull to refresh — loader nahi, purana data screen par rahega
-  Future<void> refresh() => _fetch();
+  // ==========================================================================
+  // LOAD
+  // ==========================================================================
 
-  Future<void> _fetch({String? preselectPlanUuid}) async {
-    final previous = state is MembershipLoaded
+  /// First screen load.
+  ///
+  /// Shows full-screen loader.
+  Future<void> load({
+    String? preselectPlanUuid,
+  }) async {
+    if (state is MembershipLoading) {
+      return;
+    }
+
+    emit(
+      const MembershipLoading(),
+    );
+
+    await _fetch(
+      preselectPlanUuid:
+      preselectPlanUuid,
+    );
+  }
+
+  // ==========================================================================
+  // REFRESH
+  // ==========================================================================
+
+  /// Pull-to-refresh.
+  ///
+  /// Existing screen remains visible while API is loading.
+  Future<void> refresh() async {
+    await _fetch();
+  }
+
+  // ==========================================================================
+  // FETCH MEMBERSHIP + PLANS
+  // ==========================================================================
+
+  Future<void> _fetch({
+    String? preselectPlanUuid,
+
+    /// When true, preserve the Renew button state
+    /// after a successful Resume API.
+    bool keepRenewState = false,
+  }) async {
+    final previous =
+    state is MembershipLoaded
         ? state as MembershipLoaded
         : null;
 
     try {
-      // dono parallel
-      final membershipFuture = _repository.getMembership();
-      final plansFuture = _repository.getPlans();
+      // ----------------------------------------------------------------------
+      // API calls
+      // ----------------------------------------------------------------------
 
-      final membership = await membershipFuture;
+      final membershipFuture =
+      _repository.getMembership();
 
-      List<MembershipPlanOption> plans = const [];
+      final plansFuture =
+      _repository.getPlans();
+
+      // ----------------------------------------------------------------------
+      // MEMBERSHIP
+      // ----------------------------------------------------------------------
+
+      final membership =
+      await membershipFuture;
+
+      // ----------------------------------------------------------------------
+      // PLANS
+      // ----------------------------------------------------------------------
+
+      List<MembershipPlanOption> plans =
+      const [];
+
       String? plansError;
+
       try {
         plans = await plansFuture;
       } on Exception catch (e) {
-        // plans fail ho to bhi membership dikhana hai
-        plansError = ErrorHandler.mapExceptionToFailure(e).message;
-        plans = previous?.plans ?? const [];
+        plansError =
+            ErrorHandler
+                .mapExceptionToFailure(e)
+                .message;
+
+        // Keep old plans if refresh fails.
+        plans =
+            previous?.plans ??
+                const [];
       }
 
-      if (isClosed) return;
+      if (isClosed) {
+        return;
+      }
+
+      // ----------------------------------------------------------------------
+      // EMIT
+      // ----------------------------------------------------------------------
 
       emit(
         MembershipLoaded(
-          membership: membership,
-          plans: plans,
-          plansError: plansError,
-          selectedPlanUuid: _initialSelection(
+          membership:
+          membership,
+
+          plans:
+          plans,
+
+          plansError:
+          plansError,
+
+          selectedPlanUuid:
+          _initialSelection(
             plans,
-            preselectPlanUuid ?? previous?.selectedPlanUuid,
+            preselectPlanUuid ??
+                previous
+                    ?.selectedPlanUuid,
             membership,
           ),
+
+          // IMPORTANT:
+          // Resume ke baad Renew button state preserve hoga.
+          showRenewAfterResume:
+          keepRenewState
+              ? (previous
+              ?.showRenewAfterResume ??
+              false)
+              : false,
         ),
       );
     } on Exception catch (e) {
-      if (isClosed) return;
-      emit(MembershipError(ErrorHandler.mapExceptionToFailure(e)));
+      if (isClosed) {
+        return;
+      }
+
+      emit(
+        MembershipError(
+          ErrorHandler
+              .mapExceptionToFailure(e),
+        ),
+      );
     }
   }
 
-  // ----------------------------------------------------------- plan select
+  // ==========================================================================
+  // PLAN SELECTION
+  // ==========================================================================
 
-  void selectPlan(String planUuid) {
+  void selectPlan(
+      String planUuid,
+      ) {
     final current = state;
-    if (current is! MembershipLoaded) return;
-    if (current.selectedPlanUuid == planUuid) return;
 
-    // naya plan chuna -> purani quote invalid
-    emit(current.copyWith(selectedPlanUuid: planUuid, clearQuote: true));
+    if (current
+    is! MembershipLoaded) {
+      return;
+    }
+
+    if (current.selectedPlanUuid ==
+        planUuid) {
+      return;
+    }
+
+    // Selecting another plan invalidates old quote.
+    emit(
+      current.copyWith(
+        selectedPlanUuid:
+        planUuid,
+        clearQuote: true,
+      ),
+    );
   }
 
-  // -------------------------------------------------------------- subscribe
+  // ==========================================================================
+  // SUBSCRIBE
+  // ==========================================================================
 
-  /// Continue button. Success par state me quote aa jaata hai +
-  /// MembershipQuoteCreated event jaata hai -> screen checkout push karti hai.
+  /// Starts membership subscription.
+  ///
+  /// Success:
+  /// 1. quote stored in state
+  /// 2. MembershipQuoteCreated event emitted
+  /// 3. Checkout screen can open
   Future<void> subscribe() async {
     final current = state;
-    if (current is! MembershipLoaded || current.isActionInProgress) return;
 
-    final plan = current.selectedPlan;
-    if (plan == null || plan.uuid.isEmpty) {
-      _events.add(const MembershipMessage('Plan missing', isError: true));
+    if (current
+    is! MembershipLoaded ||
+        current.isActionInProgress) {
       return;
     }
 
-    emit(current.copyWith(isSubscribing: true, clearQuote: true));
+    final plan =
+        current.selectedPlan;
+
+    if (plan == null ||
+        plan.uuid.isEmpty) {
+      _emitEvent(
+        const MembershipMessage(
+          'Plan missing',
+          isError: true,
+        ),
+      );
+
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        isSubscribing: true,
+        clearQuote: true,
+      ),
+    );
 
     try {
-      final quote = await _repository.subscribe(plan.uuid);
-      if (isClosed) return;
+      final quote =
+      await _repository
+          .subscribe(
+        plan.uuid,
+      );
 
-      emit(current.copyWith(isSubscribing: false, quote: quote));
-      _events.add(MembershipQuoteCreated(quote, plan));
+      if (isClosed) {
+        return;
+      }
+
+      emit(
+        current.copyWith(
+          isSubscribing: false,
+          quote: quote,
+        ),
+      );
+
+      _emitEvent(
+        MembershipQuoteCreated(
+          quote,
+          plan,
+        ),
+      );
     } on Exception catch (e) {
-      if (isClosed) return;
-      final failure = ErrorHandler.mapExceptionToFailure(e);
-      _events.add(MembershipMessage(failure.message, isError: true));
-      emit(current.copyWith(isSubscribing: false));
+      if (isClosed) {
+        return;
+      }
+
+      final failure =
+      ErrorHandler
+          .mapExceptionToFailure(e);
+
+      _emitEvent(
+        MembershipMessage(
+          failure.message,
+          isError: true,
+        ),
+      );
+
+      emit(
+        current.copyWith(
+          isSubscribing: false,
+        ),
+      );
     }
   }
 
-  /// checkout se wapas aane par
+  // ==========================================================================
+  // CLEAR QUOTE
+  // ==========================================================================
+
   void clearQuote() {
     final current = state;
-    if (current is! MembershipLoaded || current.quote == null) return;
-    emit(current.copyWith(clearQuote: true));
-  }
 
-  // ----------------------------------------------------------------- cancel
-
-  Future<void> cancel(String subscriptionUuid) async {
-    final current = state;
-    if (current is! MembershipLoaded || current.isActionInProgress) return;
-    if (subscriptionUuid.isEmpty) {
-      _events.add(
-        const MembershipMessage('Subscription missing', isError: true),
-      );
+    if (current
+    is! MembershipLoaded ||
+        current.quote == null) {
       return;
     }
 
-    emit(current.copyWith(isCancelling: true));
+    emit(
+      current.copyWith(
+        clearQuote: true,
+      ),
+    );
+  }
+
+  // ==========================================================================
+  // CANCEL MEMBERSHIP
+  // ==========================================================================
+
+  Future<void> cancel(
+      String subscriptionUuid,
+      ) async {
+    final current = state;
+
+    if (current
+    is! MembershipLoaded ||
+        current.isActionInProgress) {
+      return;
+    }
+
+    if (subscriptionUuid
+        .trim()
+        .isEmpty) {
+      _emitEvent(
+        const MembershipMessage(
+          'Subscription missing',
+          isError: true,
+        ),
+      );
+
+      return;
+    }
+
+    emit(
+      current.copyWith(
+        isCancelling: true,
+      ),
+    );
 
     try {
-      final result = await _repository.cancel(subscriptionUuid);
-      if (isClosed) return;
+      final result =
+      await _repository.cancel(
+        subscriptionUuid,
+      );
 
-      _events.add(MembershipCancelled(result));
-      _events.add(
+      if (isClosed) {
+        return;
+      }
+
+      // ---------------------------------------------------------------
+      // Event
+      // ---------------------------------------------------------------
+
+      _emitEvent(
+        MembershipCancelled(
+          result,
+        ),
+      );
+
+      _emitEvent(
         MembershipMessage(
           result.message.isEmpty
               ? 'Membership cancelled'
@@ -150,53 +393,58 @@ class MembershipCubit extends Cubit<MembershipState> {
         ),
       );
 
-      emit(current.copyWith(isCancelling: false));
+      // ---------------------------------------------------------------
+      // Immediately stop loader
+      // ---------------------------------------------------------------
 
-      // fresh membership + plans
+      emit(
+        current.copyWith(
+          isCancelling: false,
+        ),
+      );
+
+      // ---------------------------------------------------------------
+      // Fresh membership
+      // ---------------------------------------------------------------
+
       await _fetch();
     } on Exception catch (e) {
-      if (isClosed) return;
-      final failure = ErrorHandler.mapExceptionToFailure(e);
-      _events.add(MembershipMessage(failure.message, isError: true));
-      emit(current.copyWith(isCancelling: false));
+      if (isClosed) {
+        return;
+      }
+
+      final failure =
+      ErrorHandler
+          .mapExceptionToFailure(e);
+
+      _emitEvent(
+        MembershipMessage(
+          failure.message,
+          isError: true,
+        ),
+      );
+
+      emit(
+        current.copyWith(
+          isCancelling: false,
+        ),
+      );
     }
   }
 
-  // ---------------------------------------------------------------- helpers
+  // ==========================================================================
+  // CANCEL PENDING
+  // ==========================================================================
 
-  /// current plan pehle, phir preselect, phir highlighted, warna first
-  String? _initialSelection(
-      List<MembershipPlanOption> plans,
-      String? preselect,
-      MembershipModel membership,
-      ) {
-    if (plans.isEmpty) return null;
-
-    if (preselect != null && plans.any((p) => p.uuid == preselect)) {
-      return preselect;
-    }
-
-    final currentUuid = membership.plan?.uuid;
-    if (currentUuid != null && plans.any((p) => p.uuid == currentUuid)) {
-      return currentUuid;
-    }
-
-    return plans
-        .firstWhere((p) => p.isHighlighted, orElse: () => plans.first)
-        .uuid;
-  }
-
-  @override
-  Future<void> close() {
-    _events.close();
-    return super.close();
-  }
-
-
+  /// Used from checkout/pending flow.
+  ///
+  /// Does not change MembershipLoaded state.
   Future<bool> cancelPending(
       String subscriptionUuid,
       ) async {
-    if (subscriptionUuid.trim().isEmpty) {
+    if (subscriptionUuid
+        .trim()
+        .isEmpty) {
       _emitEvent(
         const MembershipMessage(
           'Subscription missing',
@@ -208,25 +456,19 @@ class MembershipCubit extends Cubit<MembershipState> {
     }
 
     try {
-      print(
-        '========== CANCEL MEMBERSHIP START ==========',
-      );
-
-      print(
-        'Subscription UUID: $subscriptionUuid',
-      );
-
       final result =
       await _repository.cancel(
         subscriptionUuid,
       );
 
-      print(
-        'Cancel API success',
-      );
+      if (isClosed) {
+        return false;
+      }
 
       _emitEvent(
-        MembershipCancelled(result),
+        MembershipCancelled(
+          result,
+        ),
       );
 
       _emitEvent(
@@ -237,21 +479,15 @@ class MembershipCubit extends Cubit<MembershipState> {
         ),
       );
 
-      print(
-        '========== CANCEL MEMBERSHIP END ==========',
-      );
-
       return true;
-    } on Exception catch (e, stackTrace) {
-      print(
-        '========== CANCEL MEMBERSHIP ERROR ==========',
-      );
-
-      print(e);
-      print(stackTrace);
+    } on Exception catch (e) {
+      if (isClosed) {
+        return false;
+      }
 
       final failure =
-      ErrorHandler.mapExceptionToFailure(e);
+      ErrorHandler
+          .mapExceptionToFailure(e);
 
       _emitEvent(
         MembershipMessage(
@@ -264,19 +500,130 @@ class MembershipCubit extends Cubit<MembershipState> {
     }
   }
 
-  void _emitEvent(MembershipEvent event) {
-    if (isClosed || _events.isClosed) return;
-    _events.add(event);
+  // ==========================================================================
+  // RESUME MEMBERSHIP
+  // ==========================================================================
+
+  Future<void> resumeMembership(
+      String subscriptionUuid,
+      ) async {
+    final current = state;
+
+    // Prevent duplicate resume requests.
+    if (current
+    is! MembershipLoaded ||
+        current.isActionInProgress) {
+      return;
+    }
+
+    if (subscriptionUuid
+        .trim()
+        .isEmpty) {
+      _emitEvent(
+        const MembershipMessage(
+          'Subscription missing',
+          isError: true,
+        ),
+      );
+
+      return;
+    }
+
+    // ------------------------------------------------------------------------
+    // START LOADING
+    // ------------------------------------------------------------------------
+
+    emit(
+      current.copyWith(
+        isResuming: true,
+      ),
+    );
+
+    try {
+      // ----------------------------------------------------------------------
+      // RESUME API
+      // ----------------------------------------------------------------------
+
+      final result =
+      await _repository.resume(
+        subscriptionUuid,
+      );
+
+      if (isClosed) {
+        return;
+      }
+
+      // ----------------------------------------------------------------------
+      // RESUME SUCCESS EVENT
+      // ----------------------------------------------------------------------
+
+      _emitEvent(
+        MembershipResumed(
+          result,
+        ),
+      );
+
+      _emitEvent(
+        MembershipMessage(
+          result.message.isEmpty
+              ? 'Membership resumed successfully'
+              : result.message,
+        ),
+      );
+
+      // ----------------------------------------------------------------------
+      // UPDATE CURRENT STATE
+      // ----------------------------------------------------------------------
+
+      emit(
+        current.copyWith(
+          isResuming: false,
+
+          // This is important.
+          // UI will now show Renew Plan.
+          showRenewAfterResume: true,
+        ),
+      );
+
+      // ----------------------------------------------------------------------
+      // GET FRESH MEMBERSHIP
+      // ----------------------------------------------------------------------
+
+      await _fetch(
+        keepRenewState: true,
+      );
+    } on Exception catch (e) {
+      if (isClosed) {
+        return;
+      }
+
+      final failure =
+      ErrorHandler
+          .mapExceptionToFailure(e);
+
+      _emitEvent(
+        MembershipMessage(
+          failure.message,
+          isError: true,
+        ),
+      );
+
+      emit(
+        current.copyWith(
+          isResuming: false,
+        ),
+      );
+    }
   }
+
+  // ==========================================================================
+  // BIGOD BALANCE + CONFIRM
+  // ==========================================================================
 
   Future<void> payNow({
     required String token,
     required double requiredAmount,
   }) async {
-    print('========== BIGOD PAYMENT START ==========');
-    print('Token: $token');
-    print('Required amount: $requiredAmount');
-
     if (token.trim().isEmpty) {
       _emitEvent(
         const MembershipMessage(
@@ -284,6 +631,7 @@ class MembershipCubit extends Cubit<MembershipState> {
           isError: true,
         ),
       );
+
       return;
     }
 
@@ -294,37 +642,28 @@ class MembershipCubit extends Cubit<MembershipState> {
           isError: true,
         ),
       );
+
       return;
     }
 
     try {
-      // ---------------------------------------------------------
-      // 1. GET BIGOD BALANCE
-      // ---------------------------------------------------------
-
-      print('Calling BIGOD balance API...');
+      // ----------------------------------------------------------------------
+      // 1. GET BALANCE
+      // ----------------------------------------------------------------------
 
       final balance =
-      await _repository.getBigodBalance();
+      await _repository
+          .getBigodBalance();
 
       final availableBalance =
           balance.tokenBalance;
 
-      print(
-        'Available BIGOD: $availableBalance',
-      );
+      // ----------------------------------------------------------------------
+      // 2. CHECK BALANCE
+      // ----------------------------------------------------------------------
 
-      print(
-        'Required BIGOD: $requiredAmount',
-      );
-
-      // ---------------------------------------------------------
-      // 2. CHECK BIGOD BALANCE
-      // ---------------------------------------------------------
-
-      if (availableBalance < requiredAmount) {
-        print('Insufficient BIGOD balance');
-
+      if (availableBalance <
+          requiredAmount) {
         _emitEvent(
           MembershipMessage(
             'Insufficient BIGOD balance. '
@@ -337,53 +676,37 @@ class MembershipCubit extends Cubit<MembershipState> {
         return;
       }
 
-      print('BIGOD balance sufficient');
-
-      // ---------------------------------------------------------
+      // ----------------------------------------------------------------------
       // 3. CONFIRM PAYMENT
-      // ---------------------------------------------------------
-
-      print('Calling BIGOD confirm API...');
+      // ----------------------------------------------------------------------
 
       final result =
-      await _repository.confirmBigodPayment(
+      await _repository
+          .confirmBigodPayment(
         token,
       );
 
-      print(
-        'Confirm status: '
-            '${result.subscriptionStatus}',
-      );
+      if (isClosed) {
+        return;
+      }
 
-      if (isClosed) return;
-
-      // ---------------------------------------------------------
-      // 4. PAYMENT SUCCESS EVENT
-      // ---------------------------------------------------------
+      // ----------------------------------------------------------------------
+      // 4. SUCCESS EVENT
+      // ----------------------------------------------------------------------
 
       _emitEvent(
-        MembershipPaymentConfirmed(result),
+        MembershipPaymentConfirmed(
+          result,
+        ),
       );
-
-      print(
-        'MembershipPaymentConfirmed emitted',
-      );
-
-      print(
-        '========== BIGOD PAYMENT END ==========',
-      );
-    } on Exception catch (e, stackTrace) {
-      print(
-        '========== BIGOD PAYMENT ERROR ==========',
-      );
-
-      print(e);
-      print(stackTrace);
-
-      if (isClosed) return;
+    } on Exception catch (e) {
+      if (isClosed) {
+        return;
+      }
 
       final failure =
-      ErrorHandler.mapExceptionToFailure(e);
+      ErrorHandler
+          .mapExceptionToFailure(e);
 
       _emitEvent(
         MembershipMessage(
@@ -394,5 +717,63 @@ class MembershipCubit extends Cubit<MembershipState> {
     }
   }
 
+  // ==========================================================================
+  // PLAN SELECTION HELPER
+  // ==========================================================================
 
+  /// Selection priority:
+  ///
+  /// 1. preselected plan
+  /// 2. current membership plan
+  /// 3. highlighted plan
+  /// 4. first plan
+  String? _initialSelection(
+      List<MembershipPlanOption> plans,
+      String? preselect,
+      MembershipModel membership,
+      ) {
+    if (plans.isEmpty) {
+      return null;
+    }
+
+    // ------------------------------------------------------------------------
+    // Preselected plan
+    // ------------------------------------------------------------------------
+
+    if (preselect != null &&
+        plans.any(
+              (p) => p.uuid == preselect,
+        )) {
+      return preselect;
+    }
+
+    // ------------------------------------------------------------------------
+    // Current membership plan
+    // ------------------------------------------------------------------------
+
+    final currentUuid =
+        membership.plan?.uuid;
+
+    if (currentUuid != null &&
+        plans.any(
+              (p) => p.uuid == currentUuid,
+        )) {
+      return currentUuid;
+    }
+
+
+    return plans
+        .firstWhere(
+          (p) => p.isHighlighted,
+      orElse: () => plans.first,
+    )
+        .uuid;
+  }
+
+  @override
+  Future<void> close() async {
+    await _events.close();
+
+    return super.close();
+  }
 }

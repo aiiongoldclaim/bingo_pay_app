@@ -85,9 +85,9 @@ class AuthLegalLink extends StatelessWidget {
         text,
         style: AppTextStyles.labelLarge.copyWith(
           fontSize: fontSize,
-          color: ThemeColors.purple,
+          color: ThemeColors.primaryPurple,
           decoration: TextDecoration.underline,
-          decorationColor: ThemeColors.purple,
+          decorationColor: ThemeColors.deepPurple,
         ),
       ),
     );

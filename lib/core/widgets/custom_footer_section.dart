@@ -27,7 +27,6 @@ class AuthFooterLink extends StatelessWidget {
 
     final size = fontSize ?? m.font;
 
-    // colors theme se — koi raw hex nahi
     final prefixColor = isDark ? ThemeColors.inkDim : ThemeColors.textSecondary;
 
     return Row(
@@ -42,7 +41,7 @@ class AuthFooterLink extends StatelessWidget {
                 color: prefixColor,
               ) ??
               TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontSize: size,
                 fontWeight: FontWeight.w500,
                 color: prefixColor,
@@ -60,10 +59,10 @@ class AuthFooterLink extends StatelessWidget {
             child: Text(
               action,
               style: TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontSize: size,
                 fontWeight: FontWeight.w700,
-                color: ThemeColors.purple,
+                color: ThemeColors.primaryPurple,
               ),
             ),
           ),

@@ -6,11 +6,13 @@ import '../../data/models/member_ship_model.dart';
 import '../../data/models/membership_balance_model.dart';
 import '../../data/models/membership_cancel_model.dart';
 import '../../data/models/membership_plan_model.dart';
+import '../../data/models/membership_resume_model.dart';
 import '../../data/models/membership_subscribe_model.dart';
 
-// ---------------------------------------------------------------------------
-// state — chaaro API ek hi state me
-// ---------------------------------------------------------------------------
+
+// ============================================================================
+// MEMBERSHIP STATE
+// ============================================================================
 
 sealed class MembershipState extends Equatable {
   const MembershipState();
@@ -19,13 +21,24 @@ sealed class MembershipState extends Equatable {
   List<Object?> get props => const [];
 }
 
+
+// ============================================================================
+// INITIAL
+// ============================================================================
+
 final class MembershipInitial extends MembershipState {
   const MembershipInitial();
 }
 
+
+// LOADING
+
 final class MembershipLoading extends MembershipState {
   const MembershipLoading();
 }
+
+
+// ERROR
 
 final class MembershipError extends MembershipState {
   final Failure failure;
@@ -38,25 +51,46 @@ final class MembershipError extends MembershipState {
   List<Object?> get props => [failure];
 }
 
+
+// LOADED
+
 final class MembershipLoaded extends MembershipState {
+
+  // MEMBERSHIP
+
   /// GET /membership
   final MembershipModel membership;
+
+  // PLANS
 
   /// GET /membership/plans
   final List<MembershipPlanOption> plans;
 
-  /// plans list me abhi kaunsa select hai
+  /// Currently selected plan.
   final String? selectedPlanUuid;
 
-  /// plans load hone me fail hua par membership aa gaya
+  /// Plans API failed but membership API succeeded.
   final String? plansError;
+
+  // SUBSCRIBE
 
   /// POST /membership/subscribe
   final bool isSubscribing;
+
   final MembershipQuote? quote;
+
+  // CANCEL
 
   /// PATCH /membership/{uuid}/cancel
   final bool isCancelling;
+
+  // RESUME
+
+  /// POST /membership/{uuid}/resume
+  final bool isResuming;
+
+  /// After successful resume, UI should show Renew Plan.
+  final bool showRenewAfterResume;
 
   const MembershipLoaded({
     required this.membership,
@@ -66,41 +100,55 @@ final class MembershipLoaded extends MembershipState {
     this.isSubscribing = false,
     this.quote,
     this.isCancelling = false,
+    this.isResuming = false,
+    this.showRenewAfterResume = false,
   });
 
-  // ------------------------------------------------------------- membership
 
-  bool get isMember => membership.subscription != null;
+  bool get isMember =>
+      membership.subscription != null;
 
-  bool get isActionInProgress => isSubscribing || isCancelling;
+  bool get isActionInProgress =>
+      isSubscribing ||
+          isCancelling ||
+          isResuming;
 
-  // ------------------------------------------------------------------ plans
 
   MembershipPlanOption? get selectedPlan {
     if (plans.isEmpty) return null;
-    for (final p in plans) {
-      if (p.uuid == selectedPlanUuid) return p;
+
+    for (final plan in plans) {
+      if (plan.uuid == selectedPlanUuid) {
+        return plan;
+      }
     }
+
     return plans.first;
   }
 
-  /// compare table ke columns
   List<String> get comparableFeatureKeys {
     final keys = <String>[];
+
     for (final plan in plans) {
-      for (final f in plan.features) {
-        if (!keys.contains(f.key)) keys.add(f.key);
+      for (final feature in plan.features) {
+        if (!keys.contains(feature.key)) {
+          keys.add(feature.key);
+        }
       }
     }
+
     return keys;
   }
 
   String featureNameFor(String key) {
     for (final plan in plans) {
-      for (final f in plan.features) {
-        if (f.key == key) return f.name;
+      for (final feature in plan.features) {
+        if (feature.key == key) {
+          return feature.name;
+        }
       }
     }
+
     return key;
   }
 
@@ -113,16 +161,46 @@ final class MembershipLoaded extends MembershipState {
     MembershipQuote? quote,
     bool clearQuote = false,
     bool? isCancelling,
-  }) =>
-      MembershipLoaded(
-        membership: membership ?? this.membership,
-        plans: plans ?? this.plans,
-        selectedPlanUuid: selectedPlanUuid ?? this.selectedPlanUuid,
-        plansError: plansError,
-        isSubscribing: isSubscribing ?? this.isSubscribing,
-        quote: clearQuote ? null : (quote ?? this.quote),
-        isCancelling: isCancelling ?? this.isCancelling,
-      );
+    bool? isResuming,
+    bool? showRenewAfterResume,
+  }) {
+    return MembershipLoaded(
+      membership:
+      membership ?? this.membership,
+
+      plans:
+      plans ?? this.plans,
+
+      selectedPlanUuid:
+      selectedPlanUuid ??
+          this.selectedPlanUuid,
+
+      plansError:
+      plansError ?? this.plansError,
+
+      isSubscribing:
+      isSubscribing ??
+          this.isSubscribing,
+
+      quote: clearQuote
+          ? null
+          : (quote ?? this.quote),
+
+      isCancelling:
+      isCancelling ??
+          this.isCancelling,
+
+      isResuming:
+      isResuming ??
+          this.isResuming,
+
+      showRenewAfterResume:
+      showRenewAfterResume ??
+          this.showRenewAfterResume,
+    );
+  }
+
+  // EQUATABLE
 
   @override
   List<Object?> get props => [
@@ -133,12 +211,13 @@ final class MembershipLoaded extends MembershipState {
     isSubscribing,
     quote,
     isCancelling,
+    isResuming,
+    showRenewAfterResume,
   ];
 }
 
-// ---------------------------------------------------------------------------
-// one-shot events (snackbar / navigation) — state me nahi rakhne
-// ---------------------------------------------------------------------------
+
+// MEMBERSHIP EVENTS
 
 sealed class MembershipEvent extends Equatable {
   const MembershipEvent();
@@ -147,46 +226,92 @@ sealed class MembershipEvent extends Equatable {
   List<Object?> get props => const [];
 }
 
-/// generic snackbar text
+
+// GENERIC MESSAGE
+
 final class MembershipMessage extends MembershipEvent {
   final String text;
   final bool isError;
 
-  const MembershipMessage(this.text, {this.isError = false});
+  const MembershipMessage(
+      this.text, {
+        this.isError = false,
+      });
 
   @override
-  List<Object?> get props => [text, isError];
+  List<Object?> get props => [
+    text,
+    isError,
+  ];
 }
 
-/// subscribe success -> checkout screen push karna hai
-final class MembershipQuoteCreated extends MembershipEvent {
+
+// SUBSCRIBE SUCCESS
+
+final class MembershipQuoteCreated
+    extends MembershipEvent {
   final MembershipQuote quote;
   final MembershipPlanOption plan;
 
-  const MembershipQuoteCreated(this.quote, this.plan);
+  const MembershipQuoteCreated(
+      this.quote,
+      this.plan,
+      );
 
   @override
-  List<Object?> get props => [quote, plan];
+  List<Object?> get props => [
+    quote,
+    plan,
+  ];
 }
 
-/// cancel success
-final class MembershipCancelled extends MembershipEvent {
+
+// CANCEL SUCCESS
+
+final class MembershipCancelled
+    extends MembershipEvent {
   final MembershipCancelModel result;
 
-  const MembershipCancelled(this.result);
+  const MembershipCancelled(
+      this.result,
+      );
 
   @override
-  List<Object?> get props => [result];
+  List<Object?> get props => [
+    result,
+  ];
 }
+
+
+// RESUME SUCCESS
+
+final class MembershipResumed
+    extends MembershipEvent {
+  final MembershipResumeModel result;
+
+  const MembershipResumed(
+      this.result,
+      );
+
+  @override
+  List<Object?> get props => [
+    result,
+  ];
+}
+
+
+// PAYMENT CONFIRMED
 
 final class MembershipPaymentConfirmed
     extends MembershipEvent {
   final BigodConfirmResult result;
 
-  const MembershipPaymentConfirmed(this.result);
+  const MembershipPaymentConfirmed(
+      this.result,
+      );
 
   @override
-  List<Object?> get props => [result];
+  List<Object?> get props => [
+    result,
+  ];
 }
-
-

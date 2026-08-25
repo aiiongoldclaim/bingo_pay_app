@@ -4,7 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
 
@@ -21,23 +23,19 @@ class SsoLoginDialog extends StatelessWidget {
   });
 
   static Future<void> show(
-    BuildContext context, {
-    required String email,
-    required VoidCallback onSendOtp,
-    required VoidCallback onUseDifferentEmail,
-  }) {
-    final parentTheme = Theme.of(context);
+      BuildContext context, {
+        required String email,
+        required VoidCallback onSendOtp,
+        required VoidCallback onUseDifferentEmail,
+      }) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: ThemeColors.black.withValues(alpha: 0.6),
-      builder: (_) => Theme(
-        data: parentTheme,
-        child: SsoLoginDialog(
-          email: email,
-          onSendOtp: onSendOtp,
-          onUseDifferentEmail: onUseDifferentEmail,
-        ),
+      barrierColor: ThemeColors.black.withValues(alpha: 0.65),
+      builder: (_) => SsoLoginDialog(
+        email: email,
+        onSendOtp: onSendOtp,
+        onUseDifferentEmail: onUseDifferentEmail,
       ),
     );
   }
@@ -45,22 +43,15 @@ class SsoLoginDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = _DialogMetrics.get();
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    final cardBg = isDark
-        ? Color.alphaBlend(
-            ThemeColors.white.withValues(alpha: 0.05),
-            ThemeColors.ink,
-          )
-        : ThemeColors.white;
-    final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
-    final bodyColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
-    final accent = isDark ? ThemeColors.gold1 : ThemeColors.purple;
+    final c = context.c;
+    final isDark = c.isDark;
 
     return BlocConsumer<AuthBloc, AuthState>(
-      listenWhen: (previous, current) => current is SsoOtpRequired,
-      listener: (context, state) => Navigator.of(context).pop(),
+      listenWhen: (previous, current) =>
+      current is SsoOtpRequired,
+      listener: (context, state) {
+        Navigator.of(context).pop();
+      },
       builder: (context, state) {
         final isSending = state is SsoOtpSending;
 
@@ -73,24 +64,33 @@ class SsoLoginDialog extends StatelessWidget {
               vertical: 24,
             ),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: m.maxWidth),
+              constraints: BoxConstraints(
+                maxWidth: m.maxWidth,
+              ),
               child: SingleChildScrollView(
                 child: Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: ThemeColors.white,
-                    borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
-                    // border: isDark
-                    //     ? Border.all(
-                    //         color: ThemeColors.white.withValues(alpha: 0.10),
-                    //       )
-                    //     : null,
+                    color: c.surface,
+                    borderRadius: BorderRadius.circular(
+                      AppSizes.radius2Xl,
+                    ),
+                    border: isDark
+                        ? Border.all(
+                      color: c.border,
+                      width: 1,
+                    )
+                        : null,
                     boxShadow: [
                       BoxShadow(
                         color: isDark
-                            ? ThemeColors.black.withValues(alpha: 0.5)
-                            : ThemeColors.blueDeep.withValues(alpha: 0.3),
-                        blurRadius: AppSizes.shadowBlurLg,
+                            ? ThemeColors.black.withValues(
+                          alpha: 0.55,
+                        )
+                            : c.brand.withValues(
+                          alpha: 0.20,
+                        ),
+                        blurRadius: 24,
                         offset: const Offset(0, 14),
                       ),
                     ],
@@ -100,65 +100,92 @@ class SsoLoginDialog extends StatelessWidget {
                     children: [
                       _Header(
                         m: m,
-                        onClose: isSending ? null : onUseDifferentEmail,
+                        onClose:
+                        isSending
+                            ? null
+                            : onUseDifferentEmail,
                       ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                           m.padH,
-                          m.padTop,
+                          m.padTop*1,
                           m.padH,
                           m.padBottom,
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          crossAxisAlignment:
+                          CrossAxisAlignment.stretch,
                           children: [
                             Text(
                               'Welcome back!',
                               textAlign: TextAlign.center,
-                              style: AppTextStyles.headlineMedium.copyWith(
+                              style:
+                              AppTextStyles
+                                  .headlineMedium
+                                  .copyWith(
                                 fontSize: m.titleFont,
-                                color: ThemeColors.black,
+                                color: c.textPrimary,
+                                fontWeight:
+                                FontWeight.w700,
                               ),
                             ),
-                            SizedBox(height: m.gapSm),
+                            SizedBox(
+                              height: m.gapSm,
+                            ),
                             Text.rich(
                               TextSpan(
-                                style: AppTextStyles.bodyMedium.copyWith(
+                                style:
+                                AppTextStyles
+                                    .bodyMedium
+                                    .copyWith(
                                   fontSize: m.bodyFont,
-                                  color: bodyColor,
+                                  color:
+                                  c.textSecondary,
+                                  height: 1.55,
                                 ),
                                 children: [
-                                  const TextSpan(text: 'An account for '),
+                                  const TextSpan(
+                                    text:
+                                    'An account for ',
+                                  ),
                                   TextSpan(
                                     text: email,
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      color: accent,
+                                      fontWeight:
+                                      FontWeight.w700,
+                                      color:
+                                      isDark
+                                          ? ThemeColors
+                                          .gold1
+                                          : c.brand,
                                     ),
                                   ),
                                   const TextSpan(
                                     text:
-                                        ' already exists with BinGold. Verify with a '
-                                        'one-time code to sign in securely.',
+                                    ' already exists with BinGold. Verify with a one-time code to sign in securely.',
                                   ),
                                 ],
                               ),
-                              textAlign: TextAlign.center,
+                              textAlign:
+                              TextAlign.center,
                             ),
-                            SizedBox(height: m.gapLg),
-                            _PrimaryButton(
-                              m: m,
+                            SizedBox(
+                              height: m.gapLg,
+                            ),
+                            AppButton(
                               label: 'Send OTP to Sign In',
-                              icon: Icons.mark_email_read_rounded,
+                              prefixIcon: Icons.mark_email_read_rounded,
                               isLoading: isSending,
-                              onTap: isSending ? null : onSendOtp,
+                              onPressed: isSending ? null : onSendOtp,
+                              variant: AppButtonVariant.primary,
                             ),
-                            SizedBox(height: m.gapSm),
-                            _SecondaryButton(
-                              m: m,
-                              isDark: isDark,
+                            SizedBox(
+                              height: m.gapSm,
+                            ),
+                            AppButton(
                               label: 'Use a different email',
-                              onTap: isSending ? null : onUseDifferentEmail,
+                              onPressed: isSending ? null : onUseDifferentEmail,
+                              variant: AppButtonVariant.outlined,
                             ),
                           ],
                         ),
@@ -179,10 +206,16 @@ class _Header extends StatelessWidget {
   final _DialogMetrics m;
   final VoidCallback? onClose;
 
-  const _Header({required this.m, required this.onClose});
+  const _Header({
+    required this.m,
+    required this.onClose,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
+    final isDark = c.isDark;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
@@ -191,7 +224,9 @@ class _Header extends StatelessWidget {
         m.padH * 0.7,
         m.gapMd,
       ),
-      decoration: BoxDecoration(gradient: ThemeColors.buttonBackGroundColor),
+      decoration: BoxDecoration(
+        gradient: c.heroBanner,
+      ),
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -200,176 +235,92 @@ class _Header extends StatelessWidget {
             alignment: Alignment.topRight,
             child: GestureDetector(
               onTap: onClose,
-              behavior: HitTestBehavior.opaque,
+              behavior:
+              HitTestBehavior.opaque,
               child: Container(
-                padding: const EdgeInsets.all(6),
+                padding:
+                const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: ThemeColors.white.withValues(alpha: 0.16),
+                  color: isDark
+                      ? ThemeColors.white
+                      .withValues(
+                    alpha: 0.10,
+                  )
+                      : ThemeColors.white
+                      .withValues(
+                    alpha: 0.16,
+                  ),
                   shape: BoxShape.circle,
+                  border: isDark
+                      ? Border.all(
+                    color: ThemeColors.white
+                        .withValues(
+                      alpha: 0.15,
+                    ),
+                  )
+                      : null,
                 ),
                 child: Icon(
                   Icons.close_rounded,
                   size: m.closeIcon,
-                  color: ThemeColors.white,
+                  color:
+                  ThemeColors.white,
                 ),
               ),
             ),
           ),
           Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+            MainAxisSize.min,
             children: [
               Container(
                 width: m.badgeBox,
                 height: m.badgeBox,
                 decoration: BoxDecoration(
-                  color: ThemeColors.white.withValues(alpha: 0.14),
+                  color: ThemeColors.white
+                      .withValues(
+                    alpha: 0.12,
+                  ),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: ThemeColors.white.withValues(alpha: 0.35),
+                    color: ThemeColors.white
+                        .withValues(
+                      alpha: 0.30,
+                    ),
                     width: 1.2,
                   ),
                 ),
-                alignment: Alignment.center,
+                alignment:
+                Alignment.center,
                 child: Icon(
                   Icons.verified_user_rounded,
-                  color: ThemeColors.white,
-                  size: m.badgeBox * 0.46,
+                  color:
+                  ThemeColors.white,
+                  size:
+                  m.badgeBox * 0.46,
                 ),
               ),
-              SizedBox(height: m.gapSm),
+              SizedBox(
+                height: m.gapSm,
+              ),
               Text(
                 'BINGOLD SSO',
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: m.labelFont,
+                style: AppTextStyles
+                    .buttonText
+                    .copyWith(
+                  fontSize:
+                  m.labelFont,
                   letterSpacing: 1.6,
-                  color: ThemeColors.white.withValues(alpha: 0.9),
+                  color:
+                  ThemeColors.white
+                      .withValues(
+                    alpha: 0.92,
+                  ),
                 ),
               ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PrimaryButton extends StatelessWidget {
-  final _DialogMetrics m;
-  final String label;
-  final IconData icon;
-  final VoidCallback? onTap;
-  final bool isLoading;
-
-  const _PrimaryButton({
-    required this.m,
-    required this.label,
-    required this.icon,
-    required this.onTap,
-    this.isLoading = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: m.buttonHeight,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: ThemeColors.buttonBackGroundColor,
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          boxShadow: [
-            BoxShadow(
-              color: ThemeColors.blue.withValues(alpha: 0.32),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-            onTap: onTap,
-            child: isLoading
-                ? Center(
-                    child: SizedBox(
-                      width: m.loaderSize,
-                      height: m.loaderSize,
-                      child: const CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        valueColor: AlwaysStoppedAnimation(ThemeColors.white),
-                      ),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(icon, size: m.buttonIcon, color: ThemeColors.white),
-                      SizedBox(width: m.gapSm * 0.6),
-                      Flexible(
-                        child: Text(
-                          label,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.buttonText.copyWith(
-                            fontSize: m.buttonFont,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SecondaryButton extends StatelessWidget {
-  final _DialogMetrics m;
-  final String label;
-  final VoidCallback? onTap;
-  final bool isDark;
-
-  const _SecondaryButton({
-    required this.m,
-    required this.label,
-    required this.onTap,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final fill = isDark
-        ? ThemeColors.purple.withValues(alpha: 0.08)
-        : ThemeColors.surface2;
-    final border = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
-    final textColor = isDark ? ThemeColors.purpleLight : ThemeColors.purple;
-
-    return SizedBox(
-      width: double.infinity,
-      height: m.buttonHeight,
-      child: Material(
-        color: fill,
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-          onTap: onTap,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-              border: Border.all(color: border),
-            ),
-            child: Center(
-              child: Text(
-                label,
-                style: AppTextStyles.buttonText.copyWith(
-                  fontSize: m.buttonFont,
-                  color: textColor,
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -459,7 +410,6 @@ class _DialogMetrics {
       );
     }
 
-    // phone
     return const _DialogMetrics(
       maxWidth: 420,
       insetH: 24,

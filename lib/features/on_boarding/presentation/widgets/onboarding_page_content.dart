@@ -19,7 +19,6 @@ class OnboardingPageContent extends StatelessWidget {
     return m.isRow ? _landscape(context) : _portrait(context);
   }
 
-  // ── Portrait: image upar, text neeche ──
   Widget _portrait(BuildContext context) {
     final p = OnboardingPalette.of(context);
 
@@ -149,7 +148,7 @@ class _Title extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: style.copyWith(
-            color: p.isDark ? ThemeColors.gold : ThemeColors.purple,
+            color: p.isDark ? ThemeColors.gold : ThemeColors.deepPurple,
           ),
         ),
       ],

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Wraps [child] with an animated shimmer sweep, used to indicate a
-/// loading skeleton. Pass grey placeholder boxes (e.g. [ShimmerBox]) as
-/// the child tree; the sweep animates over all of them at once.
+
 class ShimmerLoading extends StatefulWidget {
   const ShimmerLoading({super.key, required this.child});
 

@@ -66,6 +66,14 @@ class _AppState extends State<App> {
       }
     } else if (state is AuthAuthenticated) {
       _authDetermined = true;
+
+      final onboardingSeen = _prefs.isOnboardingSeen();
+
+      debugPrint(
+        'AUTH → Authenticated '
+            'onboardingSeen=$onboardingSeen',
+      );
+
       unawaited(
         _router.updateAuthState(
           RouteAuthState.authenticated(

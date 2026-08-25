@@ -9,16 +9,20 @@ class AppImages {
   static const String logoIcon = 'assets/icons/logo_icon.png';
 
   //onBoarding
-  static const String onboard1 = '$base/Image_2.png';
-  static const String onboard2 = '$base/Image_1.png';
-  static const String onboard3 = '$base/Image_9.png';
+  static const String onboard1 = '$base/onboarding_2.png';
+  static const String onboard2 = '$base/onboarding_1.png';
+  static const String onboard3 = '$base/dashboard1.png';
 
-  static const String onboard1Dark = '$base/Image_6.png';
-  static const String onboard2Dark = '$base/Image_5.png';
-  static const String onboard3Dark = '$base/Image_10.png';
+  static const String onboard1Dark = '$base/onboarding_6.png';
+  static const String onboard2Dark = '$base/onboarding_5.png';
+  static const String onboard3Dark = '$base/dashboard2.png';
+
+  static const String dashbordDark = '$base/dashboard_dark.png';
+  static const String dashboardLight = '$base/dashboard_light.png';
 
   //help&suport
   static const String help = '$base/help.png';
   static const String membership = '$base/membership.png';
-  static const String membershipCard = '$base/membership_card.jpeg';
+  static const String membershipCard = '$base/card.png';
+  static const String membershipProfileCard = '$base/profile_card.png';
 }

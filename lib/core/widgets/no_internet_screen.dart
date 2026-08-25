@@ -13,10 +13,6 @@ import '../theme/theme_colors.dart';
 class NoInternetScreen extends StatelessWidget {
   const NoInternetScreen({super.key});
 
-  // SystemNavigator.pop() only removes the app from the task stack on
-  // Android — on iOS it's a no-op for a normal single-view Flutter app
-  // (Apple provides no public API to quit programmatically), so the
-  // process has to be killed directly there instead.
   void _exitApp() {
     if (Platform.isIOS) {
       exit(0);
@@ -27,12 +23,7 @@ class NoInternetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // This is stacked above the Router in app.dart (a sibling of its
-    // subtree, not a descendant), so anything requiring Router.of(context) —
-    // e.g. BackButtonListener — would throw here. The opaque full-screen
-    // Material below already absorbs all touch input; a hardware back press
-    // slipping through to the route underneath while this is visible is an
-    // acceptable trade-off for not crashing the app.
+
     return Material(
       color: ThemeColors.white,
       child: SafeArea(

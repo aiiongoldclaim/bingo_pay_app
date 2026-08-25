@@ -11,8 +11,7 @@ class AccountResponseModel {
     required this.account,
   });
 
-  // API shape: { success, statusCode, message, data: { message, data: { ...user,
-  // bingold: { kycStatus, walletAddresses: {...}, balances: [...] } } }, timestamp }
+
   factory AccountResponseModel.fromJson(Map<String, dynamic> json) {
     final outer = json['data'] as Map<String, dynamic>? ?? const {};
     final inner = outer['data'] as Map<String, dynamic>? ?? outer;

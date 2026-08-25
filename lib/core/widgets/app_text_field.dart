@@ -1,106 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/theme_colors.dart';
-//
-// class AppTextField extends StatelessWidget {
-//   final String label;
-//   final String? hint;
-//   final TextEditingController? controller;
-//   final FocusNode? focusNode;
-//   final bool obscureText;
-//   final TextInputType keyboardType;
-//   final String? Function(String?)? validator;
-//   final void Function(String)? onChanged;
-//   final Widget? suffixIcon;
-//   final Widget? prefixIcon;
-//   final bool enabled;
-//   final int? maxLines;
-//   final List<TextInputFormatter>? inputFormatters;
-//   final InputDecoration? decoration;
-//   final TextStyle? style;
-//   final TextAlign textAlign;
-//   final Color? cursorColor;
-//   final AutovalidateMode? autovalidateMode;
-//   final bool? isRequired;
-//   /// Country Picker Widget
-//   final Widget? prefix;
-//
-//   const AppTextField({
-//     super.key,
-//     required this.label,
-//     this.hint,
-//     this.controller,
-//     this.focusNode,
-//     this.obscureText = false,
-//     this.keyboardType = TextInputType.text,
-//     this.validator,
-//     this.onChanged,
-//     this.suffixIcon,
-//     this.prefixIcon,
-//     this.enabled = true,
-//     this.maxLines,
-//     this.inputFormatters,
-//     this.decoration,
-//     this.style,
-//     this.textAlign = TextAlign.start,
-//     this.cursorColor,
-//     this.autovalidateMode,
-//     this.isRequired,
-//     this.prefix,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       mainAxisSize: MainAxisSize.min,
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         if (label.isNotEmpty) ...[
-//           Text.rich(
-//             TextSpan(
-//               text: label,
-//               style: const TextStyle(
-//                 fontSize: 13,
-//                 fontWeight: FontWeight.w500,
-//                 color: ThemeColors.inkMid,
-//               ),
-//               children: isRequired == true
-//                   ? const [
-//                       TextSpan(
-//                         text: ' *',
-//                         style: TextStyle(color: Colors.red),
-//                       ),
-//                     ]
-//                   : null,
-//             ),
-//           ),
-//           const SizedBox(height: 6),
-//         ],
-//         TextFormField(
-//           controller: controller,
-//           focusNode: focusNode,
-//           obscureText: obscureText,
-//           keyboardType: keyboardType,
-//           validator: validator,
-//           onChanged: onChanged,
-//           enabled: enabled,
-//           inputFormatters: inputFormatters,
-//           maxLines: obscureText ? 1 : maxLines,
-//           decoration: InputDecoration(
-//             hintText: hint,
-//             hintStyle:  TextStyle(
-//               fontSize: 14.sp,
-//               color: ThemeColors.inkMid,
-//             ),
-//             suffixIcon: suffixIcon,
-//             prefixIcon: prefixIcon,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 import '../utils/responsive_utils.dart';
 
 class AppTextField extends StatelessWidget {
@@ -110,6 +10,8 @@ class AppTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final bool obscureText;
   final TextInputType keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final Widget? suffixIcon;
@@ -123,11 +25,7 @@ class AppTextField extends StatelessWidget {
   final Color? cursorColor;
   final AutovalidateMode? autovalidateMode;
   final bool? isRequired;
-
-  /// Country Picker Widget
   final Widget? prefix;
-
-  /// Optional size overrides (tablet screens se pass kar sakti ho)
   final double? labelFontSize;
   final double? hintFontSize;
   final double? fieldHeight;
@@ -140,6 +38,8 @@ class AppTextField extends StatelessWidget {
     this.focusNode,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.textInputAction,
+    this.onFieldSubmitted,
     this.validator,
     this.onChanged,
     this.suffixIcon,
@@ -168,7 +68,6 @@ class AppTextField extends StatelessWidget {
     final hintSize = hintFontSize ?? m.hintFont;
     final height = fieldHeight ?? m.height;
 
-    // ── design ke colors ──
     final fill = isDark
         ? ThemeColors.white.withValues(alpha: 0.04)
         : ThemeColors.surface;
@@ -177,14 +76,27 @@ class AppTextField extends StatelessWidget {
         ? ThemeColors.white.withValues(alpha: 0.12)
         : ThemeColors.line;
 
-    final labelColor = isDark ? ThemeColors.white : ThemeColors.ink;
-    final hintColor = isDark ? ThemeColors.inkDim : ThemeColors.textGrey;
-    final iconColor = isDark ? ThemeColors.inkDim : ThemeColors.textSecondary;
+    final labelColor =
+    isDark ? ThemeColors.white : ThemeColors.ink;
 
-    OutlineInputBorder _b(Color c, [double w = 1]) => OutlineInputBorder(
-      borderRadius: BorderRadius.circular(m.radius),
-      borderSide: BorderSide(color: c, width: w),
-    );
+    final hintColor =
+    isDark ? ThemeColors.inkDim : ThemeColors.textGrey;
+
+    final iconColor =
+    isDark ? ThemeColors.mediumPurple : ThemeColors.textSecondary;
+
+    OutlineInputBorder buildBorder(
+        Color color, [
+          double width = 1,
+        ]) {
+      return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(m.radius),
+        borderSide: BorderSide(
+          color: color,
+          width: width,
+        ),
+      );
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -195,21 +107,21 @@ class AppTextField extends StatelessWidget {
             TextSpan(
               text: label,
               style: TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontSize: labelSize,
                 fontWeight: FontWeight.w600,
                 color: labelColor,
               ),
               children: isRequired == true
                   ? [
-                      TextSpan(
-                        text: ' *',
-                        style: TextStyle(
-                          fontSize: labelSize,
-                          color: ThemeColors.red,
-                        ),
-                      ),
-                    ]
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(
+                    fontSize: labelSize,
+                    color: ThemeColors.red,
+                  ),
+                ),
+              ]
                   : null,
             ),
           ),
@@ -220,6 +132,8 @@ class AppTextField extends StatelessWidget {
           focusNode: focusNode,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          onFieldSubmitted: onFieldSubmitted,
           validator: validator,
           onChanged: onChanged,
           enabled: enabled,
@@ -228,20 +142,20 @@ class AppTextField extends StatelessWidget {
           textAlign: textAlign,
           autovalidateMode: autovalidateMode,
           cursorColor: cursorColor ?? ThemeColors.blue,
-          style:
-              style ??
+          style: style ??
               TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontSize: hintSize,
                 fontWeight: FontWeight.w400,
-                color: isDark ? ThemeColors.white : ThemeColors.ink,
+                color: isDark
+                    ? ThemeColors.white
+                    : ThemeColors.ink,
               ),
-          decoration:
-              decoration ??
+          decoration: decoration ??
               InputDecoration(
                 hintText: hint,
                 hintStyle: TextStyle(
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Inter',
                   fontSize: hintSize,
                   fontWeight: FontWeight.w400,
                   color: hintColor,
@@ -250,71 +164,79 @@ class AppTextField extends StatelessWidget {
                 fillColor: enabled
                     ? fill
                     : (isDark
-                          ? ThemeColors.white.withValues(alpha: 0.02)
-                          : ThemeColors.surface2),
-
-                // height control — isi se field design jitni tall hoti hai
-                constraints: BoxConstraints(minHeight: height),
+                    ? ThemeColors.white.withValues(
+                  alpha: 0.02,
+                )
+                    : ThemeColors.surface2),
+                constraints: BoxConstraints(
+                  minHeight: height,
+                ),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: m.hPad,
                   vertical: m.vPad,
                 ),
                 isDense: false,
-
                 prefixIcon: prefixIcon == null
                     ? prefix
                     : Padding(
-                        padding: EdgeInsets.only(
-                          left: m.hPad,
-                          right: m.hPad * 0.6,
-                        ),
-                        child: IconTheme(
-                          data: IconThemeData(
-                            color: iconColor,
-                            size: m.iconSize,
-                          ),
-                          child: prefixIcon!,
-                        ),
-                      ),
+                  padding: EdgeInsets.only(
+                    left: m.hPad,
+                    right: m.hPad * 0.6,
+                  ),
+                  child: IconTheme(
+                    data: IconThemeData(
+                      color: iconColor,
+                      size: m.iconSize,
+                    ),
+                    child: prefixIcon!,
+                  ),
+                ),
                 prefixIconConstraints: BoxConstraints(
                   minWidth: 0,
                   minHeight: height,
                 ),
-
                 suffixIcon: suffixIcon == null
                     ? null
                     : Padding(
-                        padding: EdgeInsets.only(right: m.hPad * 0.5),
-                        child: IconButtonTheme(
-                          data: IconButtonThemeData(
-                            style: IconButton.styleFrom(
-                              foregroundColor: iconColor,
-                              iconSize: m.iconSize,
-                            ),
-                          ),
-                          child: IconTheme(
-                            data: IconThemeData(
-                              color: iconColor,
-                              size: m.iconSize,
-                            ),
-                            child: suffixIcon!,
-                          ),
-                        ),
+                  padding: EdgeInsets.only(
+                    right: m.hPad * 0.5,
+                  ),
+                  child: IconButtonTheme(
+                    data: IconButtonThemeData(
+                      style: IconButton.styleFrom(
+                        foregroundColor: iconColor,
+                        iconSize: m.iconSize,
                       ),
+                    ),
+                    child: IconTheme(
+                      data: IconThemeData(
+                        color: iconColor,
+                        size: m.iconSize,
+                      ),
+                      child: suffixIcon!,
+                    ),
+                  ),
+                ),
                 suffixIconConstraints: BoxConstraints(
                   minWidth: 0,
                   minHeight: height,
                 ),
-
-                border: _b(border),
-                enabledBorder: _b(border),
-                disabledBorder: _b(border),
-                focusedBorder: _b(ThemeColors.purple, 1.6),
-                errorBorder: _b(ThemeColors.red),
-                focusedErrorBorder: _b(ThemeColors.red, 1.6),
-
+                border: buildBorder(border),
+                enabledBorder: buildBorder(border),
+                disabledBorder: buildBorder(border),
+                focusedBorder: buildBorder(
+                  ThemeColors.primaryPurple,
+                  1.6,
+                ),
+                errorBorder: buildBorder(
+                  ThemeColors.red,
+                ),
+                focusedErrorBorder: buildBorder(
+                  ThemeColors.red,
+                  1.6,
+                ),
                 errorStyle: TextStyle(
-                  fontFamily: 'Roboto',
+                  fontFamily: 'Inter',
                   fontSize: m.errorFont,
                   color: ThemeColors.red,
                 ),
@@ -377,7 +299,6 @@ class _FieldMetrics {
       );
     }
 
-    // phone
     return const _FieldMetrics(
       labelFont: 15,
       hintFont: 15,

@@ -364,6 +364,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _countryIdController = TextEditingController(text: '91');
   final _phoneController = TextEditingController();
 
+  final _fullNameFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _phoneFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+  final _confirmPasswordFocus = FocusNode();
+
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
@@ -386,6 +392,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _confirmPasswordController.dispose();
     _countryIdController.dispose();
     _phoneController.dispose();
+    _emailDebounce?.cancel();
+
+    _fullNameFocus.dispose();
+    _emailFocus.dispose();
+    _phoneFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
+
     _emailDebounce?.cancel();
     super.dispose();
   }
@@ -499,7 +513,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return CountryPickerBottomSheet.getFlagEmoji(countryCode);
   }
 
-  // ─────────────────────────── UI ───────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -562,13 +575,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
         children: [
           AppTextField(
             controller: _fullNameController,
+            focusNode: _fullNameFocus,
             label: 'Full Name',
             hint: 'Enter your full name',
             isRequired: true,
             validator: Validators.name,
+            keyboardType: TextInputType.name,
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: (_) {
+              _emailFocus.requestFocus();
+            },
             prefixIcon: const Icon(Icons.person_outline_rounded),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s]")),
+              FilteringTextInputFormatter.allow(
+                RegExp(r"[a-zA-Z\s]"),
+              ),
             ],
           ),
 
@@ -576,39 +597,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           AppTextField(
             controller: _emailController,
+            focusNode: _emailFocus,
             label: 'Email',
             hint: 'Enter your email',
             isRequired: true,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: (_) {
+              _phoneFocus.requestFocus();
+            },
             validator: Validators.email,
             onChanged: _onEmailChanged,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@._\-]')),
+              FilteringTextInputFormatter.allow(
+                RegExp(r'[a-zA-Z0-9@._\-]'),
+              ),
             ],
-            prefixIcon: const Icon(Icons.mail_outline_rounded),
+            prefixIcon: const Icon(
+              Icons.mail_outline_rounded,
+            ),
             suffixIcon: _checkingEmail
                 ? Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(
-                          isDark ? ThemeColors.gold1 : ThemeColors.blue,
-                        ),
-                      ),
-                    ),
-                  )
+              padding: const EdgeInsets.all(14),
+              child: SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(
+                    isDark
+                        ? ThemeColors.gold1
+                        : ThemeColors.blue,
+                  ),
+                ),
+              ),
+            )
                 : _emailExists == null ||
-                      _checkedEmail != _emailController.text.trim()
+                _checkedEmail !=
+                    _emailController.text.trim()
                 ? null
                 : Icon(
-                    _emailExists!
-                        ? Icons.error_outline_rounded
-                        : Icons.check_circle_outline_rounded,
-                    color: _emailExists! ? ThemeColors.red : ThemeColors.green,
-                  ),
+              _emailExists!
+                  ? Icons.error_outline_rounded
+                  : Icons.check_circle_outline_rounded,
+              color: _emailExists!
+                  ? ThemeColors.red
+                  : ThemeColors.green,
+            ),
           ),
 
           if (!_checkingEmail &&
@@ -628,35 +663,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SizedBox(height: m.fieldGap),
 
           AppTextField(
-            label: "Phone Number",
-            hint: "Enter Phone Number",
+            label: 'Phone Number',
+            hint: 'Enter Phone Number',
             isRequired: true,
             controller: _phoneController,
+            focusNode: _phoneFocus,
             keyboardType: TextInputType.phone,
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: (_) {
+              _passwordFocus.requestFocus();
+            },
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Phone number is required';
               }
+
               final cleanVal = value.trim();
-              if (cleanVal.length < (_selectedCountry?.minLength ?? 10)) {
-                return 'Phone number must be at least ${_selectedCountry?.minLength ?? 10} digits';
+
+              if (cleanVal.length <
+                  (_selectedCountry?.minLength ?? 10)) {
+                return 'Phone number must be at least '
+                    '${_selectedCountry?.minLength ?? 10} digits';
               }
-              if (cleanVal.length > (_selectedCountry?.maxLength ?? 10)) {
-                return 'Phone number must be at most ${_selectedCountry?.maxLength ?? 10} digits';
+
+              if (cleanVal.length >
+                  (_selectedCountry?.maxLength ?? 10)) {
+                return 'Phone number must be at most '
+                    '${_selectedCountry?.maxLength ?? 10} digits';
               }
+
               return null;
             },
-            autovalidateMode: AutovalidateMode.onUserInteraction,
+            autovalidateMode:
+            AutovalidateMode.onUserInteraction,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+              FilteringTextInputFormatter.allow(
+                RegExp(r'[0-9]'),
+              ),
               LengthLimitingTextInputFormatter(
                 _selectedCountry?.maxLength ?? 10,
               ),
             ],
             prefixIcon: _CountryPrefix(
               m: m,
-              flag: _getFlagEmoji(_selectedCountry?.code ?? "IN"),
-              dialCode: _selectedCountry?.dialCode ?? "+91",
+              flag: _getFlagEmoji(
+                _selectedCountry?.code ?? 'IN',
+              ),
+              dialCode:
+              _selectedCountry?.dialCode ?? '+91',
               onTap: _showCountryPicker,
             ),
           ),
@@ -665,22 +719,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           AppTextField(
             controller: _passwordController,
+            focusNode: _passwordFocus,
             label: 'Password',
             hint: 'Create a password',
             isRequired: true,
             obscureText: _obscurePassword,
+            keyboardType: TextInputType.visiblePassword,
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: (_) {
+              _confirmPasswordFocus.requestFocus();
+            },
             validator: Validators.password,
             onChanged: (_) => setState(() {}),
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
-            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+            prefixIcon: const Icon(
+              Icons.lock_outline_rounded,
+            ),
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(
+                RegExp(r'\s'),
+              ),
+            ],
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
               ),
-              onPressed: () =>
-                  setState(() => _obscurePassword = !_obscurePassword),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
             ),
           ),
 
@@ -693,22 +762,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           AppTextField(
             controller: _confirmPasswordController,
+            focusNode: _confirmPasswordFocus,
             label: 'Confirm Password',
             hint: 'Re-enter your password',
             isRequired: true,
             obscureText: _obscureConfirm,
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
-            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r"\s"))],
+            keyboardType: TextInputType.visiblePassword,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) {
+              FocusScope.of(context).unfocus();
+              _submit();
+            },
+            prefixIcon: const Icon(
+              Icons.lock_outline_rounded,
+            ),
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(
+                RegExp(r'\s'),
+              ),
+            ],
             validator: (v) =>
-                Validators.confirmPassword(v, _passwordController.text),
+                Validators.confirmPassword(
+                  v,
+                  _passwordController.text,
+                ),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureConfirm
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
               ),
-              onPressed: () =>
-                  setState(() => _obscureConfirm = !_obscureConfirm),
+              onPressed: () {
+                setState(() {
+                  _obscureConfirm = !_obscureConfirm;
+                });
+              },
             ),
           ),
 
@@ -762,7 +850,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
 }
 
-// ─────────────────── SUB WIDGETS ───────────────────
 
 class _CountryPrefix extends StatelessWidget {
   final AuthMetrics m;
@@ -805,7 +892,7 @@ class _CountryPrefix extends StatelessWidget {
             Text(
               dialCode,
               style: TextStyle(
-                fontFamily: 'Roboto',
+                fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
                 fontSize: m.linkText,
                 color: isDark ? ThemeColors.white : ThemeColors.ink,
@@ -815,7 +902,7 @@ class _CountryPrefix extends StatelessWidget {
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: m.linkText + 4,
-              color: isDark ? ThemeColors.gold1 : ThemeColors.textSecondary,
+              color: isDark ? ThemeColors.mediumPurple : ThemeColors.textSecondary,
             ),
           ],
         ),
