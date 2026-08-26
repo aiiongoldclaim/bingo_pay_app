@@ -47,20 +47,15 @@ class CatSectionHeader extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: m.pagePadding * 0.3),
                 child: Row(
                   children: [
-                    Text(
-                      actionText!,
-                      style: TextStyle(
-                        fontSize: m.viewAllSize,
-                        fontWeight: FontWeight.w600,
-                        color: c.brand,
-                      ),
-                    ),
-                    SizedBox(width: m.pagePadding * 0.3),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      size: m.viewAllSize * 1.3,
-                      color: c.brand,
-                    ),
+                    // Text(
+                    //   actionText!,
+                    //   style: TextStyle(
+                    //     fontSize: m.viewAllSize,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: c.brand,
+                    //   ),
+                    // ),
+
                   ],
                 ),
               ),

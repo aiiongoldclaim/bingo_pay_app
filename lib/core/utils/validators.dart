@@ -40,4 +40,12 @@ class Validators {
     if (value.trim().length < 3) return 'Name must be at least 3 characters';
     return null;
   }
+
+  static String? otp(String? value, {int length = 6}) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'OTP is required';
+    if (!RegExp(r'^[0-9]+$').hasMatch(v)) return 'OTP must contain digits only';
+    if (v.length != length) return 'Enter all $length digits';
+    return null;
+  }
 }

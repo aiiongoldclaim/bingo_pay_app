@@ -53,7 +53,6 @@ class CategoriesGrid extends StatelessWidget {
   final CategoriesMetrics metrics;
   final List<CategoryEntity> categories;
 
-  /// Design me 2 rows dikhti hain; baaki "View All" ke peeche
   final int maxRows;
   final ValueChanged<CategoryEntity>? onCategoryTap;
 
