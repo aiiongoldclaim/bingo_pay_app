@@ -118,8 +118,6 @@ class CategoriesScreen extends StatelessWidget {
 class _CategoriesView extends StatelessWidget {
   const _CategoriesView();
 
-  static const String _promoAsset =
-      'assets/images/banners/categories_promo.png';
 
   void _openCategory(BuildContext context, String name, String? uuid) {
     context.push('/product-listing/${Uri.encodeComponent(name)}', extra: uuid);
@@ -196,7 +194,7 @@ class _CategoriesView extends StatelessWidget {
                         child: CatSectionHeader(
                           metrics: m,
                           title: 'Categories',
-                          actionText: 'View All',
+                          actionText: '',
                           onActionTap: () =>
                               context.push(AppRoutes.allProducts),
                         ),
@@ -235,7 +233,6 @@ class _CategoriesView extends StatelessWidget {
                         brands: state.brands,
                         isLoading: state.isBrandsLoading,
                         error: state.brandsError,
-                        // TODO: BrandEntity me logo field aane par yahan wire karo
                         // logoResolver: (b) => b.logoUrl,
                         onBrandTap: (brand) {},
                       ),
@@ -261,7 +258,6 @@ class _CategoriesView extends StatelessWidget {
                         child: CuratedCollectionsList(
                           metrics: m,
                           collections: state.collections,
-                          // TODO: model me image field aane par wire karo
                           // imageResolver: (col) => col.imageUrl,
                           onCollectionTap: (col) {},
                         ),

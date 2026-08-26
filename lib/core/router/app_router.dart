@@ -338,7 +338,8 @@ class AppRouter {
               builder: (_, _) => const AllServicesScreen(),
             ),
             GoRoute(
-              path: '/service-detail/:uuid',
+              // path: '/service-detail/:uuid',
+              path: AppRoutes.servicesDetails,
               builder: (context, state) {
                 final uuid = state.pathParameters['uuid'] ?? '';
                 return ServiceDetailScreen(serviceUuid: uuid);

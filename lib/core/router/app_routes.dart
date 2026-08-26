@@ -34,6 +34,7 @@ class AppRoutes {
   static const String search = '/search';
   static const String scanner = '/scanner';
   static const String services = '/services';
+  static const String servicesDetails = '/service-detail/:uuid';
   static const String transferSuccess = "/transferSuccess";
   static const String paymentSuccess = '/payment-Success';
   static const String reviewPayment = '/review-Payment';
@@ -69,6 +70,8 @@ class AppRoutes {
   static const String vendorInvoices = '/vendor/invoices';
   static const String vendorInvoiceDetail = '/vendor/invoices/:id';
 
+  static const String productListingPath = '/product-listing/:uuid';
+
   static const List<String> publicRoutes = [
     splash,
     login,
@@ -103,4 +106,9 @@ class AppRoutes {
 
   static String vendorInvoicePath(String id) =>
       vendorInvoiceDetail.replaceFirst(':id', id);
+
+  static String serviceDetailPath(String uuid) =>
+      servicesDetails.replaceFirst(':uuid', uuid);
+
+
 }

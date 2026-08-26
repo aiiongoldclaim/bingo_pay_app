@@ -571,7 +571,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final m = HomeMetrics.of(context);
     final c = context.c;
 
-    return Scaffold(
+    return BlocProvider(
+      create: (_) => getIt<ServicesCubit>()..loadServices(),
+  child: Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
         bottom: false,
@@ -702,9 +704,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     services: s.services,
                                     onBookNow: () =>
                                         context.push(AppRoutes.services),
-                                    onServiceTap: (svc) => context.push(
-                                      '/service-detail/${svc.uuid}',
-                                    ),
+                                    onServiceTap: (svc) => context.push(AppRoutes.serviceDetailPath(svc.uuid)),
                                     onViewAll: () =>
                                         context.push(AppRoutes.services),
                                   );
@@ -802,7 +802,8 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
-    );
+    ),
+);
   }
 
   // ─────────── Intro steps: ALL UNCHANGED ───────────
