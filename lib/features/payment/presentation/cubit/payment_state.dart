@@ -58,6 +58,10 @@ class PaymentMethodState {
   final String orderUuid; // real order id, required for GET .../invoice
   final int coinsEarned;
 
+  final String? offeringUuid;   // NEW
+  final String? slotUuid;       // NEW
+  final int? participants;      // NEW
+
   PaymentMethodState({
     this.selectedMethod,
     this.status = PaymentStatus.initial,
@@ -89,6 +93,10 @@ class PaymentMethodState {
     this.orderId = 'BG-48231',
     this.orderUuid = '',
     this.coinsEarned = 380,
+
+    this.offeringUuid,
+    this.slotUuid,
+    this.participants,
   }) : itemTotal = itemTotal ?? productPriceValue,
        totalAmount = totalAmount ?? productPriceValue;
 
@@ -100,6 +108,10 @@ class PaymentMethodState {
     String? variantUuid,
     int quantity = 1,
     List<CartItemEntity> cartItems = const [],
+
+     String? offeringUuid,
+    String? slotUuid,
+    int? participants,
   }) => PaymentMethodState(
     selectedMethod: PaymentMethod.wallet,
     userEmail: userEmail,
@@ -115,6 +127,9 @@ class PaymentMethodState {
     itemTotal: cartItems.isNotEmpty
         ? cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
         : productPrice,
+    offeringUuid: offeringUuid,
+    slotUuid: slotUuid,
+    participants: participants,
   );
 
   PaymentMethodState copyWith({
@@ -149,6 +164,9 @@ class PaymentMethodState {
     String? orderId,
     String? orderUuid,
     int? coinsEarned,
+    String? offeringUuid,
+    String? slotUuid,
+    int? participants,
   }) {
     return PaymentMethodState(
       selectedMethod: clearSelectedMethod
@@ -183,6 +201,10 @@ class PaymentMethodState {
       orderId: orderId ?? this.orderId,
       orderUuid: orderUuid ?? this.orderUuid,
       coinsEarned: coinsEarned ?? this.coinsEarned,
+      
+      offeringUuid: offeringUuid ?? this.offeringUuid,
+      slotUuid: slotUuid ?? this.slotUuid,
+      participants: participants ?? this.participants,
     );
   }
 
@@ -228,4 +250,6 @@ class PaymentMethodState {
         return 'Not selected';
     }
   }
+  // add this — mirrors isCartFlow, used to branch the payload in the cubit
+  bool get isServiceBooking => slotUuid != null && slotUuid!.isNotEmpty;
 }

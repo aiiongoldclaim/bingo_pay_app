@@ -15,13 +15,19 @@ class BigodPaymentDataSource {
     required String addressId,
     String? variantUuid,
     int? quantity,
+    String? offeringUuid, // NEW
+    String? slotUuid, // NEW
+    int? participants, // NEW
   }) async {
     final response = await _client.dio.post(
       ApiEndpoints.bigodIntent,
       data: {
         'addressId': addressId,
-        if (variantUuid != null) 'variantUuid': variantUuid,
-        if (quantity != null) 'quantity': quantity,
+        'variantUuid': ?variantUuid,
+        'quantity': ?quantity,
+        'offeringUuid': ?offeringUuid,
+        'slotUuid': ?slotUuid,
+        'participants': ?participants,
       },
     );
     return BigodIntentResponse.fromJson(response.data as Map<String, dynamic>);
