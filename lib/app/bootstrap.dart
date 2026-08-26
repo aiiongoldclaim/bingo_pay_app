@@ -32,6 +32,11 @@ Future<void> bootstrap() async {
   // Native splash ko hold karo jab tak Flutter ka pehla frame ready na ho
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
+  // Remove native splash after first frame is rendered                                                                           
+      binding.addPostFrameCallback((_) {                                                                                              
+         FlutterNativeSplash.remove();                                                                                                 
+        }); 
+
   final view = binding.platformDispatcher.views.first;
   final shortestSide = view.physicalSize.shortestSide / view.devicePixelRatio;
   final isTablet = shortestSide >= 540;

@@ -61,6 +61,8 @@ import '../storage/preferences_service.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
 
+import 'package:flutter_native_splash/flutter_native_splash.dart' as splash;
+
 @lazySingleton
 class AppRouter {
   late final GoRouter router;
@@ -69,7 +71,6 @@ class AppRouter {
   /// Splash minimum visible duration
   static const _minSplashDuration = Duration(milliseconds: 1500);
   final DateTime _startedAt = DateTime.now();
-
 
   void markOnboardingSeen() {
     _authState = RouteAuthState(
@@ -210,7 +211,6 @@ class AppRouter {
         //     );
         //   },
         // ),
-
         GoRoute(
           path: AppRoutes.reviewPayment,
           builder: (context, state) {
@@ -229,7 +229,6 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.paymentSuccess,
           builder: (context, state) {
-
             return PaymentSuccessScreen();
           },
         ),
@@ -266,8 +265,9 @@ class AppRouter {
           path: AppRoutes.membershipPlans,
           name: 'membershipPlans',
           builder: (context, state) => MembershipPlansScreen(
-            preselectPlanUuid:
-            state.extra is String ? state.extra as String : null,
+            preselectPlanUuid: state.extra is String
+                ? state.extra as String
+                : null,
           ),
         ),
         GoRoute(
@@ -416,6 +416,7 @@ class AppRouter {
               path: AppRoutes.buyerProfile,
               builder: (_, _) => const ProfileScreen(),
             ),
+
             // GoRoute(
             //   path: AppRoutes.buyerSettings,
             //   builder: (_, _) => const _PlaceholderPage('Settings'),
@@ -431,9 +432,6 @@ class AppRouter {
             //   name: 'membership',
             //   builder: (context, state) => const MembershipScreen(),
             // ),
-
-
-
             GoRoute(
               path: AppRoutes.buyerAddresses,
               builder: (_, _) => const _PlaceholderPage('Addresses'),
@@ -474,22 +472,27 @@ class AppRouter {
   Future<void> updateAuthState(RouteAuthState state) async {
     debugPrint(
       'AUTH → '
-          'auth=${state.isAuthenticated} '
-          'loading=${state.isLoading} '
-          'onboarding=${state.hasSeenOnboarding} '
-          'kyc=${state.isKycPending}',
+      'auth=${state.isAuthenticated} '
+      'loading=${state.isLoading} '
+      'onboarding=${state.hasSeenOnboarding} '
+      'kyc=${state.isKycPending}',
     );
 
-    if (_authState.isLoading &&
-        !state.isLoading) {
-      final elapsed =
-      DateTime.now().difference(_startedAt);
+    if (_authState.isLoading && !state.isLoading) {
+      final elapsed = DateTime.now().difference(_startedAt);
 
-      final remaining =
-          _minSplashDuration - elapsed;
+      final remaining = _minSplashDuration - elapsed;
 
       if (remaining > Duration.zero) {
         await Future.delayed(remaining);
+      }
+
+      // Remove native splash screen once we're done loading
+      // and ready to show the actual app UI
+      try {
+        splash.FlutterNativeSplash.remove();
+      } catch (e) {
+        debugPrint('Error removing native splash: $e');
       }
     }
 
@@ -497,7 +500,6 @@ class AppRouter {
     router.refresh();
   }
 }
-
 
 class _PlaceholderPage extends StatelessWidget {
   final String name;
