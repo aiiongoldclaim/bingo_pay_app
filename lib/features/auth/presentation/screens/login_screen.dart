@@ -235,6 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
+    FocusScope.of(context).unfocus();
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
         LoginRequested(
@@ -243,6 +244,14 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+  }
+
+  void _onEmailSubmitted(String value) {
+    _passwordFocusNode.requestFocus();
+  }
+
+  void _onPasswordSubmitted(String value) {
+    _submit();
   }
 
   @override
@@ -288,7 +297,11 @@ class _LoginScreenState extends State<LoginScreen> {
             isRequired: true,
             hint: 'Enter your email',
             keyboardType: TextInputType.emailAddress,
-            prefixIcon: const Icon(Icons.mail_outline_rounded),
+            textInputAction: TextInputAction.next,
+            onFieldSubmitted: _onEmailSubmitted,
+            prefixIcon: const Icon(
+              Icons.mail_outline_rounded,
+            ),
             validator: Validators.email,
           ),
 
@@ -301,16 +314,26 @@ class _LoginScreenState extends State<LoginScreen> {
             isRequired: true,
             hint: 'Enter your password',
             obscureText: _obscurePassword,
-            validator: (v) => Validators.required(v, fieldName: 'Password'),
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: _onPasswordSubmitted,
+            validator: (v) => Validators.required(
+              v,
+              fieldName: 'Password',
+            ),
+            prefixIcon: const Icon(
+              Icons.lock_outline_rounded,
+            ),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword
                     ? Icons.visibility_outlined
                     : Icons.visibility_off_outlined,
               ),
-              onPressed: () =>
-                  setState(() => _obscurePassword = !_obscurePassword),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
             ),
           ),
 
