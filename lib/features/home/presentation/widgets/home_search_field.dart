@@ -9,13 +9,11 @@ class HomeSearchField extends StatelessWidget {
     required this.metrics,
     required this.hintText,
     this.onTap,
-    this.onCameraTap,
   });
 
   final HomeMetrics metrics;
   final String hintText;
   final VoidCallback? onTap;
-  final VoidCallback? onCameraTap;
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +47,6 @@ class HomeSearchField extends StatelessWidget {
                   fontSize: metrics.searchFontSize,
                   color: c.textMuted,
                 ),
-              ),
-            ),
-            InkResponse(
-              onTap: onCameraTap,
-              radius: metrics.searchIconSize,
-              child: Icon(
-                Icons.photo_camera_outlined,
-                size: metrics.searchIconSize,
-                color: c.textMuted,
               ),
             ),
           ],

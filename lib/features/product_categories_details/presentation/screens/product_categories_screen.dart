@@ -71,9 +71,11 @@ class _ProductListingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return BlocBuilder<ProductListingCubit, ProductListingState>(
       builder: (context, state) {
         final cubit = context.read<ProductListingCubit>();
+
 
         return Scaffold(
           backgroundColor: ThemeColors.background,
@@ -83,8 +85,8 @@ class _ProductListingView extends StatelessWidget {
             onAction1: () {
               context.push(AppRoutes.search);
             },
-            // actionIcon2: Icons.delete,
-            // onAction2: () {},
+            actionIcon2: Icons.delete,
+            onAction2: () {},
           ),
 
           body: Column(
@@ -179,11 +181,8 @@ class _ProductListingView extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: ListingResultsBar(
                           count: state.filteredProducts.length,
-                          // viewMode: state.viewMode,
-                          viewMode: ViewMode.grid,
-                          // onToggleView: cubit.toggleViewMode,
-                          // onToggleView: cubit.toggleViewMode,
-                          onToggleView: () {},
+                          viewMode: state.viewMode,
+                          onToggleView: cubit.toggleViewMode,
                         ),
                       ),
 
@@ -368,7 +367,7 @@ class _ErrorStateState extends State<_ErrorState>
   @override
   Widget build(BuildContext context) {
     final isRateLimited = widget.isRateLimited;
-    final primaryColor = isRateLimited ? const Color(0xFFD32F2F) : ThemeColors.blue;
+    final primaryColor = isRateLimited ? const Color(0xFFD32F2F) : ThemeColors.primaryPurple;
     final lightColor = isRateLimited ? const Color(0xFFFCE4EC) : const Color(0xFFE3F2FD);
     final accentColor =
         isRateLimited ? const Color(0xFFFF6F00) : const Color(0xFF1976D2);
@@ -614,7 +613,7 @@ class _EmptyProductsState extends StatelessWidget {
                     ? Icons.filter_alt_off_outlined
                     : Icons.inventory_2_outlined,
                 size: 32,
-                color: ThemeColors.blue,
+                color: ThemeColors.primaryPurple,
               ),
             ),
             SizedBox(height: 2.h),
@@ -636,8 +635,8 @@ class _EmptyProductsState extends StatelessWidget {
               OutlinedButton(
                 onPressed: onClearFilters,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: ThemeColors.blue,
-                  side: const BorderSide(color: ThemeColors.blue),
+                  foregroundColor: ThemeColors.primaryPurple,
+                  side: const BorderSide(color: ThemeColors.primaryPurple),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),

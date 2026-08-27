@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/error/failures.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/user_entity.dart';
@@ -131,6 +132,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ) async {
         if (!emit.isDone) emit(AuthOtpRequired(event.email));
       });
+    }catch (e) {
+      if (!emit.isDone) emit(AuthError(UnknownFailure(e.toString())));
     }
   }
 

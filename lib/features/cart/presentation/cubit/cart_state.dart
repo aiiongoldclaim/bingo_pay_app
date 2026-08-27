@@ -22,6 +22,9 @@ class CartState extends Equatable {
 
   int get totalItems => cart.totalItems;
 
+  /// Kitne alag-alag products cart mein hain (quantity ignore)
+  int get uniqueItems => items.length;
+
   double get totalAmount => cart.totalAmount;
 
   bool isItemPending(int itemId) => pendingItemIds.contains(itemId);

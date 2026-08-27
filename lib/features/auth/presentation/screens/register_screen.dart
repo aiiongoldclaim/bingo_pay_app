@@ -335,6 +335,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
@@ -422,6 +423,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _submit() {
+    if (context.read<AuthBloc>().state is AuthLoading) return;
     if (_emailExists == true) {
       AppSnackbar.showError(context, 'This email is already registered');
       return;
@@ -519,7 +521,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
@@ -551,15 +553,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             });
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Create Account',
-            subtitle: 'Join TheVaults and start\nShopping smarter every day.',
-            // topActionLabel: 'Sign In',
-            onTopAction: () => context.go(AppRoutes.login),
-            formBuilder: _buildForm,
-          ),
-        ),
+        buildWhen: (prev, curr) =>
+        (prev is AuthLoading) != (curr is AuthLoading),
+
+        builder: (context, state) {
+          return AppInteractionBlocker(
+            isBlocking: state is AuthLoading,
+            child: SafeArea(
+              child: AuthResponsiveLayout(
+                title: 'Create Account',
+                subtitle: 'Join TheVaults and start\nShopping smarter every day.',
+                // topActionLabel: 'Sign In',
+                onTopAction: () => context.go(AppRoutes.login),
+                formBuilder: _buildForm,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -911,74 +921,4 @@ class _CountryPrefix extends StatelessWidget {
   }
 }
 
-// class _PasswordRequirements extends StatelessWidget {
-//   final AuthMetrics m;
-//   final String value;
-//
-//   const _PasswordRequirements({required this.m, required this.value});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final isDark = Theme.of(context).brightness == Brightness.dark;
-//
-//     final requirements = <String, bool>{
-//       'At least 8 characters': value.length >= 8,
-//       'One uppercase letter (A-Z)': RegExp(r'[A-Z]').hasMatch(value),
-//       'One lowercase letter (a-z)': RegExp(r'[a-z]').hasMatch(value),
-//       'One number (0-9)': RegExp(r'[0-9]').hasMatch(value),
-//       'One special character (!@#\$%...)': RegExp(
-//         r'[!@#$%^&*(),.?":{}|<>_\-+=~`\[\];/\\]',
-//       ).hasMatch(value),
-//     };
-//
-//     final dim = isDark ? ThemeColors.inkDim : ThemeColors.textGrey;
-//
-//     return Container(
-//       padding: EdgeInsets.symmetric(
-//         horizontal: m.fieldGap * 0.7,
-//         vertical: m.fieldGap * 0.6,
-//       ),
-//       decoration: BoxDecoration(
-//         color: isDark
-//             ? ThemeColors.white.withValues(alpha: 0.04)
-//             : ThemeColors.surface2,
-//         borderRadius: BorderRadius.circular(m.buttonRadius),
-//         border: Border.all(
-//           color: isDark
-//               ? ThemeColors.white.withValues(alpha: 0.08)
-//               : ThemeColors.line,
-//         ),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: requirements.entries.map((e) {
-//           final met = e.value;
-//           return Padding(
-//             padding: const EdgeInsets.symmetric(vertical: 2.5),
-//             child: Row(
-//               children: [
-//                 Icon(
-//                   met
-//                       ? Icons.check_circle_rounded
-//                       : Icons.radio_button_unchecked_rounded,
-//                   size: m.footerText + 2,
-//                   color: met ? ThemeColors.green : dim,
-//                 ),
-//                 SizedBox(width: m.fieldGap * 0.4),
-//                 Expanded(
-//                   child: Text(
-//                     e.key,
-//                     style: AppTextStyles.bodySmall.copyWith(
-//                       fontSize: m.footerText,
-//                       color: met ? ThemeColors.green : dim,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           );
-//         }).toList(),
-//       ),
-//     );
-//   }
-// }
+

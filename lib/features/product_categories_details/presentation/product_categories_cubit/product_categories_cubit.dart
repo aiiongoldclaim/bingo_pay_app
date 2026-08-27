@@ -303,11 +303,9 @@ class ProductListingCubit extends Cubit<ProductListingState> {
   void toggleViewMode() {
     final s = state;
     if (s is! ProductListingLoaded) return;
-    emit(
-      s.copyWith(
-        viewMode: s.viewMode == ViewMode.grid ? ViewMode.list : ViewMode.grid,
-      ),
-    );
+    emit(s.copyWith(
+      viewMode: s.viewMode == ViewMode.grid ? ViewMode.list : ViewMode.grid,
+    ));
   }
 
   void applySort(SortOption sort) {

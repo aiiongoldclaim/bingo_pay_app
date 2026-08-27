@@ -14,7 +14,6 @@ import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_model.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
-import '../widgets/category_section.dart';
 import '../widgets/home_banner_data.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_shimmer.dart';
@@ -472,9 +471,8 @@ import '../widgets/home_shimmer.dart';
 // }
 
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../categories/data/models/categories_model.dart';
 import '../../../services/presentation/cubit/services_state.dart';
-import '../widgets/benefits_strip.dart';
+
 import '../widgets/book_services_section.dart';
 import '../widgets/home_category_tabs.dart';
 import '../widgets/home_metrics.dart';
@@ -493,7 +491,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late ScrollController _scrollController;
   bool _introStarted = false;
 
-  int _selectedTabIndex = 0;
+   int _selectedTabIndex = 0;
 
   IntroController get controller => Intro.of(context).controller;
 
@@ -546,25 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _openCategory(CategoryModel cat) {
-    context.push(
-      AppRoutes.productListing.replaceFirst(
-        ':categoryName',
-        Uri.encodeComponent(cat.name),
-      ),
-      extra: cat.uuid,
-    );
-  }
 
-  static const List<BenefitItemData> _benefits = [
-    BenefitItemData(icon: Icons.verified_outlined, label: '100%\nOriginal'),
-    BenefitItemData(icon: Icons.replay_rounded, label: 'Easy\nReturns'),
-    BenefitItemData(
-      icon: Icons.local_shipping_outlined,
-      label: 'Fast\nDelivery',
-    ),
-    BenefitItemData(icon: Icons.shield_outlined, label: 'Secure\nPayment'),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -611,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context, cartState) => HomeHeader(
                                 metrics: m,
                                 brandName: 'TheVaults',
-                                cartCount: cartState.totalItems,
+                                cartCount: cartState.uniqueItems,
                                 onMenuTap: () {
                                   context.push(AppRoutes.auctionScreen);
                                 },
@@ -639,7 +619,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               metrics: m,
                               hintText: 'Search for products, brands and more',
                               onTap: () => context.push(AppRoutes.search),
-                              onCameraTap: () {},
                             ),
                           ),
                         ),
@@ -654,15 +633,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         SliverToBoxAdapter(
                           child: HomeCategoryTabs(
                             metrics: m,
-                            labels: state.categories
-                                .map((e) => e.name)
-                                .toList(),
+                            labels: [
+                              'All',
+                              ...state.categories.map((e) => e.name),
+                            ],
                             selectedIndex: _selectedTabIndex,
                             onSelected: (i) {
-                              setState(() => _selectedTabIndex = i);
-                              _openCategory(state.categories[i]);
+                              if (i == 0) {
+                                setState(() => _selectedTabIndex = 0);
+                                return;
+                              }
+
+                              final category = state.categories[i - 1];
+
+                              context.push(
+                                AppRoutes.productListingPath(category.name),
+                                extra: category.uuid,
+                              );
                             },
-                            onViewAll: () => context.push(AppRoutes.categories),
                           ),
                         ),
 
@@ -777,15 +765,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ],
 
-                      // ── Benefits strip ──────────────────────
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: m.pagePadding,
-                          ),
-                          child: BenefitsStrip(metrics: m, benefits: _benefits),
-                        ),
-                      ),
 
                       SliverToBoxAdapter(
                         child: SizedBox(
