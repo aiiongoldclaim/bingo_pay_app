@@ -37,19 +37,19 @@ class ListingResultsBar extends StatelessWidget {
             onTap: onToggleView,
             child: Row(
               children: [
-                Icon(
-                  isGrid ? Icons.grid_view_rounded : Icons.view_list_rounded,
-                  color: ThemeColors.blue,
-                  size: 16.sp,
-                ),
+                // Icon(
+                //   isGrid ? Icons.grid_view_rounded : Icons.view_list_rounded,
+                //   color: ThemeColors.primaryPurple,
+                //   size: 16.sp,
+                // ),
                 SizedBox(width: 1.w),
-                Text(
-                  isGrid ? 'Grid view' : 'List view',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: ThemeColors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                // Text(
+                //   isGrid ? 'Grid view' : 'List view',
+                //   style: AppTextStyles.labelMedium.copyWith(
+                //     color: ThemeColors.blue,
+                //     fontWeight: FontWeight.w600,
+                //   ),
+                // ),
               ],
             ),
           ),

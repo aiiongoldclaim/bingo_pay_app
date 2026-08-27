@@ -7,6 +7,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
@@ -47,6 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _submit() {
+    if (context.read<AuthBloc>().state is AuthLoading) return;
     FocusScope.of(context).unfocus();
 
     if (!(_formKey.currentState?.validate() ?? false)) {
@@ -65,7 +67,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is PasswordResetSent) {
             AppSnackbar.showSuccess(context, state.message);
@@ -74,15 +76,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             AppSnackbar.showError(context, state.failure.message);
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Forgot Password',
-            subtitle:
+        buildWhen: (prev, curr) =>
+        (prev is AuthLoading) != (curr is AuthLoading),
+
+        builder: (context, state) {
+          return AppInteractionBlocker(
+            isBlocking: state is AuthLoading,
+            child: SafeArea(
+              child: AuthResponsiveLayout(
+                title: 'Forgot Password',
+                subtitle:
                 "Enter your email and we'll send you\na link to reset your password.",
-            onTopAction: () => Navigator.of(context).pop(),
-            formBuilder: _buildForm,
-          ),
-        ),
+                onTopAction: () => Navigator.of(context).pop(),
+                formBuilder: _buildForm,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

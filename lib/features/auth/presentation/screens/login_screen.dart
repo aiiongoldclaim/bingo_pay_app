@@ -180,6 +180,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
@@ -235,6 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
+    if (context.read<AuthBloc>().state is AuthLoading) return;
     FocusScope.of(context).unfocus();
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
@@ -259,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
             context.go(AppRoutes.home);
@@ -269,17 +271,27 @@ class _LoginScreenState extends State<LoginScreen> {
             AppSnackbar.showError(context, state.failure.message);
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Welcome Back!',
-            subtitle:
+
+        buildWhen: (prev, curr) =>
+        (prev is AuthLoading) != (curr is AuthLoading),
+
+        builder: (context, state) {
+          return AppInteractionBlocker(
+            isBlocking: state is AuthLoading,
+            child: SafeArea(
+              child: AuthResponsiveLayout(
+                title: 'Welcome Back!',
+                subtitle:
                 'Log in to your account and\ncontinue your shopping journey.',
-            formBuilder: _buildForm,
-          ),
-        ),
+                formBuilder: _buildForm,
+              ),
+            ),
+          );
+        },
       ),
     );
   }
+
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -399,6 +411,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Color _lineColor(bool isDark) =>
-  //     isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
+
 }

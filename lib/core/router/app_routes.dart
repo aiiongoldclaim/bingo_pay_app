@@ -70,7 +70,8 @@ class AppRoutes {
   static const String vendorInvoices = '/vendor/invoices';
   static const String vendorInvoiceDetail = '/vendor/invoices/:id';
 
-  static const String productListingPath = '/product-listing/:uuid';
+  // static const String productListingPath = '/product-listing/:uuid';
+
 
   //My bookings
   static const String myBookings = '/my-bookings';
@@ -113,5 +114,10 @@ class AppRoutes {
   static String serviceDetailPath(String uuid) =>
       servicesDetails.replaceFirst(':uuid', uuid);
 
+  static String productListingPath(String categoryName) =>
+      productListing.replaceFirst(
+        ':categoryName',
+        Uri.encodeComponent(categoryName),
+      );
 
 }

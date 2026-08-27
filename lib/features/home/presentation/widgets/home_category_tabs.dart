@@ -45,35 +45,6 @@ class HomeCategoryTabs extends StatelessWidget {
             itemCount: itemCount,
             separatorBuilder: (_, __) => SizedBox(width: metrics.tabGap),
             itemBuilder: (context, i) {
-              final isViewAll = i >= labels.length;
-
-              if (isViewAll) {
-                return InkWell(
-                  onTap: onViewAll,
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          viewAllLabel.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: metrics.tabFontSize,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                            color: c.brand,
-                          ),
-                        ),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          size: metrics.tabFontSize * 1.4,
-                          color: c.brand,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }
-
               final selected = i == selectedIndex;
               return InkWell(
                 onTap: () => onSelected?.call(i),

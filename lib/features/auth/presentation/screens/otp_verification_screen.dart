@@ -362,6 +362,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/validators.dart'; // <- apne path ke hisaab se
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -427,6 +428,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void _submit() {
+    if (context.read<AuthBloc>().state is AuthLoading) return;
     FocusScope.of(context).unfocus();
 
     final error = Validators.otp(_otpController.text, length: _otpLength);
@@ -443,6 +445,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _resend() {
     if (_secondsLeft > 0) return;
+    if (context.read<AuthBloc>().state is AuthLoading) return;
     _otpController.clear();
     setState(() => _otpError = null);
     context.read<AuthBloc>().add(OtpResendRequested(email: widget.email));
@@ -461,7 +464,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: BlocListener<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
             // backend error bhi OTP ke neeche
@@ -473,34 +476,43 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             context.go(AppRoutes.home);
           }
         },
-        child: SafeArea(
-          child: AuthResponsiveLayout(
-            title: 'Verify Your Email',
-            subtitle:
-            'Enter the $_otpLength-digit code we sent to\n${widget.email},',
-            topActionLabel: 'Sign In',
-            onTopAction: _backToLogin,
-            features: const [
-              AuthFeature(
-                icon: Icons.mark_email_read_rounded,
-                title: 'Check Your Inbox',
-                subtitle: 'The code was sent to your\nregistered email.',
-              ),
-              AuthFeature(
-                icon: Icons.schedule_rounded,
-                title: 'Expires Soon',
+        buildWhen: (prev, curr) =>
+        (prev is AuthLoading) != (curr is AuthLoading),
+
+        builder: (context, state) {
+          return AppInteractionBlocker(
+            isBlocking: state is AuthLoading,
+            dismissKeyboard: false, // 👈 Pinput ke liye
+            child: SafeArea(
+              child: AuthResponsiveLayout(
+                title: 'Verify Your Email',
                 subtitle:
-                'Codes are valid for a short\ntime for your security.',
+                'Enter the $_otpLength-digit code we sent to\n${widget.email},',
+                topActionLabel: 'Sign In',
+                onTopAction: _backToLogin,
+                features: const [
+                  AuthFeature(
+                    icon: Icons.mark_email_read_rounded,
+                    title: 'Check Your Inbox',
+                    subtitle: 'The code was sent to your\nregistered email.',
+                  ),
+                  AuthFeature(
+                    icon: Icons.schedule_rounded,
+                    title: 'Expires Soon',
+                    subtitle:
+                    'Codes are valid for a short\ntime for your security.',
+                  ),
+                  AuthFeature(
+                    icon: Icons.refresh_rounded,
+                    title: 'Resend Anytime',
+                    subtitle: "Didn't get it? Request a\nnew code after 30s.",
+                  ),
+                ],
+                formBuilder: _buildForm,
               ),
-              AuthFeature(
-                icon: Icons.refresh_rounded,
-                title: 'Resend Anytime',
-                subtitle: "Didn't get it? Request a\nnew code after 30s.",
-              ),
-            ],
-            formBuilder: _buildForm,
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
