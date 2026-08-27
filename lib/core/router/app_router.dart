@@ -67,12 +67,14 @@ import 'package:flutter_native_splash/flutter_native_splash.dart' as splash;
 class AppRouter {
   late final GoRouter router;
   RouteAuthState _authState = const RouteAuthState.loading();
+  bool _onboardingSeen = false;
 
   /// Splash minimum visible duration
   static const _minSplashDuration = Duration(milliseconds: 1500);
   final DateTime _startedAt = DateTime.now();
 
   void markOnboardingSeen() {
+    _onboardingSeen = true;
     _authState = RouteAuthState(
       isAuthenticated: _authState.isAuthenticated,
       isLoading: false,
@@ -470,26 +472,52 @@ class AppRouter {
   //   _authState = state;
   //   router.refresh();
   // }
+  // Future<void> updateAuthState(RouteAuthState state) async {
+  //   debugPrint(
+  //     'AUTH → '
+  //     'auth=${state.isAuthenticated} '
+  //     'loading=${state.isLoading} '
+  //     'onboarding=${state.hasSeenOnboarding} '
+  //     'kyc=${state.isKycPending}',
+  //   );
+  //
+  //   if (_authState.isLoading && !state.isLoading) {
+  //     final elapsed = DateTime.now().difference(_startedAt);
+  //
+  //     final remaining = _minSplashDuration - elapsed;
+  //
+  //     if (remaining > Duration.zero) {
+  //       await Future.delayed(remaining);
+  //     }
+  //
+  //     // Remove native splash screen once we're done loading
+  //     // and ready to show the actual app UI
+  //     try {
+  //       splash.FlutterNativeSplash.remove();
+  //     } catch (e) {
+  //       debugPrint('Error removing native splash: $e');
+  //     }
+  //   }
+  //
+  //   _authState = state;
+  //   router.refresh();
+  // }
+
   Future<void> updateAuthState(RouteAuthState state) async {
     debugPrint(
       'AUTH → '
-      'auth=${state.isAuthenticated} '
-      'loading=${state.isLoading} '
-      'onboarding=${state.hasSeenOnboarding} '
-      'kyc=${state.isKycPending}',
+          'auth=${state.isAuthenticated} '
+          'loading=${state.isLoading} '
+          'onboarding=${state.hasSeenOnboarding} '
+          'kyc=${state.isKycPending}',
     );
 
     if (_authState.isLoading && !state.isLoading) {
       final elapsed = DateTime.now().difference(_startedAt);
-
       final remaining = _minSplashDuration - elapsed;
-
       if (remaining > Duration.zero) {
         await Future.delayed(remaining);
       }
-
-      // Remove native splash screen once we're done loading
-      // and ready to show the actual app UI
       try {
         splash.FlutterNativeSplash.remove();
       } catch (e) {
@@ -497,7 +525,18 @@ class AppRouter {
       }
     }
 
-    _authState = state;
+
+    // final seenOnboarding =
+    //     _authState.hasSeenOnboarding || state.hasSeenOnboarding;
+    final seenOnboarding = _onboardingSeen || state.hasSeenOnboarding;
+
+    _authState = RouteAuthState(
+      isAuthenticated: state.isAuthenticated,
+      isLoading: state.isLoading,
+      isKycPending: state.isKycPending,
+      hasSeenOnboarding: seenOnboarding,
+    );
+
     router.refresh();
   }
 }
