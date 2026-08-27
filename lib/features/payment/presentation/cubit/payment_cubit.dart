@@ -20,6 +20,9 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     String? variantUuid,
     int quantity = 1,
     List<CartItemEntity> cartItems = const [],
+    String? offeringUuid,   // NEW
+  String? slotUuid,       // NEW
+  int? participants,      // NEW
     BigodPaymentDataSource? bigodPaymentDataSource,
     ClearCartUseCase? clearCartUseCase,
   })  : _bigodPaymentDataSource =
@@ -34,6 +37,10 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
            variantUuid: variantUuid,
            quantity: quantity,
            cartItems: cartItems,
+
+           offeringUuid: offeringUuid,   // NEW
+         slotUuid: slotUuid,           // NEW
+         participants: participants,   // NEW
          ),
        );
 
@@ -156,6 +163,10 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         addressId: state.deliveryAddressId,
         variantUuid: state.isCartFlow ? null : state.variantUuid,
         quantity: state.isCartFlow ? null : state.quantity,
+
+  offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
+  slotUuid: state.isServiceBooking ? state.slotUuid : null,
+  participants: state.isServiceBooking ? state.participants : null,
       );
 
       if (intent.customerBalance != null &&

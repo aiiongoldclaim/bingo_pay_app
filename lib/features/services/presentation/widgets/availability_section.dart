@@ -1,7 +1,10 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
+
 import '../../../../core/theme/theme_colors.dart';
 import '../cubit/services_cubit.dart';
 import '../cubit/services_state.dart';
@@ -23,16 +26,141 @@ class AvailabilitySection extends StatefulWidget {
 
 class _AvailabilitySectionState extends State<AvailabilitySection> {
   int selectedDateIndex = 0;
+
   String? selectedSlotUuid;
   String? selectedTime;
   String? selectedDisplayTime;
+
+  // ===========================================================================
+  // SELECTED BOOKING DATE
+  // ===========================================================================
+
+  String _getSelectedBookingDate(dynamic availability) {
+    if (selectedDateIndex < 0 ||
+        selectedDateIndex >= availability.days.length) {
+      return '';
+    }
+
+    final dateString = availability.days[selectedDateIndex].date;
+
+    try {
+      final dateTime = DateTime.parse(dateString);
+
+      return DateFormat('EEE dd MMM').format(dateTime);
+    } catch (_) {
+      return dateString;
+    }
+  }
+
+  // ===========================================================================
+  // SELECTED BOOKING TIME
+  // ===========================================================================
+
+  String _getSelectedBookingTime(dynamic availability) {
+    if (selectedSlotUuid == null) {
+      return '';
+    }
+
+    if (selectedDateIndex < 0 ||
+        selectedDateIndex >= availability.days.length) {
+      return '';
+    }
+
+    final selectedDay = availability.days[selectedDateIndex];
+
+    for (final slot in selectedDay.slots) {
+      if (slot.uuid != selectedSlotUuid) {
+        continue;
+      }
+
+      return _getSlotDisplayTime(slot);
+    }
+
+    return selectedTime ?? selectedDisplayTime ?? '';
+  }
+
+  // ===========================================================================
+  // SLOT START TIME
+  // ===========================================================================
+
+  DateTime? _getSlotStartTime(dynamic slot) {
+    try {
+      if (slot.startsAt == null || slot.startsAt.toString().trim().isEmpty) {
+        return null;
+      }
+
+      return DateTime.parse(slot.startsAt.toString()).toLocal();
+    } catch (e) {
+      debugPrint('Error parsing slot startsAt: $e');
+      return null;
+    }
+  }
+
+  // ===========================================================================
+  // SLOT END TIME
+  // ===========================================================================
+
+  DateTime? _getSlotEndTime(dynamic slot) {
+    try {
+      if (slot.endsAt == null || slot.endsAt.toString().trim().isEmpty) {
+        return null;
+      }
+
+      return DateTime.parse(slot.endsAt.toString()).toLocal();
+    } catch (e) {
+      debugPrint('Error parsing slot endsAt: $e');
+      return null;
+    }
+  }
+
+  // ===========================================================================
+  // SLOT DISPLAY TIME
+  //
+  // Always prefer startsAt + endsAt so the UI represents the actual
+  // appointment interval returned by the API.
+  // ===========================================================================
+
+  String _getSlotDisplayTime(dynamic slot) {
+    final start = _getSlotStartTime(slot);
+    final end = _getSlotEndTime(slot);
+
+    if (start != null && end != null) {
+      final startText = DateFormat('hh:mm a').format(start);
+
+      final endText = DateFormat('hh:mm a').format(end);
+
+      return '$startText – $endText';
+    }
+
+    if (start != null) {
+      return DateFormat('hh:mm a').format(start);
+    }
+
+    // Fallback to API-provided display value.
+    try {
+      if (slot.timeDisplay != null &&
+          slot.timeDisplay.toString().trim().isNotEmpty) {
+        return slot.timeDisplay.toString();
+      }
+    } catch (_) {}
+
+    return 'N/A';
+  }
+
+  // ===========================================================================
+  // BUILD
+  // ===========================================================================
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AvailabilityCubit, AvailabilityState>(
       builder: (context, state) {
-        // Handle initial/loading state
-        if (state.status == AvailabilityStatus.loading || state.status == AvailabilityStatus.initial) {
+        // =====================================================================
+        // LOADING
+        // =====================================================================
+
+        if (state.status == AvailabilityStatus.loading ||
+            state.status == AvailabilityStatus.initial) {
           return Center(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 5.h),
@@ -40,6 +168,10 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
             ),
           );
         }
+
+        // =====================================================================
+        // ERROR
+        // =====================================================================
 
         if (state.status == AvailabilityStatus.error) {
           return Container(
@@ -55,11 +187,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
             ),
             child: Column(
               children: [
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.red,
-                  size: 8.w,
-                ),
+                Icon(Icons.error_outline, color: Colors.red, size: 8.w),
                 SizedBox(height: 1.h),
                 Text(
                   'Failed to load availability',
@@ -75,9 +203,9 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       context.read<AvailabilityCubit>().loadAvailability(
-                            serviceUuid: widget.serviceUuid,
-                            offeringUuid: widget.offeringUuid,
-                          );
+                        serviceUuid: widget.serviceUuid,
+                        offeringUuid: widget.offeringUuid,
+                      );
                     },
                     icon: const Icon(Icons.refresh, size: 18),
                     label: const Text('Retry'),
@@ -91,6 +219,10 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
             ),
           );
         }
+
+        // =====================================================================
+        // EMPTY
+        // =====================================================================
 
         if (state.availability == null || state.availability!.days.isEmpty) {
           return Container(
@@ -106,11 +238,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.info_outline,
-                  color: Colors.orange,
-                  size: 6.w,
-                ),
+                Icon(Icons.info_outline, color: Colors.orange, size: 6.w),
                 SizedBox(width: 2.w),
                 Expanded(
                   child: Text(
@@ -129,10 +257,17 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
         final availability = state.availability!;
 
+        // Protect against an invalid index.
+        if (selectedDateIndex >= availability.days.length) {
+          selectedDateIndex = 0;
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Icon
+            // =================================================================
+            // HEADER
+            // =================================================================
             Row(
               children: [
                 Container(
@@ -177,9 +312,12 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 ),
               ],
             ),
+
             SizedBox(height: 2.5.h),
 
-            // Date Selector
+            // =================================================================
+            // DATE SELECTOR
+            // =================================================================
             SizedBox(
               height: 10.h,
               child: ListView.builder(
@@ -187,19 +325,33 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 itemCount: availability.days.length,
                 itemBuilder: (context, index) {
                   final day = availability.days[index];
+
                   final isSelected = index == selectedDateIndex;
 
                   try {
                     final dateTime = DateTime.parse(day.date);
-                    final formattedDate =
-                        DateFormat('MMM\ndd').format(dateTime);
-                    final dayName =
-                        DateFormat('EEE').format(dateTime);
+
+                    final formattedDate = DateFormat(
+                      'MMM\ndd',
+                    ).format(dateTime);
+
+                    final dayName = DateFormat('EEE').format(dateTime);
 
                     return GestureDetector(
                       onTap: () {
+                        if (index == selectedDateIndex) {
+                          return;
+                        }
+
                         setState(() {
                           selectedDateIndex = index;
+
+                          // A slot belongs to a specific
+                          // date, therefore clear it when
+                          // changing date.
+                          selectedSlotUuid = null;
+                          selectedTime = null;
+                          selectedDisplayTime = null;
                         });
                       },
                       child: Container(
@@ -216,10 +368,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                   ],
                                 )
                               : LinearGradient(
-                                  colors: [
-                                    Colors.white,
-                                    Colors.grey.shade50,
-                                  ],
+                                  colors: [Colors.white, Colors.grey.shade50],
                                 ),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
@@ -236,7 +385,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                               blurRadius: isSelected ? 12 : 6,
                               offset: Offset(0, isSelected ? 6 : 2),
                               spreadRadius: isSelected ? 2 : 0,
-                            )
+                            ),
                           ],
                         ),
                         child: Column(
@@ -282,7 +431,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                         ),
                       ),
                     );
-                  } catch (e) {
+                  } catch (_) {
                     return const SizedBox.shrink();
                   }
                 },
@@ -291,7 +440,9 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             SizedBox(height: 2.5.h),
 
-            // Time Slots for Selected Date (Grouped by Period)
+            // =================================================================
+            // TIME SLOTS
+            // =================================================================
             if (selectedDateIndex < availability.days.length) ...[
               Text(
                 'Available Time Slots',
@@ -309,7 +460,9 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             SizedBox(height: 2.h),
 
-            // Selected Date & Time Display
+            // =================================================================
+            // SELECTED APPOINTMENT
+            // =================================================================
             if (selectedDateIndex < availability.days.length)
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.h),
@@ -327,13 +480,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                     color: ThemeColors.blue.withValues(alpha: 0.2),
                     width: 1.5,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: ThemeColors.blue.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,14 +496,18 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                     SizedBox(height: 1.3.h),
                     Row(
                       children: [
-                        // Date
+                        // -----------------------------------------------------
+                        // DATE
+                        // -----------------------------------------------------
                         Expanded(
                           child: Row(
                             children: [
                               Container(
                                 padding: EdgeInsets.all(2.w),
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.blue.withValues(alpha: 0.1),
+                                  color: ThemeColors.blue.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
@@ -382,7 +532,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                     Text(
                                       _formatDateDisplay(
                                         availability
-                                            .days[selectedDateIndex].date,
+                                            .days[selectedDateIndex]
+                                            .date,
                                       ),
                                       style: TextStyle(
                                         fontSize: 13.5.sp,
@@ -398,15 +549,21 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                             ],
                           ),
                         ),
+
                         SizedBox(width: 2.w),
-                        // Time
+
+                        // -----------------------------------------------------
+                        // TIME
+                        // -----------------------------------------------------
                         Expanded(
                           child: Row(
                             children: [
                               Container(
                                 padding: EdgeInsets.all(2.w),
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.blue.withValues(alpha: 0.1),
+                                  color: ThemeColors.blue.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
@@ -431,12 +588,14 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                     Text(
                                       selectedDisplayTime ?? 'Select',
                                       style: TextStyle(
-                                        fontSize: 13.5.sp,
+                                        fontSize: 12.5.sp,
                                         fontWeight: FontWeight.w800,
                                         color: selectedDisplayTime != null
                                             ? ThemeColors.blue
                                             : Colors.grey.shade400,
                                       ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
@@ -452,7 +611,9 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             SizedBox(height: 3.h),
 
-            // Book Now Button with Gradient
+            // =================================================================
+            // BOOK NOW
+            // =================================================================
             SizedBox(
               width: double.infinity,
               child: Container(
@@ -467,10 +628,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                           ],
                         )
                       : LinearGradient(
-                          colors: [
-                            Colors.grey.shade300,
-                            Colors.grey.shade400,
-                          ],
+                          colors: [Colors.grey.shade300, Colors.grey.shade400],
                         ),
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: selectedSlotUuid != null
@@ -480,7 +638,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                             spreadRadius: 1,
-                          )
+                          ),
                         ]
                       : [],
                 ),
@@ -489,18 +647,37 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                   child: InkWell(
                     onTap: selectedSlotUuid != null
                         ? () {
-                            // _showBookingConfirmation();
+                            final bookingDate = _getSelectedBookingDate(
+                              availability,
+                            );
+
+                            final bookingTime = _getSelectedBookingTime(
+                              availability,
+                            );
+
+                            debugPrint(
+                              '========== BOOKING ==========\n'
+                              'Service UUID: ${widget.serviceUuid}\n'
+                              'Offering UUID: ${widget.offeringUuid}\n'
+                              'Date: $bookingDate\n'
+                              'Time: $bookingTime\n'
+                              'Slot UUID: $selectedSlotUuid\n'
+                              '=============================',
+                            );
+
                             Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => ServiceCheckoutScreen(
-      serviceUuid: widget.serviceUuid,
-      offeringUuid: widget.offeringUuid,
-      bookingDate: 'Mon 31 Aug',
-      bookingTime: '10:00 – 11:00',
-    ),
-  ),
-);
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ServiceCheckoutScreen(
+                                  serviceUuid: widget.serviceUuid,
+                                  offeringUuid: widget.offeringUuid,
+                                  bookingDate: bookingDate,
+                                  bookingTime: bookingTime,
+                                  slotUuid: selectedSlotUuid,
+                                  participants: 1,
+                                ),
+                              ),
+                            );
                           }
                         : null,
                     borderRadius: BorderRadius.circular(14),
@@ -542,34 +719,39 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     );
   }
 
+  // ===========================================================================
+  // GROUP TIME SLOTS
+  //
+  // IMPORTANT:
+  // The grouping uses the SAME local time that is displayed to the user.
+  // ===========================================================================
+
   Widget _buildTimeSlotsByPeriod(List<dynamic> slots) {
-    // Filter and cast slots to proper type
     final earlyMorning = <dynamic>[];
     final morning = <dynamic>[];
     final afternoon = <dynamic>[];
     final evening = <dynamic>[];
     final night = <dynamic>[];
 
-    for (var slot in slots) {
-      try {
-        if (slot == null || slot.startsAt == null) continue;
-        final startTime = DateTime.parse(slot.startsAt);
-        final hour = startTime.hour;
+    for (final slot in slots) {
+      final startTime = _getSlotStartTime(slot);
 
-        if (hour >= 0 && hour < 6) {
-          earlyMorning.add(slot);
-        } else if (hour >= 6 && hour < 12) {
-          morning.add(slot);
-        } else if (hour >= 12 && hour < 17) {
-          afternoon.add(slot);
-        } else if (hour >= 17 && hour < 21) {
-          evening.add(slot);
-        } else if (hour >= 21 && hour < 24) {
-          night.add(slot);
-        }
-      } catch (e) {
-        debugPrint('Error parsing slot time: $e');
+      if (startTime == null) {
         continue;
+      }
+
+      final hour = startTime.hour;
+
+      if (hour >= 0 && hour < 6) {
+        earlyMorning.add(slot);
+      } else if (hour >= 6 && hour < 12) {
+        morning.add(slot);
+      } else if (hour >= 12 && hour < 17) {
+        afternoon.add(slot);
+      } else if (hour >= 17 && hour < 21) {
+        evening.add(slot);
+      } else {
+        night.add(slot);
       }
     }
 
@@ -577,29 +759,44 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (earlyMorning.isNotEmpty) ...[
-          _buildPeriodSection('🌙 Early Morning', '12:00 AM - 6:00 AM', earlyMorning),
+          _buildPeriodSection(
+            '🌙 Early Morning',
+            '12:00 AM - 6:00 AM',
+            earlyMorning,
+          ),
           SizedBox(height: 2.h),
         ],
+
         if (morning.isNotEmpty) ...[
           _buildPeriodSection('🌅 Morning', '6:00 AM - 12:00 PM', morning),
           SizedBox(height: 2.h),
         ],
+
         if (afternoon.isNotEmpty) ...[
           _buildPeriodSection('☀️ Afternoon', '12:00 PM - 5:00 PM', afternoon),
           SizedBox(height: 2.h),
         ],
+
         if (evening.isNotEmpty) ...[
           _buildPeriodSection('🌆 Evening', '5:00 PM - 9:00 PM', evening),
           SizedBox(height: 2.h),
         ],
-        if (night.isNotEmpty) ...[
+
+        if (night.isNotEmpty)
           _buildPeriodSection('🌃 Night', '9:00 PM - 12:00 AM', night),
-        ],
       ],
     );
   }
 
-  Widget _buildPeriodSection(String title, String timeRange, slots) {
+  // ===========================================================================
+  // PERIOD SECTION
+  // ===========================================================================
+
+  Widget _buildPeriodSection(
+    String title,
+    String timeRange,
+    List<dynamic> slots,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -607,16 +804,10 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
           padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.3.h),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Colors.grey.shade50,
-                Colors.grey.shade100,
-              ],
+              colors: [Colors.grey.shade50, Colors.grey.shade100],
             ),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.grey.shade200,
-              width: 1,
-            ),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -641,7 +832,9 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
             ],
           ),
         ),
+
         SizedBox(height: 1.5.h),
+
         GridView.builder(
           shrinkWrap: true,
           padding: EdgeInsets.zero,
@@ -655,33 +848,35 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
           itemCount: slots.length,
           itemBuilder: (context, index) {
             final slot = slots[index];
+
             final isSelected = slot.uuid == selectedSlotUuid;
 
-            String displayTime = 'N/A';
-            try {
-              // Generate time display from startsAt and endsAt (convert from UTC to local time)
-              if (slot.startsAt != null && slot.startsAt.isNotEmpty) {
-                final utcTime = DateTime.parse(slot.startsAt);
-                // Convert UTC to local timezone
-                final localTime = utcTime.toLocal();
-                displayTime = '${localTime.hour.toString().padLeft(2, '0')}:${localTime.minute.toString().padLeft(2, '0')}';
-              } else if (slot.timeDisplay != null && slot.timeDisplay.isNotEmpty) {
-                final parts = slot.timeDisplay.split(' - ');
-                displayTime = parts.isNotEmpty ? parts[0] : slot.timeDisplay;
-              }
-            } catch (e) {
-              debugPrint('Error parsing display time: $e');
-              displayTime = 'N/A';
-            }
+            // ===============================================================
+            // ACTUAL INTERVAL
+            // ===============================================================
+
+            final displayTime = _getSlotDisplayTime(slot);
 
             return GestureDetector(
               onTap: slot.isAvailable
                   ? () {
                       setState(() {
                         selectedSlotUuid = slot.uuid;
-                        selectedTime = slot.timeDisplay;
+
+                        // Store the COMPLETE interval,
+                        // not only the start time.
+                        selectedTime = displayTime;
+
                         selectedDisplayTime = displayTime;
                       });
+
+                      debugPrint(
+                        'Selected slot:\n'
+                        'UUID: ${slot.uuid}\n'
+                        'Time: $displayTime\n'
+                        'Starts: ${slot.startsAt}\n'
+                        'Ends: ${slot.endsAt}',
+                      );
                     }
                   : null,
               child: Container(
@@ -695,57 +890,62 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                             ThemeColors.blue.withValues(alpha: 0.85),
                           ],
                         )
-                      : (slot.isAvailable
-                          ? LinearGradient(
-                              colors: [
-                                Colors.white,
-                                Colors.grey.shade50,
-                              ],
-                            )
-                          : LinearGradient(
-                              colors: [
-                                Colors.grey.shade100,
-                                Colors.grey.shade50,
-                              ],
-                            )),
+                      : slot.isAvailable
+                      ? LinearGradient(
+                          colors: [Colors.white, Colors.grey.shade50],
+                        )
+                      : LinearGradient(
+                          colors: [Colors.grey.shade100, Colors.grey.shade50],
+                        ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? Colors.transparent
-                        : (slot.isAvailable
-                            ? ThemeColors.blue.withValues(alpha: 0.2)
-                            : Colors.grey.shade300),
+                        : slot.isAvailable
+                        ? ThemeColors.blue.withValues(alpha: 0.2)
+                        : Colors.grey.shade300,
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: isSelected
                           ? ThemeColors.blue.withValues(alpha: 0.4)
-                          : (slot.isAvailable
-                              ? ThemeColors.blue.withValues(alpha: 0.08)
-                              : Colors.grey.withValues(alpha: 0.05)),
+                          : slot.isAvailable
+                          ? ThemeColors.blue.withValues(alpha: 0.08)
+                          : Colors.grey.withValues(alpha: 0.05),
                       blurRadius: isSelected ? 10 : 4,
                       offset: Offset(0, isSelected ? 4 : 1),
                       spreadRadius: isSelected ? 1 : 0,
-                    )
+                    ),
                   ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      displayTime,
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w800,
-                        color: isSelected
-                            ? Colors.white
-                            : (slot.isAvailable
-                                ? ThemeColors.blue
-                                : Colors.grey.shade400),
+                    // =========================================================
+                    // COMPLETE TIME INTERVAL
+                    // =========================================================
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 1.w),
+                      child: Text(
+                        displayTime,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.5.sp,
+                          fontWeight: FontWeight.w800,
+                          color: isSelected
+                              ? Colors.white
+                              : slot.isAvailable
+                              ? ThemeColors.blue
+                              : Colors.grey.shade400,
+                        ),
                       ),
                     ),
+
                     SizedBox(height: 0.7.h),
+
                     if (slot.isAvailable)
                       Container(
                         padding: EdgeInsets.symmetric(
@@ -761,10 +961,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                         child: Text(
                           '${slot.remaining} available',
                           style: TextStyle(
-                            fontSize: 13.sp,
-                            color: isSelected
-                                ? Colors.white
-                                : ThemeColors.blue,
+                            fontSize: 12.5.sp,
+                            color: isSelected ? Colors.white : ThemeColors.blue,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.3,
                           ),
@@ -789,14 +987,23 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     );
   }
 
+  // ===========================================================================
+  // DATE DISPLAY
+  // ===========================================================================
+
   String _formatDateDisplay(String dateString) {
     try {
       final dateTime = DateTime.parse(dateString);
+
       return DateFormat('EEEE, MMM dd, yyyy').format(dateTime);
-    } catch (e) {
+    } catch (_) {
       return dateString;
     }
   }
+
+  // ===========================================================================
+  // BOOKING CONFIRMATION
+  // ===========================================================================
 
   void _showBookingConfirmation() {
     ScaffoldMessenger.of(context).showSnackBar(
