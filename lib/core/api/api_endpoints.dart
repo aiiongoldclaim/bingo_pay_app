@@ -59,4 +59,6 @@ class ApiEndpoints {
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
   static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';
 
+  static const String myBookings = '/api/v1/bookings';
+
 }

@@ -84,6 +84,14 @@ import 'package:bingo_pay/features/auth/domain/usecases/verify_sso_login_usecase
     as _i999;
 import 'package:bingo_pay/features/auth/presentation/bloc/auth_bloc.dart'
     as _i357;
+import 'package:bingo_pay/features/bookings/data/datasources/booking_remote_datasources.dart'
+    as _i570;
+import 'package:bingo_pay/features/bookings/data/repositories/booking_repository_impl.dart'
+    as _i53;
+import 'package:bingo_pay/features/bookings/domain/repositories/booking_repository.dart'
+    as _i623;
+import 'package:bingo_pay/features/bookings/presentation/cubit/booking_cubit.dart'
+    as _i1004;
 import 'package:bingo_pay/features/cart/data/datasources/cart_remote_datasource.dart'
     as _i882;
 import 'package:bingo_pay/features/cart/data/repositories/cart_repository_impl.dart'
@@ -236,6 +244,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i298.CategoryRemoteDataSource>(
       () => _i298.CategoryRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
+    gh.factory<_i570.BookingRemoteDatasources>(
+      () => _i570.BookingRemoteDatasources(gh<_i541.ApiClient>()),
+    );
     gh.singleton<_i792.BigodPaymentDataSource>(
       () => _i792.BigodPaymentDataSource(gh<_i541.ApiClient>()),
     );
@@ -297,6 +308,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i881.RemoveCartItemUseCase>(),
         gh<_i15.ClearCartUseCase>(),
       ),
+    );
+    gh.factory<_i623.BookingRepository>(
+      () => _i53.BookingRepositoryImpl(gh<_i570.BookingRemoteDatasources>()),
     );
     gh.factory<_i610.OrdersCubit>(
       () => _i610.OrdersCubit(gh<_i705.OrdersRemoteDataSource>()),
@@ -407,6 +421,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1054.AuctionCubit>(
       () => _i1054.AuctionCubit(gh<_i321.AuctionRepository>()),
+    );
+    gh.factory<_i1004.BookingCubit>(
+      () => _i1004.BookingCubit(gh<_i623.BookingRepository>()),
     );
     gh.factory<_i393.ServicesCubit>(
       () => _i393.ServicesCubit(gh<_i254.GetServicesUseCase>()),

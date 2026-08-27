@@ -72,6 +72,9 @@ class AppRoutes {
 
   static const String productListingPath = '/product-listing/:uuid';
 
+  //My bookings
+  static const String myBookings = '/my-bookings';
+
   static const List<String> publicRoutes = [
     splash,
     login,

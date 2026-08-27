@@ -8,6 +8,7 @@ import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/auctions/presentation/screens/auction_screen.dart';
 import '../../features/auctions/presentation/screens/my_bids_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/bookings/presentation/screens/my_booking_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
@@ -452,6 +453,10 @@ class AppRouter {
               path: AppRoutes.myBids,
               builder: (_, _) => const MyBidsScreen(),
             ),
+            GoRoute(
+              path: AppRoutes.myBookings,
+              builder: (_, _) => const MyBookingsScreen(),
+            ),
           ],
         ),
         GoRoute(
@@ -506,10 +511,10 @@ class AppRouter {
   Future<void> updateAuthState(RouteAuthState state) async {
     debugPrint(
       'AUTH → '
-          'auth=${state.isAuthenticated} '
-          'loading=${state.isLoading} '
-          'onboarding=${state.hasSeenOnboarding} '
-          'kyc=${state.isKycPending}',
+      'auth=${state.isAuthenticated} '
+      'loading=${state.isLoading} '
+      'onboarding=${state.hasSeenOnboarding} '
+      'kyc=${state.isKycPending}',
     );
 
     if (_authState.isLoading && !state.isLoading) {
@@ -524,7 +529,6 @@ class AppRouter {
         debugPrint('Error removing native splash: $e');
       }
     }
-
 
     // final seenOnboarding =
     //     _authState.hasSeenOnboarding || state.hasSeenOnboarding;

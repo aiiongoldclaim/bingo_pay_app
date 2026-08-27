@@ -396,6 +396,12 @@ class AccountMenuItem {
       iconAsset: 'wishlist',
       route: AppRoutes.buyerWishlist,
     ),
+    AccountMenuItem(
+      title: 'My Bookings',
+      subtitle: 'Manage your bookings',
+      iconAsset: 'cart',
+      route: AppRoutes.myBookings,
+    ),
   ];
 
   /// Group 2 — account

@@ -17,6 +17,7 @@ import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
 import '../features/auth/presentation/bloc/auth_state.dart';
 import '../features/address/presentation/cubit/address_cubit.dart';
+import '../features/bookings/presentation/cubit/booking_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
 import '../features/wishlist/presentation/cubit/wishlist_cubit.dart';
 
@@ -106,6 +107,7 @@ class _AppState extends State<App> {
         BlocProvider<AddressCubit>(create: (_) => getIt<AddressCubit>()),
         BlocProvider<WishlistCubit>(create: (_) => getIt<WishlistCubit>()),
         BlocProvider<AuctionCubit>(create: (_) => getIt<AuctionCubit>()),
+        BlocProvider<BookingCubit>(create: (_) => getIt<BookingCubit>()),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
