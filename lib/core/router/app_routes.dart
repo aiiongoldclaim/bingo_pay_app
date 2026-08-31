@@ -75,6 +75,8 @@ class AppRoutes {
 
   //My bookings
   static const String myBookings = '/my-bookings';
+  static const String bookingDetails = '/booking-details/:uuid';
+  static const String bookingDetailName = 'booking-details';
 
   static const List<String> publicRoutes = [
     splash,

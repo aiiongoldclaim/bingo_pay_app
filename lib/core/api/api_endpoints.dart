@@ -60,5 +60,7 @@ class ApiEndpoints {
   static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';
 
   static const String myBookings = '/api/v1/bookings';
+  static String bookingDetail(String uuid) => '/api/v1/bookings/$uuid';
+  static String cancelBooking(String uuid) => '/api/v1/bookings/$uuid/cancel';
 
 }

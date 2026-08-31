@@ -35,4 +35,26 @@ class BookingCubit extends Cubit<BookingState>{
       emit(BookingError(_describe(e, "Failed to fetch bookings")));
     }
   }
+
+  // BOOKING DETAIL
+  Future<void> fetchBookingDetails(String bookingUuid) async {
+    emit(BookingDetailLoading());
+    try {
+      final bookingDetails = await repository.getBookingDetails(bookingUuid);
+      emit(BookingDetailLoaded(bookingDetails));
+    } catch (e) {
+      emit(BookingDetailError(_describe(e, "Failed to fetch booking details")));
+    }
+  }
+
+  // CANCEL BOOKING
+  Future<void> cancelBooking(String bookingUuid, String reason) async {
+    emit(BookingCancelLoading());
+    try {
+      await repository.cancelBooking(bookingUuid: bookingUuid, reason: reason);
+      emit(BookingCancelSuccess());
+    } catch (e) {
+      emit(BookingCancelError(_describe(e, "Failed to cancel booking")));
+    }
+  }
 }

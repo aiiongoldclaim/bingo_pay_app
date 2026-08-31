@@ -8,6 +8,7 @@ import '../../features/account/presentation/screens/account_page.dart';
 import '../../features/auctions/presentation/screens/auction_screen.dart';
 import '../../features/auctions/presentation/screens/my_bids_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
+import '../../features/bookings/presentation/screens/booking_details_screen.dart';
 import '../../features/bookings/presentation/screens/my_booking_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
@@ -468,6 +469,14 @@ class AppRouter {
               builder: (_, _) => const _PlaceholderPage('Vendor Home'),
             ),
           ],
+        ),
+        GoRoute(
+          path: AppRoutes.bookingDetails,
+          name: AppRoutes.bookingDetailName,
+          builder: (context, state) {
+            final uuid = state.pathParameters['uuid'] ?? '';
+            return BookingDetailsScreen(bookingUuid: uuid);
+          },
         ),
       ],
     );

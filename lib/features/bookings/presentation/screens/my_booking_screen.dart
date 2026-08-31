@@ -1,11 +1,11 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
@@ -14,6 +14,7 @@ import '../../data/datasources/booking_remote_datasources.dart';
 import '../../domain/entities/bookings_entity.dart';
 import '../cubit/booking_cubit.dart';
 import '../cubit/booking_state.dart';
+import 'booking_details_screen.dart';
 
 class MyBookingsScreen extends StatelessWidget {
   const MyBookingsScreen({super.key});
@@ -36,7 +37,7 @@ class _MyBookingsBody extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: c.background,
-      
+
       body: SafeArea(
         child: BlocBuilder<BookingCubit, BookingState>(
           builder: (context, state) {
@@ -45,15 +46,11 @@ class _MyBookingsBody extends StatelessWidget {
             }
 
             if (state is BookingError) {
-              return _BookingErrorView(
-                message: state.message,
-              );
+              return _BookingErrorView(message: state.message);
             }
 
             if (state is BookingListLoaded) {
-              return _BookingsLoadedView(
-                bookings: state.bookings,
-              );
+              return _BookingsLoadedView(bookings: state.bookings);
             }
 
             return const SizedBox.shrink();
@@ -69,9 +66,7 @@ class _MyBookingsBody extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _BookingsLoadedView extends StatelessWidget {
-  const _BookingsLoadedView({
-    required this.bookings,
-  });
+  const _BookingsLoadedView({required this.bookings});
 
   final List<BookingEntity> bookings;
 
@@ -102,22 +97,14 @@ class _BookingsLoadedView extends StatelessWidget {
           ),
 
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(
-              20,
-              4,
-              20,
-              40,
-            ),
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
             sliver: SliverList.separated(
               itemCount: bookings.length,
               separatorBuilder: (_, __) {
                 return const SizedBox(height: 16);
               },
               itemBuilder: (context, index) {
-                return _BookingCard(
-                  booking: bookings[index],
-                  index: index,
-                );
+                return _BookingCard(booking: bookings[index], index: index);
               },
             ),
           ),
@@ -135,9 +122,7 @@ class _BookingsLoadedView extends StatelessWidget {
       return false;
     }
 
-    final date = DateTime.tryParse(
-      booking.scheduledStartAt,
-    );
+    final date = DateTime.tryParse(booking.scheduledStartAt);
 
     if (date == null) return false;
 
@@ -150,10 +135,7 @@ class _BookingsLoadedView extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _BookingsHeader extends StatelessWidget {
-  const _BookingsHeader({
-    required this.total,
-    required this.upcoming,
-  });
+  const _BookingsHeader({required this.total, required this.upcoming});
 
   final int total;
   final int upcoming;
@@ -163,12 +145,7 @@ class _BookingsHeader extends StatelessWidget {
     final c = context.c;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        24,
-        24,
-        24,
-        22,
-      ),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -207,16 +184,12 @@ class _BookingsHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: c.surface,
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: c.border,
-                  ),
+                  border: Border.all(color: c.border),
                   boxShadow: c.isDark
                       ? null
                       : [
                           BoxShadow(
-                            color: c.textPrimary.withValues(
-                              alpha: 0.05,
-                            ),
+                            color: c.textPrimary.withValues(alpha: 0.05),
                             blurRadius: 14,
                             offset: const Offset(0, 4),
                           ),
@@ -271,23 +244,16 @@ class _HeaderStat extends StatelessWidget {
 
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 13,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         decoration: BoxDecoration(
           color: c.surface,
           borderRadius: BorderRadius.circular(17),
-          border: Border.all(
-            color: c.border,
-          ),
+          border: Border.all(color: c.border),
           boxShadow: c.isDark
               ? null
               : [
                   BoxShadow(
-                    color: c.textPrimary.withValues(
-                      alpha: 0.035,
-                    ),
+                    color: c.textPrimary.withValues(alpha: 0.035),
                     blurRadius: 12,
                     offset: const Offset(0, 3),
                   ),
@@ -302,17 +268,12 @@ class _HeaderStat extends StatelessWidget {
                 color: c.brandSoft,
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(
-                icon,
-                size: 17,
-                color: c.brand,
-              ),
+              child: Icon(icon, size: 17, color: c.brand),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     label,
@@ -348,10 +309,7 @@ class _HeaderStat extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _BookingCard extends StatefulWidget {
-  const _BookingCard({
-    required this.booking,
-    required this.index,
-  });
+  const _BookingCard({required this.booking, required this.index});
 
   final BookingEntity booking;
   final int index;
@@ -366,21 +324,26 @@ class _BookingCardState extends State<_BookingCard> {
   Future<void> _downloadInvoice() async {
     if (widget.booking.uuid.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invoice is not available for this booking yet.')),
+        const SnackBar(
+          content: Text('Invoice is not available for this booking yet.'),
+        ),
       );
       return;
     }
 
     setState(() => _generatingPdf = true);
     try {
-      final invoice = await GetIt.I<BookingRemoteDatasources>()
-          .downloadInvoice(widget.booking.uuid);
+      final invoice = await GetIt.I<BookingRemoteDatasources>().downloadInvoice(
+        widget.booking.uuid,
+      );
       await openOrSharePdf(invoice.bytes, invoice.filename);
     } catch (e, st) {
       debugPrint('[Booking Invoice] Download failed: $e\n$st');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to download invoice. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to download invoice. Please try again.'),
+          ),
         );
       }
     } finally {
@@ -392,25 +355,18 @@ class _BookingCardState extends State<_BookingCard> {
   Widget build(BuildContext context) {
     final c = context.c;
 
-    final status = _statusInfo(
-      context,
-      widget.booking.status,
-    );
+    final status = _statusInfo(context, widget.booking.status);
 
     return Container(
       decoration: BoxDecoration(
         color: c.surface,
         borderRadius: BorderRadius.circular(23),
-        border: Border.all(
-          color: c.border,
-        ),
+        border: Border.all(color: c.border),
         boxShadow: c.isDark
             ? null
             : [
                 BoxShadow(
-                  color: c.textPrimary.withValues(
-                    alpha: 0.055,
-                  ),
+                  color: c.textPrimary.withValues(alpha: 0.055),
                   blurRadius: 22,
                   offset: const Offset(0, 7),
                 ),
@@ -423,49 +379,33 @@ class _BookingCardState extends State<_BookingCard> {
             // -----------------------------------------------------------------
             // TOP ACCENT
             // -----------------------------------------------------------------
-
-            Container(
-              height: 4,
-              width: double.infinity,
-              color: status.color,
-            ),
+            Container(height: 4, width: double.infinity, color: status.color),
 
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                18,
-                17,
-                18,
-                16,
-              ),
+              padding: const EdgeInsets.fromLTRB(18, 17, 18, 16),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // -----------------------------------------------------------
                   // SERVICE + STATUS
                   // -----------------------------------------------------------
-
                   Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
                                 color: c.brandSoft,
-                                borderRadius:
-                                    BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                               child: Icon(
-                                _serviceIcon(
-                                  widget.booking.service.title,
-                                ),
+                                _serviceIcon(widget.booking.service.title),
                                 color: c.brand,
                                 size: 21,
                               ),
@@ -474,44 +414,31 @@ class _BookingCardState extends State<_BookingCard> {
 
                             Expanded(
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     widget.booking.service.title,
                                     maxLines: 2,
-                                    overflow:
-                                        TextOverflow.ellipsis,
-                                    style: AppTextStyles
-                                        .titleMedium
-                                        .copyWith(
-                                      color:
-                                          c.textPrimary,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.titleMedium.copyWith(
+                                      color: c.textPrimary,
                                       fontFamily: 'Inter',
-                                      fontWeight:
-                                          FontWeight.w800,
+                                      fontWeight: FontWeight.w800,
                                       fontSize: 16,
                                       letterSpacing: -0.15,
                                     ),
                                   ),
 
-                                  if (widget.booking
-                                      .offering
-                                      .offeringName
+                                  if (widget.booking.offering.offeringName
                                       .trim()
                                       .isNotEmpty) ...[
                                     const SizedBox(height: 4),
                                     Text(
-                                      widget.booking.offering
-                                          .offeringName,
+                                      widget.booking.offering.offeringName,
                                       maxLines: 1,
-                                      overflow:
-                                          TextOverflow.ellipsis,
-                                      style: AppTextStyles
-                                          .bodySmall
-                                          .copyWith(
-                                        color:
-                                            c.textSecondary,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: c.textSecondary,
                                         fontFamily: 'Inter',
                                         fontSize: 12,
                                       ),
@@ -527,11 +454,21 @@ class _BookingCardState extends State<_BookingCard> {
                       const SizedBox(width: 8),
 
                       _StatusBadge(
-                        label: _statusLabel(
-                          widget.booking.status,
-                        ),
+                        label: _statusLabel(widget.booking.status),
                         color: status.color,
                         background: status.background,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          context.pushNamed(
+                            AppRoutes.bookingDetailName,
+                            pathParameters: {'uuid': widget.booking.uuid},
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -541,25 +478,20 @@ class _BookingCardState extends State<_BookingCard> {
                   // -----------------------------------------------------------
                   // DATE / TIME HERO
                   // -----------------------------------------------------------
-
-                  _DateTimePanel(
-                    booking: widget.booking,
-                  ),
+                  _DateTimePanel(booking: widget.booking),
 
                   const SizedBox(height: 14),
 
                   // -----------------------------------------------------------
                   // VENDOR + BOOKING NUMBER
                   // -----------------------------------------------------------
-
                   Row(
                     children: [
                       Expanded(
                         child: _InfoLine(
                           icon: Icons.storefront_rounded,
                           label: 'Provider',
-                          value:
-                              widget.booking.vendor.shopName,
+                          value: widget.booking.vendor.shopName,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -567,8 +499,7 @@ class _BookingCardState extends State<_BookingCard> {
                         child: _InfoLine(
                           icon: Icons.confirmation_number_outlined,
                           label: 'Booking',
-                          value:
-                              widget.booking.bookingNumber,
+                          value: widget.booking.bookingNumber,
                         ),
                       ),
                     ],
@@ -579,7 +510,6 @@ class _BookingCardState extends State<_BookingCard> {
                   // -----------------------------------------------------------
                   // PAYMENT + PARTICIPANTS
                   // -----------------------------------------------------------
-
                   Row(
                     children: [
                       Expanded(
@@ -595,8 +525,7 @@ class _BookingCardState extends State<_BookingCard> {
                         child: _InfoLine(
                           icon: Icons.people_outline_rounded,
                           label: 'Participants',
-                          value:
-                              '${widget.booking.participants}',
+                          value: '${widget.booking.participants}',
                         ),
                       ),
                     ],
@@ -607,31 +536,22 @@ class _BookingCardState extends State<_BookingCard> {
                   // -----------------------------------------------------------
                   // DIVIDER
                   // -----------------------------------------------------------
-
-                  Container(
-                    height: 1,
-                    color: c.border,
-                  ),
+                  Container(height: 1, color: c.border),
 
                   const SizedBox(height: 14),
 
                   // -----------------------------------------------------------
                   // BOTTOM ACTIONS
                   // -----------------------------------------------------------
-
                   Row(
                     children: [
                       Expanded(
                         child: _BookingActionButton(
-                          icon:
-                              Icons.sync_rounded,
+                          icon: Icons.sync_rounded,
                           label: 'Change time',
                           primary: true,
                           onTap: () {
-                            _showComingSoon(
-                              context,
-                              'Change time',
-                            );
+                            _showComingSoon(context, 'Change time');
                           },
                         ),
                       ),
@@ -643,7 +563,9 @@ class _BookingCardState extends State<_BookingCard> {
                               : Icons.file_download_outlined,
                           label: _generatingPdf ? 'Generating…' : 'Invoice',
                           primary: false,
-                          onTap: _generatingPdf ? null : () => _downloadInvoice(),
+                          onTap: _generatingPdf
+                              ? null
+                              : () => _downloadInvoice(),
                         ),
                       ),
                     ],
@@ -666,8 +588,7 @@ class _BookingCardState extends State<_BookingCard> {
       return Icons.content_cut_rounded;
     }
 
-    if (value.contains('spa') ||
-        value.contains('massage')) {
+    if (value.contains('spa') || value.contains('massage')) {
       return Icons.spa_outlined;
     }
 
@@ -688,10 +609,7 @@ class _BookingCardState extends State<_BookingCard> {
     return Icons.auto_awesome_rounded;
   }
 
-  _StatusInfo _statusInfo(
-    BuildContext context,
-    String status,
-  ) {
+  _StatusInfo _statusInfo(BuildContext context, String status) {
     final c = context.c;
     final value = status.toUpperCase();
 
@@ -709,20 +627,15 @@ class _BookingCardState extends State<_BookingCard> {
       );
     }
 
-    if (value == 'CANCELLED' ||
-        value == 'REJECTED') {
+    if (value == 'CANCELLED' || value == 'REJECTED') {
       return _StatusInfo(
         color: Colors.red.shade700,
         background: Colors.red.withValues(alpha: 0.10),
       );
     }
 
-    if (value == 'IN_PROGRESS' ||
-        value == 'STARTED') {
-      return _StatusInfo(
-        color: c.brand,
-        background: c.brandSoft,
-      );
+    if (value == 'IN_PROGRESS' || value == 'STARTED') {
+      return _StatusInfo(color: c.brand, background: c.brandSoft);
     }
 
     return _StatusInfo(
@@ -766,23 +679,17 @@ class _BookingCardState extends State<_BookingCard> {
         .toLowerCase()
         .split('_')
         .map(
-          (word) =>
-              word.isEmpty
-                  ? word
-                  : '${word[0].toUpperCase()}${word.substring(1)}',
+          (word) => word.isEmpty
+              ? word
+              : '${word[0].toUpperCase()}${word.substring(1)}',
         )
         .join(' ');
   }
 
-  void _showComingSoon(
-    BuildContext context,
-    String action,
-  ) {
+  void _showComingSoon(BuildContext context, String action) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          '$action will be available soon.',
-        ),
+        content: Text('$action will be available soon.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -794,9 +701,7 @@ class _BookingCardState extends State<_BookingCard> {
 // -----------------------------------------------------------------------------
 
 class _DateTimePanel extends StatelessWidget {
-  const _DateTimePanel({
-    required this.booking,
-  });
+  const _DateTimePanel({required this.booking});
 
   final BookingEntity booking;
 
@@ -804,57 +709,30 @@ class _DateTimePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.c;
 
-    final start = _parseDate(
-      booking.scheduledStartAt,
-    );
+    final start = _parseDate(booking.scheduledStartAt);
 
-    final end = _parseDate(
-      booking.scheduledEndAt,
-    );
+    final end = _parseDate(booking.scheduledEndAt);
 
-    final day =
-        start != null
-            ? DateFormat(
-                'EEE',
-              ).format(start).toUpperCase()
-            : '--';
+    final day = start != null
+        ? DateFormat('EEE').format(start).toUpperCase()
+        : '--';
 
-    final date =
-        start != null
-            ? DateFormat(
-                'dd',
-              ).format(start)
-            : '--';
+    final date = start != null ? DateFormat('dd').format(start) : '--';
 
-    final month =
-        start != null
-            ? DateFormat(
-                'MMM',
-              ).format(start).toUpperCase()
-            : '---';
+    final month = start != null
+        ? DateFormat('MMM').format(start).toUpperCase()
+        : '---';
 
-    final time =
-        start != null
-            ? DateFormat(
-                'HH:mm',
-              ).format(start)
-            : '--:--';
+    final time = start != null ? DateFormat('HH:mm').format(start) : '--:--';
 
-    final endTime =
-        end != null
-            ? DateFormat(
-                'HH:mm',
-              ).format(end)
-            : null;
+    final endTime = end != null ? DateFormat('HH:mm').format(end) : null;
 
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: c.background,
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(
-          color: c.border,
-        ),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         children: [
@@ -865,13 +743,10 @@ class _DateTimePanel extends StatelessWidget {
             decoration: BoxDecoration(
               color: c.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: c.border,
-              ),
+              border: Border.all(color: c.border),
             ),
             child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   month,
@@ -902,8 +777,7 @@ class _DateTimePanel extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   day,
@@ -925,9 +799,7 @@ class _DateTimePanel extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      endTime != null
-                          ? '$time – $endTime'
-                          : time,
+                      endTime != null ? '$time – $endTime' : time,
                       style: TextStyle(
                         color: c.textPrimary,
                         fontFamily: 'Inter',
@@ -942,10 +814,7 @@ class _DateTimePanel extends StatelessWidget {
           ),
 
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 7,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
             decoration: BoxDecoration(
               color: c.brandSoft,
               borderRadius: BorderRadius.circular(10),
@@ -1005,17 +874,12 @@ class _InfoLine extends StatelessWidget {
             color: c.brandSoft,
             borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(
-            icon,
-            size: 15,
-            color: c.brand,
-          ),
+          child: Icon(icon, size: 15, color: c.brand),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
@@ -1068,10 +932,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Flexible(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 9,
-          vertical: 6,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(20),
@@ -1123,23 +984,14 @@ class _BookingActionButton extends StatelessWidget {
           child: Container(
             height: 40,
             decoration: BoxDecoration(
-              color: primary
-                  ? c.background
-                  : c.surface,
+              color: primary ? c.background : c.surface,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: c.border,
-              ),
+              border: Border.all(color: c.border),
             ),
             child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  size: 16,
-                  color: c.textPrimary,
-                ),
+                Icon(icon, size: 16, color: c.textPrimary),
                 const SizedBox(width: 7),
                 Text(
                   label,
@@ -1219,9 +1071,7 @@ class _EmptyBookingsView extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _BookingErrorView extends StatelessWidget {
-  const _BookingErrorView({
-    required this.message,
-  });
+  const _BookingErrorView({required this.message});
 
   final String message;
 
@@ -1231,9 +1081,7 @@ class _BookingErrorView extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 30,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1272,22 +1120,15 @@ class _BookingErrorView extends StatelessWidget {
             const SizedBox(height: 20),
             OutlinedButton.icon(
               onPressed: () {
-                context
-                    .read<BookingCubit>()
-                    .fetchBookings();
+                context.read<BookingCubit>().fetchBookings();
               },
-              icon: const Icon(
-                Icons.refresh_rounded,
-              ),
+              icon: const Icon(Icons.refresh_rounded),
               label: const Text('Try again'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: c.brand,
-                side: BorderSide(
-                  color: c.brand,
-                ),
+                side: BorderSide(color: c.brand),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
@@ -1302,8 +1143,7 @@ class _BookingErrorView extends StatelessWidget {
 // LOADING
 // -----------------------------------------------------------------------------
 
-class _BookingsLoadingView
-    extends StatelessWidget {
+class _BookingsLoadingView extends StatelessWidget {
   const _BookingsLoadingView();
 
   @override
@@ -1311,44 +1151,23 @@ class _BookingsLoadingView
     final c = context.c;
 
     return CustomScrollView(
-      physics:
-          const NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              24,
-              25,
-              24,
-              22,
-            ),
+            padding: const EdgeInsets.fromLTRB(24, 25, 24, 22),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _Skeleton(
-                  width: 155,
-                  height: 27,
-                ),
+                _Skeleton(width: 155, height: 27),
                 const SizedBox(height: 9),
-                _Skeleton(
-                  width: 245,
-                  height: 15,
-                ),
+                _Skeleton(width: 245, height: 15),
                 const SizedBox(height: 22),
                 Row(
                   children: [
-                    Expanded(
-                      child: _Skeleton(
-                        height: 61,
-                      ),
-                    ),
+                    Expanded(child: _Skeleton(height: 61)),
                     const SizedBox(width: 10),
-                    Expanded(
-                      child: _Skeleton(
-                        height: 61,
-                      ),
-                    ),
+                    Expanded(child: _Skeleton(height: 61)),
                   ],
                 ),
               ],
@@ -1357,64 +1176,43 @@ class _BookingsLoadingView
         ),
 
         SliverPadding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           sliver: SliverList.separated(
             itemCount: 4,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: 16),
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (_, __) {
               return Container(
                 height: 295,
                 decoration: BoxDecoration(
                   color: c.surface,
-                  borderRadius:
-                      BorderRadius.circular(23),
-                  border: Border.all(
-                    color: c.border,
-                  ),
+                  borderRadius: BorderRadius.circular(23),
+                  border: Border.all(color: c.border),
                 ),
                 padding: const EdgeInsets.all(18),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const _Skeleton(
-                          width: 44,
-                          height: 44,
-                        ),
+                        const _Skeleton(width: 44, height: 44),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             children: [
-                              _Skeleton(
-                                height: 16,
-                              ),
+                              _Skeleton(height: 16),
                               const SizedBox(height: 8),
-                              _Skeleton(
-                                width: 130,
-                                height: 11,
-                              ),
+                              _Skeleton(width: 130, height: 11),
                             ],
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    _Skeleton(
-                      height: 76,
-                    ),
+                    _Skeleton(height: 76),
                     const SizedBox(height: 14),
-                    _Skeleton(
-                      height: 43,
-                    ),
+                    _Skeleton(height: 43),
                     const SizedBox(height: 14),
-                    _Skeleton(
-                      height: 40,
-                    ),
+                    _Skeleton(height: 40),
                   ],
                 ),
               );
@@ -1427,10 +1225,7 @@ class _BookingsLoadingView
 }
 
 class _Skeleton extends StatelessWidget {
-  const _Skeleton({
-    this.width = double.infinity,
-    required this.height,
-  });
+  const _Skeleton({this.width = double.infinity, required this.height});
 
   final double width;
   final double height;
@@ -1443,9 +1238,7 @@ class _Skeleton extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: c.border.withValues(
-          alpha: c.isDark ? 0.35 : 0.55,
-        ),
+        color: c.border.withValues(alpha: c.isDark ? 0.35 : 0.55),
         borderRadius: BorderRadius.circular(10),
       ),
     );
@@ -1457,10 +1250,7 @@ class _Skeleton extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _StatusInfo {
-  const _StatusInfo({
-    required this.color,
-    required this.background,
-  });
+  const _StatusInfo({required this.color, required this.background});
 
   final Color color;
   final Color background;
