@@ -198,13 +198,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:dio/dio.dart';
-
-import '../../../../core/api/api_client.dart';
-import '../../../../core/config/app_config.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/services/product_cache_service.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_product_card.dart';
@@ -214,9 +209,9 @@ import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_model.dart';
-
+import '../../data/repositories/all_products_repo.dart';
+import '../widgets/products_grid_shimmer.dart';
 import '../widgets/products_metrics.dart';
-
 
 
 class AllProductsScreen extends StatefulWidget {
@@ -235,57 +230,59 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
   @override
   void initState() {
     super.initState();
-    _productsFuture = _fetchAllProducts();
+    _productsFuture = getIt<ProductRepository>().getAllProducts();
+    // _productsFuture = _fetchAllProducts();
   }
 
-  Future<List<ProductModel>> _fetchAllProducts() async {
-    final client = getIt<ApiClient>();
-    final cacheService = getIt<ProductCacheService>();
-
-    try {
-      final response = await client.dio.get(
-        '${AppConfig.apiBaseUrl}/api/v1/products',
-        queryParameters: {'page': 1, 'limit': 100},
-      );
-      final raw = response.data as Map<String, dynamic>;
-      final dataMap = raw['data'] as Map<String, dynamic>;
-      final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-      final products = dataList
-          .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      // Cache on success
-      await cacheService.cacheHomeProducts(products);
-      debugPrint('✓ Loaded and cached ${products.length} products from API');
-      return products;
-    } catch (e) {
-      debugPrint('✗ Failed to fetch products: $e');
-
-      // Handle throttling gracefully
-      final isDioError = e is DioException;
-      final isThrottled = isDioError && e.response?.statusCode == 429;
-
-      if (isThrottled) {
-        debugPrint('⚠ API throttled (429), attempting to load from cache...');
-      }
-
-      // Try cache as fallback
-      final cachedProducts = await cacheService.getHomeProductsCache();
-      if (cachedProducts != null && cachedProducts.isNotEmpty) {
-        debugPrint(
-          '✓ Loaded ${cachedProducts.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
-        );
-        return cachedProducts;
-      }
-
-      debugPrint('✗ No cached products available, rethrowing error');
-      rethrow;
-    }
-  }
+  // Future<List<ProductModel>> _fetchAllProducts() async {
+  //   final client = getIt<ApiClient>();
+  //   final cacheService = getIt<ProductCacheService>();
+  //
+  //   try {
+  //     final response = await client.dio.get(
+  //       '${AppConfig.apiBaseUrl}/api/v1/products',
+  //       queryParameters: {'page': 1, 'limit': 100},
+  //     );
+  //     final raw = response.data as Map<String, dynamic>;
+  //     final dataMap = raw['data'] as Map<String, dynamic>;
+  //     final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
+  //     final products = dataList
+  //         .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
+  //         .toList();
+  //
+  //     // Cache on success
+  //     await cacheService.cacheHomeProducts(products);
+  //     debugPrint('✓ Loaded and cached ${products.length} products from API');
+  //     return products;
+  //   } catch (e) {
+  //     debugPrint('✗ Failed to fetch products: $e');
+  //
+  //     // Handle throttling gracefully
+  //     final isDioError = e is DioException;
+  //     final isThrottled = isDioError && e.response?.statusCode == 429;
+  //
+  //     if (isThrottled) {
+  //       debugPrint('⚠ API throttled (429), attempting to load from cache...');
+  //     }
+  //
+  //     // Try cache as fallback
+  //     final cachedProducts = await cacheService.getHomeProductsCache();
+  //     if (cachedProducts != null && cachedProducts.isNotEmpty) {
+  //       debugPrint(
+  //         '✓ Loaded ${cachedProducts.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
+  //       );
+  //       return cachedProducts;
+  //     }
+  //
+  //     debugPrint('✗ No cached products available, rethrowing error');
+  //     rethrow;
+  //   }
+  // }
 
   void _retry() {
     setState(() {
-      _productsFuture = _fetchAllProducts();
+      _productsFuture = getIt<ProductRepository>().getAllProducts();
+      // _productsFuture = _fetchAllProducts();
     });
   }
 
@@ -388,14 +385,19 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
 
                 Expanded(
                   child: isLoading
-                      ? Center(child: CircularProgressIndicator(color: c.brand))
+                      ? Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                      child: ProductsGridShimmer(metrics: m),
+                    ),
+                  )
                       : snapshot.hasError
                       ? _MessageView(
                     metrics: m,
                     icon: Icons.wifi_off_rounded,
                     title: 'Failed to load products',
                     subtitle:
-                    'Apna internet check karein aur dobara try karein.',
+                    'Check your internet connection and try again later.',
                     actionLabel: 'RETRY',
                     onAction: _retry,
                   )
@@ -404,7 +406,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
                     metrics: m,
                     icon: Icons.inventory_2_outlined,
                     title: 'No products available',
-                    subtitle: 'Naye products jaldi hi aayenge.',
+                    subtitle: 'New Products coming soon.',
                     actionLabel: 'REFRESH',
                     onAction: _retry,
                   )

@@ -89,13 +89,8 @@ class ProductListingCubit extends Cubit<ProductListingState> {
 
       // Try to resolve category tree, but catch rate limit errors
       try {
-        // Products are only ever attached to leaf/child categories, never to
-        // the top-level category shown on the Categories screen, so a plain
-        // categoryUuid filter on the tapped (top-level) category always comes
-        // back empty. Resolve the whole subtree and query every descendant too.
         categoryUuids = await _resolveCategoryUuids(client, categoryUuid);
       } catch (e) {
-        // Even category resolution can be rate limited
         final failure =
             e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
         if (failure is RateLimitFailure) {

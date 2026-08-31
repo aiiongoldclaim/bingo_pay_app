@@ -544,17 +544,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final m = HomeMetrics.of(context);
-    final c = context.c;
+    final colors = context.c;
 
     return BlocProvider(
       create: (_) => getIt<ServicesCubit>()..loadServices(),
   child: Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
 
@@ -567,8 +565,8 @@ class _HomeScreenState extends State<HomeScreen> {
             _startIntroIfReady(state);
 
             return RefreshIndicator(
-              color: c.brand,
-              backgroundColor: c.surface,
+              color: colors.brand,
+              backgroundColor: colors.surface,
               onRefresh: () async {
                 context.read<HomeCubit>().loadHome();
               },
@@ -675,29 +673,50 @@ class _HomeScreenState extends State<HomeScreen> {
                             horizontal: m.pagePadding,
                           ),
                           child: _buildStep4(
-                            // CHANGED: step5 → step4
                             BlocProvider(
                               create: (_) =>
                                   getIt<ServicesCubit>()..loadServices(),
                               child: BlocBuilder<ServicesCubit, ServicesState>(
-                                builder: (context, s) {
-                                  if (s.services.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
+                                buildWhen: (previous, current) =>
+                                previous.services != current.services,
+                                builder: (context, state) {
                                   return BookServicesSection(
                                     metrics: m,
-                                    title: 'Book Services',
+                                    title: 'Book Service',
                                     subtitle: 'Beauty, Home, Repairs & more',
                                     buttonText: 'Book Now',
-                                    services: s.services,
-                                    onBookNow: () =>
-                                        context.push(AppRoutes.services),
-                                    onServiceTap: (svc) => context.push(AppRoutes.serviceDetailPath(svc.uuid)),
-                                    onViewAll: () =>
-                                        context.push(AppRoutes.services),
+                                    services: state.services,
+
+                                    onViewAll: () => context.push(AppRoutes.services),
+
+                                    onServiceTap: (service) {
+                                      if (service.uuid.isEmpty) return;
+                                      context.push(AppRoutes.serviceDetailPath(service.uuid));
+                                    },
+
+                                    // subtitleBuilder: (service) => service.description,
                                   );
                                 },
                               ),
+                              // child: BlocBuilder<ServicesCubit, ServicesState>(
+                              //   builder: (context, s) {
+                              //     if (s.services.isEmpty) {
+                              //       return const SizedBox.shrink();
+                              //     }
+                              //     return BookServicesSection(
+                              //       metrics: m,
+                              //       title: 'Book Services',
+                              //       subtitle: 'Beauty, Home, Repairs & more',
+                              //       buttonText: 'Book Now',
+                              //       services: s.services,
+                              //       onBookNow: () =>
+                              //           context.push(AppRoutes.services),
+                              //       onServiceTap: (svc) => context.push(AppRoutes.serviceDetailPath(svc.uuid)),
+                              //       onViewAll: () =>
+                              //           context.push(AppRoutes.services),
+                              //     );
+                              //   },
+                              // ),
                             ),
                           ),
                         ),
@@ -759,9 +778,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
-                          // SliverToBoxAdapter(
-                          //   child: SizedBox(height: m.sectionGap),
-                          // ),
                         ],
                       ],
 

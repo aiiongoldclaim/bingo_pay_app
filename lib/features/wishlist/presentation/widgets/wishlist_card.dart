@@ -329,6 +329,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
 import '../../data/models/wishlist_model.dart';
 
 
@@ -436,7 +437,7 @@ class WishlistCard extends StatelessWidget {
                             child: Icon(
                               Icons.favorite,
                               size: m.heartIcon,
-                              color: c.brand,
+                              color: ThemeColors.red,
                             ),
                           ),
                         ),

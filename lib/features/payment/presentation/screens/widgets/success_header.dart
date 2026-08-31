@@ -363,7 +363,7 @@ class SuccessHeader extends StatelessWidget {
                 child: Icon(
                   Icons.check_rounded,
                   size: m.checkSize,
-                  color: c.success,
+                  color: c.statusSuccess,
                 ),
               ),
             ],
@@ -448,9 +448,9 @@ class _Confetti extends StatelessWidget {
 
     final palette = <Color>[
       c.brand,
-      c.success,
+      c.statusSuccess,
       c.brand.withValues(alpha: 0.55),
-      c.warning,
+      c.statusWarning,
     ];
 
     return SizedBox(

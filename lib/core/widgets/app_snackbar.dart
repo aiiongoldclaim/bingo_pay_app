@@ -8,7 +8,11 @@ class AppSnackbar {
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
@@ -21,7 +25,11 @@ class AppSnackbar {
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           margin: EdgeInsets.only(
       bottom: 4.h, // 👈 adjust based on FAB height
       left: 16,
@@ -39,7 +47,11 @@ class AppSnackbar {
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           backgroundColor: AppColors.warning,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
@@ -58,13 +70,14 @@ class AppSnackbar {
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(
+            message,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           backgroundColor: backgroundColor ?? AppColors.success,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(milliseconds: 2500),
-          // SnackBar defaults `persist` to true whenever an action is set,
-          // which disables the auto-dismiss timer entirely. Force it off so
-          // this still hides on its own if the action is never tapped.
           persist: false,
           action: SnackBarAction(
             label: actionLabel,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class ProductModel {
   final String? uuid;
   final String? variantUuid;
+  final int stock;
   final String brand;
   final String name;
   final String price;
@@ -23,6 +24,7 @@ class ProductModel {
     required this.icon,
     required this.images,
     this.variantUuid,
+    this.stock = 0,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class ProductModel {
 
     final brand = json['brand'] as Map<String, dynamic>?;
     final variants = (json['variants'] as List<dynamic>?) ?? [];
+    int stock = 0;
 
     double price = 0.0;
     double oldPrice = 0.0;
@@ -67,6 +70,7 @@ class ProductModel {
       rating: averageRating.toStringAsFixed(1),
       discount: discount,
       variantUuid: variantUuid,
+      stock: stock,
       icon: Icons.shopping_bag_outlined,
       images: images,
     );
@@ -85,6 +89,7 @@ class ProductModel {
     'images': images,
     'media': images.map((url) => {'url': url}).toList(),
     'variantUuid': variantUuid,
+    'stock': stock,
   };
 
   static String _fmt(double v) {
@@ -99,39 +104,39 @@ class ProductModel {
     return buf.toString();
   }
 
-  static List<ProductModel> flashDeals() => [
-    ProductModel(
-      brand: 'NOVA',
-      name: 'Helios 5G Smartphone 256GB',
-      price: '\$64,999',
-      oldPrice: '\$72,999',
-      rating: '4.6',
-      discount: 11,
-      icon: Icons.smartphone_outlined,
-      images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9'],
-    ),
-    ProductModel(
-      brand: 'SONARA',
-      name: 'Aurora Pro Wireless Headphones',
-      price: '\$18,990',
-      oldPrice: '\$24,990',
-      rating: '4.8',
-      discount: 24,
-      icon: Icons.headphones_outlined,
-      images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e'],
-    ),
-  ];
-
-  static List<ProductModel> recommended() => [
-    ProductModel(
-      brand: 'TYDE',
-      name: 'Eclipse Smartwatch',
-      price: '\$32,400',
-      oldPrice: '\$38,000',
-      rating: '4.7',
-      discount: 15,
-      icon: Icons.watch,
-      images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30'],
-    ),
-  ];
+  // static List<ProductModel> flashDeals() => [
+  //   ProductModel(
+  //     brand: 'NOVA',
+  //     name: 'Helios 5G Smartphone 256GB',
+  //     price: '\$64,999',
+  //     oldPrice: '\$72,999',
+  //     rating: '4.6',
+  //     discount: 11,
+  //     icon: Icons.smartphone_outlined,
+  //     images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9'],
+  //   ),
+  //   ProductModel(
+  //     brand: 'SONARA',
+  //     name: 'Aurora Pro Wireless Headphones',
+  //     price: '\$18,990',
+  //     oldPrice: '\$24,990',
+  //     rating: '4.8',
+  //     discount: 24,
+  //     icon: Icons.headphones_outlined,
+  //     images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e'],
+  //   ),
+  // ];
+  //
+  // static List<ProductModel> recommended() => [
+  //   ProductModel(
+  //     brand: 'TYDE',
+  //     name: 'Eclipse Smartwatch',
+  //     price: '\$32,400',
+  //     oldPrice: '\$38,000',
+  //     rating: '4.7',
+  //     discount: 15,
+  //     icon: Icons.watch,
+  //     images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30'],
+  //   ),
+  // ];
 }

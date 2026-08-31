@@ -287,6 +287,7 @@ import '../widgets/product_bottom_bar.dart';
 import '../widgets/product_detail_widgets.dart';
 import '../widgets/product_details_shimmer.dart';
 import '../widgets/product_metrics.dart';
+import '../widgets/product_rating_section.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key});
@@ -318,34 +319,73 @@ class ProductDetailScreen extends StatelessWidget {
                 (item) => item.variant.uuid == product.variantUuid,
           );
 
-          Future<void> toggleFavourite() async {
-            if (product.uuid == null) return;
-            final cubit = context.read<WishlistCubit>();
-            final wasWishlisted = cubit.isWishlisted(product.uuid);
-            await cubit.toggle(
-              WishlistItem(
-                id: product.uuid!,
-                variantUuid: product.variantUuid,
-                brand: product.brand,
-                name: product.productName,
-                price: product.price,
-                originalPrice: product.oldPrice.isNotEmpty
-                    ? product.oldPrice
-                    : null,
-                discountPercent: product.discount > 0 ? product.discount : null,
-                imageUrl: product.images.isNotEmpty
-                    ? product.images.first
-                    : null,
-                rating: product.rating,
-                reviewCount: int.tryParse(product.reviewCount) ?? 0,
+          Future<void> _buyNow(BuildContext context, ProductDetailLoaded data) async {
+            final product = data.product;
+            final variantUuid = product.variantUuid;
+
+            if (variantUuid == null) {
+              AppSnackbar.showError(context, 'This product is currently unavailable');
+              return;
+            }
+
+            final rawPrice = product.price.replaceAll(RegExp(r'[$,]'), '').trim();
+            final priceValue = double.tryParse(rawPrice) ?? 0.0;
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PaymentScreen(
+                  vendorEmail: product.vendorEmail,
+                  productName: product.productName,
+                  productPrice: priceValue,
+                  variantUuid: variantUuid,
+                  quantity: data.quantity,
+                  isCart: false,
+                ),
               ),
             );
-            if (!wasWishlisted && context.mounted) {
-              AppSnackbar.showSuccess(
-                context,
-                'Product added to Wishlist successfully.',
-              );
+          }
+
+          Future<void> _addToCart(
+              BuildContext context,
+              ProductDetailLoaded data,
+              bool isInCart,
+              ) async {
+            if (isInCart) {
+              context.push(AppRoutes.cart);
+              return;
             }
+
+            final product = data.product;
+            final variantUuid = product.variantUuid;
+
+            if (variantUuid == null) {
+              AppSnackbar.showError(context, 'This product is currently unavailable');
+              return;
+            }
+
+            final cartCubit = context.read<CartCubit>();
+            final colors = context.colors;
+
+            await cartCubit.addItem(
+              variantUuid: variantUuid,
+              quantity: data.quantity,
+            );
+            if (!context.mounted) return;
+
+            final error = cartCubit.state.error;
+            if (error != null) {
+              AppSnackbar.showError(context, error);
+              return;
+            }
+
+            AppSnackbar.showSuccessWithAction(
+              context,
+              '${product.productName} added to cart',
+              actionLabel: 'GO TO CART',
+              onAction: () => context.push(AppRoutes.cart),
+              backgroundColor: colors.brand,
+            );
           }
 
           final gallery = ProductGallery(
@@ -384,7 +424,7 @@ class ProductDetailScreen extends StatelessWidget {
                 onSizeGuide: () {},
               ),
 
-              SizedBox(height: m.gapLg),
+              // SizedBox(height: m.gapLg),
 
               ProductSectionCard(
                 metrics: m,
@@ -433,7 +473,6 @@ class ProductDetailScreen extends StatelessWidget {
 
               SizedBox(height: m.gapMd),
 
-              // Sabse neeche — reusable strip
               AppBenefitsStrip(
                 items: AppBenefitsStrip.fromLabels(
                   deliveryLabel: product.deliveryInfo.deliveryLabel,
@@ -516,143 +555,18 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                /// BOTTOM BAR — logic untouched
-                // BlocBuilder<CartCubit, CartState>(
-                //   builder: (context, cartState) => AppBottomActionBar(
-                //     price: product.price,
-                //     secondaryLoading: cartState.isAddingItem,
-                //     primaryLabel: isOutOfStock ? 'Out of Stock' : 'Buy Now',
-                //     onPrimaryPressed: isOutOfStock
-                //         ? null
-                //         : () {
-                //       final variantUuid = product.variantUuid;
-                //       if (variantUuid == null) {
-                //         AppSnackbar.showError(
-                //           context,
-                //           'This product is currently unavailable',
-                //         );
-                //         return;
-                //       }
-                //       final rawPrice = product.price
-                //           .replaceAll(RegExp(r'[$,]'), '')
-                //           .trim();
-                //       final priceValue =
-                //           double.tryParse(rawPrice) ?? 0.0;
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //           builder: (_) => PaymentScreen(
-                //             vendorEmail: product.vendorEmail,
-                //             productName: product.productName,
-                //             productPrice: priceValue,
-                //             variantUuid: variantUuid,
-                //             quantity: data.quantity,
-                //             isCart: false,
-                //           ),
-                //         ),
-                //       );
-                //     },
-                //     secondaryTextColor: c.brand,
-                //     secondaryIconColor: c.brand,
-                //     secondaryLabel: isInCart ? 'Go to Cart' : 'Add Cart',
-                //     secondaryIcon: Icons.shopping_bag_outlined,
-                //     onSecondaryPressed: isOutOfStock
-                //         ? null
-                //         : () async {
-                //       if (isInCart) {
-                //         context.push(AppRoutes.cart);
-                //         return;
-                //       }
-                //
-                //       final variantUuid = product.variantUuid;
-                //       if (variantUuid == null) {
-                //         AppSnackbar.showError(
-                //           context,
-                //           'This product is currently unavailable',
-                //         );
-                //         return;
-                //       }
-                //
-                //       final cartCubit = context.read<CartCubit>();
-                //       await cartCubit.addItem(
-                //         variantUuid: variantUuid,
-                //         quantity: data.quantity,
-                //       );
-                //       if (!context.mounted) return;
-                //
-                //       final error = cartCubit.state.error;
-                //       if (error != null) {
-                //         AppSnackbar.showError(context, error);
-                //         return;
-                //       }
-                //
-                //       AppSnackbar.showSuccessWithAction(
-                //         context,
-                //         '${product.productName} added to cart',
-                //         actionLabel: 'GO TO CART',
-                //         onAction: () => context.push(AppRoutes.cart),
-                //         backgroundColor: c.brand,
-                //       );
-                //     },
-                //   ),
-                // ),
-                /// BOTTOM BAR — share + wishlist + add to bag
+                /// BOTTOM BAR — add to cart + buy now
+                /// BOTTOM BAR — add to cart + buy now
                 BlocBuilder<CartCubit, CartState>(
-                  builder: (context, cartState) => ProductBottomBar(
-                    metrics: m,
-                    isWishlisted: wishlist.isWishlisted(product.uuid),
-                    isOutOfStock: isOutOfStock,
-                    isInCart: isInCart,
-                    isAddingItem: cartState.isAddingItem,
-                    onShare: () async {
-                      if (product.uuid != null) {
-                        await ProductShareService.shareProduct(
-                          productId: product.uuid!,
-                          productName: product.productName,
-                          productPrice: product.price,
-                        );
-                      }
-                    },
-                    onWishlist: toggleFavourite,
-                    onAddToBag: isOutOfStock
-                        ? null
-                        : () async {
-                      if (isInCart) {
-                        context.push(AppRoutes.cart);
-                        return;
-                      }
+                  builder: (context, cartState) => AppBottomActionBar(
+                    primaryLabel: isOutOfStock ? 'Out of Stock' : 'Buy Now',
+                    onPrimaryPressed: isOutOfStock ? null : () => _buyNow(context, data),
 
-                      final variantUuid = product.variantUuid;
-                      if (variantUuid == null) {
-                        AppSnackbar.showError(
-                          context,
-                          'This product is currently unavailable',
-                        );
-                        return;
-                      }
-
-                      final cartCubit = context.read<CartCubit>();
-                      await cartCubit.addItem(
-                        variantUuid: variantUuid,
-                        quantity: data.quantity,
-                      );
-                      if (!context.mounted) return;
-
-                      final error = cartCubit.state.error;
-                      if (error != null) {
-                        AppSnackbar.showError(context, error);
-                        return;
-                      }
-
-                      AppSnackbar.showSuccessWithAction(
-                        context,
-                        '${product.productName} added to cart',
-                        actionLabel: 'GO TO CART',
-                        onAction: () => context.push(AppRoutes.cart),
-                        backgroundColor: c.brand,
-                      );
-                    },
+                    secondaryLabel: isInCart ? 'Go to Cart' : 'Add to Cart',
+                    secondaryIcon: Icons.shopping_bag_outlined,
+                    secondaryLoading: cartState.isAddingItem,
+                    onSecondaryPressed:
+                    isOutOfStock ? null : () => _addToCart(context, data, isInCart),
                   ),
                 ),
               ],
