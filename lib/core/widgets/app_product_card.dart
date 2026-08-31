@@ -20,6 +20,7 @@ class AppProductCard extends StatelessWidget {
   final VoidCallback? onTap;
   final ValueChanged<bool>? onFavouriteChanged;
   final VoidCallback? onAddToCart;
+  final bool isOutOfStock;
 
   const AppProductCard({
     super.key,
@@ -37,6 +38,7 @@ class AppProductCard extends StatelessWidget {
     this.onTap,
     this.onFavouriteChanged,
     this.onAddToCart,
+    this.isOutOfStock = false,
   });
 
   @override
@@ -285,16 +287,78 @@ class AppProductCard extends StatelessWidget {
 
                       SizedBox(height: gapSm * 0.6),
 
-                      if (onAddToCart != null)
+                      // if (onAddToCart != null)
+                      //   SizedBox(
+                      //     height: btnHeight,
+                      //     width: double.infinity,
+                      //     child: Material(
+                      //       color: isInCart ? c.brand : c.brandSoft,
+                      //       borderRadius: BorderRadius.circular(10),
+                      //       clipBehavior: Clip.antiAlias,
+                      //       child: InkWell(
+                      //         onTap: isAddingToCart ? null : onAddToCart,
+                      //         child: Center(
+                      //           child: isAddingToCart
+                      //               ? SizedBox(
+                      //             width: btnIcon,
+                      //             height: btnIcon,
+                      //             child: CircularProgressIndicator(
+                      //               strokeWidth: 2,
+                      //               valueColor: AlwaysStoppedAnimation(
+                      //                 isInCart ? c.surface : c.brand,
+                      //               ),
+                      //             ),
+                      //           )
+                      //               : Row(
+                      //             mainAxisAlignment:
+                      //             MainAxisAlignment.center,
+                      //             children: [
+                      //               Icon(
+                      //                 Icons.shopping_bag_outlined,
+                      //                 size: btnIcon,
+                      //                 color: isInCart
+                      //                     ? c.surface
+                      //                     : c.brand,
+                      //               ),
+                      //               SizedBox(width: gapXs * 1.2),
+                      //               Flexible(
+                      //                 child: Text(
+                      //                   isInCart
+                      //                       ? 'Go to Cart'
+                      //                       : 'Add to Cart',
+                      //                   maxLines: 1,
+                      //                   overflow: TextOverflow.ellipsis,
+                      //                   style: AppTextStyles.labelMedium
+                      //                       .copyWith(
+                      //                     color: isInCart
+                      //                         ? c.surface
+                      //                         : c.brand,
+                      //                     fontFamily: 'Inter',
+                      //                     fontWeight: FontWeight.w600,
+                      //                     fontSize: btnFont,
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ],
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      if (onAddToCart != null || isOutOfStock)
                         SizedBox(
                           height: btnHeight,
                           width: double.infinity,
                           child: Material(
-                            color: isInCart ? c.brand : c.brandSoft,
+                            color: isOutOfStock
+                                ? c.surfaceAlt
+                                : isInCart
+                                ? c.brand
+                                : c.brandSoft,
                             borderRadius: BorderRadius.circular(10),
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
-                              onTap: isAddingToCart ? null : onAddToCart,
+                              onTap: (isOutOfStock || isAddingToCart) ? null : onAddToCart,
                               child: Center(
                                 child: isAddingToCart
                                     ? SizedBox(
@@ -308,27 +372,33 @@ class AppProductCard extends StatelessWidget {
                                   ),
                                 )
                                     : Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      Icons.shopping_bag_outlined,
+                                      isOutOfStock
+                                          ? Icons.remove_shopping_cart_outlined
+                                          : Icons.shopping_bag_outlined,
                                       size: btnIcon,
-                                      color: isInCart
+                                      color: isOutOfStock
+                                          ? c.textMuted
+                                          : isInCart
                                           ? c.surface
                                           : c.brand,
                                     ),
                                     SizedBox(width: gapXs * 1.2),
                                     Flexible(
                                       child: Text(
-                                        isInCart
+                                        isOutOfStock
+                                            ? 'Out of Stock'
+                                            : isInCart
                                             ? 'Go to Cart'
                                             : 'Add to Cart',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: AppTextStyles.labelMedium
-                                            .copyWith(
-                                          color: isInCart
+                                        style: AppTextStyles.labelMedium.copyWith(
+                                          color: isOutOfStock
+                                              ? c.textMuted
+                                              : isInCart
                                               ? c.surface
                                               : c.brand,
                                           fontFamily: 'Inter',

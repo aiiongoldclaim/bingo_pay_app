@@ -34,7 +34,7 @@ class SearchInputBarState extends State<SearchInputBar> {
   @override
   void initState() {
     super.initState();
-    // Ajio-style: screen khulte hi keyboard up
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _focusNode.requestFocus();
     });
@@ -47,7 +47,7 @@ class SearchInputBarState extends State<SearchInputBar> {
     super.dispose();
   }
 
-  /// Suggestion / recent tap pe field bharne ke liye
+
   void setQuery(String value) {
     _controller.value = TextEditingValue(
       text: value,
@@ -88,7 +88,7 @@ class SearchInputBarState extends State<SearchInputBar> {
               padding: EdgeInsets.symmetric(horizontal: m.pagePadding * 0.75),
               decoration: BoxDecoration(
                 color: c.surface,
-                borderRadius: BorderRadius.circular(m.inputRadius),
+                borderRadius: BorderRadius.circular(m.pagePadding * 0.6),
                 border: Border.all(color: c.border),
               ),
               child: Row(
@@ -99,6 +99,7 @@ class SearchInputBarState extends State<SearchInputBar> {
                     color: c.textMuted,
                   ),
                   SizedBox(width: m.pagePadding * 0.5),
+
                   Expanded(
                     child: TextField(
                       controller: _controller,
@@ -110,6 +111,7 @@ class SearchInputBarState extends State<SearchInputBar> {
                       style: TextStyle(
                         fontSize: m.inputFontSize,
                         color: c.textPrimary,
+
                       ),
                       decoration: InputDecoration(
                         isDense: true,
@@ -123,25 +125,6 @@ class SearchInputBarState extends State<SearchInputBar> {
                           fontSize: m.inputFontSize,
                           color: c.textMuted,
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: m.pagePadding * 0.4),
-                  InkResponse(
-                    onTap: widget.onVoiceTap,
-                    radius: m.inputIconSize,
-                    child: Container(
-                      width: m.inputIconSize * 1.55,
-                      height: m.inputIconSize * 1.55,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: c.brand, width: 1.2),
-                      ),
-                      child: Icon(
-                        Icons.mic_rounded,
-                        size: m.inputIconSize * 0.85,
-                        color: c.brand,
                       ),
                     ),
                   ),

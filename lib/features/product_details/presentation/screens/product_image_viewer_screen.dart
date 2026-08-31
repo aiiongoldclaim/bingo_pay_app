@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Full-screen image viewer opened by tapping a product image — supports
-/// pinch-to-zoom, double-tap to zoom, and swiping between the product's
-/// other images.
+
 class ProductImageViewerScreen extends StatefulWidget {
   final List<String> images;
   final int initialIndex;

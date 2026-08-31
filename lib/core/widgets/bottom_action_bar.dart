@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../theme/theme_colors.dart';
+import '../theme/app_theme_colors.dart';
 import 'app_button.dart';
 
 class AppBottomActionBar extends StatelessWidget {
@@ -10,13 +10,15 @@ class AppBottomActionBar extends StatelessWidget {
     this.price,
     required this.primaryLabel,
     required this.onPrimaryPressed,
-    required this.secondaryLabel,
-    required this.onSecondaryPressed,
+    this.secondaryLabel,
+    this.onSecondaryPressed,
     this.secondaryTextColor,
     this.secondaryIconColor,
     this.secondaryIcon,
     this.secondaryVariant = AppButtonVariant.outlined,
     this.secondaryLoading = false,
+    this.buttonHeight,
+    this.buttonFontSize,
   });
 
   final String? price;
@@ -24,7 +26,8 @@ class AppBottomActionBar extends StatelessWidget {
   final String primaryLabel;
   final VoidCallback? onPrimaryPressed;
 
-  final String secondaryLabel;
+  /// Null ho to sirf primary button dikhega (full width)
+  final String? secondaryLabel;
   final VoidCallback? onSecondaryPressed;
   final IconData? secondaryIcon;
   final AppButtonVariant secondaryVariant;
@@ -32,15 +35,27 @@ class AppBottomActionBar extends StatelessWidget {
   final Color? secondaryIconColor;
   final bool secondaryLoading;
 
+  /// Screen ke Metrics se pass kar sakti ho
+  final double? buttonHeight;
+  final double? buttonFontSize;
+
+  bool get _hasPrice => price != null && price != 'N/A';
+  bool get _hasSecondary => secondaryLabel != null;
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
       decoration: BoxDecoration(
-        color: ThemeColors.surface,
-        boxShadow: [
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.border)),
+        boxShadow: colors.isDark
+            ? null
+            : [
           BoxShadow(
-            color: ThemeColors.ink.withOpacity(.08),
+            color: colors.textPrimary.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -50,8 +65,7 @@ class AppBottomActionBar extends StatelessWidget {
         top: false,
         child: Row(
           children: [
-            /// Price (optional)
-            if (price != null && price != 'N/A') ...[
+            if (_hasPrice) ...[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -60,45 +74,48 @@ class AppBottomActionBar extends StatelessWidget {
                     'Total',
                     style: TextStyle(
                       fontSize: 15.sp,
-                      color: ThemeColors.inkDim,
+                      color: colors.textMuted,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-
                   Text(
                     price!,
                     style: TextStyle(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
-                      color: ThemeColors.ink,
+                      color: colors.textPrimary,
                     ),
                   ),
                 ],
               ),
-
               SizedBox(width: 4.w),
             ],
 
-            /// Secondary Button
-            Expanded(
-              child: AppButton(
-                label: secondaryLabel,
-                prefixIcon: secondaryIcon,
-                variant: secondaryVariant,
-                textColor: secondaryTextColor,
-                iconColor: secondaryIconColor,
-                isLoading: secondaryLoading,
-                onPressed: onSecondaryPressed,
+            /// Secondary — Add to Cart / Go to Cart
+            if (_hasSecondary) ...[
+              Expanded(
+                child: AppButton(
+                  label: secondaryLabel!,
+                  prefixIcon: secondaryIcon,
+                  variant: secondaryVariant,
+                  textColor: secondaryTextColor,
+                  iconColor: secondaryIconColor,
+                  isLoading: secondaryLoading,
+                  height: buttonHeight,
+                  fontSize: buttonFontSize,
+                  onPressed: onSecondaryPressed,
+                ),
               ),
-            ),
+              SizedBox(width: 3.w),
+            ],
 
-            SizedBox(width: 3.w),
-
-            /// Primary Button
+            /// Primary — Buy Now / Checkout
             Expanded(
               child: AppButton(
                 label: primaryLabel,
                 variant: AppButtonVariant.primary,
+                height: buttonHeight,
+                fontSize: buttonFontSize,
                 onPressed: onPrimaryPressed,
               ),
             ),

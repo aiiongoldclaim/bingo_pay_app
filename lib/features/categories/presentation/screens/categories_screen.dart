@@ -97,7 +97,7 @@ import '../cubit/categories_cubit.dart';
 import '../cubit/categories_state.dart';
 import '../widgets/brand_grid.dart';
 import '../widgets/cat_header.dart';
-import '../widgets/cat_search_field.dart';
+import '../../../../core/widgets/cat_search_field.dart';
 import '../widgets/cat_section_header.dart';
 import '../widgets/categories_grid.dart';
 import '../widgets/categories_metrics.dart';
@@ -177,11 +177,11 @@ class _CategoriesView extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                           horizontal: m.pagePadding,
                         ),
-                        child: CatSearchField(
+                        child:
+                        CatSearchField(
                           metrics: m,
                           hintText: 'Search for categories, brands & more',
                           onTap: () => context.push(AppRoutes.search),
-                          onCameraTap: () => context.push(AppRoutes.scanner),
                         ),
                       ),
                     ),

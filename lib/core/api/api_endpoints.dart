@@ -13,6 +13,7 @@ class ApiEndpoints {
   static const String kycPersonalDetails = '/kyc/personal-details';
   static const String me = '/auth/me';
   static const String products = '/products';
+  static const String allProducts = '/api/v1/products';
   static const String categories = '/api/v1/categories';
   static const String transactions = '/api/v1/transactions';
   static const String invoices = '/invoices';
@@ -22,6 +23,8 @@ class ApiEndpoints {
   static const String bingoldLoginOtp = '/api/v1/auth/bingold/login-otp';
   static const String bingoldVerifyLogin = '/api/v1/auth/bingold/verify-login';
   static const String setPassword = '/api/v1/auth/set-password';
+  static String productDetail(String uuid) => '/api/v1/products/$uuid';
+
   // static const String scanner = '/api/bingold/bingopay/balance/operation';
   static const String scanner = '/api/v1/customers/bingopay/balance/operation';
   static const String cart = '/api/v1/cart';

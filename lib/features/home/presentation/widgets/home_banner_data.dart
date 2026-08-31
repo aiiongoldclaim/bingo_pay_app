@@ -58,7 +58,6 @@ import 'package:flutter/foundation.dart';
 class HomeBannerData {
   final String imageAsset;
 
-  /// Analytics / navigation ke liye identifier — text render nahi hota
   final String id;
 
   const HomeBannerData({required this.id, required this.imageAsset});

@@ -42,9 +42,9 @@ class FlashDealSection extends StatelessWidget {
 
               Text(title, style: AppTextStyles.titleMedium),
 
-              SizedBox(width: 2.w),
-
-              CountdownTimer(duration: duration),
+              // SizedBox(width: 2.w),
+              //
+              // CountdownTimer(duration: duration),
 
               const Spacer(),
 

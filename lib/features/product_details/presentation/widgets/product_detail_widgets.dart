@@ -491,132 +491,132 @@ class ProductSizeSelector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Select Size',
-                style: AppTextStyles.titleMedium.copyWith(
-                  color: c.textPrimary,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: m.sectionTitleSize,
-                ),
-              ),
-            ),
-            InkWell(
-              onTap: onSizeGuide,
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding: EdgeInsets.all(m.gapXs),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Size Guide',
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: c.brand,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
-                        fontSize: m.linkSize,
-                      ),
-                    ),
-                    SizedBox(width: m.gapXs * 1.2),
-                    Icon(
-                      Icons.straighten_rounded,
-                      size: m.linkSize + 4,
-                      color: c.brand,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: m.gapMd),
-
-        SizedBox(
-          height: m.sizeChipHeight,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: variants.length,
-            separatorBuilder: (_, __) => SizedBox(width: m.gapSm),
-            itemBuilder: (context, i) {
-              final v = variants[i];
-              final isSelected = i == selectedIndex;
-              final isDisabled = v.availableStock <= 0;
-
-              final label = v.variantName.isNotEmpty
-                  ? v.variantName
-                  : v.title.isNotEmpty
-                  ? v.title
-                  : '${i + 1}';
-
-              final sub = v.attributes.isNotEmpty
-                  ? v.attributes.first.value
-                  : null;
-
-              return Material(
-                color: c.surface,
-                borderRadius: BorderRadius.circular(10),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: isDisabled ? null : () => onSelect(i),
-                  child: Container(
-                    constraints: BoxConstraints(
-                      minWidth: m.sizeChipMinWidth,
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: m.gapMd * 0.8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isSelected ? c.brand : c.border,
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.labelLarge.copyWith(
-                            color: isDisabled
-                                ? c.textMuted
-                                : isSelected
-                                ? c.brand
-                                : c.textPrimary,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                            fontSize: m.sizeChipFontSize,
-                            decoration: isDisabled
-                                ? TextDecoration.lineThrough
-                                : null,
-                          ),
-                        ),
-                        if (sub != null) ...[
-                          SizedBox(height: m.gapXs * 0.6),
-                          Text(
-                            '($sub)',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: c.textSecondary,
-                              fontFamily: 'Inter',
-                              fontSize: m.sizeChipSubSize,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+        // Row(
+        //   children: [
+        //     Expanded(
+        //       child: Text(
+        //         'Select Size',
+        //         style: AppTextStyles.titleMedium.copyWith(
+        //           color: c.textPrimary,
+        //           fontFamily: 'Inter',
+        //           fontWeight: FontWeight.w700,
+        //           fontSize: m.sectionTitleSize,
+        //         ),
+        //       ),
+        //     ),
+        //     InkWell(
+        //       onTap: onSizeGuide,
+        //       borderRadius: BorderRadius.circular(8),
+        //       child: Padding(
+        //         padding: EdgeInsets.all(m.gapXs),
+        //         child: Row(
+        //           mainAxisSize: MainAxisSize.min,
+        //           children: [
+        //             Text(
+        //               'Size Guide',
+        //               style: AppTextStyles.labelMedium.copyWith(
+        //                 color: c.brand,
+        //                 fontFamily: 'Inter',
+        //                 fontWeight: FontWeight.w600,
+        //                 fontSize: m.linkSize,
+        //               ),
+        //             ),
+        //             SizedBox(width: m.gapXs * 1.2),
+        //             Icon(
+        //               Icons.straighten_rounded,
+        //               size: m.linkSize + 4,
+        //               color: c.brand,
+        //             ),
+        //           ],
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        //
+        // SizedBox(height: m.gapMd),
+        //
+        // SizedBox(
+        //   height: m.sizeChipHeight,
+        //   child: ListView.separated(
+        //     scrollDirection: Axis.horizontal,
+        //     itemCount: variants.length,
+        //     separatorBuilder: (_, __) => SizedBox(width: m.gapSm),
+        //     itemBuilder: (context, i) {
+        //       final v = variants[i];
+        //       final isSelected = i == selectedIndex;
+        //       final isDisabled = v.availableStock <= 0;
+        //
+        //       final label = v.variantName.isNotEmpty
+        //           ? v.variantName
+        //           : v.title.isNotEmpty
+        //           ? v.title
+        //           : '${i + 1}';
+        //
+        //       final sub = v.attributes.isNotEmpty
+        //           ? v.attributes.first.value
+        //           : null;
+        //
+        //       return Material(
+        //         color: c.surface,
+        //         borderRadius: BorderRadius.circular(10),
+        //         clipBehavior: Clip.antiAlias,
+        //         child: InkWell(
+        //           onTap: isDisabled ? null : () => onSelect(i),
+        //           child: Container(
+        //             constraints: BoxConstraints(
+        //               minWidth: m.sizeChipMinWidth,
+        //             ),
+        //             padding: EdgeInsets.symmetric(horizontal: m.gapMd * 0.8),
+        //             decoration: BoxDecoration(
+        //               borderRadius: BorderRadius.circular(10),
+        //               border: Border.all(
+        //                 color: isSelected ? c.brand : c.border,
+        //                 width: isSelected ? 1.5 : 1,
+        //               ),
+        //             ),
+        //             child: Column(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               children: [
+        //                 Text(
+        //                   label,
+        //                   maxLines: 1,
+        //                   overflow: TextOverflow.ellipsis,
+        //                   style: AppTextStyles.labelLarge.copyWith(
+        //                     color: isDisabled
+        //                         ? c.textMuted
+        //                         : isSelected
+        //                         ? c.brand
+        //                         : c.textPrimary,
+        //                     fontFamily: 'Inter',
+        //                     fontWeight: FontWeight.w600,
+        //                     fontSize: m.sizeChipFontSize,
+        //                     decoration: isDisabled
+        //                         ? TextDecoration.lineThrough
+        //                         : null,
+        //                   ),
+        //                 ),
+        //                 if (sub != null) ...[
+        //                   SizedBox(height: m.gapXs * 0.6),
+        //                   Text(
+        //                     '($sub)',
+        //                     maxLines: 1,
+        //                     overflow: TextOverflow.ellipsis,
+        //                     style: AppTextStyles.bodySmall.copyWith(
+        //                       color: c.textSecondary,
+        //                       fontFamily: 'Inter',
+        //                       fontSize: m.sizeChipSubSize,
+        //                     ),
+        //                   ),
+        //                 ],
+        //               ],
+        //             ),
+        //           ),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // ),
       ],
     );
   }
@@ -1058,106 +1058,6 @@ class ProductHighlightsBlock extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Ratings block ──────────────────────────────────────────────────────────
-class ProductRatingsBlock extends StatelessWidget {
-  final ProductMetrics metrics;
-  final String rating;
-  final String reviewCount;
-  final VoidCallback onSeeAll;
-
-  const ProductRatingsBlock({
-    super.key,
-    required this.metrics,
-    required this.rating,
-    required this.reviewCount,
-    required this.onSeeAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-
-    return ProductSectionCard(
-      metrics: m,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Ratings & Reviews',
-                  style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                    fontSize: m.sectionTitleSize,
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: onSeeAll,
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: EdgeInsets.all(m.gapXs),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'See All',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: c.brand,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          fontSize: m.linkSize,
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        size: m.linkSize + 6,
-                        color: c.brand,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          SizedBox(height: m.gapMd),
-
-          Row(
-            children: [
-              Icon(Icons.star_rounded, size: m.priceSize, color: c.brand),
-              SizedBox(width: m.gapSm * 0.7),
-              Text(
-                rating,
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: c.textPrimary,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: m.priceSize * 0.8,
-                ),
-              ),
-              SizedBox(width: m.gapSm),
-              Text(
-                '$reviewCount Ratings',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
-                  fontFamily: 'Inter',
-                  fontSize: m.rowSubSize,
-                ),
-              ),
-            ],
           ),
         ],
       ),

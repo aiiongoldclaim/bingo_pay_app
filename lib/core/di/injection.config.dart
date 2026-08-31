@@ -132,6 +132,10 @@ import 'package:bingo_pay/features/customer/dashboard/presentation/cubit/buyer_d
     as _i709;
 import 'package:bingo_pay/features/edit_profile/presentation/cubit/edit_profile_cubit.dart'
     as _i126;
+import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart'
+    as _i666;
+import 'package:bingo_pay/features/home/domain/repositories/product_repository_impl.dart'
+    as _i297;
 import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
     as _i578;
 import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository.dart'
@@ -165,6 +169,10 @@ import 'package:bingo_pay/features/transactions/cubit/transactions_cubit.dart'
     as _i729;
 import 'package:bingo_pay/features/transactions/data/datasources/transactions_remote_datasource.dart'
     as _i97;
+import 'package:bingo_pay/features/wishlist/data/repositories/wishlist_repository.dart'
+    as _i971;
+import 'package:bingo_pay/features/wishlist/domain/repositories/wishlist_repository_impl.dart'
+    as _i215;
 import 'package:bingo_pay/features/wishlist/presentation/cubit/wishlist_cubit.dart'
     as _i115;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
@@ -223,6 +231,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i758.PaymentRepository>(
       () => _i461.PaymentRepositoryImpl(gh<_i337.PaymentRemoteDataSource>()),
     );
+    gh.lazySingleton<_i666.ProductRepository>(
+      () => _i297.ProductRepositoryImpl(
+        apiClient: gh<_i541.ApiClient>(),
+        cacheService: gh<_i734.ProductCacheService>(),
+      ),
+    );
     gh.factory<_i882.CartRemoteDataSource>(
       () => _i882.CartRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -264,6 +278,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i633.AccountRemoteDataSource>(
       () => _i633.AccountRemoteDataSourceImpl(gh<_i541.ApiClient>()),
+    );
+    gh.lazySingleton<_i971.WishlistRepository>(
+      () => _i215.ProductDetailRepositoryImpl(apiClient: gh<_i541.ApiClient>()),
     );
     gh.factory<_i97.TransactionsRemoteDataSource>(
       () => _i97.TransactionsRemoteDataSourceImpl(gh<_i541.ApiClient>()),

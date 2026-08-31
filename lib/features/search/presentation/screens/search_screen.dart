@@ -153,6 +153,7 @@ import '../../../../core/matrics/search_metrics.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
+import '../widgets/popular_products_section.dart';
 import '../widgets/recent_search_section.dart';
 import '../widgets/search_catalog.dart';
 import '../widgets/search_input_bar.dart';
@@ -252,10 +253,6 @@ class _SearchViewState extends State<_SearchView> {
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// Idle — discovery sections
-// ─────────────────────────────────────────────────────────
-
 class _IdleBody extends StatelessWidget {
   const _IdleBody({
     required this.metrics,
@@ -277,12 +274,12 @@ class _IdleBody extends StatelessWidget {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.only(bottom: m.sectionGap),
       children: [
-        TrendingSearchesSection(
-          metrics: m,
-          items: SearchCatalog.trending,
-          onItemTap: (item) => onQueryPicked(item.query),
-          onViewAll: () {},
-        ),
+        // TrendingSearchesSection(
+        //   metrics: m,
+        //   items: SearchCatalog.trending,
+        //   onItemTap: (item) => onQueryPicked(item.query),
+        //   onViewAll: () {},
+        // ),
 
         SizedBox(height: m.sectionGap),
 
@@ -306,21 +303,11 @@ class _IdleBody extends StatelessWidget {
 
         SizedBox(height: m.sectionGap),
 
-        // PopularBrandsSection(
-        //   metrics: m,
-        //   brands: SearchCatalog.brands,
-        //   totalCount: SearchCatalog.totalBrandCount,
-        //   onBrandTap: (brand) => onQueryPicked(brand.name),
-        //   onViewAll: () {},
-        // ),
+
       ],
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────
-// Suggesting — live query results
-// ─────────────────────────────────────────────────────────
 
 class _SuggestingBody extends StatelessWidget {
   const _SuggestingBody({

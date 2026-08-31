@@ -597,7 +597,7 @@ class _PaidRow extends StatelessWidget {
         Text(
           amount,
           style: AppTextStyles.titleLarge.copyWith(
-            color: c.success,
+            color: c.statusSuccess,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w800,
             fontSize: m.paidAmountSize,

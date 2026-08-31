@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-@immutable
+
 class TrendingSearchData {
   final String label;
   final String imageAsset;
@@ -26,11 +26,7 @@ class BrandData {
   });
 }
 
-/// Local catalog for search discovery sections.
-///
-/// `SearchState` me abhi trending/suggested/brands nahi hain. Jab in teeno
-/// ke liye API aa jaye, `SearchIdle` me fields add karke wahan se feed
-/// kar dena — widget layer me koi change nahi lagega.
+
 class SearchCatalog {
   const SearchCatalog._();
 

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../../core/theme/theme_colors.dart';
+import '../../../../../core/theme/app_theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../product_categories_cubit/product_categories_state.dart';
 
-/// Horizontal scrollable filter row:
-/// [Filters] [Sort] [Under \$20k] [4★ & up] …
 class ListingFilterBar extends StatelessWidget {
   final SortOption selectedSort;
   final String? selectedPriceFilter;
@@ -32,27 +30,26 @@ class ListingFilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
-      color: ThemeColors.surface,
+      color: colors.surface,
       padding: EdgeInsets.symmetric(vertical: 1.2.h),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 4.w),
         child: Row(
           children: [
-            // Filters button
             _ActionChip(label: 'Filters', icon: Icons.tune, onTap: onFilterTap),
             SizedBox(width: 2.w),
-            // Sort button
             _ActionChip(
               label: 'Sort',
               icon: Icons.swap_vert,
               onTap: () => _showSortSheet(context),
             ),
             SizedBox(width: 2.w),
-            // Price filters
             ..._priceFilters.map(
-              (label) => Padding(
+                  (label) => Padding(
                 padding: EdgeInsets.only(right: 2.w),
                 child: _FilterChip(
                   label: label,
@@ -61,9 +58,8 @@ class ListingFilterBar extends StatelessWidget {
                 ),
               ),
             ),
-            // Rating filters
             ..._ratingFilters.map(
-              (label) => Padding(
+                  (label) => Padding(
                 padding: EdgeInsets.only(right: 2.w),
                 child: _FilterChip(
                   label: label,
@@ -79,22 +75,26 @@ class ListingFilterBar extends StatelessWidget {
   }
 
   void _showSortSheet(BuildContext context) {
+    final colors = context.colors;
+
     showModalBottomSheet(
       context: context,
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) => _SortSheet(
         selected: selectedSort,
-        onSelect: (s) {
+        onSelect: (option) {
           Navigator.pop(context);
-          onSortTap(s);
+          onSortTap(option);
         },
       ),
     );
   }
 }
 
+// ── Filters / Sort button ──────────────────────────────────────────────────
 class _ActionChip extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -108,22 +108,24 @@ class _ActionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
         decoration: BoxDecoration(
-          color: ThemeColors.ink,
+          color: colors.brand,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           children: [
-            Icon(icon, color: ThemeColors.white, size: 14.sp),
+            Icon(icon, color: colors.onBrand, size: 14.sp),
             SizedBox(width: 1.5.w),
             Text(
               label,
               style: AppTextStyles.labelMedium.copyWith(
-                color: ThemeColors.white,
+                color: colors.onBrand,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -134,6 +136,7 @@ class _ActionChip extends StatelessWidget {
   }
 }
 
+// ── Price / rating chips ───────────────────────────────────────────────────
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
@@ -147,22 +150,24 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.8.h),
         decoration: BoxDecoration(
-          color: isSelected ? ThemeColors.blueSoft : ThemeColors.surface,
+          color: isSelected ? colors.brandSoft : colors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? ThemeColors.blue : ThemeColors.line,
+            color: isSelected ? colors.brand : colors.border,
             width: 1.2,
           ),
         ),
         child: Text(
           label,
           style: AppTextStyles.labelMedium.copyWith(
-            color: isSelected ? ThemeColors.blue : ThemeColors.inkMid,
+            color: isSelected ? colors.brand : colors.textSecondary,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
@@ -171,6 +176,7 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
+// ── Sort bottom sheet ──────────────────────────────────────────────────────
 class _SortSheet extends StatelessWidget {
   final SortOption selected;
   final void Function(SortOption) onSelect;
@@ -186,22 +192,39 @@ class _SortSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Padding(
       padding: EdgeInsets.all(4.w),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Sort by', style: AppTextStyles.titleLarge),
+          Text(
+            'Sort by',
+            style: AppTextStyles.titleLarge.copyWith(
+              color: colors.textPrimary,
+            ),
+          ),
           SizedBox(height: 1.h),
           ..._options.map(
-            (opt) => ListTile(
+                (option) => ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(opt.$2, style: AppTextStyles.bodyMedium),
-              trailing: selected == opt.$1
-                  ? const Icon(Icons.check, color: ThemeColors.blue)
+              title: Text(
+                option.$2,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: selected == option.$1
+                      ? colors.brand
+                      : colors.textPrimary,
+                  fontWeight: selected == option.$1
+                      ? FontWeight.w600
+                      : FontWeight.w400,
+                ),
+              ),
+              trailing: selected == option.$1
+                  ? Icon(Icons.check, color: colors.brand)
                   : null,
-              onTap: () => onSelect(opt.$1),
+              onTap: () => onSelect(option.$1),
             ),
           ),
           SizedBox(height: 1.h),
