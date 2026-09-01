@@ -142,6 +142,8 @@ import 'package:bingo_pay/features/membershipNew/data/repositories/membership_re
     as _i378;
 import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_cubit.dart'
     as _i359;
+import 'package:bingo_pay/features/on_boarding/presentation/cubit/onbording_cubit.dart'
+    as _i272;
 import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
 import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
     as _i705;
@@ -190,6 +192,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
     gh.factory<_i709.BuyerDashboardCubit>(() => _i709.BuyerDashboardCubit());
+    gh.factory<_i272.OnboardingCubit>(() => _i272.OnboardingCubit());
     gh.singleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
     await gh.singletonAsync<_i460.SharedPreferences>(
       () => appModule.prefs,

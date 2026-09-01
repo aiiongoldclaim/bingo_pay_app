@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import 'auth_metrics.dart';
 
@@ -25,8 +26,7 @@ class AuthTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final ink = isDark ? ThemeColors.white : ThemeColors.ink;
+    final colors = context.colors;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -40,7 +40,7 @@ class AuthTopBar extends StatelessWidget {
               child: Icon(
                 Icons.arrow_back_ios_rounded,
                 size: m.logoBox * 0.48,
-                color: ink,
+                color: colors.textPrimary,
               ),
             ),
           )
@@ -71,15 +71,13 @@ class AuthTopBar extends StatelessWidget {
                   fontSize: m.brandTitle,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
-                  color: ink,
+                  color: colors.textPrimary,
                 ),
                 children: [
                   TextSpan(
                     text: brandSecond,
                     style: TextStyle(
-                      color: isDark
-                          ? ThemeColors.primaryPurple
-                          : ThemeColors.deepPurple,
+                        color: colors.brand
                     ),
                   ),
                 ],
@@ -92,7 +90,7 @@ class AuthTopBar extends StatelessWidget {
                 fontSize: m.brandTagline,
                 letterSpacing: 1.2,
                 fontWeight: FontWeight.w600,
-                color: isDark ? ThemeColors.textGrey : ThemeColors.inkDim,
+                color: colors.textMuted,
               ),
             ),
           ],
@@ -105,7 +103,7 @@ class AuthTopBar extends StatelessWidget {
               actionLabel!,
               style: AppTextStyles.labelLarge.copyWith(
                 fontSize: m.linkText,
-                color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
+                color: colors.brand,
               ),
             ),
           ),

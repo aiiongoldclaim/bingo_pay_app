@@ -3,9 +3,6 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/utils/responsive_utils.dart';
 
-/// Responsive sizing for the Profile / Account screen.
-/// Phone  -> Sizer units
-/// Tablet -> fixed dp with clamp() (no Sizer oversizing)
 class AccountMetrics {
   // Page
   final double pageHPad;

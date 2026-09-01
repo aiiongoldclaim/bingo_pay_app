@@ -230,7 +230,6 @@ class OrderCard extends StatelessWidget {
                 children: [
                   _TopRow(metrics: m, order: order, status: status),
                   SizedBox(height: m.cardGap * 0.9),
-                  // List endpoint items nahi bhejta — us case me summary row
                   if (item != null)
                     _ItemRow(
                       metrics: m,
@@ -271,7 +270,7 @@ class _TopRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -289,12 +288,12 @@ class _TopRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.orderIdSize,
                     fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                   ),
                   children: [
                     TextSpan(
                       text: 'Order ID  ',
-                      style: TextStyle(color: c.textPrimary),
+                      style: TextStyle(color: colors.textPrimary),
                     ),
                     TextSpan(text: order.orderNumber),
                   ],
@@ -308,31 +307,20 @@ class _TopRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.orderDateSize,
                   height: 1.2,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ],
           ),
         ),
         SizedBox(width: m.cardGap * 0.5),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              order.displayOrderStatus,
-              style: TextStyle(
-                fontSize: m.statusSize,
-                fontWeight: FontWeight.w600,
-                color: status.foreground,
-              ),
-            ),
-            SizedBox(width: m.cardGap * 0.15),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: m.statusSize * 1.4,
-              color: status.foreground,
-            ),
-          ],
+        Text(
+          order.displayOrderStatus,
+          style: TextStyle(
+            fontSize: m.statusSize,
+            fontWeight: FontWeight.w600,
+            color: status.foreground,
+          ),
         ),
       ],
     );
@@ -356,7 +344,7 @@ class _ItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final attributes = [
@@ -386,7 +374,7 @@ class _ItemRow extends StatelessWidget {
                   fontSize: m.productNameSize,
                   fontWeight: FontWeight.w600,
                   height: 1.25,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               SizedBox(height: m.cardGap * 0.3),
@@ -397,7 +385,7 @@ class _ItemRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.productMetaSize,
                   height: 1.3,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
               if (attributes.isNotEmpty) ...[
@@ -409,7 +397,7 @@ class _ItemRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.productMetaSize,
                     height: 1.3,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ),
               ],
@@ -421,7 +409,7 @@ class _ItemRow extends StatelessWidget {
                     fontSize: m.productMetaSize,
                     fontWeight: FontWeight.w600,
                     height: 1.3,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ],

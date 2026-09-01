@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_theme_colors.dart';
 import 'onboarding_metrics.dart';
 
 class OnboardingTopBar extends StatelessWidget {
-  const OnboardingTopBar({super.key, required this.m, required this.onSkip});
+  const OnboardingTopBar({
+    super.key,
+    required this.metrics,
+    required this.onSkip,
+  });
 
-  final OnboardingMetrics m;
+  final OnboardingMetrics metrics;
   final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
-    final p = OnboardingPalette.of(context);
+    final colors = context.colors;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -21,8 +27,8 @@ class OnboardingTopBar extends StatelessWidget {
           child: Padding(
             // tablet pe bada tap area
             padding: EdgeInsets.symmetric(
-              horizontal: m.skipFont * 0.9,
-              vertical: m.skipFont * 0.55,
+              horizontal: metrics.skipFont * 0.9,
+              vertical: metrics.skipFont * 0.55,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -30,16 +36,16 @@ class OnboardingTopBar extends StatelessWidget {
                 Text(
                   'skip',
                   style: TextStyle(
-                    fontSize: m.skipFont,
+                    fontSize: metrics.skipFont,
                     fontWeight: FontWeight.w600,
-                    color: p.skip,
+                    color: colors.onboardingBody,
                   ),
                 ),
-                SizedBox(width: m.skipFont * 0.25),
+                SizedBox(width: metrics.skipFont * 0.25),
                 Icon(
                   Icons.arrow_forward_ios,
-                  size: m.skipFont * 0.75,
-                  color: p.skip,
+                  size: metrics.skipFont * 0.75,
+                  color: colors.onboardingBody,
                 ),
               ],
             ),

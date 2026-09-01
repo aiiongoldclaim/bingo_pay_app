@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -52,9 +53,6 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
   Future<void> loadOrder(OrderModel order) async {
     emit(OrderDetailLoading());
 
-    // The list endpoint only returns order summaries (no line items), so
-    // fetch the full detail-by-id record; fall back to the summary object
-    // passed via navigation if that call fails.
     var detailed = order;
     try {
       detailed = await _ordersRemote.getOrderDetail(order.uuid);
@@ -74,12 +72,14 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
         addressText =
             '${address.addressLine1}$line2, ${address.city}, ${address.state} ${address.postalCode}';
       } catch (_) {
+        // debugPrint('✗ Address fetch failed: $error');
         addressText = null;
       }
     }
 
     emit(OrderDetailLoaded(detailed, addressText: addressText));
   }
+
 
   Future<void> cancelOrder(OrderModel order) async {
     if (!canCancelOrder(order)) {

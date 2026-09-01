@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -54,7 +53,7 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
 
   Future<void> _onEvent(MembershipEvent event) async {
     if (!mounted) return;
-    final c = context.c;
+    final colors = context.c;
 
     switch (event) {
       case MembershipMessage(
@@ -68,8 +67,8 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
               content: Text(text),
               backgroundColor:
               isError
-                  ? c.statusWarning
-                  : c.statusSuccess,
+                  ? colors.statusWarning
+                  : colors.statusSuccess,
               behavior:
               SnackBarBehavior.floating,
             ),
@@ -105,16 +104,16 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return LayoutBuilder(
       builder: (context, _) {
         final m = MembershipMetrics.of(context);
 
         return Scaffold(
-          backgroundColor: c.background,
+          backgroundColor: colors.background,
           appBar: AppBar(
-            backgroundColor: c.background,
+            backgroundColor: colors.background,
             toolbarHeight: m.buttonHeight * 1.3,
             leading: IconButton(
               onPressed: () {
@@ -123,7 +122,7 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: m.smallIcon,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             title: Column(
@@ -134,7 +133,7 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
                   style: TextStyle(
                     fontSize: m.screenTitleSize * 1,
                     fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: "CormorantGaramond",
                   ),
                 ),
@@ -144,51 +143,79 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
                   style: TextStyle(
                     fontSize: m.captionSize * 1.5,
                     fontWeight: FontWeight.w400,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
           body: SafeArea(
-            top: false,
-            child: BlocBuilder<MembershipCubit, MembershipState>(
-              builder: (context, state) => switch (state) {
-                MembershipInitial() ||
-                MembershipLoading() =>
-                    MembershipLoadingView(metrics: m),
+          top: false,
+          child: BlocBuilder<MembershipCubit, MembershipState>(
+            builder: (context, state) => switch (state) {
+              MembershipInitial() ||
+              MembershipLoading() =>
+                  MembershipLoadingView(metrics: m),
 
-                MembershipError(:final message) => MembershipErrorView(
-                  metrics: m,
-                  message: message,
-                  onRetry: () => context.read<MembershipCubit>().load(),
-                ),
+              MembershipError(:final message) => MembershipErrorView(
+                metrics: m,
+                message: message,
+                onRetry: () => context.read<MembershipCubit>().load(),
+              ),
 
-                MembershipLoaded() => state.plans.isEmpty
-                    ? (state.plansError != null
-                    ? MembershipErrorView(
-                  metrics: m,
-                  message: state.plansError!,
-                  onRetry: () =>
-                      context.read<MembershipCubit>().load(),
-                )
-                    : MembershipEmptyView(metrics: m))
-                    : _Loaded(state: state, metrics: m),
-              },
-            ),
+              MembershipRefreshing(:final previous) => _loadedView(
+                context,
+                previous,
+                m,
+                isRefreshing: true,
+              ),
+
+              MembershipLoaded() => _loadedView(
+                context,
+                state,
+                m,
+                isRefreshing: false,
+              ),
+            },
           ),
+        ),
         );
       },
+    );
+  }
+  Widget _loadedView(
+      BuildContext context,
+      MembershipLoaded state,
+      MembershipMetrics m, {
+        required bool isRefreshing,
+      }) {
+    if (state.plans.isEmpty) {
+      if (state.plansError != null) {
+        return MembershipErrorView(
+          metrics: m,
+          message: state.plansError!,
+          onRetry: () => context.read<MembershipCubit>().load(),
+        );
+      }
+
+      return MembershipEmptyView(metrics: m);
+    }
+
+    return _Loaded(
+      state: state,
+      metrics: m,
+      isRefreshing: isRefreshing,
     );
   }
 }
 
 
 class _Loaded extends StatelessWidget {
-  const _Loaded({required this.state, required this.metrics});
+  const _Loaded({required this.state, required this.metrics,this.isRefreshing = false,});
 
   final MembershipLoaded state;
   final MembershipMetrics metrics;
+  final bool isRefreshing;
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +232,7 @@ class _Loaded extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // hero — sirf image
+
                     Padding(
                       padding: EdgeInsets.fromLTRB(m.hPad, m.vPad, m.hPad, 0),
                       child: MembershipPlansHero(metrics: m),
@@ -254,23 +281,23 @@ class _Loaded extends StatelessWidget {
             ),
           ),
         ),
-        _BottomBar(state: state, metrics: m),
+        _BottomBar(state: state, metrics: m, isRefreshing: isRefreshing,),
       ],
     );
   }
 }
 
-// ---------------------------------------------------------------------------
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.state, required this.metrics});
+  const _BottomBar({required this.state, required this.metrics, this.isRefreshing = false,});
 
   final MembershipLoaded state;
   final MembershipMetrics metrics;
+  final bool isRefreshing;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final plan = state.selectedPlan;
     final busy = state.isSubscribing;
@@ -278,8 +305,8 @@ class _BottomBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(m.hPad, m.rowGap * 0.7, m.hPad, m.rowGap),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: Center(
         child: ConstrainedBox(
@@ -292,9 +319,9 @@ class _BottomBar extends StatelessWidget {
                   ? null
                   : () => context.read<MembershipCubit>().subscribe(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: c.brand,
+                backgroundColor: colors.brand,
                 foregroundColor: ThemeColors.white,
-                disabledBackgroundColor: c.brand.withValues(alpha: 0.45),
+                disabledBackgroundColor: colors.brand.withValues(alpha: 0.45),
                 elevation: 0,
                 minimumSize: Size.zero,
                 shape: RoundedRectangleBorder(

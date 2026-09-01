@@ -56,6 +56,10 @@ class ProductMetrics {
   final double sizeChipFontSize;
   final double sizeChipSubSize;
 
+  // Variant cards
+  final double variantCardWidth;
+  final double variantCardHeight;
+
   // Policies
   final double policyIconBox;
   final double policyIconSize;
@@ -117,6 +121,9 @@ class ProductMetrics {
     required this.gapLg,
 
     required this.railHeight,
+
+    required this.variantCardWidth,
+    required this.variantCardHeight,
   });
 
   static ProductMetrics of(BuildContext context) {
@@ -171,6 +178,8 @@ class ProductMetrics {
     sizeChipMinWidth: 19.w,
     sizeChipFontSize: 14.sp,
     sizeChipSubSize: 11.sp,
+    variantCardWidth: 45.w,
+    variantCardHeight: 17.h,
     policyIconBox: 10.w,
     policyIconSize: 18.sp,
     policyTitleSize: 12.sp,
@@ -223,6 +232,8 @@ class ProductMetrics {
     sizeChipMinWidth: 88,
     sizeChipFontSize: 18,
     sizeChipSubSize: 14,
+    variantCardWidth: 240,
+    variantCardHeight: 150,
     policyIconBox: 48,
     policyIconSize: 24,
     policyTitleSize: 15,
@@ -275,6 +286,8 @@ class ProductMetrics {
     sizeChipMinWidth: 78,
     sizeChipFontSize: 17,
     sizeChipSubSize: 13,
+    variantCardWidth: 220,
+    variantCardHeight: 140,
     policyIconBox: 44,
     policyIconSize: 22,
     policyTitleSize: 14,

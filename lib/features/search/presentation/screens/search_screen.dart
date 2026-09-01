@@ -192,7 +192,7 @@ class _SearchViewState extends State<_SearchView> {
   Widget build(BuildContext context) {
     final cubit = context.read<SearchCubit>();
     final m = SearchMetrics.of(context);
-    final c = context.c;
+    final colors = context.c;
 
     return BlocListener<SearchCubit, SearchState>(
       listenWhen: (_, state) => state is SearchSubmitted,
@@ -202,7 +202,7 @@ class _SearchViewState extends State<_SearchView> {
         }
       },
       child: Scaffold(
-        backgroundColor: c.background,
+        backgroundColor: colors.background,
         body: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -302,7 +302,6 @@ class _IdleBody extends StatelessWidget {
         ),
 
         SizedBox(height: m.sectionGap),
-
 
       ],
     );

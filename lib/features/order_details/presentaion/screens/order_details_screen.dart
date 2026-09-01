@@ -25,6 +25,7 @@ import '../../../orders/cubit/orders_state.dart';
 import '../../../orders/data/datasources/orders_remote_datasource.dart';
 import '../../../orders/data/models/order_model.dart';
 import '../../../orders/presentation/widgets/order_status_style.dart';
+import '../widgets/order_detail_shimmer.dart';
 
 class OrderDetailScreen extends StatelessWidget {
   final OrderModel order;
@@ -43,13 +44,50 @@ class _OrderDetailView extends StatelessWidget {
   final OrderModel order;
   const _OrderDetailView({required this.order});
 
+  Future<void> _downloadInvoice(BuildContext context, OrderModel o) async {
+    try {
+      final invoice = await getIt<OrdersRemoteDataSource>().downloadInvoice(
+        o.uuid,
+      );
+      await openOrSharePdf(invoice.bytes, invoice.filename);
+    } catch (_) {
+      if (context.mounted) {
+        AppSnackbar.showError(
+          context,
+          'Failed to download invoice. Please try again.',
+        );
+      }
+    }
+  }
+
+  Future<void> _showCancelConfirmation(
+      BuildContext context,
+      OrderModel order,
+      ) async {
+    final cubit = context.read<OrderDetailCubit>();
+
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: 'Cancel Order?',
+      message:
+      'Are you sure you want to cancel this order? This action cannot be undone.',
+      confirmLabel: 'Cancel Order',
+      cancelLabel: 'Keep Order',
+      isDestructive: true,
+      icon: Icons.close_rounded,
+    );
+
+    if (!confirmed) return;
+    cubit.cancelOrder(order);
+  }
+
   @override
   Widget build(BuildContext context) {
     final m = OrderDetailMetrics.of(context);
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: Center(
@@ -78,12 +116,17 @@ class _OrderDetailView extends StatelessWidget {
                     },
                     child: BlocBuilder<OrderDetailCubit, OrderDetailState>(
                       builder: (context, state) {
+                        // if (state is OrderDetailLoading ||
+                        //     state is OrderDetailInitial ||
+                        //     state is OrderCancelling) {
+                        //   return Center(
+                        //     child: CircularProgressIndicator(color: colors.brand),
+                        //   );
+                        // }
                         if (state is OrderDetailLoading ||
                             state is OrderDetailInitial ||
                             state is OrderCancelling) {
-                          return Center(
-                            child: CircularProgressIndicator(color: c.brand),
-                          );
+                          return OrderDetailShimmer(metrics: m);
                         }
                         if (state is OrderDetailLoaded ||
                             state is OrderCancelled) {
@@ -99,8 +142,8 @@ class _OrderDetailView extends StatelessWidget {
                                 order,
                               );
                             },
-                            color: c.brand,
-                            backgroundColor: c.surface,
+                            color: colors.brand,
+                            backgroundColor: colors.surface,
                             child: _Body(
                               metrics: m,
                               order: currentOrder,
@@ -145,43 +188,6 @@ class _OrderDetailView extends StatelessWidget {
     );
   }
 
-  // ── UNCHANGED ────────────────────────────────────────────
-  Future<void> _downloadInvoice(BuildContext context, OrderModel o) async {
-    try {
-      final invoice = await getIt<OrdersRemoteDataSource>().downloadInvoice(
-        o.uuid,
-      );
-      await openOrSharePdf(invoice.bytes, invoice.filename);
-    } catch (_) {
-      if (context.mounted) {
-        AppSnackbar.showError(
-          context,
-          'Failed to download invoice. Please try again.',
-        );
-      }
-    }
-  }
-
-  Future<void> _showCancelConfirmation(
-      BuildContext context,
-      OrderModel order,
-      ) async {
-    final cubit = context.read<OrderDetailCubit>();
-
-    final confirmed = await showAppConfirmDialog(
-      context: context,
-      title: 'Cancel Order?',
-      message:
-      'Are you sure you want to cancel this order? This action cannot be undone.',
-      confirmLabel: 'Cancel Order',
-      cancelLabel: 'Keep Order',
-      isDestructive: true,
-      icon: Icons.close_rounded,
-    );
-
-    if (!confirmed) return;
-    cubit.cancelOrder(order);
-  }
 }
 
 // ─────────────────────────────────────────────────────────
@@ -217,7 +223,7 @@ class _Body extends StatelessWidget {
       ),
       SizedBox(height: m.sectionGap),
 
-      // Banner sirf terminal states pe
+
       if (isCancelled || isDelivered) ...[
         OdStatusBanner(
           metrics: m,

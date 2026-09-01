@@ -278,26 +278,113 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
+import '../../../payment/presentation/screens/payment_args.dart';
 import '../../../payment/presentation/screens/payment_screen.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../cubit/product_details_cubit.dart';
 import '../cubit/product_details_state.dart';
+import '../widgets/image_viewer_args.dart';
 import '../widgets/product_bottom_bar.dart';
+import '../widgets/product_color_section.dart';
 import '../widgets/product_detail_widgets.dart';
 import '../widgets/product_details_shimmer.dart';
+import '../widgets/product_highlights_section.dart';
 import '../widgets/product_metrics.dart';
+import '../widgets/product_policies_section.dart';
 import '../widgets/product_rating_section.dart';
+import '../widgets/product_variants_section.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key});
 
+  Future<void> _buyNow(BuildContext context, ProductDetailLoaded data) async {
+    final product = data.product;
+    final variantUuid = product.variantUuid;
+
+    if (variantUuid == null) {
+      AppSnackbar.showError(context, 'This product is currently unavailable');
+      return;
+    }
+
+    final rawPrice = product.price.replaceAll(RegExp(r'[$,]'), '').trim();
+    final priceValue = double.tryParse(rawPrice) ?? 0.0;
+
+    context.push(
+      AppRoutes.payment,
+      extra: PaymentArgs(
+        vendorEmail: product.vendorEmail,
+        productName: product.productName,
+        productPrice: priceValue,
+        variantUuid: variantUuid,
+        quantity: data.quantity,
+        isCart: false,
+      ),
+    );
+  }
+
+  Future<void> _addToCart(
+      BuildContext context,
+      ProductDetailLoaded data,
+      bool isInCart,
+      ) async {
+    if (isInCart) {
+      context.push(AppRoutes.cart);
+      return;
+    }
+
+    final product = data.product;
+    final variantUuid = product.variantUuid;
+
+    if (variantUuid == null) {
+      AppSnackbar.showError(context, 'This product is currently unavailable');
+      return;
+    }
+
+    final cartCubit = context.read<CartCubit>();
+    final colors = context.colors;
+
+    await cartCubit.addItem(
+      variantUuid: variantUuid,
+      quantity: data.quantity,
+    );
+    if (!context.mounted) return;
+
+    final error = cartCubit.state.error;
+    if (error != null) {
+      AppSnackbar.showError(context, error);
+      return;
+    }
+
+    AppSnackbar.showSuccessWithAction(
+      context,
+      '${product.productName} added to cart',
+      actionLabel: 'GO TO CART',
+      onAction: () => context.push(AppRoutes.cart),
+      backgroundColor: colors.brand,
+    );
+  }
+
+  void _openImageViewer(
+      BuildContext context,
+      List<String> images,
+      int initialIndex,
+      ) {
+    if (images.isEmpty) return;
+
+    context.push(
+      AppRoutes.productImageViewer,
+      extra: ImageViewerArgs(images: images, initialIndex: initialIndex),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: BlocBuilder<ProductDetailCubit, ProductDetailState>(
         builder: (context, state) {
           if (state is ProductDetailLoading) {
@@ -319,92 +406,14 @@ class ProductDetailScreen extends StatelessWidget {
                 (item) => item.variant.uuid == product.variantUuid,
           );
 
-          Future<void> _buyNow(BuildContext context, ProductDetailLoaded data) async {
-            final product = data.product;
-            final variantUuid = product.variantUuid;
-
-            if (variantUuid == null) {
-              AppSnackbar.showError(context, 'This product is currently unavailable');
-              return;
-            }
-
-            final rawPrice = product.price.replaceAll(RegExp(r'[$,]'), '').trim();
-            final priceValue = double.tryParse(rawPrice) ?? 0.0;
-
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PaymentScreen(
-                  vendorEmail: product.vendorEmail,
-                  productName: product.productName,
-                  productPrice: priceValue,
-                  variantUuid: variantUuid,
-                  quantity: data.quantity,
-                  isCart: false,
-                ),
-              ),
-            );
-          }
-
-          Future<void> _addToCart(
-              BuildContext context,
-              ProductDetailLoaded data,
-              bool isInCart,
-              ) async {
-            if (isInCart) {
-              context.push(AppRoutes.cart);
-              return;
-            }
-
-            final product = data.product;
-            final variantUuid = product.variantUuid;
-
-            if (variantUuid == null) {
-              AppSnackbar.showError(context, 'This product is currently unavailable');
-              return;
-            }
-
-            final cartCubit = context.read<CartCubit>();
-            final colors = context.colors;
-
-            await cartCubit.addItem(
-              variantUuid: variantUuid,
-              quantity: data.quantity,
-            );
-            if (!context.mounted) return;
-
-            final error = cartCubit.state.error;
-            if (error != null) {
-              AppSnackbar.showError(context, error);
-              return;
-            }
-
-            AppSnackbar.showSuccessWithAction(
-              context,
-              '${product.productName} added to cart',
-              actionLabel: 'GO TO CART',
-              onAction: () => context.push(AppRoutes.cart),
-              backgroundColor: colors.brand,
-            );
-          }
 
           final gallery = ProductGallery(
             metrics: m,
             images: product.images,
             fallbackIcon: product.icon,
             badge: product.discount > 0 ? 'NEW' : null,
-            onImageTap: (index) {
-              if (product.images.isEmpty) return;
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ProductImageViewerScreen(
-                    images: product.images,
-                    initialIndex: index,
-                  ),
-                ),
-              );
-            },
+            onImageTap: (index) =>
+                _openImageViewer(context, product.images, index),
           );
 
           final details = Column(
@@ -415,27 +424,37 @@ class ProductDetailScreen extends StatelessWidget {
 
               SizedBox(height: m.gapLg),
 
-              ProductSizeSelector(
+              ProductColorSection(
+                colorOptions: product.colorOptions,
+                selectedIndex: data.selectedColorIndex,
+                onSelect: (index) =>
+                    context.read<ProductDetailCubit>().selectColor(index),
+              ),
+              SizedBox(height: m.gapMd),
+
+
+              ProductVariantsSection(
                 metrics: m,
                 variants: product.variants,
+                productName: product.productName,
                 selectedIndex: data.selectedVariantIndex,
                 onSelect: (index) =>
                     context.read<ProductDetailCubit>().selectVariant(index),
-                onSizeGuide: () {},
               ),
-
               // SizedBox(height: m.gapLg),
+              //
+              //
+              // ProductSectionCard(
+              //   metrics: m,
+              //   child: ProductActionRow(
+              //     metrics: m,
+              //     icon: Icons.location_on_outlined,
+              //     title: 'Delivery & Return Details',
+              //     subtitle: 'Enter delivery pincode',
+              //     onTap: () {},
+              //   ),
+              // ),
 
-              ProductSectionCard(
-                metrics: m,
-                child: ProductActionRow(
-                  metrics: m,
-                  icon: Icons.location_on_outlined,
-                  title: 'Delivery & Return Details',
-                  subtitle: 'Enter delivery pincode',
-                  onTap: () {},
-                ),
-              ),
 
               SizedBox(height: m.gapMd),
 
@@ -555,7 +574,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                /// BOTTOM BAR — add to cart + buy now
+
                 /// BOTTOM BAR — add to cart + buy now
                 BlocBuilder<CartCubit, CartState>(
                   builder: (context, cartState) => AppBottomActionBar(

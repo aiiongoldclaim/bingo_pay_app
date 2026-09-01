@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../address/domain/entities/address_entity.dart';
 import '../../data/models/product_details_model.dart';
 
 abstract class ProductDetailState extends Equatable {
@@ -19,12 +20,14 @@ class ProductDetailLoaded extends ProductDetailState {
   final int selectedColorIndex;
   final int selectedVariantIndex;
   final int quantity;
+  final AddressEntity? deliveryAddress;
 
   const ProductDetailLoaded({
     required this.product,
     this.selectedColorIndex = 0,
     this.selectedVariantIndex = 0,
     this.quantity = 1,
+    this.deliveryAddress,
   });
 
   ProductDetailLoaded copyWith({
@@ -47,6 +50,7 @@ class ProductDetailLoaded extends ProductDetailState {
     selectedColorIndex,
     selectedVariantIndex,
     quantity,
+    deliveryAddress,
   ];
 }
 

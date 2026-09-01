@@ -655,13 +655,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
-
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/price_formatter.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_categories_model.dart';
@@ -670,31 +670,32 @@ import '../product_categories_cubit/product_categories_state.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/listing_product_card.dart';
 import '../widgets/listing_results_bar.dart';
+import '../widgets/listing_shimmer.dart';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-String _formatListingPrice(double value) {
-  final digits = value.truncate().toString();
-  final buffer = StringBuffer();
-  for (int index = 0; index < digits.length; index++) {
-    final fromEnd = digits.length - index;
-    buffer.write(digits[index]);
-    final remaining = fromEnd - 1;
-    if (remaining == 3 || (remaining > 3 && (remaining - 3) % 2 == 0)) {
-      buffer.write(',');
-    }
-  }
-  return buffer.toString();
-}
+// String _formatListingPrice(double value) {
+//   final digits = value.truncate().toString();
+//   final buffer = StringBuffer();
+//   for (int index = 0; index < digits.length; index++) {
+//     final fromEnd = digits.length - index;
+//     buffer.write(digits[index]);
+//     final remaining = fromEnd - 1;
+//     if (remaining == 3 || (remaining > 3 && (remaining - 3) % 2 == 0)) {
+//       buffer.write(',');
+//     }
+//   }
+//   return buffer.toString();
+// }
 
 WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
   id: product.uuid!,
   brand: product.brand,
   name: product.name,
   price:
-  product.price > 0 ? '\$${_formatListingPrice(product.price)}' : 'N/A',
+  product.price > 0 ? '\$${formatPrice(product.price)}' : 'N/A',
   originalPrice: product.originalPrice != null && product.originalPrice! > 0
-      ? '\$${_formatListingPrice(product.originalPrice!)}'
+      ? '\$${formatPrice(product.originalPrice!)}'
       : null,
   discountPercent: product.discountPercent,
   imageUrl: product.imageUrl,
@@ -703,7 +704,7 @@ WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
   badge: product.badge,
 );
 
-// ── Screen ─────────────────────────────────────────────────────────────────
+
 
 class ProductListingScreen extends StatelessWidget {
   final String categoryName;
@@ -771,9 +772,10 @@ class _ProductListingView extends StatelessWidget {
       ProductListingCubit cubit,
       ) {
     return switch (state) {
-      ProductListingLoading() => Center(
-        child: CircularProgressIndicator(color: context.colors.brand),
-      ),
+      // ProductListingLoading() => Center(
+      //   child: CircularProgressIndicator(color: context.colors.brand),
+      // ),
+      ProductListingLoading() => const ListingShimmer(),
       ProductListingError(
           :final message,
           :final isRateLimited,

@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 
 class OnboardingBackground extends StatelessWidget {
-  const OnboardingBackground({super.key, required this.isDark});
-
-  final bool isDark;
+  const OnboardingBackground({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: isDark
-            ? ThemeColors.onboardingDarkBg
-            : const LinearGradient(
-                colors: [ThemeColors.surface, ThemeColors.background],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-      ),
+      decoration: BoxDecoration(gradient: colors.onboardingBackground),
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:pinput/pinput.dart';
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -116,11 +116,11 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveUtils.setDeviceType(context);
+    final colors = context.colors;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? ThemeColors.ink : ThemeColors.background,
+      backgroundColor: colors.background,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
@@ -140,7 +140,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final m = AuthMetrics.of(constraints);
-            final wide = m.isTablet && m.isLandscape;
+            final isWide = m.isTablet && m.isLandscape;
 
             return Column(
               children: [
@@ -157,18 +157,16 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
                         constraints: BoxConstraints(
                           maxWidth: m.contentMaxWidth,
                         ),
-                        child: wide
+                        child: isWide
                             ? _WideLayout(
                                 m: m,
-                                isDark: isDark,
                                 onBack: () => context.pop(),
-                                form: _form(m, isDark, alignStart: true),
+                                form: _form(m, alignStart: true),
                               )
                             : _NarrowLayout(
-                                m: m,
-                                isDark: isDark,
+                                metrics: m,
                                 onBack: () => context.pop(),
-                                form: _form(m, isDark, alignStart: false),
+                                form: _form(m, alignStart: false),
                               ),
                       ),
                     ),
@@ -181,7 +179,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
                     m.pagePadH,
                     m.pagePadV,
                   ),
-                  child: AuthSecureNote(m: m, isDark: isDark),
+                  child: AuthSecureNote(metrics: m,),
                 ),
               ],
             );
@@ -191,7 +189,8 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     );
   }
 
-  Widget _form(AuthMetrics m, bool isDark, {required bool alignStart}) {
+  Widget _form(AuthMetrics m, {required bool alignStart}) {
+    final colors = context.colors;
     final cross = alignStart
         ? CrossAxisAlignment.start
         : CrossAxisAlignment.center;
@@ -209,7 +208,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
             style: AppTextStyles.headlineMedium.copyWith(
               fontSize: m.heroTitle,
               fontWeight: FontWeight.w700,
-              color: isDark ? ThemeColors.white : ThemeColors.ink,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: m.fieldGap * 0.45),
@@ -218,13 +217,12 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
             textAlign: align,
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: m.heroBody,
-              color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+              color: colors.textSecondary,
             ),
           ),
           SizedBox(height: m.fieldGap * 0.2),
           _EmailRow(
             m: m,
-            isDark: isDark,
             email: widget.email,
             alignStart: alignStart,
             onEdit: () => context.pop(),
@@ -235,7 +233,6 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
             focusNode: _otpFocusNode,
             length: _otpLength,
             m: m,
-            isDark: isDark,
             alignStart: alignStart,
             onCompleted: (_) => _submit(),
           ),
@@ -243,11 +240,9 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
           SizedBox(height: m.blockGap * 2),
 
           _ResendRow(
-            m: m,
-            isDark: isDark,
             secondsLeft: _secondsLeft,
             alignStart: alignStart,
-            onResend: _resend,
+            onResend: _resend, metrics: m,
           ),
           SizedBox(height: m.blockGap),
           BlocBuilder<AuthBloc, AuthState>(
@@ -271,32 +266,31 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
 /// Phone (portrait + landscape) aur tablet portrait —
 class _NarrowLayout extends StatelessWidget {
   const _NarrowLayout({
-    required this.m,
-    required this.isDark,
+    required this.metrics,
     required this.onBack,
     required this.form,
   });
 
-  final AuthMetrics m;
-  final bool isDark;
+  final AuthMetrics metrics;
   final VoidCallback onBack;
   final Widget form;
 
   @override
   Widget build(BuildContext context) {
-    final showHero = m.isTablet || !m.isLandscape;
+    final showHero = metrics.isTablet || !metrics.isLandscape;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _TopBar(m: m, isDark: isDark, onBack: onBack),
-        SizedBox(height: m.blockGap),
+        _TopBar(m: metrics, onBack: onBack),
+
+        SizedBox(height: metrics.blockGap),
+
         if (showHero) ...[
-          Center(
-            child: _HeroArt(m: m, isDark: isDark),
-          ),
-          SizedBox(height: m.blockGap),
+          Center(child: _HeroArt(m: metrics)),
+          SizedBox(height: metrics.blockGap),
         ],
+
         Center(child: form),
       ],
     );
@@ -306,13 +300,11 @@ class _NarrowLayout extends StatelessWidget {
 class _WideLayout extends StatelessWidget {
   const _WideLayout({
     required this.m,
-    required this.isDark,
     required this.onBack,
     required this.form,
   });
 
   final AuthMetrics m;
-  final bool isDark;
   final VoidCallback onBack;
   final Widget form;
 
@@ -321,7 +313,7 @@ class _WideLayout extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _TopBar(m: m, isDark: isDark, onBack: onBack),
+        _TopBar(m: m, onBack: onBack),
         SizedBox(height: m.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -331,7 +323,7 @@ class _WideLayout extends StatelessWidget {
             Expanded(
               flex: 4,
               child: Center(
-                child: _HeroArt(m: m, isDark: isDark),
+                child: _HeroArt(m: m,),
               ),
             ),
           ],
@@ -342,15 +334,14 @@ class _WideLayout extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.m, required this.isDark, required this.onBack});
+  const _TopBar({required this.m, required this.onBack});
 
   final AuthMetrics m;
-  final bool isDark;
   final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
-    final ink = isDark ? ThemeColors.white : ThemeColors.ink;
+    final colors = context.colors;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -360,7 +351,7 @@ class _TopBar extends StatelessWidget {
           radius: 24,
           child: Padding(
             padding: const EdgeInsets.all(4),
-            child: Icon(Icons.arrow_back_ios_rounded, size: 22, color: ink),
+            child: Icon(Icons.arrow_back_ios_rounded, size: 22, color: colors.textPrimary,),
           ),
         ),
         SizedBox(width: m.fieldGap * 0.6),
@@ -373,14 +364,12 @@ class _TopBar extends StatelessWidget {
                 children: [
                   TextSpan(
                     text: 'The',
-                    style: TextStyle(color: ink),
+                    style: TextStyle(color: colors.textPrimary),
                   ),
                   TextSpan(
                     text: 'Vault',
                     style: TextStyle(
-                      color: isDark
-                          ? ThemeColors.primaryPurple
-                          : ThemeColors.deepPurple,
+                      color: colors.brand
                     ),
                   ),
                 ],
@@ -398,7 +387,7 @@ class _TopBar extends StatelessWidget {
                 fontSize: m.brandTagline,
                 letterSpacing: 1.6,
                 fontWeight: FontWeight.w600,
-                color: isDark ? ThemeColors.textGrey : ThemeColors.inkDim,
+                color: colors.textMuted,
               ),
             ),
           ],
@@ -409,16 +398,19 @@ class _TopBar extends StatelessWidget {
 }
 
 class _HeroArt extends StatelessWidget {
-  const _HeroArt({required this.m, required this.isDark});
+  const _HeroArt({required this.m});
 
   final AuthMetrics m;
-  final bool isDark;
+
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return AspectRatio(
       aspectRatio: 1,
-      child: Image.asset(AppImages.onboard1Dark, fit: BoxFit.contain),
+      child: Image.asset(colors.isDark ? AppImages.onboard1Dark : AppImages.onboard1,fit: BoxFit.contain,),
+
     );
   }
 }
@@ -426,20 +418,20 @@ class _HeroArt extends StatelessWidget {
 class _EmailRow extends StatelessWidget {
   const _EmailRow({
     required this.m,
-    required this.isDark,
     required this.email,
     required this.alignStart,
     required this.onEdit,
   });
 
   final AuthMetrics m;
-  final bool isDark;
   final String email;
   final bool alignStart;
   final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: alignStart
@@ -453,7 +445,7 @@ class _EmailRow extends StatelessWidget {
             style: AppTextStyles.bodyMedium.copyWith(
               fontSize: m.heroBody,
               fontWeight: FontWeight.w700,
-              color: isDark ? ThemeColors.gold1 : ThemeColors.ink,
+              color: colors.brand,
             ),
           ),
         ),
@@ -468,7 +460,7 @@ class _OtpInput extends StatelessWidget {
     required this.focusNode,
     required this.length,
     required this.m,
-    required this.isDark,
+
     required this.alignStart,
     required this.onCompleted,
   });
@@ -477,20 +469,12 @@ class _OtpInput extends StatelessWidget {
   final FocusNode focusNode;
   final int length;
   final AuthMetrics m;
-  final bool isDark;
   final bool alignStart;
   final ValueChanged<String> onCompleted;
 
   @override
   Widget build(BuildContext context) {
-    final digitColor = isDark ? ThemeColors.white : ThemeColors.ink;
-    final boxFill = isDark
-        ? ThemeColors.white.withValues(alpha: 0.04)
-        : ThemeColors.white;
-    final boxBorder = isDark
-        ? ThemeColors.white.withValues(alpha: 0.14)
-        : ThemeColors.line;
-    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
+    final colors = context.colors;
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -512,7 +496,7 @@ class _OtpInput extends StatelessWidget {
               fontFamily: 'Inter',
               fontSize: w * 0.44,
               fontWeight: FontWeight.w700,
-              color: digitColor,
+              color: colors.textPrimary,
             ),
             decoration: BoxDecoration(
               color: fill,
@@ -532,11 +516,17 @@ class _OtpInput extends StatelessWidget {
             keyboardType: TextInputType.number,
             onCompleted: onCompleted,
             separatorBuilder: (_) => SizedBox(width: gap),
-            defaultPinTheme: themed(fill: boxFill, border: boxBorder),
-            focusedPinTheme: themed(fill: boxFill, border: accent, bw: 2),
+            defaultPinTheme: themed(
+              fill: colors.surface,
+              border: colors.border,
+            ),
+            focusedPinTheme: themed(
+              fill: colors.surface,
+              border: colors.brand,
+            ),
             submittedPinTheme: themed(
-              fill: accent.withValues(alpha: isDark ? 0.18 : 0.10),
-              border: accent,
+              fill: colors.brandSoft,
+              border: colors.brand,
             ),
           ),
         );
@@ -547,26 +537,24 @@ class _OtpInput extends StatelessWidget {
 
 class _ResendRow extends StatelessWidget {
   const _ResendRow({
-    required this.m,
-    required this.isDark,
+    required this.metrics,
     required this.secondsLeft,
     required this.alignStart,
     required this.onResend,
   });
 
-  final AuthMetrics m;
-  final bool isDark;
+  final AuthMetrics metrics;
   final int secondsLeft;
   final bool alignStart;
   final VoidCallback onResend;
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     final canResend = secondsLeft == 0;
-    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
-    final muted = isDark ? ThemeColors.textGrey : ThemeColors.inkDim;
-    final mm = (secondsLeft ~/ 60).toString().padLeft(2, '0');
-    final ss = (secondsLeft % 60).toString().padLeft(2, '0');
+    final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
+    final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
 
     return Align(
       alignment: alignStart ? Alignment.centerLeft : Alignment.center,
@@ -576,10 +564,11 @@ class _ResendRow extends StatelessWidget {
           Text(
             "Didn't receive the code? ",
             style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: m.linkText,
-              color: muted,
+              fontSize: metrics.linkText,
+              color: colors.textMuted,
             ),
           ),
+
           InkWell(
             onTap: canResend ? onResend : null,
             borderRadius: BorderRadius.circular(6),
@@ -588,23 +577,23 @@ class _ResendRow extends StatelessWidget {
               child: Text(
                 'Resend OTP',
                 style: AppTextStyles.labelMedium.copyWith(
-                  fontSize: m.linkText,
+                  fontSize: metrics.linkText,
                   fontWeight: FontWeight.w700,
-                  color: canResend ? accent : muted,
+                  color: canResend ? colors.brand : colors.textMuted,
                 ),
               ),
             ),
           ),
+
           if (!canResend)
             Text(
-              ' ($mm:$ss)',
+              ' ($minutes:$seconds)',
               style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: m.linkText,
-                color: muted,
+                fontSize: metrics.linkText,
+                color: colors.textMuted,
               ),
             ),
         ],
       ),
     );
-  }
-}
+  }}

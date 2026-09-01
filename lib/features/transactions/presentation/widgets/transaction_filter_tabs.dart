@@ -71,7 +71,7 @@ class TransactionFilterTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = TransactionsMetrics.of(context);
 
     return SizedBox(
@@ -85,7 +85,7 @@ class TransactionFilterTabs extends StatelessWidget {
           final isActive = filter == activeFilter;
 
           return Material(
-            color: isActive ? c.brand : c.surface,
+            color: isActive ? colors.brand : colors.surface,
             borderRadius: BorderRadius.circular(m.chipRadius),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -96,7 +96,7 @@ class TransactionFilterTabs extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(m.chipRadius),
                   border: Border.all(
-                    color: isActive ? c.brand : c.border,
+                    color: isActive ? colors.brand : colors.border,
                     width: 1,
                   ),
                 ),
@@ -104,7 +104,7 @@ class TransactionFilterTabs extends StatelessWidget {
                 child: Text(
                   filter,
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: isActive ? c.surface : c.textSecondary,
+                    color: isActive ? colors.surface : colors.textSecondary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: m.chipFontSize,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 
@@ -85,27 +86,14 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final mq = MediaQuery.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final m = _PickerMetrics.get();
-
-    // ── explicit colors, textTheme pe bharosa nahi ──
-    final sheetBg = theme.scaffoldBackgroundColor;
-    final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
-    final bodyColor = isDark ? ThemeColors.white : ThemeColors.ink;
-    final mutedColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
-    final border = isDark
-        ? ThemeColors.white.withValues(alpha: 0.12)
-        : ThemeColors.line;
-    final fieldFill = isDark
-        ? ThemeColors.white.withValues(alpha: 0.04)
-        : ThemeColors.surface;
-    final accent = theme.colorScheme.primary;
+    final colors = context.colors;
+    final metrics = _PickerMetrics.get();
 
     return Container(
-      height: mq.size.height * (m.isTablet ? 0.80 : 0.75),
+      height: mq.size.height * (metrics.isTablet ? 0.80 : 0.75),
       padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
       decoration: BoxDecoration(
-        color: sheetBg,
+        color: colors.background,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -119,7 +107,7 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: mutedColor.withValues(alpha: 0.5),
+                color: colors.border,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -128,14 +116,14 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
           const SizedBox(height: 16),
 
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: m.hPad),
+            padding: EdgeInsets.symmetric(horizontal: metrics.hPad),
             child: Text(
               'Select Country',
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: m.titleFont,
+                fontSize: metrics.titleFont,
                 fontWeight: FontWeight.w700,
-                color: titleColor,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -144,56 +132,54 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
 
           /// search
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: m.hPad),
+            padding: EdgeInsets.symmetric(horizontal: metrics.hPad),
             child: TextField(
               controller: _searchController,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: m.bodyFont,
-                color: bodyColor,
+                fontSize: metrics.bodyFont,
+                color: colors.textPrimary,
               ),
-              cursorColor: accent,
+              cursorColor: colors.brand,
               decoration: InputDecoration(
                 hintText: 'Search country, code, or dial code',
                 hintStyle: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: m.bodyFont,
-                  color: isDark ? ThemeColors.inkDim : ThemeColors.textGrey,
+                  fontSize: metrics.bodyFont,
+                  color: colors.textMuted,
                 ),
                 filled: true,
-                fillColor: fieldFill,
+                fillColor: colors.surface,
                 prefixIcon: Icon(
                   Icons.search_rounded,
-                  size: m.iconSize,
-                  color: isDark ? ThemeColors.mediumPurple : ThemeColors.textSecondary,
+                  size: metrics.iconSize,
+                  color: colors.textSecondary,
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: Icon(
                           Icons.clear_rounded,
-                          size: m.iconSize,
-                          color: isDark
-                              ? ThemeColors.gold1
-                              : ThemeColors.textSecondary,
+                          size: metrics.iconSize,
+                          color: colors.textSecondary,
                         ),
                         onPressed: () => _searchController.clear(),
                       )
                     : null,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 14,
-                  vertical: m.isTablet ? 16 : 14,
+                  vertical: metrics.isTablet ? 16 : 14,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: border),
+                  borderSide: BorderSide(color: colors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: border),
+                  borderSide: BorderSide(color: colors.border),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: accent, width: 1.6),
+                  borderSide: BorderSide(color: colors.brand, width: 1.6),
                 ),
               ),
             ),
@@ -212,15 +198,15 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: m.bodyFont,
-                          color: mutedColor,
+                          fontSize: metrics.bodyFont,
+                          color: colors.textSecondary,
                         ),
                       ),
                     ),
                   )
                 : ListView.builder(
                     padding: EdgeInsets.symmetric(
-                      horizontal: m.hPad * 0.6,
+                      horizontal: metrics.hPad * 0.6,
                       vertical: 4,
                     ),
                     itemCount: _filteredCountries.length,
@@ -234,36 +220,34 @@ class _CountryPickerBottomSheetState extends State<CountryPickerBottomSheet> {
                         child: ListTile(
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: m.isTablet ? 6 : 4,
+                            vertical: metrics.isTablet ? 6 : 4,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          tileColor: isSelected
-                              ? accent.withValues(alpha: isDark ? 0.16 : 0.08)
-                              : null,
+                          tileColor: isSelected ? colors.brandSoft : null,
                           leading: Text(
                             CountryPickerBottomSheet.getFlagEmoji(country.code),
-                            style: TextStyle(fontSize: m.flagSize),
+                            style: TextStyle(fontSize: metrics.flagSize),
                           ),
                           title: Text(
                             country.name,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: m.bodyFont,
+                              fontSize: metrics.bodyFont,
                               fontWeight: isSelected
                                   ? FontWeight.w700
                                   : FontWeight.w400,
-                              color: bodyColor,
+                              color: colors.textPrimary,
                             ),
                           ),
                           trailing: Text(
                             country.dialCode,
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: m.bodyFont - 1,
+                              fontSize: metrics.bodyFont - 1,
                               fontWeight: FontWeight.w600,
-                              color: ThemeColors.mediumPurple,
+                              color: colors.brand,
                             ),
                           ),
                           onTap: () {

@@ -56,6 +56,9 @@ class AppRoutes {
   static const membershipCheckout = '/membership-checkout';
   static const membershipActivated = '/membership-activated';
 
+  static const String payment = '/payment';
+  static const String productImageViewer = '/product-images';
+
   //  Auctions
   static const auctionScreen = '/auctions';
   static const String myBids = '/my-bids'; 

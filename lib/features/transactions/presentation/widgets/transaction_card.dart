@@ -195,12 +195,12 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = TransactionsMetrics.of(context);
-    final status = _statusColors(c);
+    final status = _statusColors(colors);
 
     return Material(
-      color: c.surface,
+      color: colors.surface,
       borderRadius: BorderRadius.circular(m.cardRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -209,12 +209,12 @@ class TransactionCard extends StatelessWidget {
           padding: EdgeInsets.all(m.cardPad),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(color: c.border, width: 1),
-            boxShadow: c.isDark
+            border: Border.all(color: colors.border, width: 1),
+            boxShadow: colors.isDark
                 ? null
                 : [
               BoxShadow(
-                color: c.textPrimary.withValues(alpha: 0.03),
+                color: colors.textPrimary.withValues(alpha: 0.03),
                 blurRadius: 12,
                 offset: const Offset(0, 2),
               ),
@@ -226,11 +226,11 @@ class TransactionCard extends StatelessWidget {
                 width: m.iconBox,
                 height: m.iconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(_gatewayIcon, size: m.iconSize, color: c.brand),
+                child: Icon(_gatewayIcon, size: m.iconSize, color: colors.brand),
               ),
 
               SizedBox(width: m.cardPad * 0.7),
@@ -245,7 +245,7 @@ class TransactionCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.labelLarge.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.gatewaySize,
@@ -260,7 +260,7 @@ class TransactionCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: m.metaSize,
                         height: 1.3,
@@ -279,7 +279,7 @@ class TransactionCard extends StatelessWidget {
                   Text(
                     transaction.formattedAmount,
                     style: AppTextStyles.titleMedium.copyWith(
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                       fontSize: m.amountSize,

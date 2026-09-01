@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import 'auth_metrics.dart';
 
@@ -26,13 +27,16 @@ class AuthTermsText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
+    final colors = context.colors;
+    // final muted = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
+
+
 
     final plainStyle = AppTextStyles.bodySmall.copyWith(
       fontSize: m.footerText,
-      color: muted,
+      color: colors.textSecondary,
     );
+
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -78,6 +82,7 @@ class AuthLegalLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -85,9 +90,9 @@ class AuthLegalLink extends StatelessWidget {
         text,
         style: AppTextStyles.labelLarge.copyWith(
           fontSize: fontSize,
-          color: ThemeColors.primaryPurple,
+          color: colors.brand,
           decoration: TextDecoration.underline,
-          decorationColor: ThemeColors.deepPurple,
+          decorationColor: 	colors.brand,
         ),
       ),
     );

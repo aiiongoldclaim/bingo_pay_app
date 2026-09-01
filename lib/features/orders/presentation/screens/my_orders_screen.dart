@@ -248,6 +248,7 @@ import '../widgets/order_filter_table.dart';
 import '../widgets/order_status_style.dart';
 import '../widgets/orders_header.dart';
 import '../widgets/orders_metrics.dart';
+import '../widgets/orders_shimmer.dart';
 
 class OrdersScreen extends StatelessWidget {
   const OrdersScreen({super.key});
@@ -267,10 +268,10 @@ class _OrdersView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = OrdersMetrics.of(context);
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: Center(
@@ -289,10 +290,13 @@ class _OrdersView extends StatelessWidget {
                 Expanded(
                   child: BlocBuilder<OrdersCubit, OrdersState>(
                     builder: (context, state) {
+                      // if (state is OrdersLoading || state is OrdersInitial) {
+                      //   return Center(
+                      //     child: CircularProgressIndicator(color: colors.brand),
+                      //   );
+                      // }
                       if (state is OrdersLoading || state is OrdersInitial) {
-                        return Center(
-                          child: CircularProgressIndicator(color: c.brand),
-                        );
+                        return OrdersShimmer(metrics: m);
                       }
                       if (state is OrdersError) {
                         return _ErrorView(metrics: m, message: state.message);
@@ -349,13 +353,13 @@ class _LoadedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = metrics;
-    final c = context.c;
+    final colors = context.c;
     final orders = _visibleOrders(); // NEW
 
     return RefreshIndicator(
       onRefresh: context.read<OrdersCubit>().loadOrders,
-      color: c.brand,
-      backgroundColor: c.surface,
+      color: colors.brand,
+      backgroundColor: colors.surface,
       child: Column(
         children: [
           OrderFilterTabs(
@@ -405,7 +409,7 @@ class _EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return LayoutBuilder(
@@ -424,13 +428,13 @@ class _EmptyView extends StatelessWidget {
                     height: m.thumbSize * 1.5,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: c.surfaceAlt,
+                      color: colors.surfaceAlt,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.receipt_long_outlined,
                       size: m.thumbSize * 0.62,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ),
                   SizedBox(height: m.sectionGap),
@@ -439,7 +443,7 @@ class _EmptyView extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.productNameSize * 1.2,
                       fontWeight: FontWeight.w700,
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   SizedBox(height: m.sectionGap * 0.4),
@@ -449,7 +453,7 @@ class _EmptyView extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.productMetaSize * 1.15,
                       height: 1.5,
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                     ),
                   ),
                 ],
@@ -470,14 +474,14 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return LayoutBuilder(
       builder: (context, constraints) => RefreshIndicator(
         onRefresh: context.read<OrdersCubit>().loadOrders,
-        color: c.brand,
-        backgroundColor: c.surface,
+        color: colors.brand,
+        backgroundColor: colors.surface,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(
@@ -491,7 +495,7 @@ class _ErrorView extends StatelessWidget {
                     Icon(
                       Icons.error_outline_rounded,
                       size: m.thumbSize * 0.7,
-                      color: c.textMuted,
+                      color: colors.textMuted,
                     ),
                     SizedBox(height: m.sectionGap),
                     Text(
@@ -500,7 +504,7 @@ class _ErrorView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.productMetaSize * 1.15,
                         height: 1.5,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                     SizedBox(height: m.sectionGap),
@@ -510,8 +514,8 @@ class _ErrorView extends StatelessWidget {
                         onPressed: () =>
                             context.read<OrdersCubit>().loadOrders(),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: c.brand,
-                          side: BorderSide(color: c.brand, width: 1.3),
+                          foregroundColor: colors.brand,
+                          side: BorderSide(color: colors.brand, width: 1.3),
                           padding: EdgeInsets.symmetric(
                             horizontal: m.pagePadding * 2,
                           ),

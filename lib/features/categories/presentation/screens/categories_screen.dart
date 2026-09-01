@@ -101,6 +101,7 @@ import '../../../../core/widgets/cat_search_field.dart';
 import '../widgets/cat_section_header.dart';
 import '../widgets/categories_grid.dart';
 import '../widgets/categories_metrics.dart';
+import '../widgets/categories_shimmer.dart';
 import '../widgets/curated_collection_list.dart';
 
 class CategoriesScreen extends StatelessWidget {
@@ -119,23 +120,20 @@ class _CategoriesView extends StatelessWidget {
   const _CategoriesView();
 
 
-  void _openCategory(BuildContext context, String name, String? uuid) {
-    context.push('/product-listing/${Uri.encodeComponent(name)}', extra: uuid);
-  }
-
   @override
   Widget build(BuildContext context) {
     final m = CategoriesMetrics.of(context);
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<CategoriesCubit, CategoriesState>(
           builder: (context, state) {
             if (state.isLoading) {
-              return Center(child: CircularProgressIndicator(color: c.brand));
+              return CategoriesShimmer(metrics: m);
+              // return Center(child: CircularProgressIndicator(color: c.brand));
             }
 
             return Center(
@@ -202,12 +200,25 @@ class _CategoriesView extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: SizedBox(height: m.pagePadding * 0.9),
                       ),
+                      // SliverToBoxAdapter(
+                      //   child: CategoriesGrid(
+                      //     metrics: m,
+                      //     categories: state.categories,
+                      //     // onCategoryTap: (cat) =>
+                      //     //     _openCategory(context, cat.name, cat.uuid),
+                      //   ),
+                      // ),
                       SliverToBoxAdapter(
                         child: CategoriesGrid(
                           metrics: m,
                           categories: state.categories,
-                          onCategoryTap: (cat) =>
-                              _openCategory(context, cat.name, cat.uuid),
+                          onCategoryTap: (category) {
+                            if (category.uuid == null || category.uuid!.isEmpty) return;
+                            context.push(
+                              AppRoutes.productListingPath(category.name),
+                              extra: category.uuid,
+                            );
+                          },
                         ),
                       ),
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
