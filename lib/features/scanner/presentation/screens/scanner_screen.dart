@@ -31,8 +31,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text('Selected: ${image.name}')));
 
-    // TODO:
-    // Process QR from image if needed
   }
 
   @override
@@ -80,10 +78,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
       body: Stack(
         children: [
-          /// Camera Preview
           MobileScanner(controller: controller, onDetect: _onDetect),
 
-          /// Top Bar
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -107,8 +103,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
             ),
           ),
 
-          /// Scan Area
-          /// Scan Area
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -118,7 +112,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   height: 35.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                    border: Border.all(color: ThemeColors.blue, width: 3),
+                    border: Border.all(color: ThemeColors.primaryPurple, width: 3),
                   ),
                 ),
 

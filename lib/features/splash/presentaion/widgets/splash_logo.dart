@@ -95,7 +95,7 @@ class _Wordmark extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: 'Valuts',
+                  text: 'Vaults',
                   style: TextStyle(color: gold),
                 ),
               ],

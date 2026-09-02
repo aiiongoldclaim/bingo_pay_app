@@ -17,7 +17,6 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(state.copyWith(currentPage: index));
   }
 
-  /// Next dabane par — last page ho to true return, taaki screen finish kar sake
   bool goNext() {
     if (state.isLastPage) return true;
     emit(state.copyWith(currentPage: state.currentPage + 1));

@@ -464,7 +464,7 @@ class _HeroImage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
         child: Image.asset(
-          isDark ? AppImages.dashbordDark: AppImages.dashboardLight,
+          isDark ? AppImages.dashboardDark: AppImages.dashboardLight,
           fit: BoxFit.contain,
           errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),

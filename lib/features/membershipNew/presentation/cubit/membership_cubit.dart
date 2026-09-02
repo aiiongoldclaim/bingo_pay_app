@@ -756,8 +756,8 @@ import 'package:bingo_pay/core/error/error_handler.dart';
 
 import '../../data/models/member_ship_model.dart';
 import '../../data/models/membership_plan_model.dart';
-import '../../data/repositories/membership_repository.dart';
 
+import '../../domain/repositories/membership_repository.dart';
 import 'membership_state.dart';
 
 @injectable

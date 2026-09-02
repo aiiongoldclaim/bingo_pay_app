@@ -97,6 +97,8 @@ class _LoadedState extends StatelessWidget {
             onSettingsTap: () => _navigateToSettings(context),
             onNotificationsTap: () => _navigateToNotifications(context),
           ),
+
+
           const SizedBox(height: AppDimensions.lg),
 
           // Recent orders section

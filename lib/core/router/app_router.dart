@@ -53,7 +53,6 @@ import '../../features/product_categories_details/presentation/screens/product_c
 import '../../features/product_details/presentation/cubit/product_details_cubit.dart';
 import '../../features/product_details/presentation/screens/product_details_screen.dart';
 import '../../features/scanner/presentation/cubit/payment_cubit.dart';
-import '../../features/scanner/presentation/screens/payment_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
@@ -462,6 +461,7 @@ class AppRouter {
               path: AppRoutes.buyerProfile,
               builder: (_, _) => const ProfileScreen(),
             ),
+
 
             // GoRoute(
             //   path: AppRoutes.buyerSettings,

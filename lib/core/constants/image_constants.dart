@@ -17,7 +17,7 @@ class AppImages {
   static const String onboard2Dark = '$base/onboarding_5.png';
   static const String onboard3Dark = '$base/dashboard2.png';
 
-  static const String dashbordDark = '$base/dashboard_dark.png';
+  static const String dashboardDark = '$base/dashboard_dark.png';
   static const String dashboardLight = '$base/dashboard_light.png';
 
   //help&suport

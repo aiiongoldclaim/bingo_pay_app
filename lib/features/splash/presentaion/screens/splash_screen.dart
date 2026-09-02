@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/theme_colors.dart';
-import '../widgets/splash_background..dart';
+import '../widgets/splash_background.dart';
 import '../widgets/splash_logo.dart';
 import '../widgets/splash_metrics.dart';
 
