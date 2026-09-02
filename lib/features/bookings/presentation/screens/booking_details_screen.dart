@@ -11,6 +11,8 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/booking_details_entity.dart';
 import '../cubit/booking_cubit.dart';
 import '../cubit/booking_state.dart';
+import '../../../services/presentation/cubit/services_cubit.dart';
+import '../../../services/presentation/cubit/services_state.dart';
 
 class BookingDetailsScreen extends StatelessWidget {
   const BookingDetailsScreen({
@@ -52,6 +54,170 @@ class _BookingDetailsViewState
     extends State<_BookingDetailsView> {
   BookingDetailsEntity? _lastLoadedBooking;
 
+  Future<void> _showRescheduleSuccessDialog(BuildContext context) async {
+    final c = context.c;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: c.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: c.brandSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: c.brand,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Booking Rescheduled',
+                style: TextStyle(
+                  color: c.textPrimary,
+                  fontFamily: 'Inter',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your appointment has been rescheduled successfully.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: c.textSecondary,
+                  fontFamily: 'Inter',
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // Close dialog
+
+                  // Refresh bookings list before navigating back
+                  context.read<BookingCubit>().fetchBookings();
+
+                  // Wait for the data to load
+                  await Future.delayed(const Duration(milliseconds: 800));
+
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Go back to my bookings
+                  }
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: c.brand,
+                ),
+                child: const Text(
+                  'Back to Bookings',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showCancelSuccessDialog(BuildContext context) async {
+    final c = context.c;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: c.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: c.brandSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_rounded,
+                  color: c.brand,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Booking Cancelled',
+                style: TextStyle(
+                  color: c.textPrimary,
+                  fontFamily: 'Inter',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your booking has been cancelled successfully.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: c.textSecondary,
+                  fontFamily: 'Inter',
+                  fontSize: 12,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () async {
+                  Navigator.of(context).pop(); // Close dialog
+
+                  // Refresh bookings list before navigating back
+                  context.read<BookingCubit>().fetchBookings();
+
+                  // Wait for the data to load
+                  await Future.delayed(const Duration(milliseconds: 800));
+
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Go back to my bookings
+                  }
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: c.brand,
+                ),
+                child: const Text(
+                  'Back to Bookings',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.c;
@@ -68,21 +234,29 @@ class _BookingDetailsViewState
             if (state is BookingCancelSuccess) {
               if (!mounted) return;
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Booking cancelled successfully.',
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-
-              context
-                  .read<BookingCubit>()
-                  .fetchBookingDetails(widget.bookingUuid);
+              _showCancelSuccessDialog(context);
             }
 
             if (state is BookingCancelError) {
+              if (!mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+
+            if (state is BookingRescheduleSuccess) {
+              if (!mounted) return;
+
+              _lastLoadedBooking = state.bookingDetails;
+
+              _showRescheduleSuccessDialog(context);
+            }
+
+            if (state is BookingRescheduleError) {
               if (!mounted) return;
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -131,13 +305,16 @@ class _BookingDetailsViewState
 
             // -----------------------------------------------------------------
             // IMPORTANT:
-            // During cancellation, keep the existing booking UI visible.
+            // During cancellation/rescheduling, keep the existing booking UI visible.
             // Do NOT replace the whole screen with loading.
             // -----------------------------------------------------------------
 
             if (state is BookingCancelLoading ||
                 state is BookingCancelError ||
-                state is BookingCancelSuccess) {
+                state is BookingCancelSuccess ||
+                state is BookingRescheduleLoading ||
+                state is BookingRescheduleError ||
+                state is BookingRescheduleSuccess) {
               final booking = _lastLoadedBooking;
 
               if (booking != null) {
@@ -1595,7 +1772,7 @@ class _StatusBadge extends StatelessWidget {
 // BOTTOM ACTIONS
 // -----------------------------------------------------------------------------
 
-class _BottomActions extends StatelessWidget {
+class _BottomActions extends StatefulWidget {
   const _BottomActions({
     required this.booking,
   });
@@ -1603,106 +1780,188 @@ class _BottomActions extends StatelessWidget {
   final BookingDetailsEntity booking;
 
   @override
+  State<_BottomActions> createState() =>
+      _BottomActionsState();
+}
+
+class _BottomActionsState extends State<_BottomActions> {
+  bool _isChangeTimeExpanded = false;
+  late AvailabilityState _availabilityState;
+
+  @override
+  void initState() {
+    super.initState();
+    _availabilityState = const AvailabilityState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = context.c;
 
-    final status = booking.status.toUpperCase();
+    final status = widget.booking.status.toUpperCase();
 
     final canCancel =
         status != 'CANCELLED' &&
         status != 'COMPLETED';
 
-    return BlocBuilder<BookingCubit, BookingState>(
+    return BlocListener<AvailabilityCubit, AvailabilityState>(
+      listener: (context, state) {
+        setState(() {
+          _availabilityState = state;
+        });
+      },
+      child: BlocBuilder<BookingCubit, BookingState>(
       buildWhen: (previous, current) {
         return current is BookingCancelLoading ||
             current is BookingCancelError ||
             current is BookingCancelSuccess ||
+            current is BookingRescheduleLoading ||
+            current is BookingRescheduleSuccess ||
+            current is BookingRescheduleError ||
             current is BookingDetailLoaded;
       },
       builder: (context, state) {
         final isCancelling =
             state is BookingCancelLoading;
+        final isRescheduling =
+            state is BookingRescheduleLoading;
 
-        return Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: OutlinedButton.icon(
-                onPressed: isCancelling
-                    ? null
-                    : () {
-                        ScaffoldMessenger.of(
+        final bookingStatus = widget.booking.status.toUpperCase();
+        final canChangeTime = bookingStatus != 'CANCELLED' &&
+                              bookingStatus != 'COMPLETED' &&
+                              bookingStatus != 'RESCHEDULED';
+
+        if (state is BookingRescheduleSuccess) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _isChangeTimeExpanded = false;
+          });
+        }
+
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: Column(
+            children: [
+              if (canChangeTime) ...[
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: OutlinedButton.icon(
+                    onPressed: (isCancelling || isRescheduling)
+                        ? null
+                        : () {
+                            setState(() {
+                              _isChangeTimeExpanded =
+                                  !_isChangeTimeExpanded;
+                            });
+
+                            if (_isChangeTimeExpanded &&
+                                _availabilityState.status == AvailabilityStatus.initial) {
+                              _loadAvailability(context);
+                            }
+                          },
+                    icon: const Icon(
+                      Icons.sync_rounded,
+                      size: 17,
+                    ),
+                    label: const Text(
+                      'Change time',
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: c.brand,
+                      disabledForegroundColor:
+                          c.textMuted,
+                      side: BorderSide(
+                        color: c.brand,
+                      ),
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30),
+                      ),
+                      textStyle: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (_isChangeTimeExpanded) ...[
+                const SizedBox(height: 14),
+                _ChangeTimeSlots(
+                  booking: widget.booking,
+                  availabilityState: _availabilityState,
+                  onSlotSelected: _onSlotSelected,
+                ),
+              ],
+              if (canCancel && !_isChangeTimeExpanded) ...[
+                const SizedBox(height: 14),
+                IgnorePointer(
+                  ignoring: isCancelling || isRescheduling,
+                  child: Opacity(
+                    opacity: isCancelling || isRescheduling
+                        ? 0.65
+                        : 1,
+                    child: _SlideToCancel(
+                      onCompleted: () {
+                        _showCancelDialog(
                           context,
-                        ).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Change time will be available soon.',
-                            ),
-                            behavior:
-                                SnackBarBehavior.floating,
-                          ),
+                          widget.booking,
                         );
                       },
-                icon: const Icon(
-                  Icons.sync_rounded,
-                  size: 17,
-                ),
-                label: const Text(
-                  'Change time',
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: c.brand,
-                  disabledForegroundColor:
-                      c.textMuted,
-                  side: BorderSide(
-                    color: c.brand,
+                    ),
                   ),
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(30),
-                  ),
-                  textStyle: const TextStyle(
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  isCancelling
+                      ? 'Cancelling your booking...'
+                      : 'Slide all the way to cancel your booking',
+                  style: TextStyle(
+                    color: c.textMuted,
                     fontFamily: 'Inter',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-            ),
-            if (canCancel) ...[
-              const SizedBox(height: 14),
-              IgnorePointer(
-                ignoring: isCancelling,
-                child: Opacity(
-                  opacity: isCancelling ? 0.65 : 1,
-                  child: _SlideToCancel(
-                    onCompleted: () {
-                      _showCancelDialog(
-                        context,
-                        booking,
-                      );
-                    },
+              ],
+              if (isRescheduling) ...[
+                const SizedBox(height: 14),
+                Text(
+                  'Rescheduling your booking...',
+                  style: TextStyle(
+                    color: c.textMuted,
+                    fontFamily: 'Inter',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(height: 7),
-              Text(
-                isCancelling
-                    ? 'Cancelling your booking...'
-                    : 'Slide all the way to cancel your booking',
-                style: TextStyle(
-                  color: c.textMuted,
-                  fontFamily: 'Inter',
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              ],
             ],
-          ],
+          ),
         );
       },
+      ),
+    );
+  }
+
+  void _loadAvailability(BuildContext context) {
+    context.read<AvailabilityCubit>().loadAvailability(
+      serviceUuid: widget.booking.service.uuid,
+      offeringUuid: widget.booking.offering.uuid,
+      participants: widget.booking.participants,
+    );
+  }
+
+  void _onSlotSelected(
+    String slotUuid,
+    BuildContext context,
+  ) {
+    context.read<BookingCubit>().rescheduleBooking(
+      widget.booking.uuid,
+      slotUuid,
     );
   }
 
@@ -1732,6 +1991,327 @@ class _BottomActions extends StatelessWidget {
 }
 
 // -----------------------------------------------------------------------------
+// CHANGE TIME SLOTS
+// -----------------------------------------------------------------------------
+
+class _ChangeTimeSlots extends StatelessWidget {
+  const _ChangeTimeSlots({
+    required this.booking,
+    required this.availabilityState,
+    required this.onSlotSelected,
+  });
+
+  final BookingDetailsEntity booking;
+  final AvailabilityState availabilityState;
+  final Function(String, BuildContext) onSlotSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final state = availabilityState;
+
+    if (state.status == AvailabilityStatus.loading) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: BorderRadius.circular(19),
+          border: Border.all(color: c.border),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 40,
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation(
+                      c.brand,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Loading available slots...',
+              style: TextStyle(
+                color: c.textSecondary,
+                fontFamily: 'Inter',
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (state.status == AvailabilityStatus.error) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: BorderRadius.circular(19),
+          border: Border.all(color: c.border),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              color: c.brand,
+              size: 24,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Failed to load availability',
+              style: TextStyle(
+                color: c.textSecondary,
+                fontFamily: 'Inter',
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final availability = state.availability;
+    if (availability == null || availability.days.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: BorderRadius.circular(19),
+          border: Border.all(color: c.border),
+        ),
+        child: Text(
+          'No available slots',
+          style: TextStyle(
+            color: c.textSecondary,
+            fontFamily: 'Inter',
+            fontSize: 11,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(19),
+            border: Border.all(color: c.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  12,
+                  16,
+                  8,
+                ),
+                child: Text(
+                  'Pick a new time',
+                  style: TextStyle(
+                    color: c.textPrimary,
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 320,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: availability.days
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                      final dayIndex = entry.key;
+                      final day = entry.value;
+
+                      return _DaySlots(
+                        day: day,
+                        booking: booking,
+                        onSlotSelected:
+                            onSlotSelected,
+                        isFirst: dayIndex == 0,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+  }
+}
+
+class _DaySlots extends StatelessWidget {
+  const _DaySlots({
+    required this.day,
+    required this.booking,
+    required this.onSlotSelected,
+    required this.isFirst,
+  });
+
+  final dynamic day;
+  final BookingDetailsEntity booking;
+  final Function(String, BuildContext)
+      onSlotSelected;
+  final bool isFirst;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+
+    try {
+      final dateTime = DateTime.parse(day.date);
+      final dateStr = DateFormat('EEE d MMM')
+          .format(dateTime);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isFirst)
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+              ),
+              child: Container(
+                height: 1,
+                color: c.border,
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              12,
+              16,
+              10,
+            ),
+            child: Text(
+              dateStr,
+              style: TextStyle(
+                color: c.textSecondary,
+                fontFamily: 'Inter',
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: day.slots
+                  .map<Widget>(
+                    (slot) => _TimeSlotButton(
+                      slot: slot,
+                      onPressed: () {
+                        onSlotSelected(
+                          slot.uuid,
+                          context,
+                        );
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
+      );
+    } catch (e) {
+      return const SizedBox.shrink();
+    }
+  }
+}
+
+class _TimeSlotButton extends StatelessWidget {
+  const _TimeSlotButton({
+    required this.slot,
+    required this.onPressed,
+  });
+
+  final dynamic slot;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+
+    final isAvailable = slot.remaining != null &&
+        slot.remaining > 0;
+
+    try {
+      final start = DateTime.parse(
+        slot.startsAt,
+      );
+      final timeStr = DateFormat('HH:mm')
+          .format(start);
+
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isAvailable
+              ? onPressed
+              : null,
+          borderRadius:
+              BorderRadius.circular(12),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: isAvailable
+                  ? c.brand.withValues(
+                    alpha: 0.08,
+                  )
+                  : c.border.withValues(
+                    alpha: 0.3,
+                  ),
+              borderRadius:
+                  BorderRadius.circular(12),
+              border: Border.all(
+                color: isAvailable
+                    ? c.brand.withValues(
+                      alpha: 0.4,
+                    )
+                    : c.border,
+              ),
+            ),
+            child: Text(
+              timeStr,
+              style: TextStyle(
+                color: isAvailable
+                    ? c.brand
+                    : c.textMuted,
+                fontFamily: 'Inter',
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      return const SizedBox.shrink();
+    }
+  }
+}
+
 // CANCEL DIALOG
 // -----------------------------------------------------------------------------
 //

@@ -7,10 +7,15 @@ abstract class BookingRepository {
 
   Future<List<BookingEntity>> getBookings();
 
-  Future<BookingDetailsEntity> getBookingDetails(String bookingUuid); 
+  Future<BookingDetailsEntity> getBookingDetails(String bookingUuid);
 
   Future<CancelBookingEntity> cancelBooking({
     required String bookingUuid,
     required String reason,
+  });
+
+  Future<BookingDetailsEntity> rescheduleBooking({
+    required String bookingUuid,
+    required String slotUuid,
   });
 }

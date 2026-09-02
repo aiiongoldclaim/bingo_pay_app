@@ -40,15 +40,16 @@ class BookingRemoteDatasources {
     return bookingsJson.map((e) => BookingModel.fromJson(e)).toList();
   }
 
-  Future<InvoiceDownload> downloadInvoice(String bookingUuid) async {
+  Future<InvoiceDownload> downloadInvoice(String orderUuid) async {
     final response = await _apiClient.dio.get<List<int>>(
-      '${ApiEndpoints.myBookings}/$bookingUuid/invoice',
+      // '${ApiEndpoints.myBookings}/$bookingUuid/invoice',
+      '${ApiEndpoints.orders}/$orderUuid/invoice',
       options: Options(responseType: ResponseType.bytes),
     );
     final disposition = response.headers.value('content-disposition');
     return InvoiceDownload(
       bytes: response.data ?? [],
-      filename: _filenameFrom(disposition) ?? 'invoice-$bookingUuid.pdf',
+      filename: _filenameFrom(disposition) ?? 'invoice-$orderUuid.pdf',
     );
   }
 
@@ -123,6 +124,50 @@ class BookingRemoteDatasources {
     }
 
     return CancelBookingModel.fromJson(
+      bookingJson,
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // RESCHEDULE BOOKING
+  // ---------------------------------------------------------------------------
+
+  Future<BookingDetailsModel> rescheduleBooking({
+    required String bookingUuid,
+    required String slotUuid,
+  }) async {
+    final response = await _apiClient.dio.patch(
+      ApiEndpoints.rescheduleBooking(bookingUuid),
+      data: {
+        'slotUuid': slotUuid,
+      },
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Invalid reschedule booking response',
+      );
+    }
+
+    final dataWrapper = responseData['data'];
+
+    if (dataWrapper is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Invalid data wrapper in reschedule booking response',
+      );
+    }
+
+    final bookingJson = dataWrapper['data'];
+
+    if (bookingJson is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Invalid rescheduled booking data in response',
+      );
+    }
+
+    return BookingDetailsModel.fromJson(
       bookingJson,
     );
   }

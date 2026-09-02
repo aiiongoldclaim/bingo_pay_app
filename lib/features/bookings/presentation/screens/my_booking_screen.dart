@@ -4,7 +4,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -14,17 +13,16 @@ import '../../data/datasources/booking_remote_datasources.dart';
 import '../../domain/entities/bookings_entity.dart';
 import '../cubit/booking_cubit.dart';
 import '../cubit/booking_state.dart';
-import 'booking_details_screen.dart';
 
 class MyBookingsScreen extends StatelessWidget {
   const MyBookingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<BookingCubit>(
-      create: (_) => getIt<BookingCubit>()..fetchBookings(),
-      child: const _MyBookingsBody(),
-    );
+    // Load bookings when screen is opened
+    context.read<BookingCubit>().fetchBookings();
+
+    return const _MyBookingsBody();
   }
 }
 
@@ -334,7 +332,8 @@ class _BookingCardState extends State<_BookingCard> {
     setState(() => _generatingPdf = true);
     try {
       final invoice = await GetIt.I<BookingRemoteDatasources>().downloadInvoice(
-        widget.booking.uuid,
+        // widget.booking.uuid,
+        widget.booking.order.uuid,
       );
       await openOrSharePdf(invoice.bytes, invoice.filename);
     } catch (e, st) {

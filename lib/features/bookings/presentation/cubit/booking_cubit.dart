@@ -57,4 +57,18 @@ class BookingCubit extends Cubit<BookingState>{
       emit(BookingCancelError(_describe(e, "Failed to cancel booking")));
     }
   }
+
+  // RESCHEDULE BOOKING
+  Future<void> rescheduleBooking(String bookingUuid, String slotUuid) async {
+    emit(BookingRescheduleLoading());
+    try {
+      final bookingDetails = await repository.rescheduleBooking(
+        bookingUuid: bookingUuid,
+        slotUuid: slotUuid,
+      );
+      emit(BookingRescheduleSuccess(bookingDetails));
+    } catch (e) {
+      emit(BookingRescheduleError(_describe(e, "Failed to reschedule booking")));
+    }
+  }
 }

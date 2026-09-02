@@ -35,4 +35,17 @@ class BookingRepositoryImpl implements BookingRepository {
       reason: reason,
     );
   }
+
+  @override
+  Future<BookingDetailsEntity> rescheduleBooking({
+    required String bookingUuid,
+    required String slotUuid,
+  }) async {
+    final result = await _remoteDatasources.rescheduleBooking(
+      bookingUuid: bookingUuid,
+      slotUuid: slotUuid,
+    );
+
+    return result.toEntity();
+  }
 }

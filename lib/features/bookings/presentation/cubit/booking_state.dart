@@ -68,3 +68,24 @@ class BookingCancelError extends BookingState{
   @override
   List<Object?> get props => [message];
 }
+
+//RESCHEDULE BOOKING
+class BookingRescheduleLoading extends BookingState{}
+
+class BookingRescheduleSuccess extends BookingState{
+  final BookingDetailsEntity bookingDetails;
+
+  const BookingRescheduleSuccess(this.bookingDetails);
+
+  @override
+  List<Object?> get props => [bookingDetails];
+}
+
+class BookingRescheduleError extends BookingState{
+  final String message;
+
+  const BookingRescheduleError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
