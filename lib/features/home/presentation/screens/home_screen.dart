@@ -669,54 +669,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       SliverToBoxAdapter(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: m.pagePadding,
-                          ),
+                          padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
                           child: _buildStep4(
-                            BlocProvider(
-                              create: (_) =>
-                                  getIt<ServicesCubit>()..loadServices(),
-                              child: BlocBuilder<ServicesCubit, ServicesState>(
-                                buildWhen: (previous, current) =>
-                                previous.services != current.services,
-                                builder: (context, state) {
-                                  return BookServicesSection(
-                                    metrics: m,
-                                    title: 'Book Service',
-                                    subtitle: 'Beauty, Home, Repairs & more',
-                                    buttonText: 'Book Now',
-                                    services: state.services,
-
-                                    onViewAll: () => context.push(AppRoutes.services),
-
-                                    onServiceTap: (service) {
-                                      if (service.uuid.isEmpty) return;
-                                      context.push(AppRoutes.serviceDetailPath(service.uuid));
-                                    },
-
-                                    // subtitleBuilder: (service) => service.description,
-                                  );
-                                },
-                              ),
-                              // child: BlocBuilder<ServicesCubit, ServicesState>(
-                              //   builder: (context, s) {
-                              //     if (s.services.isEmpty) {
-                              //       return const SizedBox.shrink();
-                              //     }
-                              //     return BookServicesSection(
-                              //       metrics: m,
-                              //       title: 'Book Services',
-                              //       subtitle: 'Beauty, Home, Repairs & more',
-                              //       buttonText: 'Book Now',
-                              //       services: s.services,
-                              //       onBookNow: () =>
-                              //           context.push(AppRoutes.services),
-                              //       onServiceTap: (svc) => context.push(AppRoutes.serviceDetailPath(svc.uuid)),
-                              //       onViewAll: () =>
-                              //           context.push(AppRoutes.services),
-                              //     );
-                              //   },
-                              // ),
+                            BlocBuilder<ServicesCubit, ServicesState>(
+                              buildWhen: (previous, current) =>
+                              previous.services != current.services,
+                              builder: (context, servicesState) {
+                                return BookServicesSection(
+                                  metrics: m,
+                                  title: 'Book Service',
+                                  subtitle: 'Beauty, Home, Repairs & more',
+                                  buttonText: 'Book Now',
+                                  services: servicesState.services,
+                                  onViewAll: () => context.push(AppRoutes.services),
+                                  onServiceTap: (service) {
+                                    if (service.uuid.isEmpty) return;
+                                    context.push(AppRoutes.serviceDetailPath(service.uuid));
+                                  },
+                                );
+                              },
                             ),
                           ),
                         ),

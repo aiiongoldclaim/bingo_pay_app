@@ -122,19 +122,19 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
           },
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final m = AuthMetrics.of(constraints);
-              final wide = m.isTablet && m.isLandscape;
+              final matrics = AuthMetrics.of(constraints);
+              final wide = matrics.isTablet && matrics.isLandscape;
 
               return SingleChildScrollView(
                 padding: EdgeInsets.fromLTRB(
-                  m.pagePadH,
-                  m.pagePadV,
-                  m.pagePadH,
-                  m.pagePadV,
+                  matrics.pagePadH,
+                  matrics.pagePadV,
+                  matrics.pagePadH,
+                  matrics.pagePadV,
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - (m.pagePadV * 2),
+                    minHeight: constraints.maxHeight - (matrics.pagePadV * 2),
                   ),
                   child: IntrinsicHeight(
                     child: Column(
@@ -143,16 +143,16 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                         Center(
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              maxWidth: m.contentMaxWidth,
+                              maxWidth: matrics.contentMaxWidth,
                             ),
                             child: wide
                                 ? _WideLayout(
-                                    m: m,
+                                    m: matrics,
                                     isDark: isDark,
                                     screen: this,
                                   )
                                 : _NarrowLayout(
-                                    m: m,
+                                    m: matrics,
                                     isDark: isDark,
                                     screen: this,
                                   ),
@@ -160,8 +160,8 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                         ),
 
                         const Spacer(),
-                        SizedBox(height: m.blockGap),
-                        AuthSecureNote(m: m, isDark: isDark),
+                        SizedBox(height: matrics.blockGap),
+                        AuthSecureNote(metrics: matrics),
                       ],
                     ),
                   ),
@@ -375,11 +375,9 @@ class _NarrowLayout extends StatelessWidget {
           SizedBox(height: m.blockGap * 0.7),
         ],
 
-        // 2) TEXT — Reset Password + subtitle
         screen.buildHeadline(m, isDark, alignStart: true),
         SizedBox(height: m.blockGap),
 
-        // 3) FORM — New Password, Confirm Password, Continue
         screen.buildForm(m, isDark),
       ],
     );
@@ -520,7 +518,7 @@ class _HeroArt extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 1,
         child: Image.asset(
-          AppImages.onboard1Dark, // apna reset-password asset lagana
+          AppImages.onboard1Dark,
           fit: BoxFit.contain,
         ),
       ),

@@ -1,274 +1,54 @@
-// import 'package:flutter/material.dart';
-// import 'theme_colors.dart';
-//
-// @immutable
-// class AppThemeColors extends ThemeExtension<AppThemeColors> {
-//   final Color background;
-//   final Color surface;
-//   final Color surfaceAlt;
-//   final Color border;
-//   final Color textPrimary;
-//   final Color textSecondary;
-//   final Color textMuted;
-//   final Color brand;
-//   final Color brandSoft;
-//   final Color categoryCircleBg;
-//   final Color servicesBg;
-//   final Color discount;
-//   final LinearGradient heroBanner;
-//   final LinearGradient benefitsStrip;
-//   final bool isDark;
-//
-//   final Color navBackground;
-//   final Color navSelected;
-//   final Color navUnselected;
-//
-//   final Color statusSuccess;
-//   final Color statusWarning;
-//   final Color statusInfo;
-//   final Color statusSuccessSoft;
-//   final Color statusWarningSoft;
-//
-//   final Color success;
-//   final Color warning;
-//
-//   const AppThemeColors({
-//     required this.background,
-//     required this.surface,
-//     required this.surfaceAlt,
-//     required this.border,
-//     required this.textPrimary,
-//     required this.textSecondary,
-//     required this.textMuted,
-//     required this.brand,
-//     required this.brandSoft,
-//     required this.categoryCircleBg,
-//     required this.servicesBg,
-//     required this.discount,
-//     required this.heroBanner,
-//     required this.benefitsStrip,
-//     required this.isDark,
-//     required this.navBackground,
-//     required this.navSelected,
-//     required this.navUnselected,
-//     required this.statusSuccess,
-//     required this.statusWarning,
-//     required this.statusInfo,
-//     required this.statusSuccessSoft,
-//     required this.statusWarningSoft, required this.success, required this.warning,
-//   });
-//
-//   static const lightColors = AppThemeColors(
-//     background: ThemeColors.background,
-//     surface: ThemeColors.white,
-//     surfaceAlt: ThemeColors.veryLightLavender,
-//     border: ThemeColors.border,
-//     textPrimary: ThemeColors.textPrimary,
-//     textSecondary: ThemeColors.textSecondary1,
-//     textMuted: ThemeColors.textMuted,
-//     brand: ThemeColors.primaryPurple,
-//     brandSoft: ThemeColors.lightLavender,
-//     categoryCircleBg: ThemeColors.veryLightLavender,
-//     servicesBg: ThemeColors.serviceBackground,
-//     discount: ThemeColors.primaryPurple,
-//     heroBanner: ThemeColors.heroBannerLight,
-//     benefitsStrip: ThemeColors.benefitsStripLight,
-//     isDark: false,
-//     navBackground: ThemeColors.white,
-//     navSelected: ThemeColors.primaryPurple,
-//     navUnselected: ThemeColors.textSecondary1,
-//     statusSuccess: ThemeColors.green,
-//     statusWarning: ThemeColors.red,
-//     statusInfo: ThemeColors.primaryPurple,
-//     statusSuccessSoft: ThemeColors.greenSoft,
-//     statusWarningSoft: Color(0xFFFFF3E5), success: ThemeColors.green, warning: ThemeColors.red,
-//   );
-//
-//   static const darkColors = AppThemeColors(
-//     background: ThemeColors.darkBackground,
-//     surface: ThemeColors.darkSurface,
-//     surfaceAlt: ThemeColors.darkSurfaceAlt,
-//     border: ThemeColors.darkBorder,
-//     textPrimary: ThemeColors.darkTextPrimary,
-//     textSecondary: ThemeColors.darkTextSecondary,
-//     textMuted: ThemeColors.darkTextMuted,
-//     brand: ThemeColors.darkPurple,
-//     brandSoft: ThemeColors.darkPurpleSoft,
-//     categoryCircleBg: ThemeColors.darkSurfaceAlt,
-//     servicesBg: ThemeColors.darkSurface,
-//     discount: ThemeColors.darkPurple,
-//     heroBanner: ThemeColors.heroBannerDark,
-//     benefitsStrip: ThemeColors.benefitsStripDark,
-//     isDark: true,
-//     navBackground: ThemeColors.darkBackground,
-//     navSelected: ThemeColors.darkPurple,
-//     navUnselected: ThemeColors.darkTextSecondary,
-//     statusSuccess: Color(0xFF34D399),
-//     statusWarning: Color(0xFFFBBF24),
-//     statusInfo: ThemeColors.darkPurple,
-//     statusSuccessSoft: Color(0xFF13291F),
-//     statusWarningSoft: Color(0xFF2B2113), success: ThemeColors.green, warning: ThemeColors.red,
-//   );
-//
-//   static AppThemeColors of(BuildContext context) =>
-//       Theme.of(context).extension<AppThemeColors>() ?? lightColors;
-//
-//   @override
-//   AppThemeColors copyWith({
-//     Color? background,
-//     Color? surface,
-//     Color? surfaceAlt,
-//     Color? border,
-//     Color? textPrimary,
-//     Color? textSecondary,
-//     Color? textMuted,
-//     Color? brand,
-//     Color? brandSoft,
-//     Color? categoryCircleBg,
-//     Color? servicesBg,
-//     Color? discount,
-//     LinearGradient? heroBanner,
-//     LinearGradient? benefitsStrip,
-//     bool? isDark,
-//     Color? navBackground,
-//     Color? navSelected,
-//     Color? navUnselected,
-//     Color? statusSuccess, // ADDED
-//     Color? statusWarning, // ADDED
-//     Color? statusInfo, // ADDED
-//     Color? statusSuccessSoft, // ADDED
-//     Color? statusWarningSoft, // ADDED
-//   }) => AppThemeColors(
-//     background: background ?? this.background,
-//     surface: surface ?? this.surface,
-//     surfaceAlt: surfaceAlt ?? this.surfaceAlt,
-//     border: border ?? this.border,
-//     textPrimary: textPrimary ?? this.textPrimary,
-//     textSecondary: textSecondary ?? this.textSecondary,
-//     textMuted: textMuted ?? this.textMuted,
-//     brand: brand ?? this.brand,
-//     brandSoft: brandSoft ?? this.brandSoft,
-//     categoryCircleBg: categoryCircleBg ?? this.categoryCircleBg,
-//     servicesBg: servicesBg ?? this.servicesBg,
-//     discount: discount ?? this.discount,
-//     heroBanner: heroBanner ?? this.heroBanner,
-//     benefitsStrip: benefitsStrip ?? this.benefitsStrip,
-//     isDark: isDark ?? this.isDark,
-//     navBackground: navBackground ?? this.navBackground,
-//     navSelected: navSelected ?? this.navSelected,
-//     navUnselected: navUnselected ?? this.navUnselected,
-//     // FIXED: pehle yahan `null` pass ho raha tha
-//     statusSuccess: statusSuccess ?? this.statusSuccess,
-//     statusWarning: statusWarning ?? this.statusWarning,
-//     statusInfo: statusInfo ?? this.statusInfo,
-//     statusSuccessSoft: statusSuccessSoft ?? this.statusSuccessSoft,
-//     statusWarningSoft: statusWarningSoft ?? this.statusWarningSoft, success: this.success, warning: this.warning,
-//   );
-//
-//   @override
-//   AppThemeColors lerp(ThemeExtension<AppThemeColors>? other, double t) {
-//     if (other is! AppThemeColors) return this;
-//     return AppThemeColors(
-//       background: Color.lerp(background, other.background, t)!,
-//       surface: Color.lerp(surface, other.surface, t)!,
-//       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
-//       border: Color.lerp(border, other.border, t)!,
-//       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
-//       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
-//       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
-//       brand: Color.lerp(brand, other.brand, t)!,
-//       brandSoft: Color.lerp(brandSoft, other.brandSoft, t)!,
-//       categoryCircleBg: Color.lerp(
-//         categoryCircleBg,
-//         other.categoryCircleBg,
-//         t,
-//       )!,
-//       servicesBg: Color.lerp(servicesBg, other.servicesBg, t)!,
-//       discount: Color.lerp(discount, other.discount, t)!,
-//       heroBanner: LinearGradient.lerp(heroBanner, other.heroBanner, t)!,
-//       benefitsStrip: LinearGradient.lerp(
-//         benefitsStrip,
-//         other.benefitsStrip,
-//         t,
-//       )!,
-//       isDark: t < 0.5 ? isDark : other.isDark,
-//       navBackground: Color.lerp(navBackground, other.navBackground, t)!,
-//       navSelected: Color.lerp(navSelected, other.navSelected, t)!,
-//       navUnselected: Color.lerp(navUnselected, other.navUnselected, t)!,
-//       // ADDED: ye paanch missing the
-//       statusSuccess: Color.lerp(statusSuccess, other.statusSuccess, t)!,
-//       statusWarning: Color.lerp(statusWarning, other.statusWarning, t)!,
-//       statusInfo: Color.lerp(statusInfo, other.statusInfo, t)!,
-//       statusSuccessSoft: Color.lerp(
-//         statusSuccessSoft,
-//         other.statusSuccessSoft,
-//         t,
-//       )!,
-//       statusWarningSoft: Color.lerp(
-//         statusWarningSoft,
-//         other.statusWarningSoft,
-//         t,
-//       )!,
-//       success: Color.lerp(
-//       success,
-//       other.success,
-//       t,
-//     )!,
-//       warning: Color.lerp(warning,
-//         other.warning,
-//         t,
-//       )!,
-//     );
-//   }
-// }
-//
-// extension AppThemeColorsX on BuildContext {
-//   AppThemeColors get c => AppThemeColors.of(this);
-// }
 import 'package:flutter/material.dart';
+
 import 'theme_colors.dart';
 
 @immutable
 class AppThemeColors extends ThemeExtension<AppThemeColors> {
-  // Surfaces
+  // ── Surfaces ─────────────────────────────────────────────
   final Color background;
   final Color surface;
   final Color surfaceAlt;
   final Color border;
 
-  // Text
+  // ── Text ─────────────────────────────────────────────────
   final Color textPrimary;
   final Color textSecondary;
   final Color textMuted;
   final Color textDisabled;
 
-  // Brand
+  // ── Brand ────────────────────────────────────────────────
   final Color brand;
   final Color brandSoft;
   final Color onBrand;
   final Color accent;
   final Color onAccent;
 
-  // Sections
+  // ── Sections ─────────────────────────────────────────────
   final Color categoryCircleBg;
   final Color servicesBg;
   final Color discount;
 
-  // Buttons
+  // ── Buttons ──────────────────────────────────────────────
   final LinearGradient buttonPrimaryGradient;
   final LinearGradient buttonSecondaryGradient;
   final Color buttonDisabledFill;
 
-  // Gradients
+  // ── Gradients ────────────────────────────────────────────
   final LinearGradient heroBanner;
   final LinearGradient benefitsStrip;
 
-  // Nav
+  /// Hero gradient ke upar text/icon
+  final Color onHeroBanner;
+
+  /// Hero gradient ke upar halka fill (badge, close button)
+  final Color heroBannerOverlay;
+
+  // ── Nav ──────────────────────────────────────────────────
   final Color navBackground;
   final Color navSelected;
   final Color navUnselected;
 
-  // Status
+  // ── Status ───────────────────────────────────────────────
   final Color statusSuccess;
   final Color statusWarning;
   final Color statusInfo;
@@ -276,6 +56,21 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color statusWarningSoft;
   final Color error;
   final Color onError;
+
+  // ── Overlays ─────────────────────────────────────────────
+  /// Dialog / bottom sheet barrier
+  final Color scrim;
+  final Color dialogShadow;
+
+  // ── Onboarding ───────────────────────────────────────────
+  final LinearGradient onboardingBackground;
+  final Color onboardingTitle;
+  final Color onboardingBody;
+  final Color onboardingAccent;
+  final Color onboardingDotIdle;
+  final Color onboardingBorder;
+  final LinearGradient onboardingNextGradient;
+  final Color onboardingNextText;
 
   final bool isDark;
 
@@ -301,6 +96,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.buttonDisabledFill,
     required this.heroBanner,
     required this.benefitsStrip,
+    required this.onHeroBanner,
+    required this.heroBannerOverlay,
     required this.navBackground,
     required this.navSelected,
     required this.navUnselected,
@@ -311,34 +108,54 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.statusWarningSoft,
     required this.error,
     required this.onError,
+    required this.scrim,
+    required this.dialogShadow,
+    required this.onboardingBackground,
+    required this.onboardingTitle,
+    required this.onboardingBody,
+    required this.onboardingAccent,
+    required this.onboardingDotIdle,
+    required this.onboardingBorder,
+    required this.onboardingNextGradient,
+    required this.onboardingNextText,
     required this.isDark,
   });
 
+  // ── LIGHT ────────────────────────────────────────────────
   static const lightColors = AppThemeColors(
     background: ThemeColors.background,
     surface: ThemeColors.white,
     surfaceAlt: ThemeColors.veryLightLavender,
     border: ThemeColors.border,
+
     textPrimary: ThemeColors.textPrimary,
     textSecondary: ThemeColors.textSecondary1,
     textMuted: ThemeColors.textMuted,
     textDisabled: ThemeColors.inkDim,
+
     brand: ThemeColors.primaryPurple,
     brandSoft: ThemeColors.lightLavender,
     onBrand: ThemeColors.white,
     accent: ThemeColors.lavender,
     onAccent: ThemeColors.white,
+
     categoryCircleBg: ThemeColors.veryLightLavender,
     servicesBg: ThemeColors.serviceBackground,
     discount: ThemeColors.primaryPurple,
+
     buttonPrimaryGradient: ThemeColors.primaryButtonGradient,
     buttonSecondaryGradient: ThemeColors.secondaryButtonGradient,
     buttonDisabledFill: ThemeColors.line,
+
     heroBanner: ThemeColors.heroBannerLight,
     benefitsStrip: ThemeColors.benefitsStripLight,
+    onHeroBanner: ThemeColors.white,
+    heroBannerOverlay: Color(0x29FFFFFF),
+
     navBackground: ThemeColors.white,
     navSelected: ThemeColors.primaryPurple,
     navUnselected: ThemeColors.textSecondary1,
+
     statusSuccess: ThemeColors.green,
     statusWarning: ThemeColors.amber,
     statusInfo: ThemeColors.primaryPurple,
@@ -346,26 +163,48 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarningSoft: Color(0xFFFFF3E5),
     error: ThemeColors.red,
     onError: ThemeColors.white,
+
+    scrim: Color(0xA6000000),
+    dialogShadow: Color(0x334C1E76),
+
+    onboardingBackground: LinearGradient(
+      colors: [ThemeColors.surface, ThemeColors.background],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
+    onboardingTitle: ThemeColors.textDark,
+    onboardingBody: ThemeColors.inkMid,
+    onboardingAccent: ThemeColors.deepPurple,
+    onboardingDotIdle: Color(0x290E1525),
+    onboardingBorder: ThemeColors.line,
+    onboardingNextGradient: ThemeColors.bottomSection,
+    onboardingNextText: ThemeColors.white,
+
     isDark: false,
   );
 
+  // ── DARK ─────────────────────────────────────────────────
   static const darkColors = AppThemeColors(
     background: ThemeColors.darkBackground,
     surface: ThemeColors.darkSurface,
     surfaceAlt: ThemeColors.darkSurfaceAlt,
     border: ThemeColors.darkBorder,
+
     textPrimary: ThemeColors.darkTextPrimary,
     textSecondary: ThemeColors.darkTextSecondary,
     textMuted: ThemeColors.darkTextMuted,
     textDisabled: Color(0xFF52525B),
+
     brand: ThemeColors.darkPurple,
     brandSoft: ThemeColors.darkPurpleSoft,
     onBrand: ThemeColors.white,
     accent: Color(0xFFB794F6),
     onAccent: Color(0xFF1E1330),
+
     categoryCircleBg: ThemeColors.darkSurfaceAlt,
     servicesBg: ThemeColors.darkSurface,
     discount: ThemeColors.darkPurple,
+
     buttonPrimaryGradient: LinearGradient(
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
@@ -377,11 +216,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       colors: [Color(0xFF2A1B45), Color(0xFF1E1330)],
     ),
     buttonDisabledFill: Color(0xFF232326),
+
     heroBanner: ThemeColors.heroBannerDark,
     benefitsStrip: ThemeColors.benefitsStripDark,
+    onHeroBanner: ThemeColors.white,
+    heroBannerOverlay: Color(0x1AFFFFFF),
+
     navBackground: ThemeColors.darkBackground,
     navSelected: ThemeColors.darkPurple,
     navUnselected: ThemeColors.darkTextSecondary,
+
     statusSuccess: Color(0xFF34D399),
     statusWarning: Color(0xFFFBBF24),
     statusInfo: ThemeColors.darkPurple,
@@ -389,6 +233,19 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarningSoft: Color(0xFF2B2113),
     error: Color(0xFFF87171),
     onError: Color(0xFF2A0E0A),
+
+    scrim: Color(0xA6000000),
+    dialogShadow: Color(0x8C000000),
+
+    onboardingBackground: ThemeColors.onboardingDarkBg,
+    onboardingTitle: ThemeColors.white,
+    onboardingBody: ThemeColors.inkDim,
+    onboardingAccent: ThemeColors.gold,
+    onboardingDotIdle: Color(0x38FFFFFF),
+    onboardingBorder: Color(0x24FFFFFF),
+    onboardingNextGradient: ThemeColors.bottomSection,
+    onboardingNextText: ThemeColors.white,
+
     isDark: true,
   );
 
@@ -418,6 +275,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? buttonDisabledFill,
     LinearGradient? heroBanner,
     LinearGradient? benefitsStrip,
+    Color? onHeroBanner,
+    Color? heroBannerOverlay,
     Color? navBackground,
     Color? navSelected,
     Color? navUnselected,
@@ -428,6 +287,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? statusWarningSoft,
     Color? error,
     Color? onError,
+    Color? scrim,
+    Color? dialogShadow,
+    LinearGradient? onboardingBackground,
+    Color? onboardingTitle,
+    Color? onboardingBody,
+    Color? onboardingAccent,
+    Color? onboardingDotIdle,
+    Color? onboardingBorder,
+    LinearGradient? onboardingNextGradient,
+    Color? onboardingNextText,
     bool? isDark,
   }) {
     return AppThemeColors(
@@ -454,6 +323,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       buttonDisabledFill: buttonDisabledFill ?? this.buttonDisabledFill,
       heroBanner: heroBanner ?? this.heroBanner,
       benefitsStrip: benefitsStrip ?? this.benefitsStrip,
+      onHeroBanner: onHeroBanner ?? this.onHeroBanner,
+      heroBannerOverlay: heroBannerOverlay ?? this.heroBannerOverlay,
       navBackground: navBackground ?? this.navBackground,
       navSelected: navSelected ?? this.navSelected,
       navUnselected: navUnselected ?? this.navUnselected,
@@ -464,6 +335,17 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusWarningSoft: statusWarningSoft ?? this.statusWarningSoft,
       error: error ?? this.error,
       onError: onError ?? this.onError,
+      scrim: scrim ?? this.scrim,
+      dialogShadow: dialogShadow ?? this.dialogShadow,
+      onboardingBackground: onboardingBackground ?? this.onboardingBackground,
+      onboardingTitle: onboardingTitle ?? this.onboardingTitle,
+      onboardingBody: onboardingBody ?? this.onboardingBody,
+      onboardingAccent: onboardingAccent ?? this.onboardingAccent,
+      onboardingDotIdle: onboardingDotIdle ?? this.onboardingDotIdle,
+      onboardingBorder: onboardingBorder ?? this.onboardingBorder,
+      onboardingNextGradient:
+      onboardingNextGradient ?? this.onboardingNextGradient,
+      onboardingNextText: onboardingNextText ?? this.onboardingNextText,
       isDark: isDark ?? this.isDark,
     );
   }
@@ -471,6 +353,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   @override
   AppThemeColors lerp(ThemeExtension<AppThemeColors>? other, double t) {
     if (other is! AppThemeColors) return this;
+
     return AppThemeColors(
       background: Color.lerp(background, other.background, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
@@ -504,6 +387,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       heroBanner: LinearGradient.lerp(heroBanner, other.heroBanner, t)!,
       benefitsStrip:
       LinearGradient.lerp(benefitsStrip, other.benefitsStrip, t)!,
+      onHeroBanner: Color.lerp(onHeroBanner, other.onHeroBanner, t)!,
+      heroBannerOverlay:
+      Color.lerp(heroBannerOverlay, other.heroBannerOverlay, t)!,
       navBackground: Color.lerp(navBackground, other.navBackground, t)!,
       navSelected: Color.lerp(navSelected, other.navSelected, t)!,
       navUnselected: Color.lerp(navUnselected, other.navUnselected, t)!,
@@ -516,6 +402,28 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       Color.lerp(statusWarningSoft, other.statusWarningSoft, t)!,
       error: Color.lerp(error, other.error, t)!,
       onError: Color.lerp(onError, other.onError, t)!,
+      scrim: Color.lerp(scrim, other.scrim, t)!,
+      dialogShadow: Color.lerp(dialogShadow, other.dialogShadow, t)!,
+      onboardingBackground: LinearGradient.lerp(
+        onboardingBackground,
+        other.onboardingBackground,
+        t,
+      )!,
+      onboardingTitle: Color.lerp(onboardingTitle, other.onboardingTitle, t)!,
+      onboardingBody: Color.lerp(onboardingBody, other.onboardingBody, t)!,
+      onboardingAccent:
+      Color.lerp(onboardingAccent, other.onboardingAccent, t)!,
+      onboardingDotIdle:
+      Color.lerp(onboardingDotIdle, other.onboardingDotIdle, t)!,
+      onboardingBorder:
+      Color.lerp(onboardingBorder, other.onboardingBorder, t)!,
+      onboardingNextGradient: LinearGradient.lerp(
+        onboardingNextGradient,
+        other.onboardingNextGradient,
+        t,
+      )!,
+      onboardingNextText:
+      Color.lerp(onboardingNextText, other.onboardingNextText, t)!,
       isDark: t < 0.5 ? isDark : other.isDark,
     );
   }

@@ -23,9 +23,14 @@ import '../../features/membershipNew/presentation/widgets/membership_checkout_ar
 import '../../features/notification/features/screens/notidication_screen.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
+import '../../features/payment/presentation/screens/payment_args.dart';
+import '../../features/payment/presentation/screens/payment_screen.dart';
+import '../../features/product_details/presentation/screens/product_image_viewer_screen.dart';
+import '../../features/product_details/presentation/widgets/image_viewer_args.dart';
 import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
 import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
 import '../../features/setting/features/screens/setting_screen.dart';
+import '../config/app_config.dart';
 import '../widgets/buyer_shell_screen.dart';
 import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
 import '../../features/customer/profile/presentation/screens/profile_screen.dart';
@@ -72,7 +77,7 @@ class AppRouter {
   bool _onboardingSeen = false;
 
   /// Splash minimum visible duration
-  static const _minSplashDuration = Duration(milliseconds: 1500);
+  // static const _minSplashDuration = Duration(milliseconds: 1500);
   final DateTime _startedAt = DateTime.now();
 
   void markOnboardingSeen() {
@@ -146,15 +151,22 @@ class AppRouter {
           builder: (_, _) => const KycSelfieScreen(),
         ),
 
+        // GoRoute(
+        //   path: AppRoutes.orderDetail,
+        //   builder: (context, state) {
+        //     debugPrint('ORDER DETAIL ROUTE HIT');
+        //
+        //     final order = state.extra as OrderModel;
+        //
+        //     return OrderDetailScreen(order: order);
+        //   },
+        // ),
         GoRoute(
           path: AppRoutes.orderDetail,
-          builder: (context, state) {
-            debugPrint('ORDER DETAIL ROUTE HIT');
-
-            final order = state.extra as OrderModel;
-
-            return OrderDetailScreen(order: order);
-          },
+          builder: (context, state) =>
+              OrderDetailScreen(order: state.extra as OrderModel),
+          redirect: (context, state) =>
+          state.extra is OrderModel ? null : AppRoutes.orders,
         ),
 
         GoRoute(
@@ -185,6 +197,35 @@ class AppRouter {
               child: const ProductDetailScreen(),
             );
           },
+        ),
+        GoRoute(
+          path: AppRoutes.payment,
+          builder: (context, state) {
+            final args = state.extra as PaymentArgs;
+            return PaymentScreen(
+              vendorEmail: args.vendorEmail,
+              productName: args.productName,
+              productPrice: args.productPrice,
+              variantUuid: args.variantUuid,
+              quantity: args.quantity,
+              isCart: args.isCart,
+            );
+          },
+          redirect: (context, state) =>
+          state.extra is PaymentArgs ? null : AppRoutes.home,
+        ),
+
+        GoRoute(
+          path: AppRoutes.productImageViewer,
+          builder: (context, state) {
+            final args = state.extra as ImageViewerArgs;
+            return ProductImageViewerScreen(
+              images: args.images,
+              initialIndex: args.initialIndex,
+            );
+          },
+          redirect: (context, state) =>
+          state.extra is ImageViewerArgs ? null : AppRoutes.home,
         ),
 
         // Deep link routes for product sharing
@@ -528,7 +569,7 @@ class AppRouter {
 
     if (_authState.isLoading && !state.isLoading) {
       final elapsed = DateTime.now().difference(_startedAt);
-      final remaining = _minSplashDuration - elapsed;
+      final remaining = AppConfig.minSplashDuration - elapsed;
       if (remaining > Duration.zero) {
         await Future.delayed(remaining);
       }

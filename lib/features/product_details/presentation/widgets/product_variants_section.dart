@@ -210,3 +210,257 @@
 //     return buf.toString();
 //   }
 // }
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/price_formatter.dart';
+import '../../data/models/product_details_model.dart';
+import 'product_metrics.dart';
+
+class ProductVariantsSection extends StatelessWidget {
+  final ProductMetrics metrics;
+  final List<ProductVariant> variants;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+
+  /// Generic variantName detect karne ke liye
+  final String productName;
+
+  const ProductVariantsSection({
+    super.key,
+    required this.metrics,
+    required this.variants,
+    required this.selectedIndex,
+    required this.onSelect,
+    required this.productName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (variants.length <= 1) return const SizedBox.shrink();
+
+    final colors = context.colors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Available Options',
+          style: AppTextStyles.titleMedium.copyWith(
+            color: colors.textPrimary,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: metrics.sectionTitleSize,
+          ),
+        ),
+
+        SizedBox(height: metrics.gapMd),
+
+        SizedBox(
+          height: metrics.variantCardHeight,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemCount: variants.length,
+            separatorBuilder: (_, __) => SizedBox(width: metrics.gapSm),
+            itemBuilder: (context, index) => VariantCard(
+              metrics: metrics,
+              variant: variants[index],
+              productName: productName,
+              index: index,
+              isSelected: selectedIndex == index,
+              onTap: () => onSelect(index),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class VariantCard extends StatelessWidget {
+  final ProductMetrics metrics;
+  final ProductVariant variant;
+  final String productName;
+  final int index;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const VariantCard({
+    super.key,
+    required this.metrics,
+    required this.variant,
+    required this.productName,
+    required this.index,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  String get _label {
+    final name = variant.variantName.trim();
+    if (name.isNotEmpty) return name;
+
+    if (variant.attributes.isNotEmpty) {
+      return variant.attributes.map((attribute) => attribute.value).join(' / ');
+    }
+
+    return 'Option ${index + 1}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    final isOutOfStock = variant.availableStock <= 0;
+    final stockLabel = isOutOfStock ? 'Out of Stock' : 'In Stock';
+    final stockColor = isOutOfStock ? colors.error : colors.statusSuccess;
+    final stockSoft =
+    isOutOfStock ? colors.error.withValues(alpha: 0.12) : colors.statusSuccessSoft;
+
+    final hasDiscount = variant.basePrice > variant.salePrice;
+
+    return Material(
+      color: isSelected ? colors.brandSoft : colors.surface,
+      borderRadius: BorderRadius.circular(metrics.cardRadius),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: isOutOfStock ? null : onTap,
+        child: Container(
+          width: metrics.variantCardWidth,
+          padding: EdgeInsets.all(metrics.cardPad * 0.8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(metrics.cardRadius),
+            border: Border.all(
+              color: isSelected ? colors.brand : colors.border,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // ── Name + check ──────────────────────────────
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      _label,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: isOutOfStock
+                            ? colors.textMuted
+                            : colors.textPrimary,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: metrics.rowTitleSize,
+                        decoration:
+                        isOutOfStock ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                  ),
+                  if (isSelected) ...[
+                    SizedBox(width: metrics.gapXs),
+                    Container(
+                      width: metrics.rowTitleSize * 1.3,
+                      height: metrics.rowTitleSize * 1.3,
+                      decoration: BoxDecoration(
+                        color: colors.brand,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: colors.onBrand,
+                        size: metrics.rowTitleSize * 0.9,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+
+              if (variant.attributes.isNotEmpty) ...[
+                SizedBox(height: metrics.gapXs),
+                Text(
+                  variant.attributes
+                      .map((attribute) => attribute.value)
+                      .join(', '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: colors.textSecondary,
+                    fontFamily: 'Inter',
+                    fontSize: metrics.rowSubSize,
+                  ),
+                ),
+              ],
+
+              const Spacer(),
+
+              // ── Price ─────────────────────────────────────
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: Text(
+                      formatCurrency(variant.salePrice),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: isOutOfStock
+                            ? colors.textMuted
+                            : colors.textPrimary,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: metrics.rowTitleSize,
+                      ),
+                    ),
+                  ),
+                  if (hasDiscount) ...[
+                    SizedBox(width: metrics.gapXs),
+                    Text(
+                      formatCurrency(variant.basePrice),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: colors.textMuted,
+                        fontFamily: 'Inter',
+                        fontSize: metrics.rowSubSize,
+                        decoration: TextDecoration.lineThrough,
+                        decorationColor: colors.textMuted,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+
+              SizedBox(height: metrics.gapSm),
+
+              // ── Stock badge ───────────────────────────────
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: metrics.gapSm,
+                  vertical: metrics.gapXs * 0.6,
+                ),
+                decoration: BoxDecoration(
+                  color: stockSoft,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  stockLabel,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: stockColor,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: metrics.captionSize,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

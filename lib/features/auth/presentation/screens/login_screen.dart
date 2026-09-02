@@ -177,6 +177,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -258,8 +259,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: colors.background,
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -294,8 +297,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final colors = context.colors;
     return Form(
       key: _formKey,
       autovalidateMode: AutovalidateMode.onUserInteractionIfError,
@@ -357,7 +359,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 'Forgot Password?',
                 style: AppTextStyles.labelLarge.copyWith(
                   fontSize: m.linkText,
-                  color: ThemeColors.primaryPurple,
+                  color: colors.brand,
                 ),
               ),
             ),
@@ -389,11 +391,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   'or',
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: m.footerText,
-                    color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+                    color: colors.textSecondary,
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
+              Expanded(child: Divider(color: colors.border)),
             ],
           ),
 

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_interaction_blocker.dart';
@@ -64,8 +64,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: colors.background,
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -98,7 +100,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
 
     return Form(
       key: _formKey,
@@ -141,18 +143,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           /// OR DIVIDER
           Row(
             children: [
-              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
+              Expanded(child: Divider(color: colors.border)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
                 child: Text(
                   'or',
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: m.footerText,
-                    color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+                    color: colors.textSecondary,
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
+              Expanded(child: Divider(color: colors.border)),
             ],
           ),
 

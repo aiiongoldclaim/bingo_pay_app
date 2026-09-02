@@ -389,8 +389,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Timer? _cooldownTimer;
   int _secondsLeft = _resendCooldownSeconds;
-
-  /// null = koi error nahi
   String? _otpError;
 
   @override
@@ -409,7 +407,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     super.dispose();
   }
 
-  /// user type kare → error hat jaye
+
   void _onOtpChanged() {
     if (_otpError != null) setState(() => _otpError = null);
   }
@@ -518,7 +516,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
-    final c = context.c;
+    final colors = context.c;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -533,7 +531,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   fontFamily: 'Inter',
                   fontSize: m.footerText + 1,
                   fontWeight: FontWeight.w600,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               TextSpan(
@@ -542,7 +540,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   fontFamily: 'Inter',
                   fontSize: m.footerText + 1,
                   fontWeight: FontWeight.w700,
-                  color: c.statusWarning,
+                  color: colors.statusWarning,
                 ),
               ),
             ],
@@ -571,7 +569,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: m.footerText,
                       fontWeight: FontWeight.w500,
-                      color: c.statusWarning,
+                      color: colors.statusWarning,
                     ),
                   ),
                 ),
@@ -601,7 +599,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               "Didn't receive the code?",
               style: AppTextStyles.bodyMedium.copyWith(
                 fontSize: m.footerText,
-                color: c.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
             SizedBox(width: m.fieldGap * 0.4),
@@ -613,7 +611,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 style: AppTextStyles.labelLarge.copyWith(
                   fontSize: m.footerText,
                   fontWeight: FontWeight.w700,
-                  color: _secondsLeft == 0 ? c.brand : c.textMuted,
+                  color: _secondsLeft == 0 ? colors.brand : colors.textMuted,
                 ),
               ),
             ),
@@ -625,18 +623,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         /// OR DIVIDER
         Row(
           children: [
-            Expanded(child: Divider(color: c.border)),
+            Expanded(child: Divider(color: colors.border)),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
               child: Text(
                 'or',
                 style: AppTextStyles.bodyMedium.copyWith(
                   fontSize: m.footerText,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ),
-            Expanded(child: Divider(color: c.border)),
+            Expanded(child: Divider(color: colors.border)),
           ],
         ),
 

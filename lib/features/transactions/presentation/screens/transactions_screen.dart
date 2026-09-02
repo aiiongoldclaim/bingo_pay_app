@@ -323,7 +323,7 @@ class _TransactionsTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -344,7 +344,7 @@ class _TransactionsTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           Expanded(
@@ -355,7 +355,7 @@ class _TransactionsTopBar extends StatelessWidget {
                 Text(
                   'Transactions',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.titleSize,
@@ -367,7 +367,7 @@ class _TransactionsTopBar extends StatelessWidget {
                   Text(
                     '$count ${count == 1 ? 'transaction' : 'transactions'}',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.subtitleSize,
                       height: 1.2,
@@ -390,9 +390,6 @@ class _LoadedView extends StatelessWidget {
 
   const _LoadedView({required this.metrics, required this.state});
 
-  // Transactions only carry a light-weight order reference (uuid, number,
-  // statuses) — pushing this placeholder lets OrderDetailScreen fetch the
-  // full order (with line items) by uuid, same as tapping from My Orders.
   void _goToOrder(BuildContext context, TransactionModel transaction) {
     final ref = transaction.order;
     if (ref == null) return;
@@ -418,13 +415,13 @@ class _LoadedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return RefreshIndicator(
       onRefresh: context.read<TransactionsCubit>().loadTransactions,
-      color: c.brand,
-      backgroundColor: c.surface,
+      color: colors.brand,
+      backgroundColor: colors.surface,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: m.maxContentWidth),
@@ -587,14 +584,14 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return LayoutBuilder(
       builder: (context, constraints) => RefreshIndicator(
         onRefresh: context.read<TransactionsCubit>().loadTransactions,
-        color: c.brand,
-        backgroundColor: c.surface,
+        color: colors.brand,
+        backgroundColor: colors.surface,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: ConstrainedBox(
@@ -609,14 +606,14 @@ class _ErrorView extends StatelessWidget {
                       width: m.emptyIllustration,
                       height: m.emptyIllustration,
                       decoration: BoxDecoration(
-                        color: c.brandSoft,
+                        color: colors.brandSoft,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: Icon(
                         Icons.wifi_off_rounded,
                         size: m.emptyIllustration * 0.42,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     ),
 
@@ -626,7 +623,7 @@ class _ErrorView extends StatelessWidget {
                       'Could not load transactions',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.titleLarge.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.emptyTitleSize,
@@ -639,7 +636,7 @@ class _ErrorView extends StatelessWidget {
                       message,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: m.emptySubSize,
                         height: 1.45,
@@ -652,7 +649,7 @@ class _ErrorView extends StatelessWidget {
                       width: m.isTablet ? 240 : null,
                       height: m.btnHeight,
                       child: Material(
-                        color: c.brand,
+                        color: colors.brand,
                         borderRadius: BorderRadius.circular(12),
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
@@ -667,7 +664,7 @@ class _ErrorView extends StatelessWidget {
                               child: Text(
                                 'RETRY',
                                 style: AppTextStyles.buttonText.copyWith(
-                                  color: c.surface,
+                                  color: colors.surface,
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w700,
                                   fontSize: m.btnFontSize,

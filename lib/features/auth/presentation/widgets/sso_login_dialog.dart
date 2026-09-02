@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -31,7 +30,7 @@ class SsoLoginDialog extends StatelessWidget {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: ThemeColors.black.withValues(alpha: 0.65),
+      barrierColor: context.colors.scrim,
       builder: (_) => SsoLoginDialog(
         email: email,
         onSendOtp: onSendOtp,
@@ -42,16 +41,12 @@ class SsoLoginDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final m = _DialogMetrics.get();
-    final c = context.c;
-    final isDark = c.isDark;
+    final metrics = _DialogMetrics.get();
+    final colors = context.colors;
 
     return BlocConsumer<AuthBloc, AuthState>(
-      listenWhen: (previous, current) =>
-      current is SsoOtpRequired,
-      listener: (context, state) {
-        Navigator.of(context).pop();
-      },
+      listenWhen: (previous, current) => current is SsoOtpRequired,
+      listener: (context, state) => Navigator.of(context).pop(),
       builder: (context, state) {
         final isSending = state is SsoOtpSending;
 
@@ -60,36 +55,21 @@ class SsoLoginDialog extends StatelessWidget {
           child: Dialog(
             backgroundColor: Colors.transparent,
             insetPadding: EdgeInsets.symmetric(
-              horizontal: m.insetH,
+              horizontal: metrics.insetH,
               vertical: 24,
             ),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: m.maxWidth,
-              ),
+              constraints: BoxConstraints(maxWidth: metrics.maxWidth),
               child: SingleChildScrollView(
                 child: Container(
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: c.surface,
-                    borderRadius: BorderRadius.circular(
-                      AppSizes.radius2Xl,
-                    ),
-                    border: isDark
-                        ? Border.all(
-                      color: c.border,
-                      width: 1,
-                    )
-                        : null,
+                    color: colors.surface,
+                    borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
+                    border: Border.all(color: colors.border, width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: isDark
-                            ? ThemeColors.black.withValues(
-                          alpha: 0.55,
-                        )
-                            : c.brand.withValues(
-                          alpha: 0.20,
-                        ),
+                        color: colors.dialogShadow,
                         blurRadius: 24,
                         offset: const Offset(0, 14),
                       ),
@@ -99,65 +79,47 @@ class SsoLoginDialog extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _Header(
-                        m: m,
-                        onClose:
-                        isSending
-                            ? null
-                            : onUseDifferentEmail,
+                        metrics: metrics,
+                        onClose: isSending ? null : onUseDifferentEmail,
                       ),
+
                       Padding(
                         padding: EdgeInsets.fromLTRB(
-                          m.padH,
-                          m.padTop*1,
-                          m.padH,
-                          m.padBottom,
+                          metrics.padH,
+                          metrics.padTop,
+                          metrics.padH,
+                          metrics.padBottom,
                         ),
                         child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.stretch,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
                               'Welcome back!',
                               textAlign: TextAlign.center,
-                              style:
-                              AppTextStyles
-                                  .headlineMedium
-                                  .copyWith(
-                                fontSize: m.titleFont,
-                                color: c.textPrimary,
-                                fontWeight:
-                                FontWeight.w700,
+                              style: AppTextStyles.headlineMedium.copyWith(
+                                fontSize: metrics.titleFont,
+                                color: colors.textPrimary,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(
-                              height: m.gapSm,
-                            ),
+
+                            SizedBox(height: metrics.gapSm),
+
                             Text.rich(
+                              textAlign: TextAlign.center,
                               TextSpan(
-                                style:
-                                AppTextStyles
-                                    .bodyMedium
-                                    .copyWith(
-                                  fontSize: m.bodyFont,
-                                  color:
-                                  c.textSecondary,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontSize: metrics.bodyFont,
+                                  color: colors.textSecondary,
                                   height: 1.55,
                                 ),
                                 children: [
-                                  const TextSpan(
-                                    text:
-                                    'An account for ',
-                                  ),
+                                  const TextSpan(text: 'An account for '),
                                   TextSpan(
                                     text: email,
                                     style: TextStyle(
-                                      fontWeight:
-                                      FontWeight.w700,
-                                      color:
-                                      isDark
-                                          ? ThemeColors
-                                          .gold1
-                                          : c.brand,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.brand,
                                     ),
                                   ),
                                   const TextSpan(
@@ -166,12 +128,10 @@ class SsoLoginDialog extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              textAlign:
-                              TextAlign.center,
                             ),
-                            SizedBox(
-                              height: m.gapLg,
-                            ),
+
+                            SizedBox(height: metrics.gapLg),
+
                             AppButton(
                               label: 'Send OTP to Sign In',
                               prefixIcon: Icons.mark_email_read_rounded,
@@ -179,12 +139,13 @@ class SsoLoginDialog extends StatelessWidget {
                               onPressed: isSending ? null : onSendOtp,
                               variant: AppButtonVariant.primary,
                             ),
-                            SizedBox(
-                              height: m.gapSm,
-                            ),
+
+                            SizedBox(height: metrics.gapSm),
+
                             AppButton(
                               label: 'Use a different email',
-                              onPressed: isSending ? null : onUseDifferentEmail,
+                              onPressed:
+                              isSending ? null : onUseDifferentEmail,
                               variant: AppButtonVariant.outlined,
                             ),
                           ],
@@ -203,30 +164,24 @@ class SsoLoginDialog extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  final _DialogMetrics m;
+  final _DialogMetrics metrics;
   final VoidCallback? onClose;
 
-  const _Header({
-    required this.m,
-    required this.onClose,
-  });
+  const _Header({required this.metrics, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
-    final isDark = c.isDark;
+    final colors = context.colors;
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
-        m.padH * 0.7,
-        m.gapMd,
-        m.padH * 0.7,
-        m.gapMd,
+        metrics.padH * 0.7,
+        metrics.gapMd,
+        metrics.padH * 0.7,
+        metrics.gapMd,
       ),
-      decoration: BoxDecoration(
-        gradient: c.heroBanner,
-      ),
+      decoration: BoxDecoration(gradient: colors.heroBanner),
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
@@ -235,87 +190,53 @@ class _Header extends StatelessWidget {
             alignment: Alignment.topRight,
             child: GestureDetector(
               onTap: onClose,
-              behavior:
-              HitTestBehavior.opaque,
+              behavior: HitTestBehavior.opaque,
               child: Container(
-                padding:
-                const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? ThemeColors.white
-                      .withValues(
-                    alpha: 0.10,
-                  )
-                      : ThemeColors.white
-                      .withValues(
-                    alpha: 0.16,
-                  ),
+                  color: colors.heroBannerOverlay,
                   shape: BoxShape.circle,
-                  border: isDark
-                      ? Border.all(
-                    color: ThemeColors.white
-                        .withValues(
-                      alpha: 0.15,
-                    ),
-                  )
-                      : null,
+                  border: Border.all(color: colors.heroBannerOverlay),
                 ),
                 child: Icon(
                   Icons.close_rounded,
-                  size: m.closeIcon,
-                  color:
-                  ThemeColors.white,
+                  size: metrics.closeIcon,
+                  color: colors.onHeroBanner,
                 ),
               ),
             ),
           ),
+
           Column(
-            mainAxisSize:
-            MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: m.badgeBox,
-                height: m.badgeBox,
+                width: metrics.badgeBox,
+                height: metrics.badgeBox,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: ThemeColors.white
-                      .withValues(
-                    alpha: 0.12,
-                  ),
+                  color: colors.heroBannerOverlay,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: ThemeColors.white
-                        .withValues(
-                      alpha: 0.30,
-                    ),
+                    color: colors.onHeroBanner.withValues(alpha: 0.30),
                     width: 1.2,
                   ),
                 ),
-                alignment:
-                Alignment.center,
                 child: Icon(
                   Icons.verified_user_rounded,
-                  color:
-                  ThemeColors.white,
-                  size:
-                  m.badgeBox * 0.46,
+                  color: colors.onHeroBanner,
+                  size: metrics.badgeBox * 0.46,
                 ),
               ),
-              SizedBox(
-                height: m.gapSm,
-              ),
+
+              SizedBox(height: metrics.gapSm),
+
               Text(
                 'BINGOLD SSO',
-                style: AppTextStyles
-                    .buttonText
-                    .copyWith(
-                  fontSize:
-                  m.labelFont,
+                style: AppTextStyles.buttonText.copyWith(
+                  fontSize: metrics.labelFont,
                   letterSpacing: 1.6,
-                  color:
-                  ThemeColors.white
-                      .withValues(
-                    alpha: 0.92,
-                  ),
+                  color: colors.onHeroBanner.withValues(alpha: 0.92),
                 ),
               ),
             ],

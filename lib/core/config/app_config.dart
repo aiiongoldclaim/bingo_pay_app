@@ -6,6 +6,8 @@ class AppConfig {
   static const int pageSize = 20;
   static const int kycPollingIntervalSeconds = 10;
 
+  static const Duration minSplashDuration = Duration(milliseconds: 1500);
+
   static String get apiBaseUrl =>
       FlavorConfig.instance.variables['apiBaseUrl'] as String;
   static String get apiKey => FlavorConfig.instance.variables['apiKey'] as String;
