@@ -26,8 +26,22 @@ class MyBookingsScreen extends StatelessWidget {
   }
 }
 
-class _MyBookingsBody extends StatelessWidget {
+class _MyBookingsBody extends StatefulWidget {
   const _MyBookingsBody();
+
+  @override
+  State<_MyBookingsBody> createState() => _MyBookingsBodyState();
+}
+
+class _MyBookingsBodyState extends State<_MyBookingsBody> {
+  late List<BookingEntity> _lastLoadedBookings;
+  bool _hasLoadedOnce = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _lastLoadedBookings = [];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,23 +49,38 @@ class _MyBookingsBody extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: c.background,
-
       body: SafeArea(
         child: BlocBuilder<BookingCubit, BookingState>(
           builder: (context, state) {
+            // Always update last loaded bookings when we get a fresh list
+            if (state is BookingListLoaded) {
+              _lastLoadedBookings = state.bookings;
+              _hasLoadedOnce = true;
+              return _BookingsLoadedView(bookings: state.bookings);
+            }
+
             if (state is BookingInitial || state is BookingLoading) {
+              if (_hasLoadedOnce && _lastLoadedBookings.isNotEmpty) {
+                // Show cached bookings while loading new data
+                return _BookingsLoadedView(bookings: _lastLoadedBookings);
+              }
               return const _BookingsLoadingView();
             }
 
             if (state is BookingError) {
+              if (_hasLoadedOnce && _lastLoadedBookings.isNotEmpty) {
+                // Show cached bookings even if there's an error
+                return _BookingsLoadedView(bookings: _lastLoadedBookings);
+              }
               return _BookingErrorView(message: state.message);
             }
 
-            if (state is BookingListLoaded) {
-              return _BookingsLoadedView(bookings: state.bookings);
+            // For all other states (detail operations), show last loaded bookings
+            if (_hasLoadedOnce && _lastLoadedBookings.isNotEmpty) {
+              return _BookingsLoadedView(bookings: _lastLoadedBookings);
             }
 
-            return const SizedBox.shrink();
+            return const _BookingsLoadingView();
           },
         ),
       ),
@@ -542,32 +571,18 @@ class _BookingCardState extends State<_BookingCard> {
                   // -----------------------------------------------------------
                   // BOTTOM ACTIONS
                   // -----------------------------------------------------------
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _BookingActionButton(
-                          icon: Icons.sync_rounded,
-                          label: 'Change time',
-                          primary: true,
-                          onTap: () {
-                            _showComingSoon(context, 'Change time');
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 9),
-                      Expanded(
-                        child: _BookingActionButton(
-                          icon: _generatingPdf
-                              ? Icons.hourglass_top_outlined
-                              : Icons.file_download_outlined,
-                          label: _generatingPdf ? 'Generating…' : 'Invoice',
-                          primary: false,
-                          onTap: _generatingPdf
-                              ? null
-                              : () => _downloadInvoice(),
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: _BookingActionButton(
+                      icon: _generatingPdf
+                          ? Icons.hourglass_top_outlined
+                          : Icons.file_download_outlined,
+                      label: _generatingPdf ? 'Generating…' : 'Download Invoice',
+                      primary: false,
+                      onTap: _generatingPdf
+                          ? null
+                          : () => _downloadInvoice(),
+                    ),
                   ),
                 ],
               ),
@@ -685,14 +700,6 @@ class _BookingCardState extends State<_BookingCard> {
         .join(' ');
   }
 
-  void _showComingSoon(BuildContext context, String action) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$action will be available soon.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
 }
 
 // -----------------------------------------------------------------------------
@@ -722,9 +729,9 @@ class _DateTimePanel extends StatelessWidget {
         ? DateFormat('MMM').format(start).toUpperCase()
         : '---';
 
-    final time = start != null ? DateFormat('HH:mm').format(start) : '--:--';
+    final time = start != null ? DateFormat('hh:mm a').format(start) : '--:--';
 
-    final endTime = end != null ? DateFormat('HH:mm').format(end) : null;
+    final endTime = end != null ? DateFormat('hh:mm a').format(end) : null;
 
     return Container(
       padding: const EdgeInsets.all(13),
@@ -797,37 +804,20 @@ class _DateTimePanel extends StatelessWidget {
                       color: c.textSecondary,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      endTime != null ? '$time – $endTime' : time,
-                      style: TextStyle(
-                        color: c.textPrimary,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                    Expanded(
+                      child: Text(
+                        endTime != null ? '$time – $endTime' : time,
+                        style: TextStyle(
+                          color: c.textPrimary,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ],
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-            decoration: BoxDecoration(
-              color: c.brandSoft,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              booking.participants == 1
-                  ? '1 person'
-                  : '${booking.participants} people',
-              style: TextStyle(
-                color: c.brand,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w700,
-                fontSize: 10.5,
-              ),
             ),
           ),
         ],
@@ -982,6 +972,7 @@ class _BookingActionButton extends StatelessWidget {
           opacity: onTap == null ? 0.6 : 1.0,
           child: Container(
             height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: primary ? c.background : c.surface,
               borderRadius: BorderRadius.circular(12),
@@ -992,13 +983,18 @@ class _BookingActionButton extends StatelessWidget {
               children: [
                 Icon(icon, size: 16, color: c.textPrimary),
                 const SizedBox(width: 7),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: c.textPrimary,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 11.5,
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: c.textPrimary,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11.5,
+                    ),
                   ),
                 ),
               ],

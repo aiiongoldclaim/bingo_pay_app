@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/booking_details_entity.dart';
@@ -24,12 +23,10 @@ class BookingDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<BookingCubit>()
-        ..fetchBookingDetails(bookingUuid),
-      child: _BookingDetailsView(
-        bookingUuid: bookingUuid,
-      ),
+    context.read<BookingCubit>().fetchBookingDetails(bookingUuid);
+
+    return _BookingDetailsView(
+      bookingUuid: bookingUuid,
     );
   }
 }
@@ -863,8 +860,8 @@ class _AppointmentCard extends StatelessWidget {
     ).format(startDate);
 
     final timeText = endDate == null
-        ? DateFormat('HH:mm').format(startDate)
-        : '${DateFormat('HH:mm').format(startDate)} – ${DateFormat('HH:mm').format(endDate)}';
+        ? DateFormat('hh:mm a').format(startDate)
+        : '${DateFormat('hh:mm a').format(startDate)} – ${DateFormat('hh:mm a').format(endDate)}';
 
     return _Card(
       child: Column(
@@ -2171,7 +2168,7 @@ class _DaySlots extends StatelessWidget {
     final c = context.c;
 
     try {
-      final dateTime = DateTime.parse(day.date);
+      final dateTime = DateTime.parse(day.date).toLocal();
       final dateStr = DateFormat('EEE d MMM')
           .format(dateTime);
 
@@ -2256,8 +2253,8 @@ class _TimeSlotButton extends StatelessWidget {
     try {
       final start = DateTime.parse(
         slot.startsAt,
-      );
-      final timeStr = DateFormat('HH:mm')
+      ).toLocal();
+      final timeStr = DateFormat('hh:mm a')
           .format(start);
 
       return Material(
@@ -3146,7 +3143,7 @@ String _formatTimelineDate(String value) {
   }
 
   return DateFormat(
-    'dd MMM yyyy • HH:mm',
+    'dd MMM yyyy • hh:mm a',
   ).format(date);
 }
 
