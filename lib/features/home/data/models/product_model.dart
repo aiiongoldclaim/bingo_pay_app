@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 class ProductModel {
   final String? uuid;
   final String? variantUuid;
-  final int stock;
+  /// `null` means the catalogue response did not include inventory data.
+  /// It must not be treated as an out-of-stock result.
+  final int? stock;
   final String brand;
   final String name;
   final String price;
@@ -24,7 +26,7 @@ class ProductModel {
     required this.icon,
     required this.images,
     this.variantUuid,
-    this.stock = 0,
+    this.stock,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -36,16 +38,25 @@ class ProductModel {
 
     final brand = json['brand'] as Map<String, dynamic>?;
     final variants = (json['variants'] as List<dynamic>?) ?? [];
-    int stock = 0;
+    // Cached catalogue entries are stored in this model's flattened form,
+    // while API responses keep inventory on the selected variant.
+    // Previous code: int stock = _asInt(json['stock']) ?? 0;
+    // Missing inventory was therefore converted to 0 (sold out).
+    int? stock = _asInt(json['stock']) ??
+        _asInt(json['availableStock']) ??
+        _readInventoryStock(json['inventory']);
 
     double price = 0.0;
     double oldPrice = 0.0;
     int discount = 0;
-    String? variantUuid;
+    String? variantUuid = json['variantUuid'] as String?;
     if (variants.isNotEmpty) {
       final v = variants.first as Map<String, dynamic>;
       // API returns salePrice/basePrice as strings; fall back to numeric price/compareAtPrice
-      variantUuid = v['uuid'] as String?;
+      variantUuid = v['uuid'] as String? ?? variantUuid;
+      stock = _asInt(v['availableStock']) ??
+          _readInventoryStock(v['inventory']) ??
+          stock;
       price =
           double.tryParse(v['salePrice']?.toString() ?? '') ??
           (v['price'] as num?)?.toDouble() ??
@@ -102,6 +113,21 @@ class ProductModel {
       if (rem == 3 || (rem > 3 && (rem - 3) % 2 == 0)) buf.write(',');
     }
     return buf.toString();
+  }
+
+  static int? _asInt(Object? value) => switch (value) {
+    int value => value,
+    num value => value.toInt(),
+    _ => int.tryParse(value?.toString() ?? ''),
+  };
+
+  static int? _readInventoryStock(Object? inventory) {
+    if (inventory is! Map) return null;
+    return _asInt(
+      inventory['availableStock'] ??
+          inventory['available_stock'] ??
+          inventory['stock'],
+    );
   }
 
   // static List<ProductModel> flashDeals() => [

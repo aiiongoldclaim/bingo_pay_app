@@ -463,6 +463,109 @@ class ProductInfoBlock extends StatelessWidget {
   }
 }
 
+/// Lets shoppers choose the number of units before adding this variant to the
+/// cart or proceeding to checkout. Bounds are also reflected in the buttons so
+/// an unavailable quantity cannot be selected.
+class ProductQuantitySelector extends StatelessWidget {
+  final ProductMetrics metrics;
+  final int quantity;
+  final int availableStock;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+
+  const ProductQuantitySelector({
+    super.key,
+    required this.metrics,
+    required this.quantity,
+    required this.availableStock,
+    required this.onIncrement,
+    required this.onDecrement,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = metrics;
+    final canDecrement = quantity > 1;
+    final canIncrement = quantity < availableStock;
+
+    return ProductSectionCard(
+      metrics: m,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Quantity',
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: c.textPrimary,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: m.sectionTitleSize,
+                  ),
+                ),
+                SizedBox(height: m.gapXs * 0.7),
+                Text(
+                  '$availableStock available',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: c.textSecondary,
+                    fontFamily: 'Inter',
+                    fontSize: m.rowSubSize,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: c.border),
+              borderRadius: BorderRadius.circular(m.cardRadius * 0.7),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  key: const Key('product_quantity_decrement'),
+                  tooltip: 'Decrease quantity',
+                  onPressed: canDecrement ? onDecrement : null,
+                  icon: const Icon(Icons.remove_rounded),
+                  color: c.textPrimary,
+                ),
+                Semantics(
+                  label: 'Selected quantity: $quantity',
+                  child: SizedBox(
+                    width: m.sectionTitleSize * 2.2,
+                    child: Text(
+                      '$quantity',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: c.textPrimary,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: m.sectionTitleSize,
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  key: const Key('product_quantity_increment'),
+                  tooltip: 'Increase quantity',
+                  onPressed: canIncrement ? onIncrement : null,
+                  icon: const Icon(Icons.add_rounded),
+                  color: c.textPrimary,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Variants as size chips ─────────────────────────────────────────────────
 // class ProductSizeSelector extends StatelessWidget {
 //   final ProductMetrics metrics;

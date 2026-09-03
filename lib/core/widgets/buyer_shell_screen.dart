@@ -103,6 +103,7 @@ import 'package:go_router/go_router.dart';
 import '../router/app_routes.dart';
 import 'custom_bottom_nav.dart';
 import 'qr_fab.dart';
+import '../di/injection.dart';
 import '../../features/home/presentation/cubit/dashboard_cubit.dart';
 
 class BuyerShellScreen extends StatefulWidget {
@@ -120,7 +121,7 @@ class BuyerShellScreen extends StatefulWidget {
 }
 
 class _BuyerShellScreenState extends State<BuyerShellScreen> {
-  late final HomeCubit _homeCubit = HomeCubit()..loadHome();
+  late final HomeCubit _homeCubit = getIt<HomeCubit>()..loadHome();
 
   @override
   void didUpdateWidget(covariant BuyerShellScreen oldWidget) {

@@ -1,23 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
+import 'package:injectable/injectable.dart';
 
-import '../../../../core/api/api_client.dart';
-import '../../../../core/config/app_config.dart';
-import '../../data/models/product_details_model.dart';
+import '../../../wishlist/data/repositories/wishlist_repository.dart';
 import 'product_details_state.dart';
 
+@injectable
 class ProductDetailCubit extends Cubit<ProductDetailState> {
-  ProductDetailCubit() : super(const ProductDetailLoading());
+  final WishlistRepository _repository;
+
+  ProductDetailCubit(this._repository) : super(const ProductDetailLoading());
 
   Future<void> loadProduct(String uuid) async {
     emit(const ProductDetailLoading());
     try {
-      final client = GetIt.I<ApiClient>();
-      final url = '${AppConfig.apiBaseUrl}/api/v1/products/$uuid';
-      final response = await client.dio.get(url);
-      final product = ProductDetailModel.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      final product = await _repository.getProductDetail(uuid);
       emit(ProductDetailLoaded(product: product));
     } catch (e) {
       emit(ProductDetailError(e.toString()));
@@ -44,6 +40,7 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
   void incrementQuantity() {
     final current = state;
     if (current is! ProductDetailLoaded) return;
+    if (current.quantity >= current.product.availableStock) return;
     emit(current.copyWith(quantity: current.quantity + 1));
   }
 

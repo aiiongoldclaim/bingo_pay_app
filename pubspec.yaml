@@ -90,7 +90,8 @@ flutter:
     - assets/fonts_new/
     - assets/data/
     - assets/svg/
-    # - assets/animations/
+
+
 
 
 

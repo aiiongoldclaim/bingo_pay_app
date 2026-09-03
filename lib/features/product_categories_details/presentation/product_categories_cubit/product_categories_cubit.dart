@@ -1,3 +1,5 @@
+import 'dart:math' show min;
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,16 @@ import '../../data/models/product_categories_model.dart';
 import '../../data/services/product_cache_service.dart';
 import 'product_categories_state.dart';
 
+
+class _CategoryPageBatch {
+  const _CategoryPageBatch(this.pages, this.rateLimitError);
+
+  final List<List<ListingProductModel>> pages;
+  final RateLimitFailure? rateLimitError;
+
+  Iterable<ListingProductModel> get flattened => pages.expand((p) => p);
+}
+
 class ProductListingCubit extends Cubit<ProductListingState> {
   ProductListingCubit() : super(const ProductListingLoading());
 
@@ -21,6 +33,14 @@ class ProductListingCubit extends Cubit<ProductListingState> {
   // Prevent race conditions from multiple rapid taps
   String? _currentRequestId;
   bool _isLoading = false;
+
+  static const int _pageSize = 20;
+
+  static const int _maxConcurrentRequests = 6;
+
+  List<String> _categoryUuidsForPaging = [];
+  final Map<String, bool> _categoryExhausted = {};
+  bool _isLoadingMore = false;
 
   Future<void> _initCache() async {
     _cacheService ??= ProductCacheService(await SharedPreferences.getInstance());
@@ -43,17 +63,21 @@ class ProductListingCubit extends Cubit<ProductListingState> {
   Future<void> retryLoadCategory() async {
     if (_lastCategoryName != null && _lastCategoryUuid != null) {
       _currentRequestId = DateTime.now().millisecondsSinceEpoch.toString();
-      await _loadCategoryInternal(_lastCategoryName!, _lastCategoryUuid!, _currentRequestId!);
+      await _loadCategoryInternal(
+          _lastCategoryName!, _lastCategoryUuid!, _currentRequestId!);
     }
   }
 
   Future<void> _loadCategoryInternal(
-    String categoryName,
-    String categoryUuid,
-    String requestId,
-  ) async {
+      String categoryName,
+      String categoryUuid,
+      String requestId,
+      ) async {
     try {
       _isLoading = true;
+      // New request: forget the previous category's pagination progress.
+      _categoryUuidsForPaging = [];
+      _categoryExhausted.clear();
       await _initCache();
 
       // Only emit if this is still the current request
@@ -92,7 +116,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         categoryUuids = await _resolveCategoryUuids(client, categoryUuid);
       } catch (e) {
         final failure =
-            e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
+        e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
         if (failure is RateLimitFailure) {
           rateLimitError = failure;
           // Fall back to just the tapped category
@@ -103,60 +127,47 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         }
       }
 
-      final results = <List<ListingProductModel>>[];
+      _categoryUuidsForPaging = categoryUuids;
 
-      for (final uuid in categoryUuids) {
-        try {
-          final products = await _fetchProducts(client, uuid);
-          results.add(products);
-        } catch (e) {
-          // If rate limited, store the error but continue trying other categories
-          final failure = e is Exception
-              ? ErrorHandler.mapExceptionToFailure(e)
-              : null;
-          if (failure is RateLimitFailure) {
-            rateLimitError = failure;
-            continue;
-          }
-          // Otherwise continue with other categories
-          continue;
-        }
-      }
+      final batch = await _fetchCategoryPages(client, categoryUuids, page: 1);
+      rateLimitError ??= batch.rateLimitError;
+
+      if (_currentRequestId != requestId) return;
 
       final seen = <String>{};
       final products = <ListingProductModel>[];
-      for (final list in results) {
-        for (final product in list) {
-          if (seen.add(product.id)) products.add(product);
-        }
+      for (final product in batch.flattened) {
+        if (seen.add(product.id)) products.add(product);
       }
 
-      // If we got any products, cache them and emit success (fresh data)
       if (products.isNotEmpty) {
         await _cacheService?.cacheProducts(categoryUuid, products);
 
         // Only emit if still current request
         if (_currentRequestId == requestId) {
+          final hasMore =
+          categoryUuids.any((u) => _categoryExhausted[u] != true);
           emit(
             ProductListingLoaded(
               categoryName: categoryName,
               products: products,
               filteredProducts: products,
               isCachedData: false, // Fresh data from API
+              currentPage: 1,
+              hasMorePages: hasMore,
             ),
           );
         }
       } else if (rateLimitError != null) {
-        // No new products but rate limited
-        // Check if we already showed cache at the start
         final currentState = state;
         if (currentState is ProductListingLoaded && currentState.isCachedData) {
-          // Already showing cache, don't change it - user can see cached data
+
           return;
         }
         // Otherwise try to show cache, only if still current request
         if (_currentRequestId == requestId) {
-          await _handleRateLimitWithCache(categoryName, categoryUuid, rateLimitError, requestId);
+          await _handleRateLimitWithCache(
+              categoryName, categoryUuid, rateLimitError, requestId);
         }
       } else {
         // No products and no specific error
@@ -171,15 +182,15 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         }
       }
     } catch (e) {
-      final failure = e is Exception
-          ? ErrorHandler.mapExceptionToFailure(e)
-          : null;
+      final failure =
+      e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
 
       // Only emit if still current request
       if (_currentRequestId == requestId) {
         // If rate limited, try to show cached data instead of error
         if (failure is RateLimitFailure) {
-          await _handleRateLimitWithCache(categoryName, categoryUuid, failure, requestId);
+          await _handleRateLimitWithCache(
+              categoryName, categoryUuid, failure, requestId);
         } else {
           final errorMessage = failure?.message ?? e.toString();
           emit(ProductListingError(message: errorMessage));
@@ -190,13 +201,12 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     }
   }
 
-  /// Handle rate limit error by showing cached data if available
   Future<void> _handleRateLimitWithCache(
-    String categoryName,
-    String categoryUuid,
-    RateLimitFailure failure, [
-    String? requestId,
-  ]) async {
+      String categoryName,
+      String categoryUuid,
+      RateLimitFailure failure, [
+        String? requestId,
+      ]) async {
     final cached = await _cacheService?.getCachedProducts(categoryUuid);
 
     // Check if request is still current before emitting
@@ -227,17 +237,67 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     }
   }
 
+  Future<_CategoryPageBatch> _fetchCategoryPages(
+      ApiClient client,
+      List<String> uuids, {
+        required int page,
+      }) async {
+    final pages = List<List<ListingProductModel>>.generate(
+      uuids.length,
+          (_) => const <ListingProductModel>[],
+      growable: false,
+    );
+    RateLimitFailure? rateLimitError;
+
+    for (var start = 0; start < uuids.length; start += _maxConcurrentRequests) {
+      final end = min(start + _maxConcurrentRequests, uuids.length);
+
+      await Future.wait([
+        for (var i = start; i < end; i++)
+          _fetchInto(client, uuids[i], page, (products) {
+            pages[i] = products;
+          }, (failure) {
+            rateLimitError ??= failure;
+          }),
+      ]);
+    }
+
+    return _CategoryPageBatch(pages, rateLimitError);
+  }
+
+  Future<void> _fetchInto(
+      ApiClient client,
+      String uuid,
+      int page,
+      void Function(List<ListingProductModel>) onSuccess,
+      void Function(RateLimitFailure) onRateLimit,
+      ) async {
+    try {
+      final products = await _fetchProducts(client, uuid, page: page);
+      _categoryExhausted[uuid] = products.length < _pageSize;
+      onSuccess(products);
+    } catch (e) {
+      final failure =
+      e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
+      if (failure is RateLimitFailure) {
+        onRateLimit(failure);
+      }
+
+    }
+  }
+
   Future<List<ListingProductModel>> _fetchProducts(
-    ApiClient client,
-    String categoryUuid,
-  ) async {
+      ApiClient client,
+      String categoryUuid, {
+        int page = 1,
+      }) async {
     final url = '${AppConfig.apiBaseUrl}/api/v1/products';
     final response = await client.dio.get(
       url,
       queryParameters: {
         if (categoryUuid.isNotEmpty) 'categoryUuid': categoryUuid,
-        'page': 1,
-        'limit': 20,
+        'page': page,
+        'limit': _pageSize,
       },
     );
 
@@ -249,15 +309,66 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         .toList();
   }
 
+  Future<void> loadMoreProducts() async {
+    final s = state;
+    if (s is! ProductListingLoaded) return;
+    if (_isLoadingMore || !s.hasMorePages) return;
+
+    _isLoadingMore = true;
+    final nextPage = s.currentPage + 1;
+    emit(s.copyWith(isLoadingMore: true));
+
+    try {
+      final client = GetIt.I<ApiClient>();
+      final uuidsToFetch = _categoryUuidsForPaging
+          .where((u) => _categoryExhausted[u] != true)
+          .toList();
+
+      final batch =
+      await _fetchCategoryPages(client, uuidsToFetch, page: nextPage);
+
+      final seen = s.products.map((p) => p.id).toSet();
+      final newProducts =
+      batch.flattened.where((p) => seen.add(p.id)).toList(growable: false);
+
+      final mergedProducts = [...s.products, ...newProducts];
+      final mergedFiltered = _applyRatingFilter(
+        _applyPriceFilter(mergedProducts, s.selectedPriceFilter),
+        s.selectedRatingFilter,
+      );
+      final hasMore =
+      _categoryUuidsForPaging.any((u) => _categoryExhausted[u] != true);
+
+      final current = state;
+      if (current is ProductListingLoaded) {
+        emit(
+          current.copyWith(
+            products: mergedProducts,
+            filteredProducts: mergedFiltered,
+            currentPage: nextPage,
+            hasMorePages: hasMore,
+            isLoadingMore: false,
+          ),
+        );
+      }
+    } catch (_) {
+      final current = state;
+      if (current is ProductListingLoaded) {
+        emit(current.copyWith(isLoadingMore: false));
+      }
+    } finally {
+      _isLoadingMore = false;
+    }
+  }
+
   Future<List<String>> _resolveCategoryUuids(
-    ApiClient client,
-    String categoryUuid,
-  ) async {
+      ApiClient client,
+      String categoryUuid,
+      ) async {
     if (categoryUuid.isEmpty) return [''];
 
     try {
-      final url =
-          '${AppConfig.apiBaseUrl}${ApiEndpoints.categories}';
+      final url = '${AppConfig.apiBaseUrl}${ApiEndpoints.categories}';
       final response = await client.dio.get(url);
       final raw = response.data as Map<String, dynamic>;
       final dataMap = raw['data'] as Map<String, dynamic>;
@@ -265,7 +376,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
           .cast<Map<String, dynamic>>();
 
       final root = categories.firstWhere(
-        (c) => c['uuid'] == categoryUuid,
+            (c) => c['uuid'] == categoryUuid,
         orElse: () => const <String, dynamic>{},
       );
       if (root.isEmpty) return [categoryUuid];
@@ -362,7 +473,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       return;
     }
     List<ListingProductModel> filtered =
-        _applyPriceFilter(s.products, s.selectedPriceFilter);
+    _applyPriceFilter(s.products, s.selectedPriceFilter);
     if (label == '4★ & up') {
       filtered = filtered.where((p) => (p.rating ?? 0) >= 4.0).toList();
     }
@@ -397,9 +508,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       case 'Under \$20k':
         return list.where((p) => p.price < 20000).toList();
       case '\$20k–\$50k':
-        return list
-            .where((p) => p.price >= 20000 && p.price <= 50000)
-            .toList();
+        return list.where((p) => p.price >= 20000 && p.price <= 50000).toList();
       case 'Above \$50k':
         return list.where((p) => p.price > 50000).toList();
     }

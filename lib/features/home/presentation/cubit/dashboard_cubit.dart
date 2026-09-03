@@ -1,37 +1,36 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:dio/dio.dart';
+import 'package:injectable/injectable.dart';
 
-import '../../../../core/api/api_client.dart';
-import '../../../../core/api/api_endpoints.dart';
-import '../../../../core/config/app_config.dart';
-import '../../../../core/services/product_cache_service.dart';
-import '../../../account/data/account_model/account_profile_response.dart';
+import '../../../account/domain/usecase/get_account_usecase.dart';
+import '../../../categories/data/datasources/category_remote_datasource.dart';
 import '../../../categories/data/models/categories_model.dart';
-import '../../../categories/data/models/categories_response_model.dart';
 import '../../data/models/product_model.dart';
+import '../../data/repositories/all_products_repo.dart';
 import 'dashboard_state.dart';
 
+@injectable
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit() : super(const HomeState());
+  final CategoryRemoteDataSource _categoryDataSource;
+  final GetProfileUseCase _getProfile;
+  final ProductRepository _productRepository;
+
+  HomeCubit(
+    this._categoryDataSource,
+    this._getProfile,
+    this._productRepository,
+  ) : super(const HomeState());
 
   Future<void> loadHome() async {
     emit(state.copyWith(status: HomeStatus.loading));
 
-    final client = GetIt.I<ApiClient>();
     List<CategoryModel> categories = [];
     String userName = '';
     double bigoldBalance = 0.0;
 
     // Fetch categories
     try {
-      final categoryResponse = await client.dio.get(
-        '${AppConfig.apiBaseUrl}${ApiEndpoints.categories}',
-      );
-      final categoryResult = CategoryResponseModel.fromJson(
-        categoryResponse.data as Map<String, dynamic>,
-      );
+      final categoryResult = await _categoryDataSource.getCategories();
       categories = categoryResult.data
           .where((e) => e.parentId == null && e.isActive)
           .toList();
@@ -41,71 +40,32 @@ class HomeCubit extends Cubit<HomeState> {
     }
 
     // Fetch profile
-    try {
-      final profileRes = await client.dio.get(ApiEndpoints.profile);
-      final profile = AccountResponseModel.fromJson(
-        profileRes.data as Map<String, dynamic>,
-      );
-      userName = profile.account.fullName;
-      bigoldBalance = profile.account.bigoldBalance / 1e8;
-    } catch (_) {}
+    final profileResult = await _getProfile();
+    profileResult.fold((_) {}, (account) {
+      userName = account.fullName;
+      bigoldBalance = account.displayBigoldBalance;
+    });
 
-    // Fetch products with robust throttling cache fallback
+    // Fetch products — ProductRepository already falls back to cache on
+    // API failure (including 429 throttling), so a bare catch here just
+    // covers the case where both the API and the cache come up empty.
     List<ProductModel> products = [];
     try {
-      final url = '${AppConfig.apiBaseUrl}/api/v1/products';
-      final response = await client.dio.get(
-        url,
-        queryParameters: {'page': 1, 'limit': 20},
-      );
-      final raw = response.data as Map<String, dynamic>;
-
-      // TEMP DEBUG — variant structure dekhne ke liye
-      final firstProduct = ((raw['data'] as Map)['data'] as List).first;
-      debugPrint('VARIANT SAMPLE: ${firstProduct['variants']}');
-
-      final dataMap = raw['data'] as Map<String, dynamic>;
-      final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-      products = dataList
-          .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      // Cache the products on successful load
-      final cacheService = GetIt.I<ProductCacheService>();
-      await cacheService.cacheHomeProducts(products);
-
-      debugPrint('✓ Loaded ${products.length} products from API');
+      products = await _productRepository.getAllProducts(page: 1, limit: 20);
+      debugPrint('✓ Loaded ${products.length} products for home');
     } catch (e) {
-      // Handle throttling (429) and other errors gracefully
-      debugPrint('✗ Failed to fetch products: $e');
-
-      final isDioError = e is DioException;
-      final isThrottled = isDioError && e.response?.statusCode == 429;
-
-      if (isThrottled) {
-        debugPrint('⚠ API throttled (429), attempting to load from cache...');
-      }
-
-      // Try to load from cache
-      try {
-        final cacheService = GetIt.I<ProductCacheService>();
-        final cachedProducts = await cacheService.getHomeProductsCache();
-
-        if (cachedProducts != null && cachedProducts.isNotEmpty) {
-          products = cachedProducts;
-          debugPrint(
-            '✓ Loaded ${products.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
-          );
-        } else {
-          debugPrint('✗ No cached products available');
-          products = [];
-        }
-      } catch (cacheError) {
-        // If cache retrieval also fails, log and use empty list
-        debugPrint('✗ Failed to retrieve products from cache: $cacheError');
-        products = [];
-      }
+      debugPrint('✗ Failed to load home products: $e');
+      products = [];
     }
+
+    // Flash Deals must actually be discounted items, not just the first N
+    // of the same list shown under Recommended — otherwise both sections
+    // show identical products with no real deal criteria behind either one.
+    final discounted = products.where((p) => p.discount > 0).toList()
+      ..sort((a, b) => b.discount.compareTo(a.discount));
+    final flashDeals = discounted.take(6).toList();
+    final flashDealSet = flashDeals.toSet();
+    final recommended = products.where((p) => !flashDealSet.contains(p)).toList();
 
     emit(
       state.copyWith(
@@ -113,8 +73,8 @@ class HomeCubit extends Cubit<HomeState> {
         userName: userName,
         bigoldBalance: bigoldBalance,
         categories: categories,
-        flashDeals: products.take(6).toList(),
-        recommended: products,
+        flashDeals: flashDeals,
+        recommended: recommended,
       ),
     );
   }

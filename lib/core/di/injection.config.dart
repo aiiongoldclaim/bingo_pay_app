@@ -136,6 +136,8 @@ import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart
     as _i666;
 import 'package:bingo_pay/features/home/domain/repositories/product_repository_impl.dart'
     as _i297;
+import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart'
+    as _i817;
 import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
     as _i578;
 import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository_impl.dart'
@@ -151,6 +153,8 @@ import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasou
     as _i705;
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart'
     as _i792;
+import 'package:bingo_pay/features/product_details/presentation/cubit/product_details_cubit.dart'
+    as _i806;
 import 'package:bingo_pay/features/scanner/data/datasource/payment_remote_datasource.dart'
     as _i337;
 import 'package:bingo_pay/features/scanner/data/repositories/payment_repository_impl.dart'
@@ -352,6 +356,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i321.AuctionRepository>(
       () => _i141.AuctionRepositoryImpl(gh<_i230.AuctionsRemoteDatasources>()),
     );
+    gh.factory<_i806.ProductDetailCubit>(
+      () => _i806.ProductDetailCubit(gh<_i971.WishlistRepository>()),
+    );
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
     );
@@ -475,6 +482,13 @@ extension GetItInjectableX on _i174.GetIt {
         kycSelfie: gh<_i520.UploadKycSelfieUseCase>(),
         getKycStatus: gh<_i894.GetKycStatusUseCase>(),
         storage: gh<_i481.SecureStorageService>(),
+      ),
+    );
+    gh.factory<_i817.HomeCubit>(
+      () => _i817.HomeCubit(
+        gh<_i298.CategoryRemoteDataSource>(),
+        gh<_i810.GetProfileUseCase>(),
+        gh<_i666.ProductRepository>(),
       ),
     );
     return this;

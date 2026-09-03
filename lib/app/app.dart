@@ -33,6 +33,7 @@ class _AppState extends State<App> {
   final _router = getIt<AppRouter>();
   final _connectivity = getIt<ConnectivityService>();
   final _cartCubit = getIt<CartCubit>();
+  final _wishlistCubit = getIt<WishlistCubit>();
   bool _authDetermined = false;
 
   final _prefs = getIt<PreferencesService>();
@@ -68,6 +69,7 @@ class _AppState extends State<App> {
       }
     } else if (state is AuthAuthenticated) {
       _authDetermined = true;
+      unawaited(_wishlistCubit.loadForUser(state.user.id));
 
       final onboardingSeen = _prefs.isOnboardingSeen();
 
@@ -88,6 +90,7 @@ class _AppState extends State<App> {
       _cartCubit.loadCart();
     } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
       _authDetermined = true;
+      _wishlistCubit.clearForLogout();
       unawaited(
         _router.updateAuthState(
           RouteAuthState.unauthenticated(hasSeenOnboarding: _onboardingSeen),
@@ -106,7 +109,7 @@ class _AppState extends State<App> {
         ),
         BlocProvider<CartCubit>.value(value: _cartCubit),
         BlocProvider<AddressCubit>(create: (_) => getIt<AddressCubit>()),
-        BlocProvider<WishlistCubit>(create: (_) => getIt<WishlistCubit>()),
+        BlocProvider<WishlistCubit>.value(value: _wishlistCubit),
         BlocProvider<AuctionCubit>(create: (_) => getIt<AuctionCubit>()),
         BlocProvider<BookingCubit>(create: (_) => getIt<BookingCubit>()),
         BlocProvider<AvailabilityCubit>(create: (_) => getIt<AvailabilityCubit>()),

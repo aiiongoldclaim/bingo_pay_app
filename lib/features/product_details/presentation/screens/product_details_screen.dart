@@ -424,6 +424,18 @@ class ProductDetailScreen extends StatelessWidget {
 
               SizedBox(height: m.gapLg),
 
+              ProductQuantitySelector(
+                metrics: m,
+                quantity: data.quantity,
+                availableStock: product.availableStock,
+                onIncrement: () =>
+                    context.read<ProductDetailCubit>().incrementQuantity(),
+                onDecrement: () =>
+                    context.read<ProductDetailCubit>().decrementQuantity(),
+              ),
+
+              SizedBox(height: m.gapLg),
+
               ProductColorSection(
                 colorOptions: product.colorOptions,
                 selectedIndex: data.selectedColorIndex,

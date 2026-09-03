@@ -72,80 +72,128 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   CategoriesCubit(this._getCategories, this._getBrands)
       : super(const CategoriesState());
 
+  static final List<CuratedCollectionModel> _curatedCollections = [
+    CuratedCollectionModel(
+      title: 'BINGOLD Luxe',
+      subtitle: 'Fine jewelry & watches',
+      icon: Icons.diamond_outlined,
+      iconBg: const Color(0xFFF4EFD9),
+    ),
+    CuratedCollectionModel(
+      title: 'Tech Essentials',
+      subtitle: 'Top-rated electronics',
+      icon: Icons.bolt,
+      iconBg: const Color(0xFFE8EEFF),
+    ),
+    CuratedCollectionModel(
+      title: 'Home Refresh',
+      subtitle: 'Furniture & decor',
+      icon: Icons.home_outlined,
+      iconBg: const Color(0xFFF5EBDD),
+    ),
+  ];
+
+  // Future<void> loadData() async {
+  //   emit(state.copyWith(isLoading: true, isBrandsLoading: true));
+  //
+  //   final categoriesResult = await _getCategories();
+  //   final brandsResult = await _getBrands();
+  //
+  //   categoriesResult.fold(
+  //     (failure) {
+  //       emit(state.copyWith(isLoading: false, error: failure.message));
+  //     },
+  //     (categories) {
+  //       brandsResult.fold(
+  //         (failure) {
+  //           emit(
+  //             state.copyWith(
+  //               isLoading: false,
+  //               categories: categories,
+  //               isBrandsLoading: false,
+  //               brandsError: failure.message,
+  //               collections: [
+  //                 CuratedCollectionModel(
+  //                   title: 'BINGOLD Luxe',
+  //                   subtitle: 'Fine jewelry & watches',
+  //                   icon: Icons.diamond_outlined,
+  //                   iconBg: const Color(0xFFF4EFD9),
+  //                 ),
+  //                 CuratedCollectionModel(
+  //                   title: 'Tech Essentials',
+  //                   subtitle: 'Top-rated electronics',
+  //                   icon: Icons.bolt,
+  //                   iconBg: const Color(0xFFE8EEFF),
+  //                 ),
+  //                 CuratedCollectionModel(
+  //                   title: 'Home Refresh',
+  //                   subtitle: 'Furniture & decor',
+  //                   icon: Icons.home_outlined,
+  //                   iconBg: const Color(0xFFF5EBDD),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //         (brands) {
+  //           emit(
+  //             state.copyWith(
+  //               isLoading: false,
+  //               categories: categories,
+  //               brands: brands,
+  //               isBrandsLoading: false,
+  //               collections: [
+  //                 CuratedCollectionModel(
+  //                   title: 'BINGOLD Luxe',
+  //                   subtitle: 'Fine jewelry & watches',
+  //                   icon: Icons.diamond_outlined,
+  //                   iconBg: const Color(0xFFF4EFD9),
+  //                 ),
+  //                 CuratedCollectionModel(
+  //                   title: 'Tech Essentials',
+  //                   subtitle: 'Top-rated electronics',
+  //                   icon: Icons.bolt,
+  //                   iconBg: const Color(0xFFE8EEFF),
+  //                 ),
+  //                 CuratedCollectionModel(
+  //                   title: 'Home Refresh',
+  //                   subtitle: 'Furniture & decor',
+  //                   icon: Icons.home_outlined,
+  //                   iconBg: const Color(0xFFF5EBDD),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
   Future<void> loadData() async {
     emit(state.copyWith(isLoading: true, isBrandsLoading: true));
 
-    final categoriesResult = await _getCategories();
-    final brandsResult = await _getBrands();
+    final categoriesFuture = _getCategories();
+    final brandsFuture = _getBrands();
 
-    categoriesResult.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false, error: failure.message));
-      },
-      (categories) {
-        brandsResult.fold(
-          (failure) {
-            emit(
-              state.copyWith(
-                isLoading: false,
-                categories: categories,
-                isBrandsLoading: false,
-                brandsError: failure.message,
-                collections: [
-                  CuratedCollectionModel(
-                    title: 'BINGOLD Luxe',
-                    subtitle: 'Fine jewelry & watches',
-                    icon: Icons.diamond_outlined,
-                    iconBg: const Color(0xFFF4EFD9),
-                  ),
-                  CuratedCollectionModel(
-                    title: 'Tech Essentials',
-                    subtitle: 'Top-rated electronics',
-                    icon: Icons.bolt,
-                    iconBg: const Color(0xFFE8EEFF),
-                  ),
-                  CuratedCollectionModel(
-                    title: 'Home Refresh',
-                    subtitle: 'Furniture & decor',
-                    icon: Icons.home_outlined,
-                    iconBg: const Color(0xFFF5EBDD),
-                  ),
-                ],
-              ),
-            );
-          },
-          (brands) {
-            emit(
-              state.copyWith(
-                isLoading: false,
-                categories: categories,
-                brands: brands,
-                isBrandsLoading: false,
-                collections: [
-                  CuratedCollectionModel(
-                    title: 'BINGOLD Luxe',
-                    subtitle: 'Fine jewelry & watches',
-                    icon: Icons.diamond_outlined,
-                    iconBg: const Color(0xFFF4EFD9),
-                  ),
-                  CuratedCollectionModel(
-                    title: 'Tech Essentials',
-                    subtitle: 'Top-rated electronics',
-                    icon: Icons.bolt,
-                    iconBg: const Color(0xFFE8EEFF),
-                  ),
-                  CuratedCollectionModel(
-                    title: 'Home Refresh',
-                    subtitle: 'Furniture & decor',
-                    icon: Icons.home_outlined,
-                    iconBg: const Color(0xFFF5EBDD),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+    final categoriesResult = await categoriesFuture;
+    final brandsResult = await brandsFuture;
+
+    var next = state.copyWith(
+      isLoading: false,
+      isBrandsLoading: false,
+      collections: _curatedCollections,
     );
+
+    next = categoriesResult.fold(
+          (failure) => next.copyWith(error: failure.message),
+          (categories) => next.copyWith(categories: categories),
+    );
+
+    next = brandsResult.fold(
+          (failure) => next.copyWith(brandsError: failure.message),
+          (brands) => next.copyWith(brands: brands),
+    );
+
+    emit(next);
   }
 }
