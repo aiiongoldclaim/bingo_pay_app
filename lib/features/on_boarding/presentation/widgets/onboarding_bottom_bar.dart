@@ -28,21 +28,27 @@ class OnboardingBottomBar extends StatelessWidget {
 
     return Row(
       children: [
-        // Back — first page pe invisible but jagah reserved
+        // Back — hidden on the first page, but its space stays reserved
         Opacity(
           opacity: isFirst ? 0 : 1,
           child: IgnorePointer(
             ignoring: isFirst,
-            child: _PillButton(
-              label: 'back',
-              icon: Icons.arrow_back,
-              iconLeading: true,
-              fill: null,
-              gradient: null,
-              border: colors.onboardingBorder,
-              textColor: colors.onboardingTitle,
-              metrics: metrics,
-              onTap: onBack,
+            child: Semantics(
+              button: true,
+              label: 'Back',
+              enabled: !isFirst,
+              hidden: isFirst,
+              child: _PillButton(
+                label: 'back',
+                icon: Icons.arrow_back,
+                iconLeading: true,
+                fill: null,
+                gradient: null,
+                border: colors.onboardingBorder,
+                textColor: colors.onboardingTitle,
+                metrics: metrics,
+                onTap: onBack,
+              ),
             ),
           ),
         ),
@@ -55,16 +61,20 @@ class OnboardingBottomBar extends StatelessWidget {
           ),
         ),
 
-        _PillButton(
+        Semantics(
+          button: true,
           label: isLast ? 'Get Started' : 'Next',
-          icon: isLast ? null : Icons.arrow_forward,
-          iconLeading: false,
-          fill: null,
-          gradient: colors.onboardingNextGradient,
-          border: null,
-          textColor: colors.onboardingNextText,
-          metrics: metrics,
-          onTap: onNext,
+          child: _PillButton(
+            label: isLast ? 'Get Started' : 'Next',
+            icon: isLast ? null : Icons.arrow_forward,
+            iconLeading: false,
+            fill: null,
+            gradient: colors.onboardingNextGradient,
+            border: null,
+            textColor: colors.onboardingNextText,
+            metrics: metrics,
+            onTap: onNext,
+          ),
         ),
       ],
     );
@@ -96,12 +106,16 @@ class _PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Text(
-      label,
-      style: TextStyle(
-        fontSize: metrics.buttonFont,
-        fontWeight: FontWeight.w600,
-        color: textColor,
+    final text = Flexible(
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: metrics.buttonFont,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
       ),
     );
 

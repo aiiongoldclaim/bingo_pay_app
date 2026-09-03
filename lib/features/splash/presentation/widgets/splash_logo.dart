@@ -159,7 +159,7 @@ class _VaultMarkPainter extends CustomPainter {
 
     // dial spokes
     final spoke = Paint()
-      ..color = gold.shader == null ? ThemeColors.gold1 : ThemeColors.gold1
+      ..color = isDark ? ThemeColors.gold1 : ThemeColors.gold500
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke * 0.7
       ..strokeCap = StrokeCap.round;

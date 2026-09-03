@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../data/model/on_boarding_feature.dart';
@@ -83,7 +82,7 @@ class OnboardingPageContent extends StatelessWidget {
           flex: 5,
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(14.sp),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,

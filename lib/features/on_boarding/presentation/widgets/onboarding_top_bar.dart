@@ -21,33 +21,37 @@ class OnboardingTopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Align(
         alignment: Alignment.centerRight,
-        child: InkWell(
-          onTap: onSkip,
-          borderRadius: BorderRadius.circular(30),
-          child: Padding(
-            // tablet pe bada tap area
-            padding: EdgeInsets.symmetric(
-              horizontal: metrics.skipFont * 0.9,
-              vertical: metrics.skipFont * 0.55,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'skip',
-                  style: TextStyle(
-                    fontSize: metrics.skipFont,
-                    fontWeight: FontWeight.w600,
+        child: Semantics(
+          button: true,
+          label: 'Skip onboarding',
+          child: InkWell(
+            onTap: onSkip,
+            borderRadius: BorderRadius.circular(30),
+            child: Padding(
+              // Larger tap area on tablet
+              padding: EdgeInsets.symmetric(
+                horizontal: metrics.skipFont * 0.9,
+                vertical: metrics.skipFont * 0.55,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'skip',
+                    style: TextStyle(
+                      fontSize: metrics.skipFont,
+                      fontWeight: FontWeight.w600,
+                      color: colors.onboardingBody,
+                    ),
+                  ),
+                  SizedBox(width: metrics.skipFont * 0.25),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: metrics.skipFont * 0.75,
                     color: colors.onboardingBody,
                   ),
-                ),
-                SizedBox(width: metrics.skipFont * 0.25),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: metrics.skipFont * 0.75,
-                  color: colors.onboardingBody,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

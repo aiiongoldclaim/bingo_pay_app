@@ -1,8 +1,8 @@
 import 'dart:math' as math;
-import 'package:bingo_pay/features/splash/presentaion/widgets/splash_metrics.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/theme_colors.dart';
+import 'splash_metrics.dart';
 
 class SplashBackground extends StatelessWidget {
   const SplashBackground({

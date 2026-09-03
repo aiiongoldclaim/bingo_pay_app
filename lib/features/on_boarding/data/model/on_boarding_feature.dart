@@ -15,7 +15,7 @@ class OnBoardingContent {
     required this.subTitle,
   });
 
-  /// theme ke hisaab se sahi asset
+  /// Picks the correct asset for the current theme.
   String imageFor(bool isDark) => isDark ? (imageDark ?? image) : image;
 
   static List<OnBoardingContent> contents = [

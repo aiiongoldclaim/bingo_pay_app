@@ -41,9 +41,6 @@ class RouteGuard {
       return location == AppRoutes.splash ? null : AppRoutes.splash;
     }
 
-    // if (!authState.hasSeenOnboarding) {
-    //   return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
-    // }
     if (!authState.hasSeenOnboarding && !authState.isAuthenticated) {
       return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
     }
@@ -80,61 +77,3 @@ class RouteGuard {
     return null;
   }
 }
-// class RouteGuard {
-//   static String? redirect({
-//     required String location,
-//     required RouteAuthState authState,
-//   }) {
-//     if (authState.isLoading) {
-//       return location == AppRoutes.splash
-//           ? null
-//           : AppRoutes.splash;
-//     }
-//
-//     if (authState.isAuthenticated) {
-//       if (authState.isKycPending &&
-//           !location.startsWith(AppRoutes.registerKyc)) {
-//         return AppRoutes.registerKyc;
-//       }
-//
-//       final isPublicRoute = AppRoutes.publicRoutes.any(
-//             (route) =>
-//         location == route ||
-//             location.startsWith(route),
-//       );
-//
-//       final isOnboarding = location == AppRoutes.onboarding;
-//       final isSplash = location == AppRoutes.splash;
-//
-//       if (isSplash || isOnboarding || isPublicRoute) {
-//         return AppRoutes.home;
-//       }
-//
-//       return null;
-//     }
-//
-//     if (!authState.hasSeenOnboarding) {
-//       if (location == AppRoutes.onboarding) {
-//         return null;
-//       }
-//
-//       return AppRoutes.onboarding;
-//     }
-//
-//     if (location == AppRoutes.splash) {
-//       return AppRoutes.login;
-//     }
-//
-//     final isPublicRoute = AppRoutes.publicRoutes.any(
-//           (route) =>
-//       location == route ||
-//           location.startsWith(route),
-//     );
-//
-//     if (isPublicRoute) {
-//       return null;
-//     }
-//
-//     return AppRoutes.login;
-//   }
-// }

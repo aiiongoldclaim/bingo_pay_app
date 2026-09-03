@@ -6,10 +6,10 @@ class ResponsiveUtils {
   static bool isTabletPortrait = false;
   static bool isTabletLandscape = false;
 
-  /// Tablet breakpoint — debug output dekh kar adjust kar sakti ho
+  /// Tablet breakpoint, in logical pixels of the shortest side.
   static const double _tabletBreakpoint = 540;
 
-  /// Sizer builder ke andar call hota hai
+  /// Called from inside the root Sizer builder.
   static void setDeviceType(BuildContext context) {
     final mq = MediaQuery.of(context);
 
@@ -19,12 +19,6 @@ class ResponsiveUtils {
     final landscape = mq.size.width > mq.size.height;
     isTabletPortrait = isTablet && !landscape;
     isTabletLandscape = isTablet && landscape;
-
-    // ---- TEMP DEBUG (value confirm hone ke baad hata dena) ----
-    debugPrint(
-      'shortestSide: ${mq.size.shortestSide} | size: ${mq.size} | mode: $currentMode',
-    );
-    // -----------------------------------------------------------
   }
 
   static bool get isPhone => isMobile;
