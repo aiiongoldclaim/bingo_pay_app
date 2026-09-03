@@ -3,7 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../data/model/on_boarding_feature.dart';
 
-import 'onbording_state.dart';
+import 'onboarding_state.dart';
 
 @injectable
 class OnboardingCubit extends Cubit<OnboardingState> {
@@ -17,7 +17,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
     emit(state.copyWith(currentPage: index));
   }
 
-  /// Next dabane par — last page ho to true return, taaki screen finish kar sake
+  /// Returns true when Next is pressed on the last page, so the screen can finish.
   bool goNext() {
     if (state.isLastPage) return true;
     emit(state.copyWith(currentPage: state.currentPage + 1));

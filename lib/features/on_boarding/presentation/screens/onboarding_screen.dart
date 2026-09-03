@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../data/model/on_boarding_feature.dart';
-import '../cubit/onbording_cubit.dart';
-import '../cubit/onbording_state.dart';
+import '../cubit/onboarding_cubit.dart';
+import '../cubit/onboarding_state.dart';
 import '../widgets/onboarding_background.dart';
 import '../widgets/onboarding_bottom_bar.dart';
 import '../widgets/onboarding_metrics.dart';
@@ -40,13 +40,31 @@ class _OnboardingViewState extends State<_OnboardingView> {
   static const _animationDuration = Duration(milliseconds: 300);
   static const _animationCurve = Curves.easeOutCubic;
 
+  // Guards against a fast double/triple tap racing ahead of the in-flight
+  // PageView animation — without this, the cubit's page counter can reach
+  // the last page (and call onFinish) before the PageView has visually
+  // caught up to the first tap.
+  bool _isAnimating = false;
+
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
   }
 
+  Future<void> _animateTo(int Function() targetPage) async {
+    _isAnimating = true;
+    await _pageController.animateToPage(
+      targetPage(),
+      duration: _animationDuration,
+      curve: _animationCurve,
+    );
+    if (mounted) _isAnimating = false;
+  }
+
   void _handleNext() {
+    if (_isAnimating) return;
+
     final isFinished = context.read<OnboardingCubit>().goNext();
 
     if (isFinished) {
@@ -54,21 +72,17 @@ class _OnboardingViewState extends State<_OnboardingView> {
       return;
     }
 
-    _pageController.nextPage(
-      duration: _animationDuration,
-      curve: _animationCurve,
-    );
+    _animateTo(() => context.read<OnboardingCubit>().state.currentPage);
   }
 
   void _handleBack() {
+    if (_isAnimating) return;
+
     final cubit = context.read<OnboardingCubit>();
     if (cubit.state.isFirstPage) return;
 
     cubit.goBack();
-    _pageController.previousPage(
-      duration: _animationDuration,
-      curve: _animationCurve,
-    );
+    _animateTo(() => cubit.state.currentPage);
   }
 
   @override

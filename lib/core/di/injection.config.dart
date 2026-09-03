@@ -142,7 +142,7 @@ import 'package:bingo_pay/features/membershipNew/data/repositories/membership_re
     as _i378;
 import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_cubit.dart'
     as _i359;
-import 'package:bingo_pay/features/on_boarding/presentation/cubit/onbording_cubit.dart'
+import 'package:bingo_pay/features/on_boarding/presentation/cubit/onboarding_cubit.dart'
     as _i272;
 import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
 import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
