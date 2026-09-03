@@ -121,12 +121,12 @@ class _TransferScreenState extends State<TransferScreen>
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: c.background,
+        backgroundColor: colors.background,
         body: SafeArea(
           child: Builder(
             builder: (context) {
@@ -219,9 +219,9 @@ class _TransferScreenState extends State<TransferScreen>
                         m.gapSm * 0.5,
                       ),
                       decoration: BoxDecoration(
-                        color: c.background,
+                        color: colors.background,
                         border: Border(
-                          top: BorderSide(color: c.border, width: 1),
+                          top: BorderSide(color: colors.border, width: 1),
                         ),
                       ),
                       child: SafeArea(top: false, child: actions),
@@ -244,7 +244,7 @@ class _SuccessTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -256,7 +256,7 @@ class _SuccessTopBar extends StatelessWidget {
         child: Text(
           'TheVaults',
           style: AppTextStyles.titleLarge.copyWith(
-            color: c.brand,
+            color: colors.brand,
             fontFamily: 'CormorantGaramond',
             fontWeight: FontWeight.w600,
             fontSize: m.logoSize,
@@ -282,7 +282,7 @@ class _SuccessHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -294,7 +294,7 @@ class _SuccessHero extends StatelessWidget {
             width: m.tickOuter,
             height: m.tickOuter,
             decoration: BoxDecoration(
-              color: c.statusSuccessSoft,
+              color: colors.statusSuccessSoft,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -302,14 +302,14 @@ class _SuccessHero extends StatelessWidget {
               width: m.tickInner,
               height: m.tickInner,
               decoration: BoxDecoration(
-                color: c.statusSuccess,
+                color: colors.statusSuccess,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Icon(
                 Icons.check_rounded,
                 size: m.tickIconSize,
-                color: c.surface,
+                color: colors.surface,
               ),
             ),
           ),
@@ -321,7 +321,7 @@ class _SuccessHero extends StatelessWidget {
           'Payment Successful',
           textAlign: TextAlign.center,
           style: AppTextStyles.titleLarge.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             fontSize: m.titleSize,
@@ -335,7 +335,7 @@ class _SuccessHero extends StatelessWidget {
           'Your transfer has been completed',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.subtitleSize,
             height: 1.4,
@@ -349,7 +349,7 @@ class _SuccessHero extends StatelessWidget {
           child: Text(
             '\$$amount',
             style: AppTextStyles.displayLarge.copyWith(
-              color: c.brand,
+              color: colors.brand,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w800,
               fontSize: m.amountSize,
@@ -363,7 +363,7 @@ class _SuccessHero extends StatelessWidget {
         Text(
           'Amount paid',
           style: AppTextStyles.bodySmall.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.amountSubSize,
           ),
@@ -391,15 +391,15 @@ class _DetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -409,14 +409,14 @@ class _DetailsCard extends StatelessWidget {
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapMd * 0.7),
-            child: Divider(height: 1, thickness: 1, color: c.border),
+            child: Divider(height: 1, thickness: 1, color: colors.border),
           ),
 
           _Row(metrics: m, label: 'Date & Time', value: date),
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapMd * 0.7),
-            child: Divider(height: 1, thickness: 1, color: c.border),
+            child: Divider(height: 1, thickness: 1, color: colors.border),
           ),
 
           _Row(
@@ -431,7 +431,7 @@ class _DetailsCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(m.cardPad * 0.7),
             decoration: BoxDecoration(
-              color: c.statusSuccessSoft,
+              color: colors.statusSuccessSoft,
               borderRadius: BorderRadius.circular(m.cardRadius * 0.7),
             ),
             child: Row(
@@ -439,14 +439,14 @@ class _DetailsCard extends StatelessWidget {
                 Icon(
                   Icons.verified_rounded,
                   size: m.rowLabelSize + 5,
-                  color: c.statusSuccess,
+                  color: colors.statusSuccess,
                 ),
                 SizedBox(width: m.gapSm),
                 Expanded(
                   child: Text(
                     'Transaction completed securely',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: c.statusSuccess,
+                      color: colors.statusSuccess,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                       fontSize: m.rowLabelSize,
@@ -477,7 +477,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -486,7 +486,7 @@ class _Row extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.rowLabelSize,
           ),
@@ -501,7 +501,7 @@ class _Row extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTextStyles.labelLarge.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
               fontSize: m.rowValueSize,
@@ -520,7 +520,7 @@ class _Row extends StatelessWidget {
               child: Icon(
                 Icons.copy_rounded,
                 size: m.copyIconSize,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
           ),
@@ -538,7 +538,7 @@ class _Actions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -548,7 +548,7 @@ class _Actions extends StatelessWidget {
         SizedBox(
           height: m.btnHeight,
           child: Material(
-            color: c.brand,
+            color: colors.brand,
             borderRadius: BorderRadius.circular(12),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -557,7 +557,7 @@ class _Actions extends StatelessWidget {
                 child: Text(
                   'DONE',
                   style: AppTextStyles.buttonText.copyWith(
-                    color: c.surface,
+                    color: colors.surface,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.btnFontSize,
@@ -583,7 +583,7 @@ class _Actions extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: c.brand.withValues(alpha: 0.45),
+                    color: colors.brand.withValues(alpha: 0.45),
                     width: 1.2,
                   ),
                 ),
@@ -594,13 +594,13 @@ class _Actions extends StatelessWidget {
                     Icon(
                       Icons.receipt_long_outlined,
                       size: m.btnFontSize + 4,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                     SizedBox(width: m.gapSm * 0.8),
                     Text(
                       'VIEW TRANSACTIONS',
                       style: AppTextStyles.buttonText.copyWith(
-                        color: c.brand,
+                        color: colors.brand,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.btnFontSize,

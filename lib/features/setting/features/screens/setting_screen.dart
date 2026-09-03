@@ -20,7 +20,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // UI-only preferences (koi persistence layer abhi nahi hai)
   bool _pushNotifications = true;
   bool _emailUpdates = true;
   bool _orderAlerts = true;
@@ -61,10 +60,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: Builder(
@@ -271,7 +270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               child: Text(
                                 'TheVaults · v1.0.0',
                                 style: AppTextStyles.bodySmall.copyWith(
-                                  color: c.textMuted,
+                                  color: colors.textMuted,
                                   fontFamily: 'Inter',
                                   fontSize: m.tileSubSize,
                                 ),

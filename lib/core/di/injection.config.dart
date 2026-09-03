@@ -138,8 +138,10 @@ import 'package:bingo_pay/features/home/domain/repositories/product_repository_i
     as _i297;
 import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
     as _i578;
-import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository.dart'
-    as _i378;
+import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository_impl.dart'
+    as _i828;
+import 'package:bingo_pay/features/membershipNew/domain/repositories/membership_repository.dart'
+    as _i389;
 import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_cubit.dart'
     as _i359;
 import 'package:bingo_pay/features/on_boarding/presentation/cubit/onboarding_cubit.dart'
@@ -261,6 +263,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i298.CategoryRemoteDataSource>(
       () => _i298.CategoryRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
+    gh.lazySingleton<_i389.MembershipRepository>(
+      () => _i828.MembershipRepositoryImpl(
+        gh<_i578.MembershipRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i570.BookingRemoteDatasources>(
       () => _i570.BookingRemoteDatasources(gh<_i541.ApiClient>()),
     );
@@ -291,13 +298,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i805.ProcessPaymentUseCase>(
       () => _i805.ProcessPaymentUseCase(gh<_i758.PaymentRepository>()),
     );
-    gh.lazySingleton<_i378.MembershipRepository>(
-      () => _i378.MembershipRepositoryImpl(
-        gh<_i578.MembershipRemoteDataSource>(),
-      ),
-    );
     gh.factory<_i298.CategoryRepository>(
       () => _i611.CategoryRepositoryImpl(gh<_i298.CategoryRemoteDataSource>()),
+    );
+    gh.factory<_i359.MembershipCubit>(
+      () => _i359.MembershipCubit(gh<_i389.MembershipRepository>()),
     );
     gh.factory<_i939.CartRepository>(
       () => _i263.CartRepositoryImpl(gh<_i882.CartRemoteDataSource>()),
@@ -316,9 +321,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i876.UpdateCartItemQuantityUseCase>(
       () => _i876.UpdateCartItemQuantityUseCase(gh<_i939.CartRepository>()),
-    );
-    gh.factory<_i359.MembershipCubit>(
-      () => _i359.MembershipCubit(gh<_i378.MembershipRepository>()),
     );
     gh.factory<_i728.CartCubit>(
       () => _i728.CartCubit(

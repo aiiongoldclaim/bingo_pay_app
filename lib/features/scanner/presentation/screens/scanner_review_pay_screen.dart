@@ -307,7 +307,7 @@ class _PaymentTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -325,7 +325,7 @@ class _PaymentTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
 
@@ -336,7 +336,7 @@ class _PaymentTopBar extends StatelessWidget {
                 Text(
                   'TheVaults',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.brand,
+                    color: colors.brand,
                     fontFamily: 'CormorantGaramond',
                     fontWeight: FontWeight.w600,
                     fontSize: m.logoSize,
@@ -347,7 +347,7 @@ class _PaymentTopBar extends StatelessWidget {
                 Text(
                   'Scan & Pay',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.logoSubSize,
                     height: 1.2,
@@ -363,7 +363,7 @@ class _PaymentTopBar extends StatelessWidget {
               Icon(
                 Icons.verified_user_outlined,
                 size: m.topIconSize,
-                color: c.brand,
+                color: colors.brand,
               ),
               SizedBox(width: m.gapXs * 1.2),
               SizedBox(
@@ -371,7 +371,7 @@ class _PaymentTopBar extends StatelessWidget {
                 child: Text(
                   'Secure\nPayments',
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: c.brand,
+                    color: colors.brand,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: m.helperSize,

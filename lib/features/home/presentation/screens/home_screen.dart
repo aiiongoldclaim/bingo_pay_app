@@ -667,6 +667,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
+
+                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
+
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: m.pagePadding),

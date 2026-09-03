@@ -1,0 +1,90 @@
+Test Case ID,Module,Test Case Title,Preconditions,Steps,Expected Result,Priority,Type
+DASH-001,Dashboard,Load dashboard successfully,Authenticated,Open Home tab,"Categories, flash deals, recommended rails populate; wallet balance shown",P0,Positive
+DASH-002,Dashboard,Pull-to-refresh reloads data,On Home,Pull down,loadHome() re-fires; UI updates with fresh data,P0,Positive
+DASH-003,Dashboard,All three backing fetches fail,Backend down,Open Home,Expected: explicit error/retry state. Currently (related to F-06): renders with empty sections and no error/retry affordance,P0,Negative
+DASH-004,Dashboard,Products API 429,Rate limited,Open Home,Falls back to cached products; UI doesn't show a hard error,P0,Negative
+DASH-005,Dashboard,Products API returns 200 with an empty page-1 list,Mocked empty response,Open Home,"Expected: 'no products' empty state. Bug (F-06): debug .first call throws, caught, falls back to stale cache instead",P0,Negative
+DASH-006,Dashboard,API fails and cache is also empty,"Fresh install, offline",Open Home,Products list stays empty with HomeStatus.loaded and no explicit failure messaging,P1,Negative
+DASH-007,Dashboard,Tap 'All Products',On Home,Tap section header/see-all,Navigates to All Products grid,P1,Positive
+DASH-008,Dashboard/All Products,Add to cart from grid,Product in stock,Tap Add to Cart on a card,Success snackbar with 'GO TO CART' action; cart updates,P0,Positive
+DASH-009,Dashboard/All Products,Add to cart when no in-stock variant resolves,VariantResolver.resolve returns null,Tap Add to Cart,'This product is currently unavailable' error shown; no cart mutation,P0,Negative
+DASH-010,Dashboard/All Products,Double-tap Add to Cart on same product,Valid product,Two rapid taps,Guarded via _addingIds; exactly one addItem call fires,P0,Race Condition
+DASH-011,Dashboard/All Products,Rapid double-tap wishlist heart on same product,-,Toggle on/off quickly,No local guard exists; verify final state matches the LAST tap,P1,Race Condition
+DASH-012,Dashboard/All Products,Out-of-stock product shown in grid,A sold-out product exists,View grid,"Expected: 'Out of Stock' badge, Add to Cart disabled. Bug (F-03): no badge ever shown; Add to Cart remains enabled",P0,Negative
+DASH-013,Dashboard/All Products,Catalog exceeds fetch cap (100 products),>100 products in backend,Scroll to bottom of grid,Bug (F-04): products beyond 100 are unreachable; no pagination/load-more,P1,Negative
+DASH-014,Dashboard,Pull-to-refresh while a previous loadHome() is still in flight,Slow network,Trigger refresh twice quickly,No request-id guard in HomeCubit (unlike Listing cubit); verify a stale response can't overwrite a newer one,P1,Race Condition
+DASH-015,Dashboard,Bigold balance formatting,Balance with trailing zeros,View wallet card,formattedBigoldBalance trims correctly (e.g. '1.5 Bigold' not '1.50000000 Bigold'),P2,Positive
+DASH-016,Dashboard,Profile fetch fails independently,"Profile endpoint 500s, others succeed",Open Home,userName/balance default silently to ''/0.0 with no visible error (bare catch(_) {}),P2,Negative
+CAT-001,Categories,Load categories + brands successfully,Authenticated,Open Categories tab,Both grids populate,P0,Positive
+CAT-002,Categories,Categories API fails,Backend down,Open Categories,Error state surfaced via state.error,P0,Negative
+CAT-003,Categories,"Brands API fails, categories succeed",Partial failure,Open Categories,Categories still render per nested fold structure; brands show error/empty,P1,Negative
+CAT-004,Categories,Tap a category,-,Tap category tile,Navigates to Product Listing filtered to that category,P0,Positive
+CAT-005,Categories,Tap a brand,-,Tap brand chip,Navigates/filters accordingly,P1,Positive
+CAT-006,Categories,Navigate away mid-load,loadData() in flight,Leave screen quickly,No request-id guard here (unlike Listing cubit); verify no stale emission after screen dispose,P1,Race Condition
+CAT-007,Categories,Empty categories/brands response,-,Open Categories,"Proper empty-state UI, not a blank grid",P2,Negative
+LIST-001,Product Listing,Load category listing,-,Tap into a category,Products render; results cached for that category,P0,Positive
+LIST-002,Product Listing,Cached data shown instantly on revisit,Category previously cached,Re-enter category,Cache shown immediately with 'cached Xh ago' label while fresh fetch runs,P1,Positive
+LIST-003,Product Listing,Category API rate-limited (429),-,Load category,"Falls back to cache if present, else empty state (not a hard error screen)",P0,Negative
+LIST-004,Product Listing,No cache and API fails,"Fresh category, offline",Load category,"Empty state shown, not an error screen",P1,Negative
+LIST-005,Product Listing,Rapidly tap two different categories,-,Tap category A then B within <1s,Only B's products shown; A's late response is discarded via _currentRequestId guard,P0,Race Condition
+LIST-006,Product Listing,Same category tapped twice while loading,-,Double-tap same category,Second tap is a no-op (_isLoading guard),P1,Race Condition
+LIST-007,Product Listing,Apply price filter,Products loaded,Select a price band,filteredProducts recomputed; composes correctly with any active rating filter,P0,Positive
+LIST-008,Product Listing,Apply rating filter,-,Select '4 stars & up',Composes correctly with any active price filter,P0,Positive
+LIST-009,Product Listing,Re-tap active filter chip,Filter active,Tap same chip again,"Clears just that filter, preserves the other",P1,Positive
+LIST-010,Product Listing,Apply sort (price/rating),-,Select sort option,List reorders correctly without disturbing active filters,P1,Positive
+LIST-011,Product Listing,Filters/sort yield zero results,-,Apply narrow filter combo,"Empty-results state shown, no crash",P1,Negative
+LIST-012,Product Listing,Toggle grid/list view mode,-,Tap view toggle,Layout switches; filters/sort/state preserved,P2,Positive
+LIST-013,Product Listing,Category with >20 products (or multi-subcategory tree),-,"Load category, scroll",Bug (F-04/F-05): items beyond the per-request cap are missing; no pagination,P0,Negative
+LIST-014,Product Listing,Wishlist toggle while a category switch is in flight,-,"Toggle heart, immediately switch category",Toggle still applies to the correct product; not lost on re-render,P1,Race Condition
+LIST-015,Product Listing,Tap a product card,-,Tap card,Navigates to PDP with correct product UUID,P0,Positive
+LIST-016,Product Listing,Retry from a fresh cubit with no prior loadCategory call,_lastCategoryUuid never set,Trigger retry,retryLoadCategory() no-ops silently since preconditions aren't set; verify this doesn't strand the user on an error with a dead Retry button,P2,Negative
+PDP-001,Product Detail,Load product successfully,Valid product uuid,Open PDP,"Images, variants, highlights, ratings, policies render from real API",P0,Positive
+PDP-002,Product Detail,Invalid/unknown product uuid,-,Open PDP with bad uuid,Server error/404 -> ProductDetailError -> error view shown,P0,Negative
+PDP-003,Product Detail,Malformed response shape,Mocked bad response,Open PDP,"fromJson cast failure is caught by the cubit's catch(e) and shown as an error, not an uncaught crash",P0,Negative
+PDP-004,Product Detail,Switch color/variant,Multi-variant product,Tap a different color/variant,"Price, old price, discount%, and stock all update instantly and consistently",P0,Positive
+PDP-005,Product Detail,Select a variant with zero stock,-,Select an out-of-stock variant,Buy Now/Add to Cart disable and show 'Out of Stock' for the newly selected variant,P0,Negative
+PDP-006,Product Detail,Product has zero variants,-,Open such a product,"price/variantUuid gracefully show 'N/A'/null; Add to Cart/Buy Now route to 'unavailable' error, no crash",P1,Negative
+PDP-007,Product Detail,No quantity selector available,-,Attempt to buy more than 1 unit from PDP,Bug (F-01): no UI exists to change quantity; Add to Cart/Buy Now always submit quantity=1,P0,Negative (Correctness)
+PDP-008,Product Detail,Add to Cart succeeds,In-stock variant selected,Tap Add to Cart,Success snackbar with 'GO TO CART'; button flips to 'Go to Cart' on next render,P0,Positive
+PDP-009,Product Detail,Add to Cart fails,Server error,Tap Add to Cart,Error surfaced via snackbar from cartCubit.state.error; loading clears,P0,Negative
+PDP-010,Product Detail,Double-tap Add to Cart,-,Two rapid taps,Guarded via cartState.isAddingItem disabling the button; exactly one addItem call,P0,Race Condition
+PDP-011,Product Detail,Double-tap Buy Now,-,Two rapid taps,Bug (F-11): no guard exists; verify whether two Payment screens get pushed,P0,Race Condition
+PDP-012,Product Detail,Toggle wishlist heart,-,Tap heart,Toggles correctly; reflected instantly via wishlist.isWishlisted(uuid),P1,Positive
+PDP-013,Product Detail,Tap 'See All Reviews',-,Tap link,Bug (F-10): calls an empty no-op method; nothing happens,P1,Negative
+PDP-014,Product Detail,Tap a product image thumbnail,-,Tap thumbnail,Opens full-screen Image Viewer at the correct initial index,P2,Positive
+PDP-015,Product Detail,Rapidly switch variant A to B before any render settles,-,Tap color A then B within one frame,"Final displayed price/stock corresponds to B (purely synchronous local state, no async race)",P1,Positive
+PDP-016,Product Detail,Product with null vendorEmail,-,Tap Buy Now,"Payment screen handles null vendor gracefully, no crash",P2,Negative
+PDP-017,Product Detail,"Navigate away mid-loadProduct, then re-enter",-,"Leave PDP quickly, re-open same product",No emit-after-dispose crash; earlier in-flight response doesn't corrupt the new screen instance,P1,Race Condition
+CART-001,Cart,Load cart successfully,Items in cart,Open Cart screen,"Items, quantities, totals render",P0,Positive
+CART-002,Cart,Load cart fails,Server error,Open Cart,state.error surfaced; isLoading clears,P0,Negative
+CART-003,Cart,Add item to cart,From PDP or Listing,Add item,Cart updates; isAddingItem toggles correctly around the call,P0,Positive
+CART-004,Cart,Add item fails (e.g. rejected as out of stock),-,Add item,Error surfaced without corrupting existing cart state,P0,Negative
+CART-005,Cart,Increase quantity via '+',Item in cart,Tap '+',"Total recalculates; only that row shows busy state (pendingItemIds), not a full-screen spinner",P0,Positive
+CART-006,Cart,Decrease quantity via '-' (qty > 1),-,Tap '-',Decrements by exactly one,P0,Positive
+CART-007,Cart,Decrease quantity from 1,Item quantity = 1,Tap '-',"Item is removed entirely (routes to removeItem), not set to 0",P0,Positive
+CART-008,Cart,Rapid multiple '+' taps on same item before first response returns,-,Tap '+' repeatedly fast,UI disables that item's steppers via isPending once the first tap's rebuild lands; verify the tight pre-rebuild window can't let a second tap send a duplicate/incorrect target quantity,P1,Race Condition
+CART-009,Cart,Tap '-' then immediately '+' on same item before either resolves,-,Rapid opposite taps,"Final displayed quantity matches the LAST user action, not whichever network response lands last",P1,Race Condition
+CART-010,Cart,Remove item while its own quantity-update is in flight,-,Tap '-' then immediately swipe-delete,No 'ghost' row or stale quantity flashing back after removal,P0,Race Condition
+CART-011,Cart,Clear cart,Items present,"Tap Clear Cart, confirm",All items removed; cart reloads to empty state,P0,Positive
+CART-012,Cart,Clear cart fails server-side,-,Trigger clear,Error shown; existing items remain (not optimistically cleared),P1,Negative
+CART-013,Cart,Price/coupon totals recalculate,Coupon applied,Change quantity or remove item,Price details/coupon card reflect updated totals correctly,P0,Positive
+CART-014,Cart,Cart badge reflects live count,-,Add/remove items from various screens,Nav badge (state.totalItems) updates live without manual refresh,P0,Positive
+CART-015,Cart,Add-to-cart for a product that's actually out of stock server-side,Client had no way to know (F-03),Attempt add,"Resulting error is shown clearly, not a confusing generic message",P1,Negative
+CART-016,Cart,Cart persists across app restart,"Items in cart, app killed and reopened","Reopen app, view cart",loadCart() re-fetches from server on startup rather than showing stale in-memory state,P0,Positive
+CART-017,Cart,Cross-screen error bleed on global state.error,Add-to-cart on Product A's PDP; unrelated quantity change resolves with error on a backgrounded Cart screen in between,Trigger both near-simultaneously,Bug (F-09): Product A's screen may show the unrelated error message instead of its own result,P1,Race Condition
+CART-018,Cart,'Go to Cart' state flips after add,Item just added,Return to same product card/PDP,"Button correctly shows 'Go to Cart' via context.watch<CartCubit>(), no re-entry needed",P2,Positive
+CART-019,Cart,Add same product from two different screens back-to-back,Listing card then PDP,Add rapidly from both,"Cart ends up with one correctly-incremented line item, not two duplicates (server-dependent; document expected contract)",P1,Race Condition
+WISH-001,Wishlist,Add item to wishlist,From PDP/Listing/Dashboard,Tap heart,Heart fills; item appears on Wishlist screen; persisted,P0,Positive
+WISH-002,Wishlist,Remove item from wishlist,Item wishlisted,Un-tap heart or swipe-remove,Item disappears everywhere it's referenced,P0,Positive
+WISH-003,Wishlist,Empty wishlist,No items,Open Wishlist screen,"Proper empty-state UI, not a blank screen",P1,Negative
+WISH-004,Wishlist,Wishlist persists across app restart,Items wishlisted,Kill and reopen app,Items still present (SharedPreferences-backed _restore()),P0,Positive
+WISH-005,Wishlist,Corrupted wishlist JSON in storage,Manually corrupt the stored value,Launch app,"_restore() catches the decode error, starts empty rather than crashing on launch",P0,Negative
+WISH-006,Wishlist,Cross-user wishlist bleed,"Log in as User A, add items, log out, log in as User B on same device",Open Wishlist as User B,"Bug (F-02, CRITICAL): User B sees and can modify User A's wishlist since storage is unscoped and the cubit is never reset on logout",P0,Negative (Security/Privacy)
+WISH-007,Wishlist,'Move to Bag' success,"Item in wishlist, in stock",Tap Move to Bag,"Item added to cart, then removed from wishlist; success snackbar shown",P0,Positive
+WISH-008,Wishlist,'Move to Bag' fails (cart add-item error),-,Trigger move-to-bag with a forced cart error,Item remains in wishlist (not removed); error surfaced; no silent data loss,P0,Negative
+WISH-009,Wishlist,'Move to Bag' for a multi-variant product,Product has multiple sizes/colors,Tap Move to Bag,Bug (F-13): no variant selection step; verify which variant is actually added and whether it's the intended one,P1,Negative
+WISH-010,Wishlist,Rapid double-tap wishlist heart on same product,-,Toggle on/off/on quickly,Final persisted and displayed state matches the LAST tap; verify no stale disk write survives an app kill mid-sequence,P1,Race Condition
+WISH-011,Wishlist,Double-tap 'Move to Bag' on same item,-,Two rapid taps,Guarded via local _pendingIds; exactly one cart-add + one wishlist-remove occurs,P1,Race Condition
+WISH-012,Wishlist,'Clear All' wishlist,Items present,"Tap Clear All, confirm",All items removed and persisted as empty,P1,Positive
+WISH-013,Wishlist,Wishlisted product later deleted/discontinued,-,Tap item / tap Move to Bag,"Degrades gracefully with a 'no longer available' message, not a crash",P1,Negative
+WISH-014,Wishlist,Add same product to wishlist from two different screens in quick succession,Product not yet wishlisted,"Tap heart on Dashboard card, then quickly on Listing card for the same product",toggle() is not idempotent-add: the second call flips it back OFF instead of a no-op; verify this doesn't surprise the user expecting 'already added',P1,Race Condition
