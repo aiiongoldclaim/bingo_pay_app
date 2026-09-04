@@ -7,6 +7,7 @@ import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -34,6 +35,8 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
 
   Timer? _cooldownTimer;
   int _secondsLeft = _resendCooldownSeconds;
+  bool _isResending = false;
+  bool _isInitialLoad = true;
 
 
   @override
@@ -43,6 +46,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _otpFocusNode.requestFocus();
+        setState(() => _isInitialLoad = false);
       }
     });
   }
@@ -121,23 +125,38 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthError) {
-            AppSnackbar.showError(context, state.failure.message);
-          } else if (state is SsoOtpRequired) {
-            AppSnackbar.showSuccess(context, 'OTP resent to ${widget.email}');
-            _startCooldown();
-          } else if (state is SsoSetPasswordRequired) {
-            context.pushReplacement(
-              AppRoutes.ssoSetPassword,
-              extra: state.email,
-            );
-          } else if (state is AuthAuthenticated) {
-            context.go(AppRoutes.home);
-          }
-        },
-        child: LayoutBuilder(
+      body: Stack(
+        children: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthLoading) {
+                setState(() => _isResending = true);
+              } else if (state is AuthError) {
+                setState(() => _isResending = false);
+                AppSnackbar.showError(context, state.failure.message);
+              } else if (state is SsoOtpRequired) {
+                // Only handle SsoOtpRequired if this is from resend (when not on initial load)
+                if (!_isInitialLoad) {
+                  setState(() => _isResending = false);
+                  _startCooldown();
+                  AppSnackbar.showSuccess(context, 'OTP resent to ${widget.email}');
+                }
+              } else if (state is SsoSetPasswordRequired) {
+                setState(() => _isResending = false);
+                if (mounted) {
+                  context.pushReplacement(
+                    AppRoutes.ssoSetPassword,
+                    extra: state.email,
+                  );
+                }
+              } else if (state is AuthAuthenticated) {
+                setState(() => _isResending = false);
+                if (mounted) {
+                  context.go(AppRoutes.home);
+                }
+              }
+            },
+            child: LayoutBuilder(
           builder: (context, constraints) {
             final m = AuthMetrics.of(constraints);
             final isWide = m.isTablet && m.isLandscape;
@@ -184,7 +203,46 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
               ],
             );
           },
-        ),
+            ),
+          ),
+          // Loading Overlay for Resend
+          if (_isResending)
+            Positioned.fill(
+              child: Container(
+                color: ThemeColors.black.withValues(alpha: 0.3),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation(colors.brand),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Sending OTP...',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontSize: 16,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -242,7 +300,9 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
           _ResendRow(
             secondsLeft: _secondsLeft,
             alignStart: alignStart,
-            onResend: _resend, metrics: m,
+            onResend: _resend,
+            metrics: m,
+            isResending: _isResending,
           ),
           SizedBox(height: m.blockGap),
           BlocBuilder<AuthBloc, AuthState>(
@@ -541,18 +601,20 @@ class _ResendRow extends StatelessWidget {
     required this.secondsLeft,
     required this.alignStart,
     required this.onResend,
+    required this.isResending,
   });
 
   final AuthMetrics metrics;
   final int secondsLeft;
   final bool alignStart;
   final VoidCallback onResend;
+  final bool isResending;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    final canResend = secondsLeft == 0;
+    final canResend = secondsLeft == 0 && !isResending;
     final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
     final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
 
@@ -569,23 +631,50 @@ class _ResendRow extends StatelessWidget {
             ),
           ),
 
-          InkWell(
-            onTap: canResend ? onResend : null,
-            borderRadius: BorderRadius.circular(6),
-            child: Padding(
+          if (isResending)
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-              child: Text(
-                'Resend OTP',
-                style: AppTextStyles.labelMedium.copyWith(
-                  fontSize: metrics.linkText,
-                  fontWeight: FontWeight.w700,
-                  color: canResend ? colors.brand : colors.textMuted,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(colors.brand),
+                    ),
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    'Sending OTP...',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      fontSize: metrics.linkText,
+                      fontWeight: FontWeight.w700,
+                      color: colors.brand,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            InkWell(
+              onTap: canResend ? onResend : null,
+              borderRadius: BorderRadius.circular(6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                child: Text(
+                  'Resend OTP',
+                  style: AppTextStyles.labelMedium.copyWith(
+                    fontSize: metrics.linkText,
+                    fontWeight: FontWeight.w700,
+                    color: canResend ? colors.brand : colors.textMuted,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          if (!canResend)
+          if (!canResend && !isResending)
             Text(
               ' ($minutes:$seconds)',
               style: AppTextStyles.bodyMedium.copyWith(
@@ -596,4 +685,5 @@ class _ResendRow extends StatelessWidget {
         ],
       ),
     );
-  }}
+  }
+}

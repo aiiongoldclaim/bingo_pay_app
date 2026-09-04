@@ -620,7 +620,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onChanged: _onEmailChanged,
             inputFormatters: [
               FilteringTextInputFormatter.allow(
-                RegExp(r'[a-zA-Z0-9@._\-]'),
+                RegExp(r'[a-zA-Z0-9@.\-]'),
               ),
             ],
             prefixIcon: const Icon(

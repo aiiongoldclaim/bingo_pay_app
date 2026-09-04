@@ -4,9 +4,11 @@ import '../../di/injection.dart';
 import '../../router/app_router.dart';
 import '../../router/route_guard.dart';
 import '../../storage/secure_storage_service.dart';
+import '../request_queue_manager.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorageService _storage;
+  final RequestQueueManager _queueManager = RequestQueueManager();
 
   AuthInterceptor(this._storage);
 
@@ -38,6 +40,26 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
+    // If already refreshing, wait for refresh to complete then retry
+    if (_queueManager.isRefreshing) {
+      try {
+        await _waitForRefresh();
+        // Get the newly saved token and retry the request
+        final newToken = await _storage.getAccessToken();
+        if (newToken != null) {
+          final response = await _retryRequest(err.requestOptions, newToken);
+          handler.resolve(response);
+        } else {
+          await _forceLogout();
+          handler.next(err);
+        }
+      } catch (_) {
+        await _forceLogout();
+        handler.next(err);
+      }
+      return;
+    }
+
     final refreshToken = await _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {
       await _forceLogout();
@@ -46,8 +68,12 @@ class AuthInterceptor extends Interceptor {
     }
 
     try {
+      // Mark that we're starting refresh (blocks other 401s)
+      _queueManager.startRefresh();
+
       final tokens = await _refreshTokens(err.requestOptions, refreshToken);
       if (tokens == null) {
+        _queueManager.failRefresh(Exception('Failed to refresh tokens'));
         await _forceLogout();
         handler.next(err);
         return;
@@ -58,14 +84,30 @@ class AuthInterceptor extends Interceptor {
         await _storage.saveRefreshToken(tokens.refreshToken!);
       }
 
+      // Signal that refresh is complete
+      _queueManager.completeRefresh();
+
       final response = await _retryRequest(
         err.requestOptions,
         tokens.accessToken,
       );
       handler.resolve(response);
     } catch (_) {
+      _queueManager.failRefresh(Exception('Token refresh failed'));
       await _forceLogout();
       handler.next(err);
+    }
+  }
+
+  Future<void> _waitForRefresh() async {
+    final startTime = DateTime.now();
+    const maxWait = Duration(seconds: 30);
+
+    while (_queueManager.isRefreshing) {
+      if (DateTime.now().difference(startTime) > maxWait) {
+        throw Exception('Token refresh timeout');
+      }
+      await Future.delayed(const Duration(milliseconds: 100));
     }
   }
 
@@ -75,6 +117,7 @@ class AuthInterceptor extends Interceptor {
   // AppRoutes.login from wherever they currently are.
   Future<void> _forceLogout() async {
     await _storage.clearAll();
+    _queueManager.clear();
     getIt<AppRouter>().updateAuthState(const RouteAuthState.unauthenticated());
   }
 

@@ -75,7 +75,7 @@ class LeaveWithoutPasswordDialog extends StatelessWidget {
                 Text(
                   "You haven't set a password yet. If you go back now, you "
                   "won't be able to sign in or access your account until you "
-                  'complete the reset process.',
+                  'complete the password setup process.',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: m.bodyFont,

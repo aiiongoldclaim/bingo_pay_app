@@ -104,6 +104,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return;
       }
       _currentUser = user;
+      // Check if user is SSO authenticated but password not set
+      if (!user.passwordSet) {
+        emit(SsoSetPasswordRequired(user.email));
+        return;
+      }
       emit(AuthAuthenticated(user));
     });
   }

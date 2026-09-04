@@ -12,6 +12,7 @@ class UserModel extends UserEntity {
     required super.kycStatus,
     super.emailVerified = false,
     super.phoneVerified = false,
+    super.passwordSet = true,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -29,6 +30,7 @@ class UserModel extends UserEntity {
         kycStatus: profile['kyc_status'] as String? ?? 'not_required',
         emailVerified: profile['email_verified'] as bool? ?? false,
         phoneVerified: profile['phone_verified'] as bool? ?? false,
+        passwordSet: profile['password_set'] as bool? ?? true,
       );
 
   /// Maps the `user` object returned by the verify-otp API (camelCase).
@@ -40,12 +42,14 @@ class UserModel extends UserEntity {
             (json['kycStatus'] as String? ?? 'NONE').toLowerCase(),
         emailVerified: json['isEmailVerified'] as bool? ?? false,
         phoneVerified: json['isPhoneVerified'] as bool? ?? false,
+        passwordSet: json['isPasswordSet'] as bool? ?? false,
       );
 
   UserModel copyWith({
     String? kycStatus,
     bool? emailVerified,
     bool? phoneVerified,
+    bool? passwordSet,
   }) =>
       UserModel(
         id: id,
@@ -54,5 +58,6 @@ class UserModel extends UserEntity {
         kycStatus: kycStatus ?? this.kycStatus,
         emailVerified: emailVerified ?? this.emailVerified,
         phoneVerified: phoneVerified ?? this.phoneVerified,
+        passwordSet: passwordSet ?? this.passwordSet,
       );
 }
