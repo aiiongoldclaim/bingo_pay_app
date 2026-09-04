@@ -72,7 +72,9 @@ class AppSnackbar {
         SnackBar(
           content: Text(
             message,
-            maxLines: 2,
+            // Single line so the action button stays inline instead of
+            // Flutter's SnackBar stacking it below a wrapped 2-line message.
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           backgroundColor: backgroundColor ?? AppColors.success,

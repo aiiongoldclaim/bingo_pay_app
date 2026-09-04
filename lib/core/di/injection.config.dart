@@ -136,6 +136,8 @@ import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart
     as _i666;
 import 'package:bingo_pay/features/home/domain/repositories/product_repository_impl.dart'
     as _i297;
+import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart'
+    as _i817;
 import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
     as _i578;
 import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository_impl.dart'
@@ -145,12 +147,22 @@ import 'package:bingo_pay/features/membershipNew/domain/repositories/membership_
 import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_cubit.dart'
     as _i359;
 import 'package:bingo_pay/features/on_boarding/presentation/cubit/onboarding_cubit.dart'
-    as _i272;
+    as _i462;
 import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
 import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
     as _i705;
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart'
     as _i792;
+import 'package:bingo_pay/features/product_categories_details/data/repositories/product_listing_repository_impl.dart'
+    as _i1049;
+import 'package:bingo_pay/features/product_categories_details/data/services/product_cache_service.dart'
+    as _i927;
+import 'package:bingo_pay/features/product_categories_details/domain/repositories/product_listing_repository.dart'
+    as _i331;
+import 'package:bingo_pay/features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart'
+    as _i901;
+import 'package:bingo_pay/features/product_details/presentation/cubit/product_details_cubit.dart'
+    as _i806;
 import 'package:bingo_pay/features/scanner/data/datasource/payment_remote_datasource.dart'
     as _i337;
 import 'package:bingo_pay/features/scanner/data/repositories/payment_repository_impl.dart'
@@ -194,7 +206,7 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
     gh.factory<_i709.BuyerDashboardCubit>(() => _i709.BuyerDashboardCubit());
-    gh.factory<_i272.OnboardingCubit>(() => _i272.OnboardingCubit());
+    gh.factory<_i462.OnboardingCubit>(() => _i462.OnboardingCubit());
     gh.singleton<_i558.FlutterSecureStorage>(() => appModule.secureStorage);
     await gh.singletonAsync<_i460.SharedPreferences>(
       () => appModule.prefs,
@@ -217,6 +229,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i115.WishlistCubit>(
       () => _i115.WishlistCubit(gh<_i460.SharedPreferences>()),
+    );
+    gh.lazySingleton<_i927.ProductCacheService>(
+      () => _i927.ProductCacheService(gh<_i460.SharedPreferences>()),
     );
     gh.singleton<_i541.ApiClient>(
       () => _i541.ApiClient(gh<_i481.SecureStorageService>()),
@@ -260,6 +275,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i152.GetBrandsUseCase>(
       () => _i152.GetBrandsUseCase(gh<_i105.BrandRepository>()),
     );
+    gh.lazySingleton<_i331.ProductListingRepository>(
+      () => _i1049.ProductListingRepositoryImpl(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i298.CategoryRemoteDataSource>(
       () => _i298.CategoryRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -291,6 +309,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i971.WishlistRepository>(
       () => _i215.ProductDetailRepositoryImpl(apiClient: gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i901.ProductListingCubit>(
+      () => _i901.ProductListingCubit(
+        gh<_i331.ProductListingRepository>(),
+        gh<_i927.ProductCacheService>(),
+      ),
     );
     gh.factory<_i97.TransactionsRemoteDataSource>(
       () => _i97.TransactionsRemoteDataSourceImpl(gh<_i541.ApiClient>()),
@@ -351,6 +375,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i321.AuctionRepository>(
       () => _i141.AuctionRepositoryImpl(gh<_i230.AuctionsRemoteDatasources>()),
+    );
+    gh.factory<_i806.ProductDetailCubit>(
+      () => _i806.ProductDetailCubit(gh<_i971.WishlistRepository>()),
     );
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
@@ -475,6 +502,13 @@ extension GetItInjectableX on _i174.GetIt {
         kycSelfie: gh<_i520.UploadKycSelfieUseCase>(),
         getKycStatus: gh<_i894.GetKycStatusUseCase>(),
         storage: gh<_i481.SecureStorageService>(),
+      ),
+    );
+    gh.factory<_i817.HomeCubit>(
+      () => _i817.HomeCubit(
+        gh<_i298.CategoryRemoteDataSource>(),
+        gh<_i810.GetProfileUseCase>(),
+        gh<_i666.ProductRepository>(),
       ),
     );
     return this;

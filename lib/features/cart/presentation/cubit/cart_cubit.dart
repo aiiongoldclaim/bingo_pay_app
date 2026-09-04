@@ -25,6 +25,21 @@ class CartCubit extends Cubit<CartState> {
     this._clearCart,
   ) : super(const CartState());
 
+  // Per-item monotonic counter. If a quantity-update and a removal (or two
+  // quantity-updates) race for the same item, only the response belonging
+  // to the most recently started operation for that item is applied —
+  // an older, slower response can no longer clobber newer state (e.g.
+  // resurrecting a just-removed item once its stale update arrives).
+  final Map<int, int> _itemVersion = {};
+
+  int _bumpVersion(int itemId) {
+    final version = (_itemVersion[itemId] ?? 0) + 1;
+    _itemVersion[itemId] = version;
+    return version;
+  }
+
+  bool _isCurrent(int itemId, int version) => _itemVersion[itemId] == version;
+
   Future<void> loadCart() async {
     emit(state.copyWith(isLoading: true, error: null));
     final result = await _getCart();
@@ -34,16 +49,21 @@ class CartCubit extends Cubit<CartState> {
     );
   }
 
-  Future<void> addItem({required String variantUuid, int quantity = 1}) async {
+  Future<CartActionResult> addItem({
+    required String variantUuid,
+    int quantity = 1,
+  }) async {
     emit(state.copyWith(isAddingItem: true, error: null));
     final result = await _addItem(variantUuid: variantUuid, quantity: quantity);
-    result.fold(
-      (failure) => emit(
-        state.copyWith(isAddingItem: false, error: failure.message),
-      ),
-      (cart) => emit(
-        state.copyWith(isAddingItem: false, cart: cart, error: null),
-      ),
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isAddingItem: false, error: failure.message));
+        return CartActionResult.failure(failure.message);
+      },
+      (cart) {
+        emit(state.copyWith(isAddingItem: false, cart: cart, error: null));
+        return const CartActionResult.success();
+      },
     );
   }
 
@@ -56,8 +76,10 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> _changeQuantity(int itemId, int quantity) async {
+    final version = _bumpVersion(itemId);
     emit(state.copyWith(pendingItemIds: {...state.pendingItemIds, itemId}));
     final result = await _updateQuantity(itemId: itemId, quantity: quantity);
+    if (!_isCurrent(itemId, version)) return;
     result.fold(
       (failure) => emit(state.copyWith(
         error: failure.message,
@@ -72,8 +94,10 @@ class CartCubit extends Cubit<CartState> {
   }
 
   Future<void> removeItem(int itemId) async {
+    final version = _bumpVersion(itemId);
     emit(state.copyWith(pendingItemIds: {...state.pendingItemIds, itemId}));
     final result = await _removeItem(itemId: itemId);
+    if (!_isCurrent(itemId, version)) return;
     await result.fold(
       (failure) async => emit(state.copyWith(
         error: failure.message,

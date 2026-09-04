@@ -1,200 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:sizer/sizer.dart';
-// import 'package:dio/dio.dart';
-//
-// import '../../../../core/api/api_client.dart';
-// import '../../../../core/config/app_config.dart';
-// import '../../../../core/di/injection.dart';
-// import '../../../../core/router/app_routes.dart';
-// import '../../../../core/services/product_cache_service.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// import '../../../../core/widgets/custom_app_bar.dart';
-// import '../../../../core/widgets/app_snackbar.dart';
-// import '../../../../core/widgets/product_card.dart';
-// import '../../../wishlist/data/models/wishlist_model.dart';
-// import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
-// import '../../data/models/product_model.dart';
-//
-// class AllProductsScreen extends StatefulWidget {
-//   const AllProductsScreen({super.key});
-//
-//   @override
-//   State<AllProductsScreen> createState() => _AllProductsScreenState();
-// }
-//
-// class _AllProductsScreenState extends State<AllProductsScreen> {
-//   late Future<List<ProductModel>> _productsFuture;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _productsFuture = _fetchAllProducts();
-//   }
-//
-//   Future<List<ProductModel>> _fetchAllProducts() async {
-//     final client = getIt<ApiClient>();
-//     final cacheService = getIt<ProductCacheService>();
-//
-//     try {
-//       final response = await client.dio.get(
-//         '${AppConfig.apiBaseUrl}/api/v1/products',
-//         queryParameters: {'page': 1, 'limit': 100},
-//       );
-//       final raw = response.data as Map<String, dynamic>;
-//       final dataMap = raw['data'] as Map<String, dynamic>;
-//       final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-//       final products = dataList
-//           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-//           .toList();
-//
-//       // Cache on success
-//       await cacheService.cacheHomeProducts(products);
-//       debugPrint('✓ Loaded and cached ${products.length} products from API');
-//       return products;
-//     } catch (e) {
-//       debugPrint('✗ Failed to fetch products: $e');
-//
-//       // Handle throttling gracefully
-//       final isDioError = e is DioException;
-//       final isThrottled = isDioError && e.response?.statusCode == 429;
-//
-//       if (isThrottled) {
-//         debugPrint('⚠ API throttled (429), attempting to load from cache...');
-//       }
-//
-//       // Try cache as fallback
-//       final cachedProducts = await cacheService.getHomeProductsCache();
-//       if (cachedProducts != null && cachedProducts.isNotEmpty) {
-//         debugPrint(
-//           '✓ Loaded ${cachedProducts.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
-//         );
-//         return cachedProducts;
-//       }
-//
-//       debugPrint('✗ No cached products available, rethrowing error');
-//       rethrow;
-//     }
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: ThemeColors.background,
-//       appBar: const CustomAppBar(title: 'All Products'),
-//       body: FutureBuilder<List<ProductModel>>(
-//         future: _productsFuture,
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return const Center(child: CircularProgressIndicator());
-//           }
-//
-//           if (snapshot.hasError) {
-//             return Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Icon(
-//                     Icons.error_outline,
-//                     size: 15.w,
-//                     color: Colors.grey,
-//                   ),
-//                   SizedBox(height: 2.h),
-//                   Text(
-//                     'Failed to load products',
-//                     style: TextStyle(fontSize: 16.sp),
-//                   ),
-//                   SizedBox(height: 2.h),
-//                   ElevatedButton(
-//                     onPressed: () {
-//                       setState(() {
-//                         _productsFuture = _fetchAllProducts();
-//                       });
-//                     },
-//                     child: const Text('Retry'),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-//
-//           final products = snapshot.data ?? [];
-//
-//           if (products.isEmpty) {
-//             return Center(
-//               child: Text(
-//                 'No products available',
-//                 style: TextStyle(fontSize: 16.sp),
-//               ),
-//             );
-//           }
-//
-//           return GridView.builder(
-//             padding: EdgeInsets.all(4.w),
-//             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//               crossAxisCount: 2,
-//               crossAxisSpacing: 3.w,
-//               mainAxisSpacing: 1.h,
-//               childAspectRatio: 0.65,
-//             ),
-//             itemCount: products.length,
-//             itemBuilder: (context, index) {
-//               final product = products[index];
-//               final wishlist = context.watch<WishlistCubit>();
-//
-//               return ProductCard(
-//                 brand: product.brand,
-//                 productName: product.name,
-//                 price: product.price,
-//                 imageUrl:
-//                     product.images.isNotEmpty ? product.images.first : '',
-//                 rating: product.rating,
-//                 initialFavourite: wishlist.isWishlisted(product.uuid),
-//                 onFavouriteChanged: product.uuid == null
-//                     ? null
-//                     : (isAdded) async {
-//                         final cubit = context.read<WishlistCubit>();
-//                         final buildContext = context;
-//                         await cubit.toggle(
-//                           WishlistItem(
-//                             id: product.uuid!,
-//                             brand: product.brand,
-//                             name: product.name,
-//                             price: product.price,
-//                             originalPrice: product.oldPrice.isNotEmpty
-//                                 ? product.oldPrice
-//                                 : null,
-//                             discountPercent: product.discount > 0
-//                                 ? product.discount
-//                                 : null,
-//                             imageUrl: product.images.isNotEmpty
-//                                 ? product.images.first
-//                                 : null,
-//                             rating: product.rating,
-//                           ),
-//                         );
-//                         if (isAdded && buildContext.mounted) {
-//                           AppSnackbar.showSuccess(
-//                             buildContext,
-//                             'Product added to Wishlist successfully.',
-//                           );
-//                         }
-//                       },
-//                 onTap: product.uuid != null
-//                     ? () => context.push(
-//                           AppRoutes.productDetails,
-//                           extra: product.uuid,
-//                         )
-//                     : null,
-//               );
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -222,76 +25,95 @@ class AllProductsScreen extends StatefulWidget {
 }
 
 class _AllProductsScreenState extends State<AllProductsScreen> {
-  late Future<List<ProductModel>> _productsFuture;
 
-  /// Jin products par add-to-cart chal raha hai
+  static const int _pageSize = 20;
+
+  final List<ProductModel> _products = [];
+  final ScrollController _scrollController = ScrollController();
+
+  int _currentPage = 1;
+  bool _isLoading = true;
+  bool _isLoadingMore = false;
+  bool _hasError = false;
+  bool _hasMore = true;
+
+
   final Set<String> _addingIds = {};
 
   @override
   void initState() {
     super.initState();
-    _productsFuture = getIt<ProductRepository>().getAllProducts();
-    // _productsFuture = _fetchAllProducts();
+    _scrollController.addListener(_onScroll);
+    _loadInitial();
   }
 
-  // Future<List<ProductModel>> _fetchAllProducts() async {
-  //   final client = getIt<ApiClient>();
-  //   final cacheService = getIt<ProductCacheService>();
-  //
-  //   try {
-  //     final response = await client.dio.get(
-  //       '${AppConfig.apiBaseUrl}/api/v1/products',
-  //       queryParameters: {'page': 1, 'limit': 100},
-  //     );
-  //     final raw = response.data as Map<String, dynamic>;
-  //     final dataMap = raw['data'] as Map<String, dynamic>;
-  //     final dataList = (dataMap['data'] as List<dynamic>?) ?? [];
-  //     final products = dataList
-  //         .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
-  //         .toList();
-  //
-  //     // Cache on success
-  //     await cacheService.cacheHomeProducts(products);
-  //     debugPrint('✓ Loaded and cached ${products.length} products from API');
-  //     return products;
-  //   } catch (e) {
-  //     debugPrint('✗ Failed to fetch products: $e');
-  //
-  //     // Handle throttling gracefully
-  //     final isDioError = e is DioException;
-  //     final isThrottled = isDioError && e.response?.statusCode == 429;
-  //
-  //     if (isThrottled) {
-  //       debugPrint('⚠ API throttled (429), attempting to load from cache...');
-  //     }
-  //
-  //     // Try cache as fallback
-  //     final cachedProducts = await cacheService.getHomeProductsCache();
-  //     if (cachedProducts != null && cachedProducts.isNotEmpty) {
-  //       debugPrint(
-  //         '✓ Loaded ${cachedProducts.length} products from cache (API ${isThrottled ? 'throttled' : 'failed'})',
-  //       );
-  //       return cachedProducts;
-  //     }
-  //
-  //     debugPrint('✗ No cached products available, rethrowing error');
-  //     rethrow;
-  //   }
-  // }
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 500) {
+      _loadMore();
+    }
+  }
+
+  Future<void> _loadInitial() async {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+    try {
+      final products = await getIt<ProductRepository>()
+          .getAllProducts(page: 1, limit: _pageSize);
+      if (!mounted) return;
+      setState(() {
+        _products
+          ..clear()
+          ..addAll(products);
+        _currentPage = 1;
+        _hasMore = products.length == _pageSize;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _hasError = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore || !_hasMore || _isLoading) return;
+    setState(() => _isLoadingMore = true);
+    try {
+      final nextPage = _currentPage + 1;
+      final products = await getIt<ProductRepository>()
+          .getAllProducts(page: nextPage, limit: _pageSize);
+      if (!mounted) return;
+      setState(() {
+        _products.addAll(products);
+        _currentPage = nextPage;
+        _hasMore = products.length == _pageSize;
+        _isLoadingMore = false;
+      });
+    } catch (_) {
+      // Leave existing products as-is; the user can keep scrolling to retry.
+      if (!mounted) return;
+      setState(() => _isLoadingMore = false);
+    }
+  }
+
 
   void _retry() {
-    setState(() {
-      _productsFuture = getIt<ProductRepository>().getAllProducts();
-      // _productsFuture = _fetchAllProducts();
-    });
+    _loadInitial();
   }
 
-  bool _isInCart(String? productUuid) {
-    if (productUuid == null) return false;
-    return context.read<CartCubit>().state.items.any(
-          (i) => i.product.uuid == productUuid,
-    );
-  }
 
   Future<void> _addToCart(ProductModel product) async {
     final uuid = product.uuid;
@@ -313,12 +135,15 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
         return;
       }
 
-      await cartCubit.addItem(variantUuid: variantUuid, quantity: 1);
+      final result =
+          await cartCubit.addItem(variantUuid: variantUuid, quantity: 1);
       if (!mounted) return;
 
-      final error = cartCubit.state.error;
-      if (error != null) {
-        AppSnackbar.showError(context, error);
+      if (!result.success) {
+        AppSnackbar.showError(
+          context,
+          result.errorMessage ?? 'Something went wrong. Please try again.',
+        );
         return;
       }
 
@@ -363,72 +188,66 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = ProductsMetrics.of(context);
 
     return Scaffold(
       backgroundColor: c.background,
       body: SafeArea(
         bottom: false,
-        child: FutureBuilder<List<ProductModel>>(
-          future: _productsFuture,
-          builder: (context, snapshot) {
-            final m = ProductsMetrics.of(context);
-            final products = snapshot.data ?? [];
-            final isLoading =
-                snapshot.connectionState == ConnectionState.waiting;
+        child: Column(
+          children: [
+            _ProductsTopBar(
+              metrics: m,
+              count: _isLoading ? null : _products.length,
+            ),
 
-            return Column(
-              children: [
-                _ProductsTopBar(
-                  metrics: m,
-                  count: isLoading ? null : products.length,
+            Expanded(
+              child: _isLoading
+                  ? Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                  child: ProductsGridShimmer(metrics: m),
                 ),
-
-                Expanded(
-                  child: isLoading
-                      ? Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-                      child: ProductsGridShimmer(metrics: m),
-                    ),
-                  )
-                      : snapshot.hasError
-                      ? _MessageView(
+              )
+                  : _hasError && _products.isEmpty
+                  ? _MessageView(
+                metrics: m,
+                icon: Icons.wifi_off_rounded,
+                title: 'Failed to load products',
+                subtitle:
+                'Check your internet connection and try again later.',
+                actionLabel: 'RETRY',
+                onAction: _retry,
+              )
+                  : _products.isEmpty
+                  ? _MessageView(
+                metrics: m,
+                icon: Icons.inventory_2_outlined,
+                title: 'No products available',
+                subtitle: 'New Products coming soon.',
+                actionLabel: 'REFRESH',
+                onAction: _retry,
+              )
+                  : Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: m.maxContentWidth,
+                  ),
+                  child: _ProductsGrid(
                     metrics: m,
-                    icon: Icons.wifi_off_rounded,
-                    title: 'Failed to load products',
-                    subtitle:
-                    'Check your internet connection and try again later.',
-                    actionLabel: 'RETRY',
-                    onAction: _retry,
-                  )
-                      : products.isEmpty
-                      ? _MessageView(
-                    metrics: m,
-                    icon: Icons.inventory_2_outlined,
-                    title: 'No products available',
-                    subtitle: 'New Products coming soon.',
-                    actionLabel: 'REFRESH',
-                    onAction: _retry,
-                  )
-                      : Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: m.maxContentWidth,
-                      ),
-                      child: _ProductsGrid(
-                        metrics: m,
-                        products: products,
-                        addingIds: _addingIds,
-                        onAddToCart: _addToCart,
-                        onGoToCart: () => context.push(AppRoutes.cart),
-                        onToggleWishlist: _toggleWishlist,
-                      ),
-                    ),
+                    products: _products,
+                    addingIds: _addingIds,
+                    scrollController: _scrollController,
+                    hasMore: _hasMore,
+                    isLoadingMore: _isLoadingMore,
+                    onAddToCart: _addToCart,
+                    onGoToCart: () => context.push(AppRoutes.cart),
+                    onToggleWishlist: _toggleWishlist,
                   ),
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -440,6 +259,9 @@ class _ProductsGrid extends StatelessWidget {
   final ProductsMetrics metrics;
   final List<ProductModel> products;
   final Set<String> addingIds;
+  final ScrollController scrollController;
+  final bool hasMore;
+  final bool isLoadingMore;
   final void Function(ProductModel) onAddToCart;
   final VoidCallback onGoToCart;
   final void Function(ProductModel, bool) onToggleWishlist;
@@ -448,6 +270,9 @@ class _ProductsGrid extends StatelessWidget {
     required this.metrics,
     required this.products,
     required this.addingIds,
+    required this.scrollController,
+    required this.hasMore,
+    required this.isLoadingMore,
     required this.onAddToCart,
     required this.onGoToCart,
     required this.onToggleWishlist,
@@ -457,11 +282,13 @@ class _ProductsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = metrics;
 
-    // Cart + wishlist dono watch — badge/label live update ke liye
     final cartItems = context.watch<CartCubit>().state.items;
     final wishlist = context.watch<WishlistCubit>();
 
+    final showLoader = hasMore && isLoadingMore;
+
     return GridView.builder(
+      controller: scrollController,
       padding: EdgeInsets.fromLTRB(
         m.pageHPad,
         m.gapMd,
@@ -474,8 +301,12 @@ class _ProductsGrid extends StatelessWidget {
         mainAxisSpacing: m.gridSpacing,
         childAspectRatio: m.cardAspectRatio,
       ),
-      itemCount: products.length,
+      itemCount: products.length + (showLoader ? 1 : 0),
       itemBuilder: (context, index) {
+        if (index >= products.length) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
         final product = products[index];
         final uuid = product.uuid;
 
@@ -490,6 +321,7 @@ class _ProductsGrid extends StatelessWidget {
           discountPercent: product.discount > 0 ? product.discount : null,
           imageUrl: product.images.isNotEmpty ? product.images.first : '',
           rating: product.rating,
+          isOutOfStock: product.stock == 0,
           isFavourite: wishlist.isWishlisted(uuid),
           isInCart: isInCart,
           isAddingToCart: uuid != null && addingIds.contains(uuid),

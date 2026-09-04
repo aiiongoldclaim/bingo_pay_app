@@ -1070,15 +1070,15 @@ class _AccountScreenBody extends StatelessWidget {
       },
       child: BlocBuilder<AccountCubit, AccountState>(
         builder: (context, accountState) {
-          final c = context.c;
+          final colors = context.c;
 
           if (accountState is AccountInitial ||
               accountState is AccountLoading) {
             return Scaffold(
-              backgroundColor: c.background,
+              backgroundColor: colors.background,
               body: SafeArea(
                 child: AppShimmer(
-                  backgroundColor: c.background,
+                  backgroundColor: colors.background,
                   child: const AccountShimmerContent(),
                 ),
               ),
@@ -1094,7 +1094,7 @@ class _AccountScreenBody extends StatelessWidget {
                 Positioned.fill(
                   child: IgnorePointer(
                     child: AppShimmer(
-                      backgroundColor: c.background,
+                      backgroundColor: colors.background,
                       child: const AccountShimmerContent(),
                     ),
                   ),

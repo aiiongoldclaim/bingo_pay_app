@@ -1,3 +1,4 @@
+import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
@@ -168,7 +169,8 @@ class AppProductCard extends StatelessWidget {
                                     ? Icons.favorite
                                     : Icons.favorite_border_rounded,
                                 size: heartIcon,
-                                color: isFavourite ? c.brand : c.textSecondary,
+                                 color: isFavourite ? ThemeColors.red : c.textSecondary,
+                                // color: ThemeColors.red,
                               ),
                             ),
                           ),

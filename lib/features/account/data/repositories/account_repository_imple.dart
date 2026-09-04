@@ -1,6 +1,5 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
-
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/enities/account_entity.dart';

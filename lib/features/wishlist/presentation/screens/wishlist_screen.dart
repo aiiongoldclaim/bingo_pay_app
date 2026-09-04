@@ -104,6 +104,7 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
+import '../../../product_details/data/models/product_details_model.dart';
 import '../../data/models/wishlist_model.dart';
 import '../../data/repositories/wishlist_repository.dart';
 import '../cubit/wishlist_cubit.dart';
@@ -138,8 +139,45 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
     try {
       var variantUuid = item.variantUuid;
+
       if (variantUuid == null || variantUuid.isEmpty) {
-        variantUuid = await repository.resolveVariantUuid(item.id);
+        ProductDetailModel? product;
+        try {
+          product = await repository.getProductDetail(item.id);
+        } catch (_) {
+          product = null;
+        }
+
+        if (!mounted) return;
+
+        if (product == null) {
+          AppSnackbar.showError(
+            context,
+            'This product is currently unavailable',
+          );
+          return;
+        }
+
+        final inStockVariants = product.variants
+            .where((v) => v.availableStock > 0 && v.uuid.isNotEmpty)
+            .toList();
+
+        // More than one purchasable option — don't guess which one the
+        // user wants, send them to the product page to pick explicitly,
+        // same as the normal PDP add-to-cart flow requires.
+        if (inStockVariants.length > 1) {
+          AppSnackbar.showError(
+            context,
+            'This item has multiple options in stock — pick one on the product page to add it to your bag.',
+          );
+          _openProduct(context, item);
+          return;
+        }
+
+        final chosen = inStockVariants.isNotEmpty
+            ? inStockVariants.first
+            : (product.variants.isNotEmpty ? product.variants.first : null);
+        variantUuid = chosen?.uuid;
       }
 
       if (!mounted) return;
@@ -152,12 +190,15 @@ class _WishlistScreenState extends State<WishlistScreen> {
         return;
       }
 
-      await cartCubit.addItem(variantUuid: variantUuid, quantity: 1);
+      final result =
+          await cartCubit.addItem(variantUuid: variantUuid, quantity: 1);
       if (!mounted) return;
 
-      final error = cartCubit.state.error;
-      if (error != null) {
-        AppSnackbar.showError(context, error);
+      if (!result.success) {
+        AppSnackbar.showError(
+          context,
+          result.errorMessage ?? 'Something went wrong. Please try again.',
+        );
         return;
       }
 

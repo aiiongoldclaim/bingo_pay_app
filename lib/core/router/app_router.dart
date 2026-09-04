@@ -192,7 +192,7 @@ class AppRouter {
           builder: (context, state) {
             final uuid = state.extra as String;
             return BlocProvider(
-              create: (_) => ProductDetailCubit()..loadProduct(uuid),
+              create: (_) => getIt<ProductDetailCubit>()..loadProduct(uuid),
               child: const ProductDetailScreen(),
             );
           },
@@ -233,7 +233,7 @@ class AppRouter {
           builder: (context, state) {
             final productId = state.pathParameters['id'] ?? '';
             return BlocProvider(
-              create: (_) => ProductDetailCubit()..loadProduct(productId),
+              create: (_) => getIt<ProductDetailCubit>()..loadProduct(productId),
               child: const ProductDetailScreen(),
             );
           },

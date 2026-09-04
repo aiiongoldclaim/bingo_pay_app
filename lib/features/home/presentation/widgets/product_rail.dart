@@ -20,6 +20,7 @@ class ProductRail extends StatelessWidget {
     this.onProductTap,
     this.onWishlistTap,
     this.onAddToCart,
+    this.addingIds = const {},
   });
 
   final HomeMetrics metrics;
@@ -30,6 +31,7 @@ class ProductRail extends StatelessWidget {
   final ValueChanged<ProductModel>? onProductTap;
   final ValueChanged<ProductModel>? onWishlistTap;
   final ValueChanged<ProductModel>? onAddToCart;
+  final Set<String> addingIds;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,7 @@ class ProductRail extends StatelessWidget {
                     isWishlisted:
                         p.uuid != null &&
                         wishlistState.items.any((e) => e.id == p.uuid),
+                    isAddingToCart: p.uuid != null && addingIds.contains(p.uuid),
                     onTap: () => onProductTap?.call(p),
                     onWishlistTap: p.uuid == null
                         ? null
