@@ -54,6 +54,4 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
   void onAddToCart() {}
 
   void onBuyNow() {}
-
-  void onSeeAllReviews() {}
 }

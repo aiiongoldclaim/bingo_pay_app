@@ -144,14 +144,12 @@ class ProductRatingsBlock extends StatelessWidget {
   final ProductMetrics metrics;
   final String rating;
   final String reviewCount;
-  final VoidCallback onSeeAll;
 
   const ProductRatingsBlock({
     super.key,
     required this.metrics,
     required this.rating,
     required this.reviewCount,
-    required this.onSeeAll,
   });
 
   @override

@@ -17,6 +17,7 @@ class AppBottomActionBar extends StatelessWidget {
     this.secondaryIcon,
     this.secondaryVariant = AppButtonVariant.outlined,
     this.secondaryLoading = false,
+    this.primaryLoading = false,
     this.buttonHeight,
     this.buttonFontSize,
   });
@@ -25,6 +26,7 @@ class AppBottomActionBar extends StatelessWidget {
 
   final String primaryLabel;
   final VoidCallback? onPrimaryPressed;
+  final bool primaryLoading;
 
   /// Null ho to sirf primary button dikhega (full width)
   final String? secondaryLabel;
@@ -114,6 +116,7 @@ class AppBottomActionBar extends StatelessWidget {
               child: AppButton(
                 label: primaryLabel,
                 variant: AppButtonVariant.primary,
+                isLoading: primaryLoading,
                 height: buttonHeight,
                 fontSize: buttonFontSize,
                 onPressed: onPrimaryPressed,

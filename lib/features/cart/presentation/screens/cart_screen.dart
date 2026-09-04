@@ -266,7 +266,7 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return BlocListener<CartCubit, CartState>(
       listenWhen: (previous, current) =>
@@ -292,7 +292,7 @@ class _CartPageState extends State<CartPage> {
           );
 
           return Scaffold(
-            backgroundColor: c.background,
+            backgroundColor: colors.background,
             body: SafeArea(
               bottom: false,
               child: Column(
@@ -301,7 +301,7 @@ class _CartPageState extends State<CartPage> {
                   Expanded(
                     child: state.isLoading
                         ? Center(
-                            child: CircularProgressIndicator(color: c.brand),
+                            child: CircularProgressIndicator(color: colors.brand),
                           )
                         : state.items.isEmpty
                         ? CartEmptyView(metrics: m)
@@ -370,15 +370,17 @@ class _CartTopBar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         m.pageHPad * 0.4,
-        m.pageVPad * 0.4,
+        m.pageVPad * 0.15,
         m.pageHPad * 0.6,
-        m.pageVPad * 0.4,
+        m.pageVPad * 0.15,
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
             splashRadius: m.backIconSize * 1.2,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize + 4,
@@ -405,6 +407,8 @@ class _CartTopBar extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const WishlistScreen()),
             ),
             splashRadius: m.topIconSize * 1.2,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
             icon: Icon(
               Icons.favorite_border_rounded,
               size: m.topIconSize + 2,
@@ -431,7 +435,7 @@ class _CartTitleBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -445,7 +449,7 @@ class _CartTitleBlock extends StatelessWidget {
               Text(
                 'My Cart ($totalItems)',
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.pageTitleSize,
@@ -456,7 +460,7 @@ class _CartTitleBlock extends StatelessWidget {
               Text(
                 '$totalItems item${totalItems == 1 ? '' : 's'} in your bag',
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.pageSubtitleSize,
                   height: 1.2,
@@ -479,13 +483,13 @@ class _CartTitleBlock extends StatelessWidget {
                 Icon(
                   Icons.favorite_border_rounded,
                   size: m.linkSize + 3,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
                 SizedBox(width: m.gapSm * 0.5),
                 Text(
                   'Move All to Wishlist',
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: c.brand,
+                    color: colors.brand,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: m.linkSize,
@@ -529,7 +533,7 @@ class _PortraitBody extends StatelessWidget {
     final m = metrics;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(m.pageHPad, m.gapSm, m.pageHPad, m.gapLg),
+      padding: EdgeInsets.fromLTRB(m.pageHPad, m.gapXs, m.pageHPad, m.gapLg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

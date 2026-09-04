@@ -25,6 +25,11 @@ class ProductListingLoaded extends ProductListingState {
   final String? selectedRatingFilter; // "4★ & up"
   final bool isCachedData; // True if showing cached data due to rate limit
   final String? cachedTimeAgo; // Human-readable cache age (e.g. "5m ago")
+  // True only when the cache being shown is past ProductCacheService's TTL
+  // and is being reused purely because the API is rate-limited — distinct
+  // from isCachedData's cosmetic "cached Xh ago" label, this drives an
+  // explicit "may be outdated" warning rather than silent indefinite reuse.
+  final bool isStaleData;
   // Pagination: page that has already been fetched, whether more pages
   // remain across the resolved category tree, and whether a load-more
   // request is currently in flight.
@@ -42,6 +47,7 @@ class ProductListingLoaded extends ProductListingState {
     this.selectedRatingFilter,
     this.isCachedData = false,
     this.cachedTimeAgo,
+    this.isStaleData = false,
     this.currentPage = 1,
     this.hasMorePages = false,
     this.isLoadingMore = false,
@@ -58,6 +64,7 @@ class ProductListingLoaded extends ProductListingState {
     bool clearRatingFilter = false,
     bool? isCachedData,
     String? cachedTimeAgo,
+    bool? isStaleData,
     int? currentPage,
     bool? hasMorePages,
     bool? isLoadingMore,
@@ -76,6 +83,7 @@ class ProductListingLoaded extends ProductListingState {
           : selectedRatingFilter ?? this.selectedRatingFilter,
       isCachedData: isCachedData ?? this.isCachedData,
       cachedTimeAgo: cachedTimeAgo ?? this.cachedTimeAgo,
+      isStaleData: isStaleData ?? this.isStaleData,
       currentPage: currentPage ?? this.currentPage,
       hasMorePages: hasMorePages ?? this.hasMorePages,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -92,6 +100,7 @@ class ProductListingLoaded extends ProductListingState {
     selectedRatingFilter,
     isCachedData,
     cachedTimeAgo,
+    isStaleData,
     currentPage,
     hasMorePages,
     isLoadingMore,

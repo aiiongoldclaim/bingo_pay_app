@@ -165,10 +165,12 @@ class WishlistCubit extends Cubit<WishlistState> {
       items.insert(0, item);
     }
 
-    await _persist(items);
-
-    if (_userId == null) return;
+    // Emit before persisting so a rapid second tap reads the updated
+    // state.items (set synchronously below) rather than the pre-toggle
+    // snapshot — otherwise two fast toggles can both compute the same
+    // flip and one of them is lost.
     emit(state.copyWith(items: items));
+    await _persist(items);
   }
 
   Future<void> remove(String id) async {

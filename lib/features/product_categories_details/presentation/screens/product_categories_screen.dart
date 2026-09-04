@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -52,7 +53,7 @@ class ProductListingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-      ProductListingCubit()..loadCategory(categoryName, categoryUuid),
+      getIt<ProductListingCubit>()..loadCategory(categoryName, categoryUuid),
       child: _ProductListingView(categoryName: categoryName),
     );
   }
@@ -136,9 +137,6 @@ class _ProductListingViewState extends State<_ProductListingView> {
       ProductListingCubit cubit,
       ) {
     return switch (state) {
-      // ProductListingLoading() => Center(
-      //   child: CircularProgressIndicator(color: context.colors.brand),
-      // ),
       ProductListingLoading() => const ListingShimmer(),
       ProductListingError(
           :final message,
@@ -181,6 +179,9 @@ class _LoadedView extends StatelessWidget {
     return CustomScrollView(
       controller: scrollController,
       slivers: [
+        if (state.isStaleData)
+          SliverToBoxAdapter(child: _StaleDataBanner(cachedTimeAgo: state.cachedTimeAgo)),
+
         SliverToBoxAdapter(
           child: ListingResultsBar(
             count: products.length,
@@ -213,6 +214,46 @@ class _LoadedView extends StatelessWidget {
 
         SliverToBoxAdapter(child: SizedBox(height: 3.h)),
       ],
+    );
+  }
+}
+
+// Shown only when the rate-limit fallback had to reuse a cache entry past
+// its TTL — prices/stock shown below may no longer be accurate.
+class _StaleDataBanner extends StatelessWidget {
+  final String? cachedTimeAgo;
+
+  const _StaleDataBanner({required this.cachedTimeAgo});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(4.w, 1.h, 4.w, 0),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
+      decoration: BoxDecoration(
+        color: colors.statusWarning.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colors.statusWarning.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, size: 16.sp, color: colors.statusWarning),
+          SizedBox(width: 2.w),
+          Expanded(
+            child: Text(
+              cachedTimeAgo != null
+                  ? 'Prices and availability may be outdated (last updated $cachedTimeAgo).'
+                  : 'Prices and availability may be outdated.',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: colors.statusWarning,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

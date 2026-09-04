@@ -30,6 +30,28 @@ class ProductModel {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('_cached')) {
+      // Deserialized from cache: toJson() already flattened/formatted this
+      // model (price/oldPrice as display strings, no variants array to
+      // re-derive them from) — reading it back through the API-shape logic
+      // below would crash on `brand` (a String here, not {name: ...}) and
+      // silently drop price/oldPrice/discount to their zero defaults.
+      return ProductModel(
+        uuid: json['uuid'] as String?,
+        brand: json['brand'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        price: json['price'] as String? ?? 'N/A',
+        oldPrice: json['oldPrice'] as String? ?? '',
+        rating: json['rating'] as String? ?? '0.0',
+        discount: _asInt(json['discount']) ?? 0,
+        variantUuid: json['variantUuid'] as String?,
+        stock: _asInt(json['stock']),
+        icon: Icons.shopping_bag_outlined,
+        images:
+            (json['images'] as List<dynamic>?)?.cast<String>() ?? const [],
+      );
+    }
+
     final mediaList = (json['media'] as List<dynamic>?) ?? [];
     final images = mediaList
         .map((m) => (m as Map<String, dynamic>)['url'] as String? ?? '')
@@ -88,17 +110,15 @@ class ProductModel {
   }
 
   Map<String, dynamic> toJson() => {
+    '_cached': true, // Flag to identify cached format
     'uuid': uuid,
     'brand': brand,
     'name': name,
-    'title': name,
     'price': price,
     'oldPrice': oldPrice,
     'rating': rating,
-    'averageRating': double.tryParse(rating) ?? 0.0,
     'discount': discount,
     'images': images,
-    'media': images.map((url) => {'url': url}).toList(),
     'variantUuid': variantUuid,
     'stock': stock,
   };

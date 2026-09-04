@@ -1,11 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product_categories_model.dart';
 
+@lazySingleton
 class ProductCacheService {
   static const String _cachePrefix = 'product_cache_';
   static const String _timestampSuffix = '_timestamp';
+
+  /// Cached prices/stock/discounts older than this are no longer treated
+  /// as a fresh-enough stand-in for a live fetch — see [CachedProducts.isExpired].
+  static const Duration cacheTtl = Duration(minutes: 30);
 
   final SharedPreferences _prefs;
 
@@ -51,12 +57,14 @@ class ProductCacheService {
           .toList();
 
       final timestamp = _prefs.getInt(timestampKey) ?? 0;
+      final cachedAt = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
       if (kDebugMode) debugPrint('[ProductCache] Retrieved ${products.length} cached products for $categoryUuid');
 
       return CachedProducts(
         products: products,
-        cachedAt: DateTime.fromMillisecondsSinceEpoch(timestamp),
+        cachedAt: cachedAt,
+        isExpired: DateTime.now().difference(cachedAt) > cacheTtl,
       );
     } catch (e) {
       if (kDebugMode) debugPrint('[ProductCache] Error retrieving cached products: $e');
@@ -102,9 +110,17 @@ class CachedProducts {
   final List<ListingProductModel> products;
   final DateTime cachedAt;
 
+  /// True once this entry is older than [ProductCacheService.cacheTtl] —
+  /// stale enough that price/stock/discount can no longer be trusted as
+  /// current. Callers must not reuse expired data silently; only the
+  /// rate-limit fallback path may still show it, and only alongside an
+  /// explicit "may be outdated" warning.
+  final bool isExpired;
+
   CachedProducts({
     required this.products,
     required this.cachedAt,
+    required this.isExpired,
   });
 
   /// Get human-readable cached time

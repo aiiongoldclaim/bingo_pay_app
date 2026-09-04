@@ -1,73 +1,44 @@
-import 'package:bingo_pay/core/api/api_client.dart';
+import 'package:bingo_pay/features/product_categories_details/data/models/product_categories_model.dart';
+import 'package:bingo_pay/features/product_categories_details/data/services/product_cache_service.dart';
+import 'package:bingo_pay/features/product_categories_details/domain/repositories/product_listing_repository.dart';
 import 'package:bingo_pay/features/product_categories_details/presentation/product_categories_cubit/product_categories_cubit.dart';
 import 'package:bingo_pay/features/product_categories_details/presentation/product_categories_cubit/product_categories_state.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_flavor/flutter_flavor.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MockApiClient extends Mock implements ApiClient {}
+class MockProductListingRepository extends Mock
+    implements ProductListingRepository {}
 
-class MockDio extends Mock implements Dio {}
-
-Map<String, dynamic> _fakeProduct(String id) => {
-      'id': id,
-      'uuid': id,
-      'media': <dynamic>[],
-      'variants': <dynamic>[],
-      'brand': {'name': 'Brand'},
-      'title': 'Product $id',
-      'isFeatured': false,
-    };
-
-Response<dynamic> _productsResponse(int count, {required String prefix}) {
-  return Response(
-    requestOptions: RequestOptions(path: '/api/v1/products'),
-    data: {
-      'data': {
-        'data': List.generate(count, (i) => _fakeProduct('$prefix-$i')),
-      },
-    },
+List<ListingProductModel> _fakeProducts(int count, {required String prefix}) {
+  return List.generate(
+    count,
+    (i) => ListingProductModel(
+      id: '$prefix-$i',
+      uuid: '$prefix-$i',
+      brand: 'Brand',
+      name: 'Product $prefix-$i',
+      price: 100,
+      icon: Icons.shopping_bag_outlined,
+    ),
   );
 }
 
 void main() {
-  late MockApiClient apiClient;
-  late MockDio dio;
+  late MockProductListingRepository repository;
+  late ProductCacheService cacheService;
 
-  setUpAll(() {
-    registerFallbackValue(<String, dynamic>{});
-    // AppConfig.apiBaseUrl reads from FlavorConfig.instance, which is only
-    // set up by the real app entrypoints (main_dev.dart etc). Without this,
-    // fetching a page throws before dio.get is ever reached.
-    FlavorConfig(
-      name: 'test',
-      color: Colors.green,
-      variables: const {
-        'apiBaseUrl': 'https://test.invalid',
-        'apiKey': 'test-key',
-      },
-    );
-  });
-
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    apiClient = MockApiClient();
-    dio = MockDio();
-    when(() => apiClient.dio).thenReturn(dio);
-    if (GetIt.I.isRegistered<ApiClient>()) {
-      GetIt.I.unregister<ApiClient>();
-    }
-    GetIt.I.registerSingleton<ApiClient>(apiClient);
-  });
-
-  tearDown(() {
-    if (GetIt.I.isRegistered<ApiClient>()) {
-      GetIt.I.unregister<ApiClient>();
-    }
+    cacheService = ProductCacheService(await SharedPreferences.getInstance());
+    repository = MockProductListingRepository();
+    // categoryUuid: '' resolves to just itself — no category tree to walk.
+    when(() => repository.resolveCategoryUuids(any()))
+        .thenAnswer((invocation) async {
+      final uuid = invocation.positionalArguments[0] as String;
+      return [uuid];
+    });
   });
 
   test(
@@ -76,17 +47,19 @@ void main() {
       // Page 1 is a full page (20) so more should be available; page 2
       // comes back short (5), which should mark that UUID exhausted.
       when(
-        () => dio.get(any(), queryParameters: any(named: 'queryParameters')),
+        () => repository.fetchProducts(
+          categoryUuid: any(named: 'categoryUuid'),
+          page: any(named: 'page'),
+          limit: any(named: 'limit'),
+        ),
       ).thenAnswer((invocation) async {
-        final params =
-            invocation.namedArguments[#queryParameters] as Map<String, dynamic>;
-        final page = params['page'] as int;
-        if (page == 1) return _productsResponse(20, prefix: 'p1');
-        if (page == 2) return _productsResponse(5, prefix: 'p2');
-        return _productsResponse(0, prefix: 'p3');
+        final page = invocation.namedArguments[#page] as int;
+        if (page == 1) return _fakeProducts(20, prefix: 'p1');
+        if (page == 2) return _fakeProducts(5, prefix: 'p2');
+        return _fakeProducts(0, prefix: 'p3');
       });
 
-      final cubit = ProductListingCubit();
+      final cubit = ProductListingCubit(repository, cacheService);
       addTearDown(cubit.close);
 
       await cubit.loadCategory('Test Category', '');
@@ -113,10 +86,14 @@ void main() {
 
   test('loadMoreProducts de-duplicates products already loaded', () async {
     when(
-      () => dio.get(any(), queryParameters: any(named: 'queryParameters')),
-    ).thenAnswer((_) async => _productsResponse(20, prefix: 'dup'));
+      () => repository.fetchProducts(
+        categoryUuid: any(named: 'categoryUuid'),
+        page: any(named: 'page'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenAnswer((_) async => _fakeProducts(20, prefix: 'dup'));
 
-    final cubit = ProductListingCubit();
+    final cubit = ProductListingCubit(repository, cacheService);
     addTearDown(cubit.close);
 
     await cubit.loadCategory('Test Category', '');

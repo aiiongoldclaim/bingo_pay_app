@@ -245,7 +245,7 @@ class _CategoriesView extends StatelessWidget {
                         isLoading: state.isBrandsLoading,
                         error: state.brandsError,
                         // logoResolver: (b) => b.logoUrl,
-                        onBrandTap: (brand) {},
+                        onBrandTap: (brand) => context.push(AppRoutes.allProducts),
                       ),
                     ),
 
