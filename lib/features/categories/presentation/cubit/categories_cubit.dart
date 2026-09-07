@@ -16,8 +16,11 @@ class CategoriesCubit extends Cubit<CategoriesState> {
       : super(const CategoriesState());
 
   // Prevents a stale loadData() response from emitting after the screen
-  // navigates away or a newer load starts.
+  // navigates away or a newer load starts. A monotonic counter (not a
+  // timestamp) guarantees uniqueness even if two calls land in the same
+  // microsecond.
   String? _currentRequestId;
+  int _requestCounter = 0;
 
   static final List<CuratedCollectionModel> _curatedCollections = [
     CuratedCollectionModel(
@@ -117,7 +120,7 @@ class CategoriesCubit extends Cubit<CategoriesState> {
   //   );
   // }
   Future<void> loadData() async {
-    final requestId = DateTime.now().microsecondsSinceEpoch.toString();
+    final requestId = (++_requestCounter).toString();
     _currentRequestId = requestId;
 
     emit(state.copyWith(isLoading: true, isBrandsLoading: true));
@@ -128,7 +131,10 @@ class CategoriesCubit extends Cubit<CategoriesState> {
     final categoriesResult = await categoriesFuture;
     final brandsResult = await brandsFuture;
 
-    if (_currentRequestId != requestId) return; // superseded by a newer call
+    // Covers two distinct cases: a newer loadData() call superseded this
+    // one, or the screen (and this cubit) was disposed while the request
+    // was still in flight — emitting after close() throws.
+    if (isClosed || _currentRequestId != requestId) return;
 
     var categories = state.categories;
     String? categoriesError;

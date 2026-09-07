@@ -1,3 +1,5 @@
+import '../../../account/domain/enities/account_entity.dart';
+
 class EditProfileModel {
   final String fullName;
   final String email; // read-only
@@ -22,12 +24,31 @@ class EditProfileModel {
     profileImageUrl: profileImageUrl ?? this.profileImageUrl,
   );
 
+  /// Email is otherwise fixed by [copyWith] since it's read-only in the UI —
+  /// this exists only to backfill it from a known-good source.
+  EditProfileModel copyWithEmail(String newEmail) => EditProfileModel(
+    fullName: fullName,
+    email: newEmail,
+    phoneNumber: phoneNumber,
+    profileImageUrl: profileImageUrl,
+  );
+
   factory EditProfileModel.fromJson(Map<String, dynamic> json) =>
       EditProfileModel(
         fullName: json['fullName'] as String? ?? '',
         email: json['email'] as String? ?? '',
         phoneNumber: json['phoneNumber'] as String? ?? '',
         profileImageUrl: json['profileImageUrl'] as String?,
+      );
+
+  /// Mirrors the same account data the Profile screen (AccountCubit) shows,
+  /// so Edit Profile never disagrees with it on name/email.
+  factory EditProfileModel.fromAccountEntity(AccountEntity account) =>
+      EditProfileModel(
+        fullName: account.fullName,
+        email: account.email,
+        phoneNumber: account.phone,
+        profileImageUrl: account.profileImageUrl,
       );
 
   Map<String, dynamic> toJson() => {

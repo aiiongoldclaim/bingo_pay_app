@@ -76,10 +76,13 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_strings.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../payment/presentation/screens/payment_screen.dart';
+import '../../../payment/presentation/screens/payment_args.dart';
 
 import '../../domain/entities/cart_item_entity.dart';
 import 'cart_metrics.dart';
@@ -153,20 +156,22 @@ class CartPayButton extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: isEnabled
-                  ? () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => PaymentScreen(
-                          cartItems: items,
-                          isCart: true,
-                          productName: 'Cart ($itemCount items)',
-                        ),
+                  ? () => context.push(
+                      AppRoutes.payment,
+                      extra: PaymentArgs(
+                        vendorEmail: null,
+                        productName: 'Cart ($itemCount items)',
+                        productPrice: 0.0,
+                        variantUuid: null,
+                        quantity: 1,
+                        cartItems: items,
+                        isCart: true,
                       ),
                     )
                   : null,
               child: Center(
                 child: Text(
-                  'PROCEED TO PAY  •  $totalStr',
+                  AppStrings.proceedToPay(totalStr),
                   style: AppTextStyles.buttonText.copyWith(
                     color: isEnabled ? c.surface : c.textMuted,
                     fontFamily: 'Inter',
@@ -193,7 +198,7 @@ class CartPayButton extends StatelessWidget {
             SizedBox(width: m.gapXs),
             Flexible(
               child: Text(
-                'Secure Payments. Easy Returns. 100% Authentic.',
+                AppStrings.securePaymentsNote,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodySmall.copyWith(

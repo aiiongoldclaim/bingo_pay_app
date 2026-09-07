@@ -327,6 +327,7 @@
 import 'package:bingo_pay/features/wishlist/presentation/widgets/wishlist_metrics.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
@@ -462,7 +463,7 @@ class WishlistCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  'Out of stock',
+                                  AppStrings.outOfStock,
                                   style: AppTextStyles.labelMedium.copyWith(
                                     color: c.textPrimary,
                                     fontFamily: 'Inter',
@@ -540,7 +541,7 @@ class WishlistCard extends StatelessWidget {
                           if (item.discountPercent != null) ...[
                             SizedBox(width: m.gapXs * 1.4),
                             Text(
-                              '${item.discountPercent}% off',
+                              AppStrings.discountOff(item.discountPercent!),
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: c.statusSuccess,
                                 fontFamily: 'Inter',
@@ -609,10 +610,10 @@ class WishlistCard extends StatelessWidget {
                                       Flexible(
                                         child: Text(
                                           isPending
-                                              ? 'Adding...'
+                                              ? AppStrings.addingEllipsis
                                               : item.inStock
-                                              ? 'Move to Bag'
-                                              : 'Out of stock',
+                                              ? AppStrings.moveToBag
+                                              : AppStrings.outOfStock,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: AppTextStyles.labelMedium

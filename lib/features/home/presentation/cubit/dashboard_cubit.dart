@@ -21,12 +21,11 @@ class HomeCubit extends Cubit<HomeState> {
     this._productRepository,
   ) : super(const HomeState());
 
-  // Prevents an overlapping loadHome() call (e.g. rapid pull-to-refresh)
-  // from having its stale response overwrite a newer one.
   String? _currentRequestId;
+  int _requestCounter = 0;
 
   Future<void> loadHome() async {
-    final requestId = DateTime.now().microsecondsSinceEpoch.toString();
+    final requestId = (++_requestCounter).toString();
     _currentRequestId = requestId;
 
     emit(state.copyWith(status: HomeStatus.loading));
@@ -77,7 +76,8 @@ class HomeCubit extends Cubit<HomeState> {
     }
 
 
-    if (_currentRequestId != requestId) return; // superseded by a newer call
+
+    if (isClosed || _currentRequestId != requestId) return;
 
     if (categoriesFailed && profileFailed && productsFailed) {
       emit(

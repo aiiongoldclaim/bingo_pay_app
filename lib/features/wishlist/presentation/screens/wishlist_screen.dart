@@ -94,8 +94,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
@@ -153,7 +153,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
         if (product == null) {
           AppSnackbar.showError(
             context,
-            'This product is currently unavailable',
+            AppStrings.productCurrentlyUnavailable,
           );
           return;
         }
@@ -161,14 +161,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
         final inStockVariants = product.variants
             .where((v) => v.availableStock > 0 && v.uuid.isNotEmpty)
             .toList();
-
-        // More than one purchasable option — don't guess which one the
-        // user wants, send them to the product page to pick explicitly,
-        // same as the normal PDP add-to-cart flow requires.
         if (inStockVariants.length > 1) {
           AppSnackbar.showError(
             context,
-            'This item has multiple options in stock — pick one on the product page to add it to your bag.',
+            AppStrings.multipleOptionsInStock,
           );
           _openProduct(context, item);
           return;
@@ -185,7 +181,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
       if (variantUuid == null || variantUuid.isEmpty) {
         AppSnackbar.showError(
           context,
-          'This product is currently unavailable',
+          AppStrings.productCurrentlyUnavailable,
         );
         return;
       }
@@ -197,7 +193,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
       if (!result.success) {
         AppSnackbar.showError(
           context,
-          result.errorMessage ?? 'Something went wrong. Please try again.',
+          result.errorMessage ?? AppStrings.genericAddItemError,
         );
         return;
       }
@@ -205,7 +201,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
       await wishlistCubit.remove(item.id);
       if (!mounted) return;
 
-      AppSnackbar.showSuccess(context, '${item.name} moved to bag');
+      AppSnackbar.showSuccess(context, AppStrings.itemMovedToBag(item.name));
     } finally {
       if (mounted) setState(() => _pendingIds.remove(item.id));
     }
@@ -221,21 +217,21 @@ class _WishlistScreenState extends State<WishlistScreen> {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: c.surface,
         title: Text(
-          'Clear wishlist?',
+          AppStrings.clearWishlistTitle,
           style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
         ),
         content: Text(
-          'All saved items will be removed.',
+          AppStrings.clearWishlistContent,
           style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text('Cancel', style: TextStyle(color: c.textSecondary)),
+            child: Text(AppStrings.cancel, style: TextStyle(color: c.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text('Clear', style: TextStyle(color: c.statusWarning)),
+            child: Text(AppStrings.clear, style: TextStyle(color: c.statusWarning)),
           ),
         ],
       ),
@@ -277,7 +273,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             ListTile(
               leading: Icon(Icons.open_in_new_rounded, color: colors.textSecondary),
               title: Text(
-                'View Product',
+                AppStrings.viewProduct,
                 style: AppTextStyles.labelLarge.copyWith(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
@@ -295,7 +291,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 color: colors.statusWarning,
               ),
               title: Text(
-                'Remove from Wishlist',
+                AppStrings.removeFromWishlist,
                 style: AppTextStyles.labelLarge.copyWith(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
@@ -325,7 +321,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
         return Scaffold(
           backgroundColor: colors.background,
           appBar: CustomAppBar(
-            title: 'Wishlist',
+            title: AppStrings.wishlistTitle,
             actionIcon1: Icons.search_rounded,
             onAction1: () => context.push(AppRoutes.search),
             actionIcon2: items.isEmpty ? null : Icons.delete_outline_rounded,
@@ -386,10 +382,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       ),
                       sliver: SliverToBoxAdapter(
                         child: AppPromoBanner(
-                          title: 'Good things\nare waiting!',
-                          subtitle:
-                          'Add more items you love\nto your wishlist.',
-                          buttonLabel: 'Explore Now',
+                          title: AppStrings.promoWishlistTitle,
+                          subtitle: AppStrings.promoWishlistSubtitle,
+                          buttonLabel: AppStrings.exploreNow,
                           imagePath: AppImages.wishlistImg,
                           fallbackIcon: Icons.shopping_bag_rounded,
                           onPressed: () => context.go(AppRoutes.home),
@@ -457,7 +452,7 @@ class WishlistEmptyView extends StatelessWidget {
             SizedBox(height: metrics.gapLg),
 
             Text(
-              'Your wishlist is empty',
+              AppStrings.wishlistEmptyTitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleLarge.copyWith(
                 color: colors.textPrimary,
@@ -470,7 +465,7 @@ class WishlistEmptyView extends StatelessWidget {
             SizedBox(height: metrics.gapSm),
 
             Text(
-              'Tap the heart icon on any product\nto save it here.',
+              AppStrings.wishlistEmptySubtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: colors.textSecondary,
@@ -497,7 +492,7 @@ class WishlistEmptyView extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        'EXPLORE NOW',
+                        AppStrings.exploreNowUppercase,
                         style: AppTextStyles.buttonText.copyWith(
                           color: colors.onBrand,
                           fontFamily: 'Inter',

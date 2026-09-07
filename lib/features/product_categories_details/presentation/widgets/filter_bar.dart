@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../product_categories_cubit/product_categories_state.dart';
@@ -25,8 +26,8 @@ class ListingFilterBar extends StatelessWidget {
     required this.onRatingFilter,
   });
 
-  static const _priceFilters = ['Under \$20k', '\$20k–\$50k', 'Above \$50k'];
-  static const _ratingFilters = ['4★ & up', '3★ & up'];
+  static const _priceFilters = AppStrings.priceFilters;
+  static const _ratingFilters = AppStrings.ratingFilters;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +41,10 @@ class ListingFilterBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 4.w),
         child: Row(
           children: [
-            _ActionChip(label: 'Filters', icon: Icons.tune, onTap: onFilterTap),
+            _ActionChip(label: AppStrings.filtersLabel, icon: Icons.tune, onTap: onFilterTap),
             SizedBox(width: 2.w),
             _ActionChip(
-              label: 'Sort',
+              label: AppStrings.sortLabel,
               icon: Icons.swap_vert,
               onTap: () => _showSortSheet(context),
             ),
@@ -184,10 +185,10 @@ class _SortSheet extends StatelessWidget {
   const _SortSheet({required this.selected, required this.onSelect});
 
   static const _options = [
-    (SortOption.relevant, 'Most Relevant'),
-    (SortOption.priceLow, 'Price: Low to High'),
-    (SortOption.priceHigh, 'Price: High to Low'),
-    (SortOption.rating, 'Highest Rated'),
+    (SortOption.relevant, AppStrings.sortMostRelevant),
+    (SortOption.priceLow, AppStrings.sortPriceLowToHigh),
+    (SortOption.priceHigh, AppStrings.sortPriceHighToLow),
+    (SortOption.rating, AppStrings.sortHighestRated),
   ];
 
   @override
@@ -201,7 +202,7 @@ class _SortSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Sort by',
+            AppStrings.sortBy,
             style: AppTextStyles.titleLarge.copyWith(
               color: colors.textPrimary,
             ),

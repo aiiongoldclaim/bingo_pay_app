@@ -212,6 +212,7 @@
 // }
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/price_formatter.dart';
@@ -247,7 +248,7 @@ class ProductVariantsSection extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Available Options',
+          AppStrings.availableOptions,
           style: AppTextStyles.titleMedium.copyWith(
             color: colors.textPrimary,
             fontFamily: 'Inter',
@@ -306,7 +307,7 @@ class VariantCard extends StatelessWidget {
       return variant.attributes.map((attribute) => attribute.value).join(' / ');
     }
 
-    return 'Option ${index + 1}';
+    return AppStrings.optionIndex(index + 1);
   }
 
   @override
@@ -314,7 +315,8 @@ class VariantCard extends StatelessWidget {
     final colors = context.colors;
 
     final isOutOfStock = variant.availableStock <= 0;
-    final stockLabel = isOutOfStock ? 'Out of Stock' : 'In Stock';
+    final stockLabel =
+        isOutOfStock ? AppStrings.outOfStockTitleCase : AppStrings.inStock;
     final stockColor = isOutOfStock ? colors.error : colors.statusSuccess;
     final stockSoft =
     isOutOfStock ? colors.error.withValues(alpha: 0.12) : colors.statusSuccessSoft;
@@ -357,8 +359,6 @@ class VariantCard extends StatelessWidget {
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: metrics.rowTitleSize,
-                        decoration:
-                        isOutOfStock ? TextDecoration.lineThrough : null,
                       ),
                     ),
                   ),

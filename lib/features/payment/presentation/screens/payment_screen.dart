@@ -3,15 +3,16 @@ import 'package:bingo_pay/features/payment/presentation/screens/widgets/payment_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../address/domain/entities/address_entity.dart';
 import '../../../address/domain/repositories/address_respository.dart';
 import '../../../address/presentation/cubit/address_cubit.dart';
 import '../../../address/presentation/cubit/address_state.dart';
-import '../../../address/presentation/screens/add_edit_address_screen.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
@@ -19,7 +20,7 @@ import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 
-import 'review_pay_screen.dart';
+import 'payment_flow_args.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String? vendorEmail;
@@ -53,17 +54,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   late final AddressCubit _addressCubit;
   late final PaymentMethodCubit _paymentCubit;
+  late final bool _isCart;
+  late final double _cartTotal;
 
   @override
   void initState() {
     super.initState();
     _addressCubit = AddressCubit(getIt<AddressRepository>())
       ..loadUserAddresses();
-  }
 
-  void _initPaymentCubit(String userEmail, bool isCart, double cartTotal) {
+    _isCart = widget.cartItems.isNotEmpty;
+    _cartTotal = _isCart
+        ? widget.cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
+        : widget.productPrice * widget.quantity;
+
+
+    final authState = context.read<AuthBloc>().state;
+    final userEmail =
+        authState is AuthAuthenticated ? authState.user.email : '';
+
     _paymentCubit = PaymentMethodCubit(
-      productPrice: cartTotal,
+      productPrice: _cartTotal,
       productName: widget.productName,
       userEmail: userEmail,
       vendorEmail: widget.vendorEmail ?? '',
@@ -110,38 +121,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
       addressId: _selectedAddress!.id,
     );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: cubit,
-          child: ReviewPayScreen(isCart: widget.isCart),
-        ),
-      ),
+    context.push(
+      AppRoutes.paymentReview,
+      extra: ReviewPayArgs(cubit: cubit, isCart: widget.isCart),
     );
   }
 
-  bool _paymentCubitInitialized = false;
-
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = PaymentMetrics.of(context);
-
-    final authState = context.read<AuthBloc>().state;
-    final userEmail = authState is AuthAuthenticated
-        ? authState.user.email
-        : '';
-
-    final isCart = widget.cartItems.isNotEmpty;
-    final cartTotal = isCart
-        ? widget.cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
-        : widget.productPrice * widget.quantity;
-
-    if (!_paymentCubitInitialized) {
-      _initPaymentCubit(userEmail, isCart, cartTotal);
-      _paymentCubitInitialized = true;
-    }
 
     return MultiBlocProvider(
       providers: [
@@ -151,10 +140,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: c.isDark
+          statusBarIconBrightness: colors.isDark
               ? Brightness.light
               : Brightness.dark,
-          statusBarBrightness: c.isDark ? Brightness.dark : Brightness.light,
+          statusBarBrightness: colors.isDark ? Brightness.dark : Brightness.light,
         ),
         child: BlocListener<AddressCubit, AddressState>(
           listener: (context, addrState) {
@@ -169,25 +158,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
             }
           },
           child: Scaffold(
-            backgroundColor: c.background,
+            backgroundColor: colors.background,
             body: SafeArea(
               bottom: false,
               child: BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
                 builder: (context, state) {
                   final summary = _OrderSummaryCard(
                     metrics: m,
-                    isCart: isCart,
+                    isCart: _isCart,
                     items: widget.cartItems,
                     productName: widget.quantity > 1
                         ? '${widget.productName} × ${widget.quantity}'
                         : widget.productName,
-                    total: cartTotal,
+                    total: _cartTotal,
                   );
 
                   final continueBar = _ContinueBar(
                     metrics: m,
                     isEnabled: _selectedAddress != null,
-                    total: cartTotal,
+                    total: _cartTotal,
                     onPressed: () => _onContinue(
                       context,
                       context.read<PaymentMethodCubit>(),
@@ -239,9 +228,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             m.gapSm * 0.5,
                           ),
                           decoration: BoxDecoration(
-                            color: c.background,
+                            color: colors.background,
                             border: Border(
-                              top: BorderSide(color: c.border, width: 1),
+                              top: BorderSide(color: colors.border, width: 1),
                             ),
                           ),
                           child: SafeArea(top: false, child: continueBar),
@@ -266,7 +255,7 @@ class _PaymentTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -279,35 +268,27 @@ class _PaymentTopBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.pop(),
             splashRadius: m.backIconSize * 1.2,
             icon: Icon(
               Icons.arrow_back_ios_rounded,
-              size: m.backIconSize + 4,
-              color: c.textPrimary,
+              size: m.backIconSize,
+              color: colors.textPrimary,
             ),
           ),
           Expanded(
-            child: Center(
+            child: Align(
+              alignment: Alignment.centerLeft,
               child: Text(
-                'TheVaults',
+                'Payment',
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: c.brand,
-                  fontFamily: 'CormorantGaramond',
-                  fontWeight: FontWeight.w600,
-                  fontSize: m.logoSize,
+                  color: colors.textPrimary,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w700,
+                  fontSize: m.sectionTitleSize,
                   height: 1.1,
                 ),
               ),
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            splashRadius: m.topIconSize * 1.2,
-            icon: Icon(
-              Icons.lock_outline_rounded,
-              size: m.topIconSize + 2,
-              color: c.textPrimary,
             ),
           ),
         ],
@@ -340,7 +321,7 @@ class _PortraitBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    // final colors = context.c;
     final m = metrics;
 
     return SingleChildScrollView(
@@ -348,16 +329,6 @@ class _PortraitBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Checkout',
-            style: AppTextStyles.titleLarge.copyWith(
-              color: c.textPrimary,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w700,
-              fontSize: m.sectionTitleSize + 4,
-            ),
-          ),
-          SizedBox(height: m.gapMd),
           const PaymentProgressStepper(currentStep: 3),
           SizedBox(height: m.gapLg),
           _AddressSelectionSection(
@@ -403,7 +374,7 @@ class _LandscapeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    // final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -417,16 +388,6 @@ class _LandscapeBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Checkout',
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color: c.textPrimary,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: m.sectionTitleSize + 3,
-                    ),
-                  ),
-                  SizedBox(height: m.gapMd),
                   const PaymentProgressStepper(currentStep: 3),
                   SizedBox(height: m.gapLg),
                   _AddressSelectionSection(
@@ -483,20 +444,20 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: c.border, width: 1),
-        boxShadow: c.isDark
+        border: Border.all(color: colors.border, width: 1),
+        boxShadow: colors.isDark
             ? null
             : [
                 BoxShadow(
-                  color: c.textPrimary.withValues(alpha: 0.04),
+                  color: colors.textPrimary.withValues(alpha: 0.04),
                   blurRadius: 14,
                   offset: const Offset(0, 3),
                 ),
@@ -508,7 +469,7 @@ class _OrderSummaryCard extends StatelessWidget {
           Text(
             'Order Summary',
             style: AppTextStyles.titleMedium.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
               fontSize: m.sectionTitleSize,
@@ -529,7 +490,7 @@ class _OrderSummaryCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                           fontFamily: 'Inter',
                           fontSize: m.summaryLabelSize,
                         ),
@@ -539,7 +500,7 @@ class _OrderSummaryCard extends StatelessWidget {
                     Text(
                       '\$${item.totalPrice.toStringAsFixed(2)}',
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: m.summaryValueSize,
@@ -560,7 +521,7 @@ class _OrderSummaryCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: m.summaryLabelSize,
                       ),
@@ -570,7 +531,7 @@ class _OrderSummaryCard extends StatelessWidget {
                   Text(
                     '\$${total.toStringAsFixed(2)}',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                       fontSize: m.summaryValueSize,
@@ -594,7 +555,7 @@ class _OrderSummaryCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: c.textSecondary,
+                            color: colors.textSecondary,
                             fontFamily: 'Inter',
                             fontSize: m.summaryLabelSize,
                           ),
@@ -604,7 +565,7 @@ class _OrderSummaryCard extends StatelessWidget {
                       Icon(
                         Icons.info_outline_rounded,
                         size: m.summaryLabelSize + 2,
-                        color: c.textMuted,
+                        color: colors.textMuted,
                       ),
                     ],
                   ),
@@ -613,7 +574,7 @@ class _OrderSummaryCard extends StatelessWidget {
                 Text(
                   'FREE',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.statusSuccess,
+                    color: colors.statusSuccess,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: m.summaryValueSize,
@@ -625,7 +586,7 @@ class _OrderSummaryCard extends StatelessWidget {
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapSm * 0.6),
-            child: Divider(height: 1, thickness: 1, color: c.border),
+            child: Divider(height: 1, thickness: 1, color: colors.border),
           ),
 
           Row(
@@ -634,7 +595,7 @@ class _OrderSummaryCard extends StatelessWidget {
                 child: Text(
                   'Total Amount',
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.totalLabelSize,
@@ -645,7 +606,7 @@ class _OrderSummaryCard extends StatelessWidget {
                 '\$${total.toStringAsFixed(2)}',
                 textAlign: TextAlign.right,
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: c.brand,
+                  color: colors.brand,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
                   fontSize: m.totalValueSize,
@@ -755,14 +716,9 @@ class _AddressSelectionSection extends StatelessWidget {
     AddressEntity? existing,
   ) async {
     final cubit = context.read<AddressCubit>();
-    final result = await Navigator.push<AddressEntity>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: cubit,
-          child: AddEditAddressScreen(existingAddress: existing),
-        ),
-      ),
+    final result = await context.push<AddressEntity>(
+      AppRoutes.addEditAddress,
+      extra: AddEditAddressArgs(cubit: cubit, existingAddress: existing),
     );
 
     if (result != null) {

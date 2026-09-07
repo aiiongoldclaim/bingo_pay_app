@@ -724,19 +724,16 @@ import 'package:bingo_pay/features/payment/presentation/screens/widgets/review_p
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../address/domain/entities/address_entity.dart';
-import '../../../address/domain/repositories/address_respository.dart';
-import '../../../address/presentation/cubit/address_cubit.dart';
-import '../../../address/presentation/screens/address_list_screen.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
-import 'payment_success_screen.dart';
 import 'widgets/payment_method_picker.dart';
 
 class ReviewPayScreen extends StatelessWidget {
@@ -745,13 +742,13 @@ class ReviewPayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: c.isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: c.isDark ? Brightness.dark : Brightness.light,
+        statusBarIconBrightness: colors.isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: colors.isDark ? Brightness.dark : Brightness.light,
       ),
       child: BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
         builder: (context, state) {
@@ -823,13 +820,12 @@ class ReviewPayScreen extends StatelessWidget {
           );
 
           return Scaffold(
-            backgroundColor: c.background,
+            backgroundColor: colors.background,
             body: SafeArea(
               bottom: false,
               child: Column(
                 children: [
                   _ReviewTopBar(metrics: m, cartCount: state.cartItems.length),
-
                   Expanded(
                     child: Center(
                       child: ConstrainedBox(
@@ -869,9 +865,9 @@ class ReviewPayScreen extends StatelessWidget {
                         m.gapSm * 0.5,
                       ),
                       decoration: BoxDecoration(
-                        color: c.background,
+                        color: colors.background,
                         border: Border(
-                          top: BorderSide(color: c.border, width: 1),
+                          top: BorderSide(color: colors.border, width: 1),
                         ),
                       ),
                       child: SafeArea(top: false, child: payBar),
@@ -893,15 +889,7 @@ class ReviewPayScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     if (cubit.state.status == PaymentStatus.success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider.value(
-            value: cubit,
-            child: const PaymentSuccessScreen(),
-          ),
-        ),
-      );
+      context.pushReplacement(AppRoutes.paymentSuccess, extra: cubit);
     } else if (cubit.state.status == PaymentStatus.failure) {
       AppSnackbar.showError(
         context,
@@ -920,145 +908,88 @@ class _ReviewTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
+    final colors = context.colors;
+    final metrics = this.metrics;
+    final tapSize = metrics.walletIconBox;
 
-    Widget boxed({required Widget child, required VoidCallback onTap}) =>
-        Material(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(12),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: Container(
-              width: m.walletIconBox,
-              height: m.walletIconBox,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: c.border, width: 1),
-              ),
-              alignment: Alignment.center,
-              child: child,
+    Widget tappable({required Widget child, required VoidCallback onTap}) =>
+        SizedBox(
+          width: tapSize,
+          height: tapSize,
+          child: Material(
+            color: Colors.transparent,
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: onTap,
+              customBorder: const CircleBorder(),
+              child: Center(child: child),
             ),
           ),
         );
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        m.pageHPad,
-        m.pageVPad * 0.5,
-        m.pageHPad,
-        m.pageVPad * 0.5,
+        metrics.pageHPad,
+        metrics.pageVPad * 0.5,
+        metrics.pageHPad,
+        metrics.pageVPad * 0.5,
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          boxed(
-            onTap: () => Navigator.pop(context),
+          tappable(
+            onTap: () => context.pop(),
             child: Icon(
-              Icons.arrow_back_ios_rounded,
-              size: m.backIconSize,
-              color: c.textPrimary,
+              Icons.arrow_back_ios_new_rounded,
+              size: metrics.backIconSize,
+              color: colors.textPrimary,
             ),
           ),
+
+          SizedBox(width: metrics.gapXs),
 
           Expanded(
-            child: Center(
-              child: Text(
-                'TheVaults',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: c.brand,
-                  fontFamily: 'CormorantGaramond',
-                  fontWeight: FontWeight.w600,
-                  fontSize: m.logoSize,
-                  height: 1.1,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Review & Pay',
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: colors.textPrimary,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                    fontSize: metrics.pageTitleSize-4,
+                    height: 1.15,
+                  ),
                 ),
-              ),
+                SizedBox(height: metrics.gapXs * 0.5),
+                Text(
+                  'Review your order details and proceed to payment',
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: colors.textSecondary,
+                    fontFamily: 'Inter',
+                    fontSize: metrics.pageSubtitleSize,
+                    height: 1.25,
+                  ),
+                ),
+              ],
             ),
           ),
 
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              boxed(
-                onTap: () {},
-                child: Icon(
-                  Icons.shopping_bag_outlined,
-                  size: m.topIconSize,
-                  color: c.textPrimary,
-                ),
-              ),
-              if (cartCount > 0)
-                Positioned(
-                  right: -m.badgeSize * 0.25,
-                  top: -m.badgeSize * 0.25,
-                  child: Container(
-                    width: m.badgeSize,
-                    height: m.badgeSize,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: c.brand,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: c.background, width: 1.5),
-                    ),
-                    child: Text(
-                      '$cartCount',
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: c.surface,
-                        fontFamily: 'Inter',
-                        fontSize: m.badgeFontSize,
-                        fontWeight: FontWeight.w700,
-                        height: 1,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
         ],
       ),
     );
   }
 }
 
-// ── Page title ─────────────────────────────────────────────────────────────
-class _PageTitle extends StatelessWidget {
-  final ReviewPayMetrics metrics;
-
-  const _PageTitle({required this.metrics});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'Review & Pay',
-          style: AppTextStyles.titleLarge.copyWith(
-            color: c.textPrimary,
-            fontFamily: 'CormorantGaramond',
-            fontWeight: FontWeight.w700,
-            fontSize: m.pageTitleSize,
-            height: 1.2,
-          ),
-        ),
-        SizedBox(height: m.gapXs),
-        Text(
-          'Review your order details and proceed to payment',
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: c.textSecondary,
-            fontFamily: 'Inter',
-            fontSize: m.pageSubtitleSize,
-            height: 1.3,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 // ── Portrait ───────────────────────────────────────────────────────────────
 class _PortraitBody extends StatelessWidget {
@@ -1089,7 +1020,6 @@ class _PortraitBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _PageTitle(metrics: m),
           SizedBox(height: m.gapLg),
 
           if (address != null) ...[address!, SizedBox(height: m.gapMd)],
@@ -1154,7 +1084,6 @@ class _LandscapeBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _PageTitle(metrics: m),
                   SizedBox(height: m.gapLg),
                   if (address != null) ...[address!, SizedBox(height: m.gapMd)],
                   wallet,
@@ -1216,16 +1145,9 @@ class _AddressCard extends StatelessWidget {
         ) async {
       final paymentCubit = context.read<PaymentMethodCubit>();
 
-      final picked = await Navigator.push<AddressEntity>(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => AddressCubit(getIt<AddressRepository>()),
-            child: AddressListScreen(
-              selectedAddressId: state.deliveryAddressId,
-            ),
-          ),
-        ),
+      final picked = await context.push<AddressEntity>(
+        AppRoutes.addressList,
+        extra: state.deliveryAddressId,
       );
 
       if (picked == null) return;
@@ -1591,7 +1513,7 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return ReviewCard(
@@ -1611,7 +1533,7 @@ class _OrderSummaryCard extends StatelessWidget {
                       child: Container(
                         width: m.thumbSize,
                         height: m.thumbSize,
-                        color: c.surfaceAlt,
+                        color: colors.surfaceAlt,
                         child: item.product.thumbnail != null
                             ? Image.network(
                           item.product.thumbnail!,
@@ -1619,13 +1541,13 @@ class _OrderSummaryCard extends StatelessWidget {
                           errorBuilder: (_, __, ___) => Icon(
                             Icons.shopping_bag_outlined,
                             size: m.thumbSize * 0.4,
-                            color: c.brand,
+                            color: colors.brand,
                           ),
                         )
                             : Icon(
                           Icons.shopping_bag_outlined,
                           size: m.thumbSize * 0.4,
-                          color: c.brand,
+                          color: colors.brand,
                         ),
                       ),
                     ),
@@ -1640,7 +1562,7 @@ class _OrderSummaryCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.labelLarge.copyWith(
-                              color: c.textPrimary,
+                              color: colors.textPrimary,
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w600,
                               fontSize: m.itemTitleSize,
@@ -1651,7 +1573,7 @@ class _OrderSummaryCard extends StatelessWidget {
                           Text(
                             'Qty: ${item.quantity}',
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: c.textSecondary,
+                              color: colors.textSecondary,
                               fontFamily: 'Inter',
                               fontSize: m.itemMetaSize,
                             ),
@@ -1663,7 +1585,7 @@ class _OrderSummaryCard extends StatelessWidget {
                     Text(
                       '\$${item.totalPrice.toStringAsFixed(0)}',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.itemTitleSize,
@@ -1673,7 +1595,7 @@ class _OrderSummaryCard extends StatelessWidget {
                 ),
               ),
             ),
-            Divider(height: 1, thickness: 1, color: c.border),
+            Divider(height: 1, thickness: 1, color: colors.border),
             SizedBox(height: m.gapMd),
           ] else if (productName.isNotEmpty) ...[
             Text(
@@ -1681,14 +1603,14 @@ class _OrderSummaryCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.labelLarge.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
                 fontSize: m.itemTitleSize,
               ),
             ),
             SizedBox(height: m.gapMd),
-            Divider(height: 1, thickness: 1, color: c.border),
+            Divider(height: 1, thickness: 1, color: colors.border),
             SizedBox(height: m.gapMd),
           ],
 
@@ -1698,21 +1620,21 @@ class _OrderSummaryCard extends StatelessWidget {
             metrics: m,
             label: 'Savings',
             value: savings,
-            valueColor: c.statusSuccess,
+            valueColor: colors.statusSuccess,
           ),
           SizedBox(height: m.gapSm),
           ReviewRow(
             metrics: m,
             label: 'Delivery',
             value: delivery,
-            valueColor: c.statusSuccess,
+            valueColor: colors.statusSuccess,
           ),
           SizedBox(height: m.gapSm),
           ReviewRow(metrics: m, label: 'Taxes & Fees', value: tax),
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapMd * 0.8),
-            child: Divider(height: 1, thickness: 1, color: c.border),
+            child: Divider(height: 1, thickness: 1, color: colors.border),
           ),
 
           ReviewRow(
@@ -1760,7 +1682,7 @@ class _CouponAndNotesCardState extends State<_CouponAndNotesCard> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = widget.metrics;
 
     return ReviewCard(
@@ -1789,7 +1711,7 @@ class _CouponAndNotesCardState extends State<_CouponAndNotesCard> {
                       ? Icon(
                     Icons.check_circle,
                     size: m.fieldTextSize + 6,
-                    color: c.statusSuccess,
+                    color: colors.statusSuccess,
                   )
                       : null,
                   onChanged: (_) {
@@ -1803,7 +1725,7 @@ class _CouponAndNotesCardState extends State<_CouponAndNotesCard> {
               SizedBox(
                 height: m.fieldHeight,
                 child: Material(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   borderRadius: BorderRadius.circular(m.fieldRadius),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
@@ -1816,7 +1738,7 @@ class _CouponAndNotesCardState extends State<_CouponAndNotesCard> {
                       child: Text(
                         'Apply',
                         style: AppTextStyles.labelMedium.copyWith(
-                          color: c.brand,
+                          color: colors.brand,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: m.fieldTextSize,

@@ -23,8 +23,15 @@ import '../../features/membershipNew/presentation/widgets/membership_checkout_ar
 import '../../features/notification/features/screens/notidication_screen.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
+import '../../features/address/domain/repositories/address_respository.dart';
+import '../../features/address/presentation/cubit/address_cubit.dart';
+import '../../features/address/presentation/screens/add_edit_address_screen.dart';
+import '../../features/address/presentation/screens/address_list_screen.dart';
+import '../../features/payment/presentation/cubit/payment_cubit.dart';
 import '../../features/payment/presentation/screens/payment_args.dart';
+import '../../features/payment/presentation/screens/payment_flow_args.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
+import '../../features/payment/presentation/screens/review_pay_screen.dart';
 import '../../features/product_details/presentation/screens/product_image_viewer_screen.dart';
 import '../../features/product_details/presentation/widgets/image_viewer_args.dart';
 import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
@@ -207,11 +214,49 @@ class AppRouter {
               productPrice: args.productPrice,
               variantUuid: args.variantUuid,
               quantity: args.quantity,
+              cartItems: args.cartItems,
               isCart: args.isCart,
             );
           },
           redirect: (context, state) =>
           state.extra is PaymentArgs ? null : AppRoutes.home,
+        ),
+
+        GoRoute(
+          path: AppRoutes.paymentReview,
+          builder: (context, state) {
+            final args = state.extra as ReviewPayArgs;
+            return BlocProvider.value(
+              value: args.cubit,
+              child: ReviewPayScreen(isCart: args.isCart),
+            );
+          },
+          redirect: (context, state) =>
+          state.extra is ReviewPayArgs ? null : AppRoutes.home,
+        ),
+
+        GoRoute(
+          path: AppRoutes.addressList,
+          builder: (context, state) {
+            final selectedAddressId = state.extra as String?;
+            return BlocProvider(
+              create: (_) => AddressCubit(getIt<AddressRepository>()),
+              child: AddressListScreen(selectedAddressId: selectedAddressId),
+            );
+          },
+        ),
+
+        GoRoute(
+          path: AppRoutes.addEditAddress,
+          builder: (context, state) {
+            final args = state.extra as AddEditAddressArgs;
+            return BlocProvider.value(
+              value: args.cubit,
+              child: AddEditAddressScreen(existingAddress: args.existingAddress),
+            );
+          },
+          redirect: (context, state) =>
+          state.extra is AddEditAddressArgs ? null : AppRoutes.home,
         ),
 
         GoRoute(
@@ -273,8 +318,14 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.paymentSuccess,
           builder: (context, state) {
-            return PaymentSuccessScreen();
+            final cubit = state.extra as PaymentMethodCubit;
+            return BlocProvider.value(
+              value: cubit,
+              child: const PaymentSuccessScreen(),
+            );
           },
+          redirect: (context, state) =>
+          state.extra is PaymentMethodCubit ? null : AppRoutes.home,
         ),
 
         GoRoute(
@@ -396,6 +447,7 @@ class AppRouter {
                   state.pathParameters['categoryName'] ?? '',
                 ),
                 categoryUuid: state.extra as String? ?? '',
+                isBrand: state.uri.queryParameters['isBrand'] == 'true',
               ),
             ),
 

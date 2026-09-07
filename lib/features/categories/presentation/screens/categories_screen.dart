@@ -187,42 +187,36 @@ class _CategoriesView extends StatelessWidget {
                     SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
                     // ── Categories ────────────────────────────
-                    if (state.categories.isNotEmpty) ...[
-                      SliverToBoxAdapter(
-                        child: CatSectionHeader(
-                          metrics: m,
-                          title: 'Categories',
-                          actionText: '',
-                          onActionTap: () =>
-                              context.push(AppRoutes.allProducts),
-                        ),
+                    // Header + grid always render, even when categories
+                    // comes back empty — CategoriesGrid shows its own
+                    // "No categories available" message in that case
+                    // instead of the section silently vanishing.
+                    SliverToBoxAdapter(
+                      child: CatSectionHeader(
+                        metrics: m,
+                        title: 'Categories',
+                        actionText: '',
+                        onActionTap: () =>
+                            context.push(AppRoutes.allProducts),
                       ),
-                      SliverToBoxAdapter(
-                        child: SizedBox(height: m.pagePadding * 0.9),
+                    ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: m.pagePadding * 0.9),
+                    ),
+                    SliverToBoxAdapter(
+                      child: CategoriesGrid(
+                        metrics: m,
+                        categories: state.categories,
+                        onCategoryTap: (category) {
+                          if (category.uuid.isEmpty) return;
+                          context.push(
+                            AppRoutes.productListingPath(category.name),
+                            extra: category.uuid,
+                          );
+                        },
                       ),
-                      // SliverToBoxAdapter(
-                      //   child: CategoriesGrid(
-                      //     metrics: m,
-                      //     categories: state.categories,
-                      //     // onCategoryTap: (cat) =>
-                      //     //     _openCategory(context, cat.name, cat.uuid),
-                      //   ),
-                      // ),
-                      SliverToBoxAdapter(
-                        child: CategoriesGrid(
-                          metrics: m,
-                          categories: state.categories,
-                          onCategoryTap: (category) {
-                            if (category.uuid == null || category.uuid!.isEmpty) return;
-                            context.push(
-                              AppRoutes.productListingPath(category.name),
-                              extra: category.uuid,
-                            );
-                          },
-                        ),
-                      ),
-                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-                    ],
+                    ),
+                    SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
                     // ── Top Brands ────────────────────────────
                     SliverToBoxAdapter(
@@ -245,7 +239,13 @@ class _CategoriesView extends StatelessWidget {
                         isLoading: state.isBrandsLoading,
                         error: state.brandsError,
                         // logoResolver: (b) => b.logoUrl,
-                        onBrandTap: (brand) => context.push(AppRoutes.allProducts),
+                        onBrandTap: (brand) {
+                          if (brand.uuid.isEmpty) return;
+                          context.push(
+                            AppRoutes.brandListingPath(brand.name),
+                            extra: brand.uuid,
+                          );
+                        },
                       ),
                     ),
 

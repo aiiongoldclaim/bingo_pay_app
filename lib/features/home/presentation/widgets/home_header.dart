@@ -76,6 +76,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'home_metrics.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -186,7 +187,7 @@ class _HeaderIcon extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Text(
-                  badgeCount > 99 ? '99+' : '$badgeCount',
+                  AppStrings.cartBadgeCount(badgeCount),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: size * 0.36,

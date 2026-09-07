@@ -20,6 +20,7 @@ class CartWishlistBridge {
         price: '\$${item.unitPrice.toStringAsFixed(2)}',
         imageUrl: item.product.thumbnail,
       ),
+      wasWishlisted: false,
     );
   }
 }

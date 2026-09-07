@@ -1,5 +1,4 @@
 import 'package:injectable/injectable.dart';
-
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
 import '../../../../core/config/app_config.dart';
@@ -17,12 +16,14 @@ class ProductListingRepositoryImpl implements ProductListingRepository {
     required String categoryUuid,
     required int page,
     required int limit,
+    String brandUuid = '',
   }) async {
     final url = '${AppConfig.apiBaseUrl}/api/v1/products';
     final response = await _client.dio.get(
       url,
       queryParameters: {
         if (categoryUuid.isNotEmpty) 'categoryUuid': categoryUuid,
+        if (brandUuid.isNotEmpty) 'brandUuid': brandUuid,
         'page': page,
         'limit': limit,
       },
@@ -73,8 +74,7 @@ class ProductListingRepositoryImpl implements ProductListingRepository {
       collectDescendants(root['id'] as String);
       return uuids;
     } catch (_) {
-      // Fall back to filtering by just the tapped category if the
-      // category tree can't be resolved.
+
       return [categoryUuid];
     }
   }

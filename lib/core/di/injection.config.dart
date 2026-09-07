@@ -298,9 +298,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i230.AuctionsRemoteDatasources>(
       () => _i230.AuctionsRemoteDatasources(gh<_i541.ApiClient>()),
     );
-    gh.factory<_i126.EditProfileCubit>(
-      () => _i126.EditProfileCubit(gh<_i541.ApiClient>()),
-    );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -327,6 +324,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i359.MembershipCubit>(
       () => _i359.MembershipCubit(gh<_i389.MembershipRepository>()),
+    );
+    gh.factory<_i806.ProductDetailCubit>(
+      () => _i806.ProductDetailCubit(
+        gh<_i971.WishlistRepository>(),
+        gh<_i389.MembershipRepository>(),
+      ),
     );
     gh.factory<_i939.CartRepository>(
       () => _i263.CartRepositoryImpl(gh<_i882.CartRemoteDataSource>()),
@@ -375,9 +378,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i321.AuctionRepository>(
       () => _i141.AuctionRepositoryImpl(gh<_i230.AuctionsRemoteDatasources>()),
-    );
-    gh.factory<_i806.ProductDetailCubit>(
-      () => _i806.ProductDetailCubit(gh<_i971.WishlistRepository>()),
     );
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
@@ -473,6 +473,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i1004.BookingCubit>(
       () => _i1004.BookingCubit(gh<_i623.BookingRepository>()),
+    );
+    gh.factory<_i126.EditProfileCubit>(
+      () => _i126.EditProfileCubit(
+        gh<_i541.ApiClient>(),
+        gh<_i810.GetProfileUseCase>(),
+      ),
     );
     gh.factory<_i393.ServicesCubit>(
       () => _i393.ServicesCubit(gh<_i254.GetServicesUseCase>()),

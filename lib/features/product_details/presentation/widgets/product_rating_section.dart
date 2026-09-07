@@ -137,6 +137,7 @@ import 'package:bingo_pay/features/product_details/presentation/widgets/product_
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 
@@ -167,7 +168,7 @@ class ProductRatingsBlock extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Ratings & Reviews',
+                  AppStrings.ratingsReviews,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: c.textPrimary,
                     fontFamily: 'Inter',
@@ -196,7 +197,7 @@ class ProductRatingsBlock extends StatelessWidget {
               ),
               SizedBox(width: m.gapSm),
               Text(
-                '$reviewCount Ratings',
+                AppStrings.ratingsCount(reviewCount),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: c.textSecondary,
                   fontFamily: 'Inter',

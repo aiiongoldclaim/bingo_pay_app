@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../domain/entities/cart_entity.dart';
 import '../../domain/entities/cart_item_entity.dart';
 import '../../domain/usecases/add_cart_item_usecase.dart';
 import '../../domain/usecases/clear_cart_usecase.dart';
@@ -32,6 +33,25 @@ class CartCubit extends Cubit<CartState> {
   // resurrecting a just-removed item once its stale update arrives).
   final Map<int, int> _itemVersion = {};
 
+  // Same idea as _itemVersion, but keyed by variantUuid instead of itemId —
+  // a not-yet-added item has no itemId yet. Guards against two addItem()
+  // calls for the SAME variant (e.g. tapped from a listing card, then
+  // immediately from its own PDP) racing: if the server computes/returns
+  // each response from a snapshot as of when IT started (not when it
+  // finishes), the slower call's response can arrive last yet reflect an
+  // earlier, less-complete cart, silently reverting a newer add.
+  final Map<String, int> _addVersion = {};
+
+  // Tracks the target quantity of the latest not-yet-settled +/- tap per
+  // item. increaseQuantity()/decreaseQuantity() are handed a CartItemEntity
+  // snapshot from the widget tree, which doesn't change between two rapid
+  // taps until the first one's response rebuilds it — so two taps fired
+  // before that rebuild would otherwise both compute the same "item.quantity
+  // + 1" target instead of stacking. Reading/writing this map (synchronous,
+  // no await in between) lets each tap build on the previous tap's intended
+  // target rather than on the stale widget snapshot.
+  final Map<int, int> _optimisticQuantity = {};
+
   int _bumpVersion(int itemId) {
     final version = (_itemVersion[itemId] ?? 0) + 1;
     _itemVersion[itemId] = version;
@@ -39,6 +59,15 @@ class CartCubit extends Cubit<CartState> {
   }
 
   bool _isCurrent(int itemId, int version) => _itemVersion[itemId] == version;
+
+  int _bumpAddVersion(String variantUuid) {
+    final version = (_addVersion[variantUuid] ?? 0) + 1;
+    _addVersion[variantUuid] = version;
+    return version;
+  }
+
+  bool _isCurrentAdd(String variantUuid, int version) =>
+      _addVersion[variantUuid] == version;
 
   Future<void> loadCart() async {
     emit(state.copyWith(isLoading: true, error: null));
@@ -53,26 +82,67 @@ class CartCubit extends Cubit<CartState> {
     required String variantUuid,
     int quantity = 1,
   }) async {
+    final version = _bumpAddVersion(variantUuid);
     emit(state.copyWith(isAddingItem: true, error: null));
     final result = await _addItem(variantUuid: variantUuid, quantity: quantity);
+    final isCurrent = _isCurrentAdd(variantUuid, version);
+
     return result.fold(
       (failure) {
-        emit(state.copyWith(isAddingItem: false, error: failure.message));
+        // Still report this call's own outcome to its caller (so that
+        // screen's snackbar is accurate) even if a newer add for the same
+        // variant has since started and this response is otherwise stale.
+        if (isCurrent) {
+          emit(state.copyWith(isAddingItem: false, error: failure.message));
+        }
         return CartActionResult.failure(failure.message);
       },
       (cart) {
-        emit(state.copyWith(isAddingItem: false, cart: cart, error: null));
+        if (isCurrent) {
+          emit(state.copyWith(
+            isAddingItem: false,
+            cart: _withVariantAtFront(cart, variantUuid),
+            error: null,
+          ));
+        }
         return const CartActionResult.success();
       },
     );
   }
 
-  Future<void> increaseQuantity(CartItemEntity item) =>
-      _changeQuantity(item.id, item.quantity + 1);
+  // The server's own item order isn't guaranteed to put a just-added
+  // variant first — the cart screen should always show the newest add at
+  // the top, not wherever the backend happens to place it.
+  CartEntity _withVariantAtFront(CartEntity cart, String variantUuid) {
+    final items = List<CartItemEntity>.from(cart.items);
+    final index = items.indexWhere((i) => i.variant.uuid == variantUuid);
+    if (index <= 0) return cart;
+    final justAdded = items.removeAt(index);
+    items.insert(0, justAdded);
+    return CartEntity(
+      cartId: cart.cartId,
+      cartUuid: cart.cartUuid,
+      totalItems: cart.totalItems,
+      totalAmount: cart.totalAmount,
+      items: items,
+    );
+  }
+
+  Future<void> increaseQuantity(CartItemEntity item) {
+    final target = (_optimisticQuantity[item.id] ?? item.quantity) + 1;
+    _optimisticQuantity[item.id] = target;
+    return _changeQuantity(item.id, target);
+  }
 
   Future<void> decreaseQuantity(CartItemEntity item) {
-    if (item.quantity <= 1) return removeItem(item.id);
-    return _changeQuantity(item.id, item.quantity - 1);
+    final base = _optimisticQuantity[item.id] ?? item.quantity;
+    if (base <= 1) {
+      _optimisticQuantity.remove(item.id);
+      return removeItem(item.id);
+    }
+    final target = base - 1;
+    _optimisticQuantity[item.id] = target;
+    return _changeQuantity(item.id, target);
   }
 
   Future<void> _changeQuantity(int itemId, int quantity) async {
@@ -80,6 +150,11 @@ class CartCubit extends Cubit<CartState> {
     emit(state.copyWith(pendingItemIds: {...state.pendingItemIds, itemId}));
     final result = await _updateQuantity(itemId: itemId, quantity: quantity);
     if (!_isCurrent(itemId, version)) return;
+    // This is the latest tap for this item settling — the optimistic
+    // target has either been confirmed (success) or reverted to whatever
+    // the server actually holds (failure), so drop it and let the next
+    // tap start fresh from the confirmed state.
+    _optimisticQuantity.remove(itemId);
     result.fold(
       (failure) => emit(state.copyWith(
         error: failure.message,
@@ -98,6 +173,7 @@ class CartCubit extends Cubit<CartState> {
     emit(state.copyWith(pendingItemIds: {...state.pendingItemIds, itemId}));
     final result = await _removeItem(itemId: itemId);
     if (!_isCurrent(itemId, version)) return;
+    _optimisticQuantity.remove(itemId);
     await result.fold(
       (failure) async => emit(state.copyWith(
         error: failure.message,

@@ -48,32 +48,6 @@ class AppBenefitsStrip extends StatelessWidget {
     ),
   ];
 
-  /// Delivery info se banane ke liye convenience factory
-  static List<BenefitItem> fromLabels({
-    required String deliveryLabel,
-    required String deliverySubtitle,
-    required String returnLabel,
-    required String returnSubtitle,
-    required String warrantyLabel,
-    required String warrantySubtitle,
-  }) => [
-    BenefitItem(
-      icon: Icons.local_shipping_outlined,
-      title: deliveryLabel,
-      subtitle: deliverySubtitle,
-    ),
-    BenefitItem(
-      icon: Icons.autorenew_rounded,
-      title: returnLabel,
-      subtitle: returnSubtitle,
-    ),
-    BenefitItem(
-      icon: Icons.verified_user_outlined,
-      title: warrantyLabel,
-      subtitle: warrantySubtitle,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final c = context.c;

@@ -15,8 +15,6 @@ class ProductMetrics {
   final double backIconSize;
   final double logoSize;
   final double topIconSize;
-  final double badgeSize;
-  final double badgeFontSize;
 
   // Gallery
   final double heroRadius;
@@ -81,8 +79,6 @@ class ProductMetrics {
     required this.backIconSize,
     required this.logoSize,
     required this.topIconSize,
-    required this.badgeSize,
-    required this.badgeFontSize,
     required this.heroRadius,
     required this.heroHeight,
     required this.thumbSize,
@@ -147,8 +143,6 @@ class ProductMetrics {
     backIconSize: 20.sp,
     logoSize: 24.sp,
     topIconSize: 21.sp,
-    badgeSize: 4.4.w,
-    badgeFontSize: 8.sp,
     heroRadius: 16,
     heroHeight: 38.h,
     thumbSize: 20.w,
@@ -201,8 +195,6 @@ class ProductMetrics {
     backIconSize: 22,
     logoSize: 30,
     topIconSize: 25,
-    badgeSize: 18,
-    badgeFontSize: 10,
     heroRadius: 20,
     heroHeight: 340,
     thumbSize: 100,
@@ -255,8 +247,6 @@ class ProductMetrics {
     backIconSize: 20,
     logoSize: 28,
     topIconSize: 23,
-    badgeSize: 17,
-    badgeFontSize: 10,
     heroRadius: 20,
     heroHeight: 300,
     thumbSize: 84,
