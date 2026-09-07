@@ -33,12 +33,33 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
 
+  @override
+  void initState() {
+    super.initState();
+    _showInitialWarning();
+  }
 
   @override
   void dispose() {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _showInitialWarning() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          barrierColor: ThemeColors.black.withValues(alpha: 0.6),
+          builder: (dialogContext) => _InitialPasswordWarningDialog(
+            email: widget.email,
+            onDismiss: () => Navigator.of(dialogContext).pop(),
+          ),
+        );
+      }
+    });
   }
 
   void _submit() {
@@ -120,54 +141,56 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
               context.go(AppRoutes.home);
             }
           },
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final matrics = AuthMetrics.of(constraints);
-              final wide = matrics.isTablet && matrics.isLandscape;
-
-              return SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  matrics.pagePadH,
-                  matrics.pagePadV,
-                  matrics.pagePadH,
-                  matrics.pagePadV,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - (matrics.pagePadV * 2),
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final matrics = AuthMetrics.of(constraints);
+                final wide = matrics.isTablet && matrics.isLandscape;
+            
+                return SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    matrics.pagePadH,
+                    matrics.pagePadV,
+                    matrics.pagePadH,
+                    matrics.pagePadV,
                   ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: matrics.contentMaxWidth,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - (matrics.pagePadV * 2),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: matrics.contentMaxWidth,
+                              ),
+                              child: wide
+                                  ? _WideLayout(
+                                      m: matrics,
+                                      isDark: isDark,
+                                      screen: this,
+                                    )
+                                  : _NarrowLayout(
+                                      m: matrics,
+                                      isDark: isDark,
+                                      screen: this,
+                                    ),
                             ),
-                            child: wide
-                                ? _WideLayout(
-                                    m: matrics,
-                                    isDark: isDark,
-                                    screen: this,
-                                  )
-                                : _NarrowLayout(
-                                    m: matrics,
-                                    isDark: isDark,
-                                    screen: this,
-                                  ),
                           ),
-                        ),
-
-                        const Spacer(),
-                        SizedBox(height: matrics.blockGap),
-                        AuthSecureNote(metrics: matrics),
-                      ],
+            
+                          const Spacer(),
+                          SizedBox(height: matrics.blockGap),
+                          AuthSecureNote(metrics: matrics),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -243,7 +266,7 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Reset Password',
+          'Set Your Password',
           textAlign: align,
           style: AppTextStyles.headlineMedium.copyWith(
             fontSize: m.heroTitle,
@@ -254,7 +277,7 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
         ),
         SizedBox(height: m.fieldGap * 0.45),
         Text(
-          'Enter your new password and make your account secure',
+          'Create a secure password to complete your account setup',
           textAlign: align,
           style: AppTextStyles.bodyMedium.copyWith(
             fontSize: m.heroBody,
@@ -268,6 +291,12 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
 
   Widget buildForm(AuthMetrics m, bool isDark) {
     final iconColor = isDark ? ThemeColors.textGrey : ThemeColors.inkDim;
+    final warningBg = isDark
+        ? ThemeColors.deepPurple.withValues(alpha: 0.12)
+        : ThemeColors.deepPurple.withValues(alpha: 0.08);
+    final warningBorder = isDark
+        ? ThemeColors.primaryPurple.withValues(alpha: 0.4)
+        : ThemeColors.deepPurple.withValues(alpha: 0.3);
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: m.formMaxWidth),
@@ -326,6 +355,55 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                     setState(() => _obscureConfirm = !_obscureConfirm),
               ),
             ),
+
+            SizedBox(height: m.blockGap),
+
+            // ---- WARNING BANNER (At Bottom) ----
+            Container(
+              padding: EdgeInsets.all(m.fieldGap),
+              decoration: BoxDecoration(
+                color: warningBg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: warningBorder, width: 1.2),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.info_rounded,
+                    size: 20,
+                    color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
+                  ),
+                  SizedBox(width: m.fieldGap * 0.6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Important',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            fontSize: m.linkText - 1,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'You must set a password now to access your account. If you skip this step, you won\'t be able to sign in or recover your account without completing this process again.',
+                          style: AppTextStyles.bodySmall.copyWith(
+                            fontSize: m.footerText,
+                            height: 1.45,
+                            color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             SizedBox(height: m.blockGap * 2),
             BlocBuilder<AuthBloc, AuthState>(
               builder: (context, state) => AppButton(
@@ -419,7 +497,7 @@ class _WideLayout extends StatelessWidget {
               /// MIDDLE DIVIDER
               _PaneDivider(m: m),
 
-              /// RIGHT — Reset Password + subtitle + form
+              /// RIGHT — Set Password + subtitle + form
               Expanded(
                 flex: 6,
                 child: _FitPane(
@@ -520,6 +598,190 @@ class _HeroArt extends StatelessWidget {
         child: Image.asset(
           AppImages.onboard1Dark,
           fit: BoxFit.contain,
+        ),
+      ),
+    );
+  }
+}
+
+class _InitialPasswordWarningDialog extends StatelessWidget {
+  final String email;
+  final VoidCallback onDismiss;
+
+  const _InitialPasswordWarningDialog({
+    required this.email,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark
+        ? Color.alphaBlend(
+            ThemeColors.white.withValues(alpha: 0.06),
+            ThemeColors.ink,
+          )
+        : ThemeColors.white;
+    final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
+    final bodyColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
+    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 440),
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: accent.withValues(alpha: isDark ? 0.28 : 0.16),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? ThemeColors.black.withValues(alpha: 0.55)
+                      : ThemeColors.blueDeep.withValues(alpha: 0.22),
+                  blurRadius: 30,
+                  offset: const Offset(0, 16),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ---- Warning Badge ----
+                Container(
+                  width: 92,
+                  height: 92,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: accent.withValues(alpha: 0.45),
+                      width: 1.4,
+                    ),
+                    color: isDark
+                        ? accent.withValues(alpha: 0.06)
+                        : accent.withValues(alpha: 0.04),
+                  ),
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 92 * 0.62,
+                    height: 92 * 0.62,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: ThemeColors.bottomSection,
+                      boxShadow: [
+                        BoxShadow(
+                          color: accent.withValues(alpha: 0.35),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.lock_outline_rounded,
+                      size: 31,
+                      color: ThemeColors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ---- Title ----
+                Text(
+                  'Set Your Password Now',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.headlineMedium.copyWith(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                    color: titleColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // ---- Body ----
+                Text(
+                  'Your account has been verified via email, but you need to set a password to complete setup. This password will be required to sign in and access your account.',
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: bodyColor,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ---- Consequence Section ----
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? ThemeColors.red.withValues(alpha: 0.08)
+                        : ThemeColors.red.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: ThemeColors.red.withValues(
+                        alpha: isDark ? 0.3 : 0.2,
+                      ),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.warning_rounded,
+                        size: 18,
+                        color: ThemeColors.red,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'If you skip this step, you won\'t be able to sign in or access your account until you complete this process again.',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            fontSize: 12,
+                            height: 1.4,
+                            color: ThemeColors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // ---- Action Button ----
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accent,
+                      foregroundColor: ThemeColors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: onDismiss,
+                    child: Text(
+                      'I Understand',
+                      style: AppTextStyles.buttonText.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: ThemeColors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
@@ -121,6 +122,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             onFieldSubmitted: (_) {
               _submit();
             },
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(
+                RegExp(r'[a-zA-Z0-9@.\-]'),
+              ),
+            ],
             validator: Validators.email,
             prefixIcon: const Icon(
               Icons.mail_outline_rounded,

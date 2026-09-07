@@ -7,6 +7,7 @@ class UserEntity extends Equatable {
   final String kycStatus;  // 'not_required' | 'pending' | 'under_review' | 'approved' | 'rejected'
   final bool emailVerified;
   final bool phoneVerified;
+  final bool passwordSet;
 
   const UserEntity({
     required this.id,
@@ -15,6 +16,7 @@ class UserEntity extends Equatable {
     required this.kycStatus,
     this.emailVerified = false,
     this.phoneVerified = false,
+    this.passwordSet = true,
   });
 
   bool get isKycApproved => kycStatus == 'approved' || kycStatus == 'not_required';
@@ -22,5 +24,5 @@ class UserEntity extends Equatable {
 
   @override
   List<Object> get props =>
-      [id, email, name, kycStatus, emailVerified, phoneVerified];
+      [id, email, name, kycStatus, emailVerified, phoneVerified, passwordSet];
 }
