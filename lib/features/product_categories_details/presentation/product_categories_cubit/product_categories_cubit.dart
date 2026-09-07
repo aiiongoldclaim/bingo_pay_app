@@ -31,8 +31,11 @@ class ProductListingCubit extends Cubit<ProductListingState> {
   String? _lastCategoryName;
   String? _lastCategoryUuid;
 
-  // Prevent race conditions from multiple rapid taps
+  bool _isBrandFilter = false;
+
+
   String? _currentRequestId;
+  int _requestCounter = 0;
   bool _isLoading = false;
 
   static const int _pageSize = 20;
@@ -43,23 +46,39 @@ class ProductListingCubit extends Cubit<ProductListingState> {
   final Map<String, bool> _categoryExhausted = {};
   bool _isLoadingMore = false;
 
+  bool _isCurrent(String requestId) => !isClosed && _currentRequestId == requestId;
+
   Future<void> loadCategory(String categoryName, String categoryUuid) async {
-    // If same category already loading, ignore duplicate request
+
     if (_isLoading && _lastCategoryUuid == categoryUuid) {
       return;
     }
 
+    _isBrandFilter = false;
     _lastCategoryName = categoryName;
     _lastCategoryUuid = categoryUuid;
 
     // Generate unique request ID to validate responses
-    _currentRequestId = DateTime.now().millisecondsSinceEpoch.toString();
+    _currentRequestId = (++_requestCounter).toString();
     await _loadCategoryInternal(categoryName, categoryUuid, _currentRequestId!);
+  }
+
+  Future<void> loadBrand(String brandName, String brandUuid) async {
+    if (_isLoading && _isBrandFilter && _lastCategoryUuid == brandUuid) {
+      return;
+    }
+
+    _isBrandFilter = true;
+    _lastCategoryName = brandName;
+    _lastCategoryUuid = brandUuid;
+
+    _currentRequestId = (++_requestCounter).toString();
+    await _loadCategoryInternal(brandName, brandUuid, _currentRequestId!);
   }
 
   Future<void> retryLoadCategory() async {
     if (_lastCategoryName != null && _lastCategoryUuid != null) {
-      _currentRequestId = DateTime.now().millisecondsSinceEpoch.toString();
+      _currentRequestId = (++_requestCounter).toString();
       await _loadCategoryInternal(
           _lastCategoryName!, _lastCategoryUuid!, _currentRequestId!);
     }
@@ -72,25 +91,20 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       ) async {
     try {
       _isLoading = true;
-      // New request: forget the previous category's pagination progress.
+
       _categoryUuidsForPaging = [];
       _categoryExhausted.clear();
 
-      // Only emit if this is still the current request
-      if (_currentRequestId == requestId) {
+      if (_isCurrent(requestId)) {
         emit(const ProductListingLoading());
       } else {
-        return; // Newer request already started, ignore this one
+        return;
       }
 
-      // Check cache first - if it's still within TTL, show it while trying
-      // to refresh. An expired entry is treated as a cache miss here: a
-      // fresh fetch is about to happen anyway, so there's no reason to
-      // flash stale prices/stock first.
       final cached = await _cacheService.getCachedProducts(categoryUuid);
       if (cached != null && cached.products.isNotEmpty && !cached.isExpired) {
         // Only emit if still current request
-        if (_currentRequestId == requestId) {
+        if (_isCurrent(requestId)) {
           // Show cached data while attempting to refresh
           emit(
             ProductListingLoaded(
@@ -102,26 +116,31 @@ class ProductListingCubit extends Cubit<ProductListingState> {
             ),
           );
         } else {
-          return; // Newer request started, stop processing
+          return;
         }
       }
 
       RateLimitFailure? rateLimitError;
       List<String> categoryUuids = [];
 
-      // Try to resolve category tree, but catch rate limit errors
-      try {
-        categoryUuids = await _repository.resolveCategoryUuids(categoryUuid);
-      } catch (e) {
-        final failure =
-        e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
-        if (failure is RateLimitFailure) {
-          rateLimitError = failure;
-          // Fall back to just the tapped category
-          categoryUuids = [categoryUuid];
-        } else {
-          // Re-throw non-rate-limit errors
-          rethrow;
+      if (_isBrandFilter) {
+
+        categoryUuids = [categoryUuid];
+      } else {
+
+        try {
+          categoryUuids = await _repository.resolveCategoryUuids(categoryUuid);
+        } catch (e) {
+          final failure =
+          e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
+          if (failure is RateLimitFailure) {
+            rateLimitError = failure;
+
+            categoryUuids = [categoryUuid];
+          } else {
+
+            rethrow;
+          }
         }
       }
 
@@ -130,7 +149,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       final batch = await _fetchCategoryPages(categoryUuids, page: 1);
       rateLimitError ??= batch.rateLimitError;
 
-      if (_currentRequestId != requestId) return;
+      if (!_isCurrent(requestId)) return;
 
       final seen = <String>{};
       final products = <ListingProductModel>[];
@@ -142,7 +161,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         await _cacheService.cacheProducts(categoryUuid, products);
 
         // Only emit if still current request
-        if (_currentRequestId == requestId) {
+        if (_isCurrent(requestId)) {
           final hasMore =
           categoryUuids.any((u) => _categoryExhausted[u] != true);
           emit(
@@ -150,7 +169,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
               categoryName: categoryName,
               products: products,
               filteredProducts: products,
-              isCachedData: false, // Fresh data from API
+              isCachedData: false,
               currentPage: 1,
               hasMorePages: hasMore,
             ),
@@ -162,14 +181,14 @@ class ProductListingCubit extends Cubit<ProductListingState> {
 
           return;
         }
-        // Otherwise try to show cache, only if still current request
-        if (_currentRequestId == requestId) {
+
+        if (_isCurrent(requestId)) {
           await _handleRateLimitWithCache(
               categoryName, categoryUuid, rateLimitError, requestId);
         }
       } else {
         // No products and no specific error
-        if (_currentRequestId == requestId) {
+        if (_isCurrent(requestId)) {
           emit(
             ProductListingLoaded(
               categoryName: categoryName,
@@ -182,10 +201,8 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     } catch (e) {
       final failure =
       e is Exception ? ErrorHandler.mapExceptionToFailure(e) : null;
+      if (_isCurrent(requestId)) {
 
-      // Only emit if still current request
-      if (_currentRequestId == requestId) {
-        // If rate limited, try to show cached data instead of error
         if (failure is RateLimitFailure) {
           await _handleRateLimitWithCache(
               categoryName, categoryUuid, failure, requestId);
@@ -207,14 +224,12 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       ]) async {
     final cached = await _cacheService.getCachedProducts(categoryUuid);
 
-    // Check if request is still current before emitting
-    final isCurrentRequest = requestId == null || _currentRequestId == requestId;
+    final isCurrentRequest =
+        !isClosed && (requestId == null || _currentRequestId == requestId);
     if (!isCurrentRequest) return;
 
     if (cached != null && cached.products.isNotEmpty) {
-      // The API is unavailable (rate-limited), so this is the last resort —
-      // show the cache even if it's past its TTL, but flag it explicitly
-      // as stale rather than reusing it silently.
+
       emit(
         ProductListingLoaded(
           categoryName: categoryName,
@@ -226,7 +241,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
         ),
       );
     } else {
-      // No cache available, show empty state instead of error screen
+
       emit(
         ProductListingLoaded(
           categoryName: categoryName,
@@ -272,11 +287,18 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       void Function(RateLimitFailure) onRateLimit,
       ) async {
     try {
-      final products = await _repository.fetchProducts(
-        categoryUuid: uuid,
-        page: page,
-        limit: _pageSize,
-      );
+      final products = _isBrandFilter
+          ? await _repository.fetchProducts(
+              categoryUuid: '',
+              brandUuid: uuid,
+              page: page,
+              limit: _pageSize,
+            )
+          : await _repository.fetchProducts(
+              categoryUuid: uuid,
+              page: page,
+              limit: _pageSize,
+            );
       _categoryExhausted[uuid] = products.length < _pageSize;
       onSuccess(products);
     } catch (e) {
@@ -319,7 +341,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       _categoryUuidsForPaging.any((u) => _categoryExhausted[u] != true);
 
       final current = state;
-      if (current is ProductListingLoaded) {
+      if (!isClosed && current is ProductListingLoaded) {
         emit(
           current.copyWith(
             products: mergedProducts,
@@ -332,7 +354,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       }
     } catch (_) {
       final current = state;
-      if (current is ProductListingLoaded) {
+      if (!isClosed && current is ProductListingLoaded) {
         emit(current.copyWith(isLoadingMore: false));
       }
     } finally {

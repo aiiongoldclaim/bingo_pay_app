@@ -37,6 +37,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/category_entity.dart';
 import 'categories_card.dart';
 import 'categories_metrics.dart';
@@ -58,7 +59,13 @@ class CategoriesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (categories.isEmpty) return const SizedBox.shrink();
+    // A genuinely-empty successful response must still tell the user
+    // something is missing — shrinking to nothing here would leave the
+    // "Categories" header sitting above blank space with no explanation.
+    if (categories.isEmpty) {
+      final c = context.c;
+      return _EmptyCategoriesMessage(metrics: metrics, color: c.textSecondary);
+    }
 
     final m = metrics;
     final visible = categories.take(m.categoryColumns * maxRows).toList();
@@ -81,6 +88,36 @@ class CategoriesGrid extends StatelessWidget {
           category: visible[i],
           onTap: () => onCategoryTap?.call(visible[i]),
         ),
+      ),
+    );
+  }
+}
+
+class _EmptyCategoriesMessage extends StatelessWidget {
+  const _EmptyCategoriesMessage({required this.metrics, required this.color});
+
+  final CategoriesMetrics metrics;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final m = metrics;
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: m.pagePadding,
+        vertical: m.pagePadding,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.category_outlined, size: m.searchIconSize, color: color),
+          SizedBox(width: m.pagePadding * 0.6),
+          Expanded(
+            child: Text(
+              'No categories available',
+              style: TextStyle(fontSize: m.categoryNameSize * 1.1, color: color),
+            ),
+          ),
+        ],
       ),
     );
   }

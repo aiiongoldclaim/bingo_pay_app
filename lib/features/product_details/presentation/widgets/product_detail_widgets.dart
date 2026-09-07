@@ -1,6 +1,7 @@
 import 'package:bingo_pay/features/product_details/presentation/widgets/product_metrics.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../data/models/product_details_model.dart';
@@ -10,6 +11,7 @@ import '../../data/models/product_details_model.dart';
 class ProductTopBar extends StatelessWidget {
   final ProductMetrics metrics;
   final int cartCount;
+  final bool isWishlisted;
   final VoidCallback onBack;
   final VoidCallback onWishlist;
   final VoidCallback onCart;
@@ -18,6 +20,7 @@ class ProductTopBar extends StatelessWidget {
     super.key,
     required this.metrics,
     required this.cartCount,
+    this.isWishlisted = false,
     required this.onBack,
     required this.onWishlist,
     required this.onCart,
@@ -25,7 +28,7 @@ class ProductTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -43,15 +46,15 @@ class ProductTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           Expanded(
             child: Center(
               child: Text(
-                'TheVaults',
+                AppStrings.appBrandName,
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: c.brand,
+                  color: colors.brand,
                   fontFamily: 'CormorantGaramond',
                   fontWeight: FontWeight.w600,
                   fontSize: m.logoSize,
@@ -64,9 +67,9 @@ class ProductTopBar extends StatelessWidget {
             onPressed: onWishlist,
             splashRadius: m.topIconSize * 1.2,
             icon: Icon(
-              Icons.favorite_border_rounded,
+              isWishlisted ? Icons.favorite : Icons.favorite_border_rounded,
               size: m.topIconSize,
-              color: c.textPrimary,
+              color: isWishlisted ? colors.brand : colors.textPrimary,
             ),
           ),
           Stack(
@@ -79,7 +82,7 @@ class ProductTopBar extends StatelessWidget {
                 icon: Icon(
                   Icons.shopping_bag_outlined,
                   size: m.topIconSize,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               if (cartCount > 0)
@@ -87,20 +90,24 @@ class ProductTopBar extends StatelessWidget {
                   right: m.topIconSize * 0.25,
                   top: m.topIconSize * 0.18,
                   child: Container(
-                    width: m.badgeSize,
-                    height: m.badgeSize,
+                    // Same icon-relative ratio the Home/Categories header cart
+                    // badge uses (icon size * 0.62 / * 0.36), so the badge
+                    // reads at the same size everywhere instead of the fixed
+                    // (and screen-width-relative) size this used to have.
+                    width: m.topIconSize * 0.62,
+                    height: m.topIconSize * 0.62,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: c.brand,
+                      color: colors.brand,
                       shape: BoxShape.circle,
-                      border: Border.all(color: c.background, width: 1.5),
+                      border: Border.all(color: colors.background, width: 1.5),
                     ),
                     child: Text(
                       '$cartCount',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: c.surface,
+                        color: colors.surface,
                         fontFamily: 'Inter',
-                        fontSize: m.badgeFontSize,
+                        fontSize: m.topIconSize * 0.36,
                         fontWeight: FontWeight.w700,
                         height: 1,
                       ),
@@ -259,7 +266,10 @@ class _ProductGalleryState extends State<ProductGallery> {
                 final isSelected = i == _index;
 
                 return GestureDetector(
-                  onTap: () => setState(() => _index = i),
+                  onTap: () {
+                    setState(() => _index = i);
+                    widget.onImageTap(i);
+                  },
                   child: Container(
                     width: m.thumbSize,
                     decoration: BoxDecoration(
@@ -292,8 +302,6 @@ class _ProductGalleryState extends State<ProductGallery> {
 }
 
 
-
-// ── Brand + title + rating + price ─────────────────────────────────────────
 class ProductInfoBlock extends StatelessWidget {
   final ProductMetrics metrics;
   final ProductDetailModel product;
@@ -388,7 +396,7 @@ class ProductInfoBlock extends StatelessWidget {
                 ),
               ),
               Text(
-                '${product.reviewCount} Ratings',
+                AppStrings.ratingsCount(product.reviewCount),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: c.textSecondary,
                   fontFamily: 'Inter',
@@ -451,7 +459,7 @@ class ProductInfoBlock extends StatelessWidget {
         SizedBox(height: m.gapXs),
 
         Text(
-          'Inclusive of all taxes',
+          AppStrings.inclusiveOfTaxes,
           style: AppTextStyles.bodySmall.copyWith(
             color: c.textSecondary,
             fontFamily: 'Inter',
@@ -499,7 +507,7 @@ class ProductQuantitySelector extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Quantity',
+                  AppStrings.quantityLabel,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: c.textPrimary,
                     fontFamily: 'Inter',
@@ -509,7 +517,7 @@ class ProductQuantitySelector extends StatelessWidget {
                 ),
                 SizedBox(height: m.gapXs * 0.7),
                 Text(
-                  '$availableStock available',
+                  AppStrings.availableStockCount(availableStock),
                   style: AppTextStyles.bodySmall.copyWith(
                     color: c.textSecondary,
                     fontFamily: 'Inter',
@@ -529,13 +537,13 @@ class ProductQuantitySelector extends StatelessWidget {
               children: [
                 IconButton(
                   key: const Key('product_quantity_decrement'),
-                  tooltip: 'Decrease quantity',
+                  tooltip: AppStrings.decreaseQuantityTooltip,
                   onPressed: canDecrement ? onDecrement : null,
                   icon: const Icon(Icons.remove_rounded),
                   color: c.textPrimary,
                 ),
                 Semantics(
-                  label: 'Selected quantity: $quantity',
+                  label: AppStrings.selectedQuantitySemantics(quantity),
                   child: SizedBox(
                     width: m.sectionTitleSize * 2.2,
                     child: Text(
@@ -552,7 +560,7 @@ class ProductQuantitySelector extends StatelessWidget {
                 ),
                 IconButton(
                   key: const Key('product_quantity_increment'),
-                  tooltip: 'Increase quantity',
+                  tooltip: AppStrings.increaseQuantityTooltip,
                   onPressed: canIncrement ? onIncrement : null,
                   icon: const Icon(Icons.add_rounded),
                   color: c.textPrimary,
@@ -839,109 +847,6 @@ class ProductActionRow extends StatelessWidget {
   }
 }
 
-// ── Policies strip ─────────────────────────────────────────────────────────
-class ProductPoliciesStrip extends StatelessWidget {
-  final ProductMetrics metrics;
-  final DeliveryInfo info;
-
-  const ProductPoliciesStrip({
-    super.key,
-    required this.metrics,
-    required this.info,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-
-    Widget item(IconData icon, String title, String sub) => Expanded(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: m.policyIconBox,
-            height: m.policyIconBox,
-            decoration: BoxDecoration(
-              color: c.brandSoft,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Icon(icon, size: m.policyIconSize, color: c.brand),
-          ),
-          SizedBox(width: m.gapSm * 0.7),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: c.textPrimary,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                    fontSize: m.policyTitleSize,
-                    height: 1.25,
-                  ),
-                ),
-                Text(
-                  sub,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
-                    fontFamily: 'Inter',
-                    fontSize: m.policySubSize,
-                    height: 1.25,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Widget divider() => Container(
-      width: 1,
-      height: m.policyIconBox * 0.9,
-      color: c.border,
-    );
-
-    return ProductSectionCard(
-      metrics: m,
-      padding: EdgeInsets.symmetric(
-        horizontal: m.cardPad * 0.6,
-        vertical: m.cardPad * 0.8,
-      ),
-      child: Row(
-        children: [
-          item(
-            Icons.local_shipping_outlined,
-            info.deliveryLabel,
-            info.deliverySubtitle,
-          ),
-          divider(),
-          item(
-            Icons.autorenew_rounded,
-            info.returnLabel,
-            info.returnSubtitle,
-          ),
-          divider(),
-          item(
-            Icons.verified_user_outlined,
-            info.warrantyLabel,
-            info.warrantySubtitle,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── Offers For You ─────────────────────────────────────────────────────────
 class ProductOffer {
   final String title;
@@ -989,7 +894,7 @@ class ProductOffersCard extends StatelessWidget {
               ),
               SizedBox(width: m.gapSm * 0.8),
               Text(
-                'Offers For You',
+                AppStrings.offersForYou,
                 style: AppTextStyles.titleMedium.copyWith(
                   color: c.brand,
                   fontFamily: 'Inter',
@@ -1089,7 +994,7 @@ class ProductOffersCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'View All Offers (${offers.length})',
+                      AppStrings.viewAllOffersCount(offers.length),
                       style: AppTextStyles.labelMedium.copyWith(
                         color: c.brand,
                         fontFamily: 'Inter',
@@ -1139,7 +1044,7 @@ class ProductHighlightsBlock extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Product Details',
+            AppStrings.productDetailsTitle,
             style: AppTextStyles.titleMedium.copyWith(
               color: c.textPrimary,
               fontFamily: 'Inter',

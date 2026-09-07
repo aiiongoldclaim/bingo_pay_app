@@ -77,6 +77,9 @@ class RecommendedSection extends StatelessWidget {
                                 : null,
                             rating: product.rating,
                           ),
+                          // isAdded is the card's own target state — it was
+                          // built showing the OPPOSITE of that.
+                          wasWishlisted: !isAdded,
                         );
                         if (isAdded && buildContext.mounted) {
                           AppSnackbar.showSuccess(

@@ -122,6 +122,7 @@
 // }
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'cart_metrics.dart';
@@ -173,7 +174,7 @@ class PriceDetailsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Order Summary',
+            AppStrings.orderSummary,
             style: AppTextStyles.titleMedium.copyWith(
               color: c.textPrimary,
               fontFamily: 'Inter',
@@ -185,13 +186,13 @@ class PriceDetailsCard extends StatelessWidget {
           SizedBox(height: m.gapMd),
 
           _Row(
-            label: 'Bag Total ($itemCount item${itemCount == 1 ? '' : 's'})',
+            label: AppStrings.bagTotal(itemCount),
             value: '\$${_fmt(subtotal)}',
             metrics: m,
           ),
           _Row(
-            label: 'Shipping Fee',
-            value: 'FREE',
+            label: AppStrings.shippingFee,
+            value: AppStrings.free,
             valueColor: c.statusSuccess,
             metrics: m,
             trailingInfo: true,
@@ -207,7 +208,7 @@ class PriceDetailsCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Total Amount',
+                  AppStrings.totalAmount,
                   style: AppTextStyles.titleMedium.copyWith(
                     color: c.textPrimary,
                     fontFamily: 'Inter',

@@ -19,7 +19,7 @@ void main() {
     addTearDown(cubit.close);
 
     await cubit.loadForUser('user-a');
-    await cubit.toggle(item);
+    await cubit.toggle(item, wasWishlisted: false);
 
     await cubit.loadForUser('user-b');
     expect(cubit.state.items, isEmpty);
@@ -35,7 +35,7 @@ void main() {
     addTearDown(cubit.close);
 
     await cubit.loadForUser('user-a');
-    await cubit.toggle(item);
+    await cubit.toggle(item, wasWishlisted: false);
     cubit.clearForLogout();
 
     expect(cubit.state.items, isEmpty);

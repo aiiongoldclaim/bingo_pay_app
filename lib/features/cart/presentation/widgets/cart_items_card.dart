@@ -308,6 +308,7 @@
 // }
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/cart_item_entity.dart';
@@ -572,7 +573,7 @@ class CartItemTile extends StatelessWidget {
                             Flexible(
                               child: _OutlineAction(
                                 icon: Icons.favorite_border_rounded,
-                                label: 'Move to Wishlist',
+                                label: AppStrings.moveToWishlist,
                                 metrics: m,
                                 onTap: isPending ? null : onMoveToWishlist,
                               ),

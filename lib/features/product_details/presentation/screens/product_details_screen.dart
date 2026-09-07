@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -11,6 +12,9 @@ import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../payment/presentation/screens/payment_args.dart';
+import '../../../wishlist/data/models/wishlist_model.dart';
+import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
+import '../../data/models/product_details_model.dart';
 import '../cubit/product_details_cubit.dart';
 import '../cubit/product_details_state.dart';
 import '../widgets/image_viewer_args.dart';
@@ -21,6 +25,18 @@ import '../widgets/product_metrics.dart';
 import '../widgets/product_rating_section.dart';
 import '../widgets/product_variants_section.dart';
 
+WishlistItem _toWishlistItem(ProductDetailModel product, String uuid) =>
+    WishlistItem(
+      id: uuid,
+      brand: product.brand,
+      name: product.productName,
+      price: product.price,
+      originalPrice: product.oldPrice.isNotEmpty ? product.oldPrice : null,
+      discountPercent: product.discount > 0 ? product.discount : null,
+      imageUrl: product.images.isNotEmpty ? product.images.first : null,
+      rating: product.rating,
+    );
+
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
 
@@ -29,9 +45,9 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  // Prevents a fast double-tap from pushing the Payment screen twice —
-  // mirrors the isLoading guard Add to Cart already gets from CartCubit.
+
   bool _isBuyingNow = false;
+  bool _isAddingToCart = false;
 
   Future<void> _buyNow(BuildContext context, ProductDetailLoaded data) async {
     if (_isBuyingNow) return;
@@ -40,7 +56,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final variantUuid = product.variantUuid;
 
     if (variantUuid == null) {
-      AppSnackbar.showError(context, 'This product is currently unavailable');
+      AppSnackbar.showError(context, AppStrings.productCurrentlyUnavailable);
       return;
     }
 
@@ -75,38 +91,61 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       return;
     }
 
+    if (_isAddingToCart) return;
+
     final product = data.product;
     final variantUuid = product.variantUuid;
 
     if (variantUuid == null) {
-      AppSnackbar.showError(context, 'This product is currently unavailable');
+      AppSnackbar.showError(context, AppStrings.productCurrentlyUnavailable);
       return;
     }
 
     final cartCubit = context.read<CartCubit>();
     final colors = context.colors;
 
+    setState(() => _isAddingToCart = true);
     final result = await cartCubit.addItem(
       variantUuid: variantUuid,
       quantity: data.quantity,
     );
+    if (mounted) setState(() => _isAddingToCart = false);
     if (!context.mounted) return;
 
     if (!result.success) {
       AppSnackbar.showError(
         context,
-        result.errorMessage ?? 'Something went wrong. Please try again.',
+        result.errorMessage ?? AppStrings.genericAddItemError,
       );
       return;
     }
 
     AppSnackbar.showSuccessWithAction(
       context,
-      '${product.productName} added to cart',
-      actionLabel: 'GO TO CART',
+      AppStrings.itemAddedToCart(product.productName),
+      actionLabel: AppStrings.goToCart,
       onAction: () => context.push(AppRoutes.cart),
       backgroundColor: colors.brand,
     );
+  }
+
+  Future<void> _toggleWishlist(
+      BuildContext context,
+      ProductDetailModel product,
+      bool wasWishlisted,
+      ) async {
+    final uuid = product.uuid;
+    if (uuid == null) return;
+
+    final wishlistCubit = context.read<WishlistCubit>();
+    await wishlistCubit.toggle(
+      _toWishlistItem(product, uuid),
+      wasWishlisted: wasWishlisted,
+    );
+
+    if (!wasWishlisted && context.mounted) {
+      AppSnackbar.showSuccess(context, AppStrings.addedToWishlist);
+    }
   }
 
   void _openImageViewer(
@@ -144,17 +183,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           final m = ProductMetrics.of(context);
 
           final cartState = context.watch<CartCubit>();
+          final wishlistCubit = context.watch<WishlistCubit>();
           final isOutOfStock = product.availableStock <= 0;
           final isInCart = cartState.state.items.any(
                 (item) => item.variant.uuid == product.variantUuid,
           );
+          final isWishlisted = wishlistCubit.isWishlisted(product.uuid);
 
 
           final gallery = ProductGallery(
             metrics: m,
             images: product.images,
             fallbackIcon: product.icon,
-            badge: product.discount > 0 ? 'NEW' : null,
+            badge: product.discount > 0 ? AppStrings.newBadge : null,
             onImageTap: (index) =>
                 _openImageViewer(context, product.images, index),
           );
@@ -164,18 +205,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ProductInfoBlock(metrics: m, product: product),
-
-              SizedBox(height: m.gapLg),
-
-              ProductQuantitySelector(
-                metrics: m,
-                quantity: data.quantity,
-                availableStock: product.availableStock,
-                onIncrement: () =>
-                    context.read<ProductDetailCubit>().incrementQuantity(),
-                onDecrement: () =>
-                    context.read<ProductDetailCubit>().decrementQuantity(),
-              ),
 
               SizedBox(height: m.gapLg),
 
@@ -217,12 +246,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 metrics: m,
                 offers: const [
                   ProductOffer(
-                    title: '10% Instant Discount on Bank Cards',
-                    subtitle: 'Min. spend \$50 | T&C',
+                    title: AppStrings.offer1Title,
+                    subtitle: AppStrings.offer1Subtitle,
                   ),
                   ProductOffer(
-                    title: 'Extra 5% off on Wallet',
-                    subtitle: 'Max. discount \$10',
+                    title: AppStrings.offer2Title,
+                    subtitle: AppStrings.offer2Subtitle,
                   ),
                 ],
                 onViewAll: () {},
@@ -243,18 +272,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 reviewCount: product.reviewCount,
               ),
 
-              SizedBox(height: m.gapMd),
-
-              AppBenefitsStrip(
-                items: AppBenefitsStrip.fromLabels(
-                  deliveryLabel: product.deliveryInfo.deliveryLabel,
-                  deliverySubtitle: product.deliveryInfo.deliverySubtitle,
-                  returnLabel: product.deliveryInfo.returnLabel,
-                  returnSubtitle: product.deliveryInfo.returnSubtitle,
-                  warrantyLabel: product.deliveryInfo.warrantyLabel,
-                  warrantySubtitle: product.deliveryInfo.warrantySubtitle,
+              if (product.benefits.isNotEmpty) ...[
+                SizedBox(height: m.gapMd),
+                AppBenefitsStrip(
+                  items: [
+                    for (final b in product.benefits)
+                      BenefitItem(
+                        icon: b.icon,
+                        title: b.label,
+                        subtitle: b.subtitle,
+                      ),
+                  ],
                 ),
-              ),
+              ],
             ],
           );
 
@@ -265,10 +295,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ProductTopBar(
                   metrics: m,
                   cartCount: cartState.state.totalItems,
+                  isWishlisted: isWishlisted,
                   onBack: () => context.canPop()
                       ? context.pop()
                       : context.go(AppRoutes.home),
-                  onWishlist: () => context.push(AppRoutes.buyerWishlist),
+                  onWishlist: () => _toggleWishlist(context, product, isWishlisted),
                   onCart: () => context.push(AppRoutes.cart),
                 ),
 
@@ -331,17 +362,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 /// BOTTOM BAR — add to cart + buy now
                 BlocBuilder<CartCubit, CartState>(
                   builder: (context, cartState) => AppBottomActionBar(
-                    primaryLabel: isOutOfStock ? 'Out of Stock' : 'Buy Now',
+                    primaryLabel: isOutOfStock
+                        ? AppStrings.outOfStockTitleCase
+                        : AppStrings.buyNow,
                     primaryLoading: _isBuyingNow,
                     onPrimaryPressed: isOutOfStock || _isBuyingNow
                         ? null
                         : () => _buyNow(context, data),
 
-                    secondaryLabel: isInCart ? 'Go to Cart' : 'Add to Cart',
+                    secondaryLabel: isInCart
+                        ? AppStrings.goToCartTitleCase
+                        : AppStrings.addToCartLabel,
                     secondaryIcon: Icons.shopping_bag_outlined,
-                    secondaryLoading: cartState.isAddingItem,
-                    onSecondaryPressed:
-                    isOutOfStock ? null : () => _addToCart(context, data, isInCart),
+                    secondaryLoading: cartState.isAddingItem || _isAddingToCart,
+                    onSecondaryPressed: isOutOfStock || _isAddingToCart
+                        ? null
+                        : () => _addToCart(context, data, isInCart),
                   ),
                 ),
               ],
@@ -385,7 +421,7 @@ class _ErrorView extends StatelessWidget {
             ),
             SizedBox(height: m.gapLg),
             Text(
-              'Something went wrong',
+              AppStrings.somethingWentWrongLower,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
                 color: c.textPrimary,

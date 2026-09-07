@@ -44,6 +44,7 @@
 // }
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'cart_metrics.dart';
@@ -93,7 +94,7 @@ class CartCouponCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Coupons & Offers',
+                      AppStrings.couponsOffers,
                       style: AppTextStyles.titleMedium.copyWith(
                         color: c.textPrimary,
                         fontFamily: 'Inter',
@@ -104,7 +105,7 @@ class CartCouponCard extends StatelessWidget {
                     ),
                     SizedBox(height: m.gapXs * 0.6),
                     Text(
-                      'View all available offers',
+                      AppStrings.viewAllOffers,
                       style: AppTextStyles.bodySmall.copyWith(
                         color: c.textSecondary,
                         fontFamily: 'Inter',
@@ -163,7 +164,7 @@ Future<void> showCouponSheet(BuildContext context) {
                   SizedBox(width: m.gapSm),
                   Expanded(
                     child: Text(
-                      'Coupons & Offers',
+                      AppStrings.couponsOffers,
                       style: AppTextStyles.titleMedium.copyWith(
                         color: c.textPrimary,
                         fontFamily: 'Inter',
@@ -201,7 +202,7 @@ Future<void> showCouponSheet(BuildContext context) {
               SizedBox(height: m.gapMd),
 
               Text(
-                'No coupons available',
+                AppStrings.noCouponsAvailable,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.titleMedium.copyWith(
                   color: c.textPrimary,
@@ -214,7 +215,7 @@ Future<void> showCouponSheet(BuildContext context) {
               SizedBox(height: m.gapSm),
 
               Text(
-                'Offers ke liye baad me check karein.',
+                AppStrings.checkBackLaterOffers,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: c.textSecondary,
@@ -236,7 +237,7 @@ Future<void> showCouponSheet(BuildContext context) {
                     onTap: () => Navigator.pop(context),
                     child: Center(
                       child: Text(
-                        'CLOSE',
+                        AppStrings.close,
                         style: AppTextStyles.buttonText.copyWith(
                           color: c.surface,
                           fontFamily: 'Inter',

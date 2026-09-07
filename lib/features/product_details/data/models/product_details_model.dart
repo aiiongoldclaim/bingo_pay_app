@@ -70,7 +70,13 @@ class ProductDetailModel {
   final List<String> highlights;
   final List<ProductColorOption> colorOptions;
   final List<RatingBreakdown> ratingBreakdown;
-  final DeliveryInfo deliveryInfo;
+
+  /// Membership-entitlement-driven benefits (Free Delivery, Warranty,
+  /// 7-Day Returns, ...). Populated from `GET /api/v1/customer/membership`
+  /// entitlements after the product loads — only entitlements the API
+  /// actually returns as enabled show up here, nothing is hardcoded.
+  final List<ProductBenefit> benefits;
+
   final String? vendorEmail;
   final List<ProductVariant> variants;
   final int selectedVariantIndex;
@@ -88,7 +94,7 @@ class ProductDetailModel {
     this.highlights = const [],
     this.colorOptions = const [],
     this.ratingBreakdown = const [],
-    required this.deliveryInfo,
+    this.benefits = const [],
     this.vendorEmail,
     this.variants = const [],
     this.selectedVariantIndex = 0,
@@ -174,20 +180,13 @@ class ProductDetailModel {
       vendorEmail: vendor?['email'] as String?,
       variants: variants,
       selectedVariantIndex: 0,
-      deliveryInfo: const DeliveryInfo(
-        deliveryLabel: 'Free Delivery',
-        deliverySubtitle: 'Estimated 2–5 business days',
-        returnLabel: '7 Day Returns',
-        returnSubtitle: 'Easy no-hassle returns',
-        warrantyLabel: 'Warranty',
-        warrantySubtitle: 'As per brand policy',
-      ),
     );
   }
 
   /// Create a copy with modified variant index
   ProductDetailModel copyWith({
     int? selectedVariantIndex,
+    List<ProductBenefit>? benefits,
   }) {
     return ProductDetailModel(
       id: id,
@@ -202,7 +201,7 @@ class ProductDetailModel {
       highlights: highlights,
       colorOptions: colorOptions,
       ratingBreakdown: ratingBreakdown,
-      deliveryInfo: deliveryInfo,
+      benefits: benefits ?? this.benefits,
       vendorEmail: vendorEmail,
       variants: variants,
       selectedVariantIndex: selectedVariantIndex ?? this.selectedVariantIndex,
@@ -234,20 +233,17 @@ class RatingBreakdown {
   const RatingBreakdown({required this.stars, required this.percentage});
 }
 
-class DeliveryInfo {
-  final String deliveryLabel;
-  final String deliverySubtitle;
-  final String returnLabel;
-  final String returnSubtitle;
-  final String warrantyLabel;
-  final String warrantySubtitle;
+/// A single PDP benefit tile (Free Delivery, Warranty, 7-Day Returns, ...),
+/// built entirely from a `MembershipEntitlement` the API returned as
+/// enabled — see `ProductDetailCubit._resolveBenefits`.
+class ProductBenefit {
+  final IconData icon;
+  final String label;
+  final String subtitle;
 
-  const DeliveryInfo({
-    required this.deliveryLabel,
-    required this.deliverySubtitle,
-    required this.returnLabel,
-    required this.returnSubtitle,
-    required this.warrantyLabel,
-    required this.warrantySubtitle,
+  const ProductBenefit({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
   });
 }

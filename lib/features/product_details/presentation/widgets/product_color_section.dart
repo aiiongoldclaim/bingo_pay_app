@@ -110,6 +110,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/app_theme_colors.dart';
 import '../../data/models/product_details_model.dart';
@@ -147,7 +148,7 @@ class ProductColorSection extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Color',
+                AppStrings.colorLabel,
                 style: AppTextStyles.titleMedium.copyWith(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.bold,

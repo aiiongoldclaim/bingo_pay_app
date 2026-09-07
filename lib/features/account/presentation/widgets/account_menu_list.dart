@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/theme/app_text_styles.dart';
@@ -17,19 +16,22 @@ class AccountMenuList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = AccountMetrics.of(context);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: m.pageHPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.menuRadius),
-        boxShadow: c.isDark
+        border: Border.all(
+          color: colors.border,
+        ),
+        boxShadow: colors.isDark
             ? null
             : [
           BoxShadow(
-            color: c.textPrimary.withValues(alpha: 0.03),
+            color: colors.textPrimary.withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -54,7 +56,7 @@ class AccountMenuList extends StatelessWidget {
                   thickness: 1,
                   indent: m.dividerIndent,
                   endIndent: m.menuItemHPad,
-                  color: c.border,
+                  color: colors.border,
                 ),
             ],
           );
@@ -79,36 +81,10 @@ class _MenuItem extends StatelessWidget {
     required this.onTap,
   });
 
-  String _iconFor(String key) {
-    switch (key) {
-      case 'cart':
-        return AppSvgImages.cart;
-      case 'orders':
-      case 'transactions':
-        return AppSvgImages.transactions;
-      case 'wishlist':
-        return AppSvgImages.wishlist;
-      case 'addresses':
-      case 'profile':
-        return AppSvgImages.profile;
-      case 'payments':
-        return AppSvgImages.securePayments;
-      case 'editProfile':
-        return AppSvgImages.editProfile;
-      case 'memberShip':
-        return AppSvgImages.easyReturns;
-      case 'memberShip':
-        return AppSvgImages.easyReturns;
-      case 'help':
-        return AppSvgImages.support;
-      default:
-        return AppSvgImages.chevronRight;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
@@ -130,14 +106,14 @@ class _MenuItem extends StatelessWidget {
                 width: m.menuIconBox,
                 height: m.menuIconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   item.icon,
                   size: m.menuIconSize,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ),
 
@@ -152,7 +128,7 @@ class _MenuItem extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.labelLarge.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: m.menuTitleSize,
@@ -164,7 +140,7 @@ class _MenuItem extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w400,
                         fontSize: m.menuSubtitleSize,
@@ -177,7 +153,7 @@ class _MenuItem extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 size: m.chevronSize + 6,
-                color: c.textMuted,
+                color: colors.textMuted,
               ),
             ],
           ),
@@ -258,7 +234,7 @@ class AccountMenuItem {
     AccountMenuItem(
       title: 'My Bookings',
       subtitle: 'Manage your bookings',
-      iconAsset: 'bookings',            // pehle 'cart' tha → cart jaisa hi icon aa raha tha
+      iconAsset: 'bookings',
       route: AppRoutes.myBookings,
     ),
   ];
@@ -274,7 +250,7 @@ class AccountMenuItem {
     AccountMenuItem(
       title: 'Edit Profile',
       subtitle: 'Update your personal details',
-      iconAsset: 'editProfile',         // pehle 'profile' tha
+      iconAsset: 'editProfile',
       route: AppRoutes.editProfile,
     ),
     AccountMenuItem(
@@ -286,7 +262,7 @@ class AccountMenuItem {
     AccountMenuItem(
       title: 'My Membership',
       subtitle: 'View your active plan',
-      iconAsset: 'myMembership',        // key ab switch se match karti hai
+      iconAsset: 'myMembership',
       route: AppRoutes.membership,
     ),
   ];

@@ -32,6 +32,7 @@
 // }
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'cart_metrics.dart';
@@ -77,7 +78,7 @@ class FreeDeliveryBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Yay! You are getting free delivery',
+                  AppStrings.freeDeliveryUnlockedTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelLarge.copyWith(
@@ -90,7 +91,7 @@ class FreeDeliveryBanner extends StatelessWidget {
                 ),
                 SizedBox(height: m.gapXs * 0.6),
                 Text(
-                  'Add more items to unlock extra savings',
+                  AppStrings.freeDeliverySubtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(

@@ -7,39 +7,40 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../account/domain/usecase/get_account_usecase.dart';
 import '../../data/model/edit_profile_model..dart';
 import 'edit_profile_state.dart';
 
 @injectable
 class EditProfileCubit extends Cubit<EditProfileState> {
   final ApiClient _client;
+  final GetProfileUseCase _getProfile;
   final ImagePicker _picker = ImagePicker();
 
-  EditProfileCubit(this._client) : super(const EditProfileState());
+  EditProfileCubit(this._client, this._getProfile)
+      : super(const EditProfileState());
 
+  /// Same use case the Profile screen (AccountCubit) uses — guarantees the
+  /// name/email shown here always matches what Profile shows.
   Future<void> load() async {
     emit(state.copyWith(status: EditProfileStatus.loading, clearMessage: true));
-    try {
-      final response = await _client.dio.get(
-        '${AppConfig.apiBaseUrl}/api/v1/users/profile',
-      );
-      final raw = response.data as Map<String, dynamic>;
-      final data = (raw['data'] as Map<String, dynamic>?) ?? raw;
 
-      emit(
-        state.copyWith(
-          status: EditProfileStatus.ready,
-          profile: EditProfileModel.fromJson(data),
-        ),
-      );
-    } catch (e) {
-      emit(
+    final result = await _getProfile();
+
+    result.fold(
+      (failure) => emit(
         state.copyWith(
           status: EditProfileStatus.failure,
           message: 'Could not load your profile',
         ),
-      );
-    }
+      ),
+      (account) => emit(
+        state.copyWith(
+          status: EditProfileStatus.ready,
+          profile: EditProfileModel.fromAccountEntity(account),
+        ),
+      ),
+    );
   }
 
   /// Screen se seedhe seed karne ke liye (agar profile already loaded hai)
@@ -121,11 +122,17 @@ class EditProfileCubit extends Cubit<EditProfileState> {
 
       final raw = response.data as Map<String, dynamic>;
       final data = (raw['data'] as Map<String, dynamic>?) ?? raw;
+      final updated = EditProfileModel.fromJson(data);
 
       emit(
         state.copyWith(
           status: EditProfileStatus.success,
-          profile: EditProfileModel.fromJson(data),
+          // The write endpoint's response may not echo back the read-only
+          // email — keep the one we already know is correct rather than
+          // letting it go blank.
+          profile: updated.email.isEmpty && state.profile != null
+              ? updated.copyWithEmail(state.profile!.email)
+              : updated,
           message: 'Profile updated successfully',
         ),
       );

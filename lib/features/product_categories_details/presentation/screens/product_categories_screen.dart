@@ -26,7 +26,7 @@ WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
   brand: product.brand,
   name: product.name,
   price:
-  product.price > 0 ? '\$${formatPrice(product.price)}' : 'N/A',
+  product.price > 0 ? '\$${formatPrice(product.price)}' : AppStrings.notAvailable,
   originalPrice: product.originalPrice != null && product.originalPrice! > 0
       ? '\$${formatPrice(product.originalPrice!)}'
       : null,
@@ -42,27 +42,31 @@ WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
 class ProductListingScreen extends StatelessWidget {
   final String categoryName;
   final String categoryUuid;
+  final bool isBrand;
 
   const ProductListingScreen({
     super.key,
     required this.categoryName,
     required this.categoryUuid,
+    this.isBrand = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-      getIt<ProductListingCubit>()..loadCategory(categoryName, categoryUuid),
+      create: (_) {
+        final cubit = getIt<ProductListingCubit>();
+        isBrand
+            ? cubit.loadBrand(categoryName, categoryUuid)
+            : cubit.loadCategory(categoryName, categoryUuid);
+        return cubit;
+      },
       child: _ProductListingView(categoryName: categoryName),
     );
   }
 }
 
-// Previously a StatelessWidget with a single fixed page fetched in the
-// cubit and no way to reach products past that page. Converted to
-// StatefulWidget so it can own a ScrollController and trigger
-// cubit.loadMoreProducts() as the user nears the bottom of the list.
+
 class _ProductListingView extends StatefulWidget {
   final String categoryName;
 
@@ -180,7 +184,9 @@ class _LoadedView extends StatelessWidget {
       controller: scrollController,
       slivers: [
         if (state.isStaleData)
-          SliverToBoxAdapter(child: _StaleDataBanner(cachedTimeAgo: state.cachedTimeAgo)),
+          SliverToBoxAdapter(child: _StaleDataBanner(cachedTimeAgo: state.cachedTimeAgo))
+        else if (state.isCachedData)
+          SliverToBoxAdapter(child: _CachedDataBanner(cachedTimeAgo: state.cachedTimeAgo)),
 
         SliverToBoxAdapter(
           child: ListingResultsBar(
@@ -218,8 +224,52 @@ class _LoadedView extends StatelessWidget {
   }
 }
 
-// Shown only when the rate-limit fallback had to reuse a cache entry past
-// its TTL — prices/stock shown below may no longer be accurate.
+
+class _CachedDataBanner extends StatelessWidget {
+  final String? cachedTimeAgo;
+
+  const _CachedDataBanner({required this.cachedTimeAgo});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(4.w, 1.h, 4.w, 0),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.2.h),
+      decoration: BoxDecoration(
+        color: colors.statusInfo.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colors.statusInfo.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 14.sp,
+            height: 14.sp,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation(colors.statusInfo),
+            ),
+          ),
+          SizedBox(width: 2.w),
+          Expanded(
+            child: Text(
+              cachedTimeAgo != null
+                  ? AppStrings.showingCachedResultsUpdated(cachedTimeAgo!)
+                  : AppStrings.showingCachedResults,
+              style: AppTextStyles.bodySmall.copyWith(
+                color: colors.statusInfo,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _StaleDataBanner extends StatelessWidget {
   final String? cachedTimeAgo;
 
@@ -244,8 +294,8 @@ class _StaleDataBanner extends StatelessWidget {
           Expanded(
             child: Text(
               cachedTimeAgo != null
-                  ? 'Prices and availability may be outdated (last updated $cachedTimeAgo).'
-                  : 'Prices and availability may be outdated.',
+                  ? AppStrings.pricesMayBeOutdatedUpdated(cachedTimeAgo!)
+                  : AppStrings.pricesMayBeOutdated,
               style: AppTextStyles.bodySmall.copyWith(
                 color: colors.statusWarning,
                 fontWeight: FontWeight.w600,
@@ -317,7 +367,10 @@ class _ListingCard extends StatelessWidget {
     final wishlistCubit = context.read<WishlistCubit>();
     final wasWishlisted = wishlistCubit.isWishlisted(product.uuid);
 
-    await wishlistCubit.toggle(_toWishlistItem(product));
+    await wishlistCubit.toggle(
+      _toWishlistItem(product),
+      wasWishlisted: wasWishlisted,
+    );
 
     if (!wasWishlisted && context.mounted) {
       AppSnackbar.showSuccess(context, AppStrings.wishlistAdded);

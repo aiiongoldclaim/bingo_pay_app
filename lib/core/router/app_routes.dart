@@ -57,6 +57,9 @@ class AppRoutes {
   static const membershipActivated = '/membership-activated';
 
   static const String payment = '/payment';
+  static const String paymentReview = '/payment/review';
+  static const String addressList = '/address/list';
+  static const String addEditAddress = '/address/edit';
   static const String productImageViewer = '/product-images';
 
   //  Auctions
@@ -124,5 +127,10 @@ class AppRoutes {
         ':categoryName',
         Uri.encodeComponent(categoryName),
       );
+
+  /// Same product-listing route, flagged for the ProductListingCubit to
+  /// filter by brand (via loadBrand) instead of by category.
+  static String brandListingPath(String brandName) =>
+      '${productListingPath(brandName)}?isBrand=true';
 
 }

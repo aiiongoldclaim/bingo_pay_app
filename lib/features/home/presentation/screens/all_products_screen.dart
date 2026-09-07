@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -130,7 +131,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       if (variantUuid == null || variantUuid.isEmpty) {
         AppSnackbar.showError(
           context,
-          'This product is currently unavailable',
+          AppStrings.productCurrentlyUnavailable,
         );
         return;
       }
@@ -142,15 +143,15 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       if (!result.success) {
         AppSnackbar.showError(
           context,
-          result.errorMessage ?? 'Something went wrong. Please try again.',
+          result.errorMessage ?? AppStrings.genericAddItemError,
         );
         return;
       }
 
       AppSnackbar.showSuccessWithAction(
         context,
-        '${product.name} added to cart',
-        actionLabel: 'GO TO CART',
+        AppStrings.itemAddedToCart(product.name),
+        actionLabel: AppStrings.goToCart,
         onAction: () => context.push(AppRoutes.cart),
       );
     } finally {
@@ -175,23 +176,25 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
         imageUrl: product.images.isNotEmpty ? product.images.first : null,
         rating: product.rating,
       ),
+
+      wasWishlisted: !isAdded,
     );
 
     if (isAdded && buildContext.mounted) {
       AppSnackbar.showSuccess(
         buildContext,
-        'Product added to Wishlist successfully.',
+        AppStrings.wishlistAdded,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = ProductsMetrics.of(context);
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -213,19 +216,18 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
                   ? _MessageView(
                 metrics: m,
                 icon: Icons.wifi_off_rounded,
-                title: 'Failed to load products',
-                subtitle:
-                'Check your internet connection and try again later.',
-                actionLabel: 'RETRY',
+                title: AppStrings.failedToLoadProducts,
+                subtitle: AppStrings.checkConnectionRetryLater,
+                actionLabel: AppStrings.retryUppercase,
                 onAction: _retry,
               )
                   : _products.isEmpty
                   ? _MessageView(
                 metrics: m,
                 icon: Icons.inventory_2_outlined,
-                title: 'No products available',
-                subtitle: 'New Products coming soon.',
-                actionLabel: 'REFRESH',
+                title: AppStrings.noProductsAvailable,
+                subtitle: AppStrings.newProductsComingSoon,
+                actionLabel: AppStrings.refreshUppercase,
                 onAction: _retry,
               )
                   : Center(
@@ -380,7 +382,7 @@ class _ProductsTopBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'All Products',
+                  AppStrings.allProducts,
                   style: AppTextStyles.titleLarge.copyWith(
                     color: c.textPrimary,
                     fontFamily: 'Inter',
@@ -392,7 +394,7 @@ class _ProductsTopBar extends StatelessWidget {
                 if (count != null) ...[
                   SizedBox(height: m.gapXs * 0.6),
                   Text(
-                    '$count product${count == 1 ? '' : 's'}',
+                    AppStrings.productCount(count!),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: c.textSecondary,
                       fontFamily: 'Inter',

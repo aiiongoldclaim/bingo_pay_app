@@ -203,18 +203,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sizer/sizer.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
-import '../../../wishlist/presentation/screens/wishlist_screen.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
 import '../widgets/cart_bottom_bar.dart';
 import '../widgets/cart_items_card.dart';
 import '../widgets/cart_metrics.dart';
+import '../widgets/cart_shimmer.dart';
 import '../widgets/cart_wishlist_bridge.dart';
 import '../widgets/coupen_card.dart';
 import '../widgets/delivery_banner.dart';
@@ -250,7 +250,7 @@ class _CartPageState extends State<CartPage> {
   void _moveToWishlist(CartItemEntity item) {
     CartWishlistBridge.moveOne(context, item);
     context.read<CartCubit>().removeItem(item.id);
-    AppSnackbar.showSuccess(context, 'Moved to wishlist');
+    AppSnackbar.showSuccess(context, AppStrings.movedToWishlist);
   }
 
   void _moveAllToWishlist(List<CartItemEntity> items) {
@@ -261,7 +261,42 @@ class _CartPageState extends State<CartPage> {
     for (final item in items) {
       cubit.removeItem(item.id);
     }
-    AppSnackbar.showSuccess(context, 'All items moved to wishlist');
+    AppSnackbar.showSuccess(context, AppStrings.allItemsMovedToWishlist);
+  }
+
+  Future<void> _confirmClearCart(BuildContext context) async {
+    final colors = context.c;
+    final cubit = context.read<CartCubit>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: colors.surface,
+        title: Text(
+          AppStrings.clearCartTitle,
+          style: AppTextStyles.titleMedium.copyWith(color: colors.textPrimary),
+        ),
+        content: Text(
+          AppStrings.clearCartContent,
+          style: AppTextStyles.bodyMedium.copyWith(color: colors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(AppStrings.cancel, style: TextStyle(color: colors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(AppStrings.clear, style: TextStyle(color: colors.statusWarning)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    await cubit.clearCart();
   }
 
   @override
@@ -297,12 +332,14 @@ class _CartPageState extends State<CartPage> {
               bottom: false,
               child: Column(
                 children: [
-                  _CartTopBar(metrics: m),
+                  _CartTopBar(
+                    metrics: m,
+                    hasItems: state.items.isNotEmpty,
+                    onClearCart: () => _confirmClearCart(context),
+                  ),
                   Expanded(
                     child: state.isLoading
-                        ? Center(
-                            child: CircularProgressIndicator(color: colors.brand),
-                          )
+                        ? CartShimmer(metrics: m)
                         : state.items.isEmpty
                         ? CartEmptyView(metrics: m)
                         : Center(
@@ -356,15 +393,21 @@ class _CartPageState extends State<CartPage> {
   }
 }
 
-// ── Top bar: back + TheVaults + wishlist (bag icon removed) ───────────────
+// ── Top bar: back + TheVaults + wishlist + clear cart ─────────────────────
 class _CartTopBar extends StatelessWidget {
   final CartMetrics metrics;
+  final bool hasItems;
+  final VoidCallback? onClearCart;
 
-  const _CartTopBar({required this.metrics});
+  const _CartTopBar({
+    required this.metrics,
+    this.hasItems = false,
+    this.onClearCart,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -384,37 +427,45 @@ class _CartTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize + 4,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
+          SizedBox(width: m.gapSm),
           Expanded(
-            child: Center(
-              child: Text(
-                'TheVaults',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: c.brand,
-                  fontFamily: 'CormorantGaramond',
-                  fontWeight: FontWeight.w600,
-                  fontSize: m.logoSize,
-                  height: 1.1,
-                ),
+            child: Text(
+              AppStrings.myCart,
+              style: AppTextStyles.titleLarge.copyWith(
+                color: colors.textPrimary,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w700,
+                fontSize: m.logoSize * 0.78,
+                height: 1.1,
               ),
             ),
           ),
           IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const WishlistScreen()),
-            ),
+            onPressed: () => context.push(AppRoutes.buyerWishlist),
             splashRadius: m.topIconSize * 1.2,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             icon: Icon(
               Icons.favorite_border_rounded,
               size: m.topIconSize + 2,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
+          if (hasItems)
+            IconButton(
+              onPressed: onClearCart,
+              splashRadius: m.topIconSize * 1.2,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Icons.delete_sweep_outlined,
+                size: m.topIconSize + 2,
+                color: colors.textPrimary,
+              ),
+            ),
         ],
       ),
     );
@@ -439,34 +490,18 @@ class _CartTitleBlock extends StatelessWidget {
     final m = metrics;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'My Cart ($totalItems)',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: colors.textPrimary,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: m.pageTitleSize,
-                  height: 1.2,
-                ),
-              ),
-              SizedBox(height: m.gapXs),
-              Text(
-                '$totalItems item${totalItems == 1 ? '' : 's'} in your bag',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: colors.textSecondary,
-                  fontFamily: 'Inter',
-                  fontSize: m.pageSubtitleSize,
-                  height: 1.2,
-                ),
-              ),
-            ],
+          child: Text(
+            AppStrings.cartItemsInBag(totalItems),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: colors.textSecondary,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+              fontSize: m.pageSubtitleSize,
+              height: 1.2,
+            ),
           ),
         ),
         InkWell(
@@ -487,7 +522,7 @@ class _CartTitleBlock extends StatelessWidget {
                 ),
                 SizedBox(width: m.gapSm * 0.5),
                 Text(
-                  'Move All to Wishlist',
+                  AppStrings.moveAllToWishlist,
                   style: AppTextStyles.labelMedium.copyWith(
                     color: colors.brand,
                     fontFamily: 'Inter',
@@ -671,28 +706,67 @@ class CartEmptyView extends StatelessWidget {
     final c = context.c;
     final m = metrics;
 
+    final illustrationSize = m.emptyIllustration * 1.15;
+
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: m.pageHPad),
+        padding: EdgeInsets.symmetric(horizontal: m.pageHPad, vertical: m.gapLg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: m.emptyIllustration,
-              height: m.emptyIllustration,
+              width: illustrationSize,
+              height: illustrationSize,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   Container(
+                    width: illustrationSize,
+                    height: illustrationSize,
                     decoration: BoxDecoration(
                       color: c.brandSoft,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  Icon(
-                    Icons.shopping_bag_outlined,
-                    size: m.emptyIllustration * 0.42,
-                    color: c.brand,
+                  Container(
+                    width: illustrationSize * 0.78,
+                    height: illustrationSize * 0.78,
+                    decoration: BoxDecoration(
+                      color: c.surface,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: c.textPrimary.withValues(alpha: 0.06),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.shopping_bag_outlined,
+                      size: illustrationSize * 0.38,
+                      color: c.brand,
+                    ),
+                  ),
+                  Positioned(
+                    top: illustrationSize * 0.06,
+                    right: illustrationSize * 0.08,
+                    child: Container(
+                      width: illustrationSize * 0.16,
+                      height: illustrationSize * 0.16,
+                      decoration: BoxDecoration(
+                        color: c.brand,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: c.background, width: 3),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        size: illustrationSize * 0.08,
+                        color: c.surface,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -701,51 +775,61 @@ class CartEmptyView extends StatelessWidget {
             SizedBox(height: m.gapLg),
 
             Text(
-              'Your cart is empty',
+              AppStrings.cartEmptyTitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleLarge.copyWith(
                 color: c.textPrimary,
                 fontFamily: 'Inter',
-                fontWeight: FontWeight.w700,
-                fontSize: m.emptyTitleSize,
+                fontWeight: FontWeight.w800,
+                fontSize: m.emptyTitleSize * 1.1,
               ),
             ),
 
-            SizedBox(height: m.gapSm),
+            SizedBox(height: m.gapSm * 0.7),
 
             Text(
-              'Looks like you haven\'t added anything yet.\nStart exploring and fill your bag.',
+              AppStrings.cartEmptySubtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: c.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.emptySubSize,
-                height: 1.45,
+                height: 1.5,
               ),
             ),
 
-            SizedBox(height: m.gapLg),
+            SizedBox(height: m.gapLg * 1.2),
 
             SizedBox(
-              width: m.isTablet ? 260 : 60.w,
+              width: m.isTablet ? 300 : double.infinity,
               height: m.payHeight,
               child: Material(
                 color: c.brand,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(m.payHeight / 2),
                 clipBehavior: Clip.antiAlias,
+                elevation: 0,
                 child: InkWell(
                   onTap: () => context.go(AppRoutes.home),
-                  child: Center(
-                    child: Text(
-                      'START SHOPPING',
-                      style: AppTextStyles.buttonText.copyWith(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.storefront_rounded,
+                        size: m.payFontSize + 4,
                         color: c.surface,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: m.payFontSize,
-                        letterSpacing: 0.4,
                       ),
-                    ),
+                      SizedBox(width: m.gapSm * 0.6),
+                      Text(
+                        AppStrings.startShopping,
+                        style: AppTextStyles.buttonText.copyWith(
+                          color: c.surface,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: m.payFontSize,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

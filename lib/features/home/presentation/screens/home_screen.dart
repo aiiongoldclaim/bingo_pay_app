@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intro/intro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -63,19 +64,15 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_introStarted || state.status != HomeStatus.loaded) {
       return;
     }
-
     _introStarted = true;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-
       SharedPreferences.getInstance().then((prefs) {
         final hasShownIntro = prefs.getBool('hasShownHomeIntro') ?? false;
 
         if (hasShownIntro) {
           return;
         }
-
         Future.delayed(
           const Duration(milliseconds: 500),
           () {
@@ -147,8 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               buildWhen: (a, b) => a.totalItems != b.totalItems,
                               builder: (context, cartState) => HomeHeader(
                                 metrics: m,
-                                brandName: 'TheVaults',
-                                cartCount: cartState.uniqueItems,
+                                brandName: AppStrings.appBrandName,
+                                cartCount: cartState.totalItems,
                                 onMenuTap: () {
                                   context.push(AppRoutes.auctionScreen);
                                 },
@@ -177,8 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: HomeSearchField(
                                     metrics: m,
-                                    hintText:
-                                        'Search for products, brands and more',
+                                    hintText: AppStrings.searchHint,
                                     onTap: () => context.push(AppRoutes.search),
                                   ),
                                 ),
@@ -204,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: HomeCategoryTabs(
                             metrics: m,
                             labels: [
-                              'All',
+                              AppStrings.allTab,
                               ...state.categories.map((e) => e.name),
                             ],
                             selectedIndex: _selectedTabIndex,
@@ -239,9 +235,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
-
-                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
@@ -252,9 +245,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context, servicesState) {
                                 return BookServicesSection(
                                   metrics: m,
-                                  title: 'Book Service',
-                                  subtitle: 'Beauty, Home, Repairs & more',
-                                  buttonText: 'Book Now',
+                                  title: AppStrings.bookService,
+                                  subtitle: AppStrings.bookServiceSubtitle,
+                                  buttonText: AppStrings.bookNow,
                                   services: servicesState.services,
                                   onViewAll: () => context.push(AppRoutes.services),
                                   onServiceTap: (service) {
@@ -281,8 +274,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: _buildStep5(
                               ProductRail(
                                 metrics: m,
-                                title: "Today's Deals",
-                                actionText: 'View All',
+                                title: AppStrings.todaysDeals,
+                                actionText: AppStrings.viewAll,
                                 products: state.flashDeals,
                                 onActionTap: () =>
                                     context.push(AppRoutes.allProducts),
@@ -308,8 +301,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: _buildStep6(
                               ProductRail(
                                 metrics: m,
-                                title: 'Recommended For You',
-                                actionText: 'View All',
+                                title: AppStrings.recommendedForYou,
+                                actionText: AppStrings.viewAll,
                                 products: state.recommended,
                                 onActionTap: () =>
                                     context.push(AppRoutes.allProducts),
@@ -328,8 +321,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ],
-
-
                       SliverToBoxAdapter(
                         child: SizedBox(
                           height:
@@ -355,8 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
       step: 1,
       controller: controller,
       cardContents: const TextSpan(
-        text:
-            "Welcome to TheVaults! 👋\nDiscover amazing products and services in our marketplace.",
+        text: AppStrings.introStep1,
       ),
       child: child,
     );
@@ -367,8 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
       step: 2,
       controller: controller,
       cardContents: const TextSpan(
-        text:
-            "Featured Campaign\n\nCheck out our latest seasonal collections and offers.",
+        text: AppStrings.introStep2,
       ),
       child: child,
     );
@@ -379,8 +368,7 @@ class _HomeScreenState extends State<HomeScreen> {
       step: 3,
       controller: controller,
       cardContents: const TextSpan(
-        text:
-            "Search & Discover\n\nFind products and brands instantly using our search bar.",
+        text: AppStrings.introStep3,
       ),
       highlightDecoration: const IntroHighlightDecoration(
         cursor: SystemMouseCursors.click,
@@ -396,8 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
       step: 4,
       controller: controller,
       cardContents: const TextSpan(
-        text:
-            "Book Services\n\nBeauty, home repairs, cleaning and more — book in a tap.",
+        text: AppStrings.introStep4,
       ),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 4),
       child: child,
@@ -409,8 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
       step: 5,
       controller: controller,
       cardContents: const TextSpan(
-        text:
-            "Today's Deals\n\nHandpicked products with the biggest discounts right now.",
+        text: AppStrings.introStep5,
       ),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 5),
       child: child,
@@ -422,8 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
       step: 6,
       controller: controller,
       cardContents: const TextSpan(
-        text:
-            "Recommended For You\n\nPersonalized recommendations based on your preferences.",
+        text: AppStrings.introStep6,
       ),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 6),
       child: child,
@@ -481,13 +466,14 @@ class _HomeScreenState extends State<HomeScreen> {
         imageUrl: product.images.isNotEmpty ? product.images.first : null,
         rating: product.rating,
       ),
+      wasWishlisted: wasWishlisted,
     );
 
     if (!mounted) return;
     if (!wasWishlisted) {
       AppSnackbar.showSuccess(
         context,
-        'Product added to Wishlist successfully.',
+        AppStrings.wishlistAdded,
       );
     }
   }
@@ -498,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (uuid == null || _addingIds.contains(uuid)) return;
 
     if (product.variantUuid == null) {
-      AppSnackbar.showError(context, 'This product is currently unavailable.');
+      AppSnackbar.showError(context, AppStrings.productUnavailableError);
       return;
     }
 
@@ -513,10 +499,10 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!result.success) {
         AppSnackbar.showError(
           context,
-          result.errorMessage ?? 'Something went wrong. Please try again.',
+          result.errorMessage ?? AppStrings.genericAddItemError,
         );
       } else {
-        AppSnackbar.showSuccess(context, 'Added to cart.');
+        AppSnackbar.showSuccess(context, AppStrings.addedToCart);
       }
     } finally {
       if (mounted) setState(() => _addingIds.remove(uuid));
@@ -556,7 +542,7 @@ class _EmptyProductsState extends StatelessWidget {
           ),
           SizedBox(height: metrics.pagePadding),
           Text(
-            'No Products Right Now',
+            AppStrings.noProductsRightNow,
             style: TextStyle(
               fontSize: metrics.sectionTitleSize * 1.1,
               fontWeight: FontWeight.w700,
@@ -565,7 +551,7 @@ class _EmptyProductsState extends StatelessWidget {
           ),
           SizedBox(height: metrics.pagePadding * 0.5),
           Text(
-            "We're stocking up with amazing deals.\nCheck back soon for exclusive offers!",
+            AppStrings.noProductsRightNowSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: metrics.heroBodySize,
@@ -579,7 +565,7 @@ class _EmptyProductsState extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => context.read<HomeCubit>().loadHome(),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Refresh'),
+              label: Text(AppStrings.refresh),
               style: OutlinedButton.styleFrom(
                 foregroundColor: c.brand,
                 side: BorderSide(color: c.brand, width: 1.4),
@@ -602,9 +588,7 @@ class _EmptyProductsState extends StatelessWidget {
   }
 }
 
-// Shown when categories, profile, and products all fail to load — the
-// dashboard has nothing real to render, so this replaces the whole body
-// with an explicit error instead of silently showing empty sections.
+
 class _HomeErrorState extends StatelessWidget {
   const _HomeErrorState({required this.metrics, this.message});
   final HomeMetrics metrics;
@@ -612,7 +596,7 @@ class _HomeErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Center(
       child: SingleChildScrollView(
@@ -625,33 +609,32 @@ class _HomeErrorState extends StatelessWidget {
               height: metrics.categoryCircle * 1.6,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: c.surfaceAlt,
+                color: colors.surfaceAlt,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.wifi_off_rounded,
                 size: metrics.categoryCircle * 0.72,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
             SizedBox(height: metrics.pagePadding),
             Text(
-              'Something Went Wrong',
+              AppStrings.errorSubtitle,
               style: TextStyle(
                 fontSize: metrics.sectionTitleSize * 1.1,
                 fontWeight: FontWeight.w700,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: metrics.pagePadding * 0.5),
             Text(
-              message ??
-                  'Check your internet connection and try again.',
+              message ?? AppStrings.checkConnectionRetry,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: metrics.heroBodySize,
                 height: 1.55,
-                color: c.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
             SizedBox(height: metrics.sectionGap),
@@ -660,10 +643,10 @@ class _HomeErrorState extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () => context.read<HomeCubit>().loadHome(),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                label: Text(AppStrings.retry),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: c.brand,
-                  foregroundColor: c.onBrand,
+                  backgroundColor: colors.brand,
+                  foregroundColor: colors.onBrand,
                   padding: EdgeInsets.symmetric(
                     vertical: metrics.pagePadding * 0.85,
                   ),

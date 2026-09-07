@@ -155,20 +155,17 @@ class WishlistCubit extends Cubit<WishlistState> {
   bool isWishlisted(String? id) =>
       id != null && state.items.any((e) => e.id == id);
 
-  Future<void> toggle(WishlistItem item) async {
+  Future<void> toggle(WishlistItem item, {required bool wasWishlisted}) async {
     if (_userId == null) return;
     final items = List<WishlistItem>.from(state.items);
     final existingIndex = items.indexWhere((e) => e.id == item.id);
-    if (existingIndex >= 0) {
-      items.removeAt(existingIndex);
-    } else {
+
+    if (wasWishlisted) {
+      if (existingIndex >= 0) items.removeAt(existingIndex);
+    } else if (existingIndex < 0) {
       items.insert(0, item);
     }
 
-    // Emit before persisting so a rapid second tap reads the updated
-    // state.items (set synchronously below) rather than the pre-toggle
-    // snapshot — otherwise two fast toggles can both compute the same
-    // flip and one of them is lost.
     emit(state.copyWith(items: items));
     await _persist(items);
   }

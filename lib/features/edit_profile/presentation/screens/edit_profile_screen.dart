@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../cubit/edit_profile_cubit.dart';
 import '../cubit/edit_profile_state.dart';
 import '../widgets/edit_profile_matrics.dart';
+import '../widgets/edit_profile_shimmer.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -245,7 +246,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child:
                   state.status == EditProfileStatus.loading &&
                       state.profile == null
-                      ? Center(child: CircularProgressIndicator(color: c.brand))
+                      ? EditProfileShimmer(metrics: m)
                       : Center(
                     child: ConstrainedBox(
                       constraints: BoxConstraints(

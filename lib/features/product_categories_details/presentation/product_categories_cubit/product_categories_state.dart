@@ -21,18 +21,12 @@ class ProductListingLoaded extends ProductListingState {
   final List<ListingProductModel> filteredProducts;
   final SortOption selectedSort;
   final ViewMode viewMode;
-  final String? selectedPriceFilter; // "Under \$20k", "\$20k–\$50k" etc.
-  final String? selectedRatingFilter; // "4★ & up"
-  final bool isCachedData; // True if showing cached data due to rate limit
-  final String? cachedTimeAgo; // Human-readable cache age (e.g. "5m ago")
-  // True only when the cache being shown is past ProductCacheService's TTL
-  // and is being reused purely because the API is rate-limited — distinct
-  // from isCachedData's cosmetic "cached Xh ago" label, this drives an
-  // explicit "may be outdated" warning rather than silent indefinite reuse.
+  final String? selectedPriceFilter;
+  final String? selectedRatingFilter;
+  final bool isCachedData;
+  final String? cachedTimeAgo;
   final bool isStaleData;
-  // Pagination: page that has already been fetched, whether more pages
-  // remain across the resolved category tree, and whether a load-more
-  // request is currently in flight.
+
   final int currentPage;
   final bool hasMorePages;
   final bool isLoadingMore;

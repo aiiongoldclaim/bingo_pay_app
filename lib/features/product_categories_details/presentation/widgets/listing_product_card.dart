@@ -303,6 +303,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/app_theme_colors.dart';
 import '../../data/models/product_categories_model.dart';
@@ -493,7 +494,7 @@ class _PriceRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                price > 0 ? '\$${formatPrice(price)}' : 'N/A',
+                price > 0 ? '\$${formatPrice(price)}' : AppStrings.notAvailable,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.titleMedium.copyWith(
                   fontSize: 14.5.sp,
@@ -523,7 +524,7 @@ class _PriceRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
-              '-$discount%',
+              AppStrings.discountPercentLabel(discount!),
               style: AppTextStyles.labelSmall.copyWith(
                 color: colors.statusSuccess,
                 fontWeight: FontWeight.w700,

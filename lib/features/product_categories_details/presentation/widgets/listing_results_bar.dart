@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/theme/theme_colors.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../product_categories_cubit/product_categories_state.dart';
@@ -26,7 +27,7 @@ class ListingResultsBar extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            '${_formatCount(count)} results',
+            AppStrings.resultsCount(_formatCount(count)),
             style: AppTextStyles.bodyMedium.copyWith(
               color: ThemeColors.inkMid,
               fontWeight: FontWeight.w500,
