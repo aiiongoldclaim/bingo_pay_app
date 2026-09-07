@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/storage/secure_storage_service.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/user_entity.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
 import '../../domain/usecases/check_email_exists_usecase.dart';
 import '../../domain/usecases/forgot_password_usecase.dart';
@@ -74,73 +74,206 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
        _setPassword = setPassword,
        _forgotPassword = forgotPassword,
        super(const AuthInitial()) {
-    on<CheckAuthStatusRequested>(_onCheckAuthStatus);
-    on<LoginRequested>(_onLogin);
-    on<RegisterRequested>(_onRegister);
-    on<OtpVerifyRequested>(_onVerifyOtp);
-    on<OtpResendRequested>(_onResendOtp);
-    on<OtpSendRequested>(_onSendOtp);
-    on<SsoOtpSendRequested>(_onSendSsoLoginOtp);
-    on<SsoOtpVerifyRequested>(_onVerifySsoLogin);
-    on<SsoSetPasswordRequested>(_onSetSsoPassword);
-    on<EmailExistenceCheckRequested>(_onCheckEmailExists);
-    on<ForgotPasswordRequested>(_onForgotPassword);
-    on<LogoutRequested>(_onLogout);
-    on<KycPersonalDetailsSubmitted>(_onKycPersonalDetails);
-    on<KycDocumentUploaded>(_onKycDocument);
-    on<KycSelfieUploaded>(_onKycSelfie);
-    on<KycStatusPolled>(_onKycStatusPoll);
+    // on<CheckAuthStatusRequested>(_onCheckAuthStatus);
+    // on<LoginRequested>(_onLogin);
+    // on<RegisterRequested>(_onRegister);
+    // on<OtpVerifyRequested>(_onVerifyOtp);
+    // on<OtpResendRequested>(_onResendOtp);
+    // on<OtpSendRequested>(_onSendOtp);
+    // on<SsoOtpSendRequested>(_onSendSsoLoginOtp);
+    // on<SsoOtpVerifyRequested>(_onVerifySsoLogin);
+    // on<SsoSetPasswordRequested>(_onSetSsoPassword);
+    // on<EmailExistenceCheckRequested>(_onCheckEmailExists);
+    // on<ForgotPasswordRequested>(_onForgotPassword);
+    // on<LogoutRequested>(_onLogout);
+    // on<KycPersonalDetailsSubmitted>(_onKycPersonalDetails);
+    // on<KycDocumentUploaded>(_onKycDocument);
+    // on<KycSelfieUploaded>(_onKycSelfie);
+    // on<KycStatusPolled>(_onKycStatusPoll);
+
+    on<CheckAuthStatusRequested>(
+  _onCheckAuthStatus,
+  transformer: droppable(),
+);
+
+on<LoginRequested>(
+  _onLogin,
+  transformer: droppable(),
+);
+
+on<RegisterRequested>(
+  _onRegister,
+  transformer: droppable(),
+);
+
+on<OtpVerifyRequested>(
+  _onVerifyOtp,
+  transformer: droppable(),
+);
+
+on<OtpResendRequested>(
+  _onResendOtp,
+  transformer: droppable(),
+);
+
+on<OtpSendRequested>(
+  _onSendOtp,
+  transformer: droppable(),
+);
+
+on<SsoOtpSendRequested>(
+  _onSendSsoLoginOtp,
+  transformer: droppable(),
+);
+
+on<SsoOtpVerifyRequested>(
+  _onVerifySsoLogin,
+  transformer: droppable(),
+);
+
+on<SsoSetPasswordRequested>(
+  _onSetSsoPassword,
+  transformer: droppable(),
+);
+
+on<EmailExistenceCheckRequested>(
+  _onCheckEmailExists,
+  transformer: restartable(),
+);
+
+on<ForgotPasswordRequested>(
+  _onForgotPassword,
+  transformer: droppable(),
+);
+
+on<LogoutRequested>(
+  _onLogout,
+  transformer: droppable(),
+);
+
+on<KycPersonalDetailsSubmitted>(
+  _onKycPersonalDetails,
+  transformer: droppable(),
+);
+
+on<KycDocumentUploaded>(
+  _onKycDocument,
+  transformer: droppable(),
+);
+
+on<KycSelfieUploaded>(
+  _onKycSelfie,
+  transformer: droppable(),
+);
+
+on<KycStatusPolled>(
+  _onKycStatusPoll,
+  transformer: droppable(),
+);
   }
 
   Future<void> _onCheckAuthStatus(
     CheckAuthStatusRequested event,
     Emitter<AuthState> emit,
   ) async {
+    if (emit.isDone) return;
     emit(const AuthLoading());
     final result = await _checkAuthStatus();
-    result.match((failure) => emit(const AuthUnauthenticated()), (user) {
+    result.match((failure) {
+      if (!emit.isDone) emit(const AuthUnauthenticated());
+    }, (user) {
       if (user == null) {
-        emit(const AuthUnauthenticated());
+        if (!emit.isDone) emit(const AuthUnauthenticated());
         return;
       }
       _currentUser = user;
       // Check if user is SSO authenticated but password not set
       if (!user.passwordSet) {
-        emit(SsoSetPasswordRequired(user.email));
+        if (!emit.isDone) emit(SsoSetPasswordRequired(user.email));
         return;
       }
-      emit(AuthAuthenticated(user));
+      if (!emit.isDone) emit(AuthAuthenticated(user));
     });
   }
 
-  Future<void> _onLogin(LoginRequested event, Emitter<AuthState> emit) async {
-    emit(const AuthLoading());
-    try {
-      final result = await _loginUser(
-        LoginParams(email: event.email, password: event.password),
-      );
-      await result.fold(
-        (failure) async {
-          emit(AuthError(failure));
-        },
-        (user) async {
-          _currentUser = user;
-          await _storage.saveEmail(user.email);
-          if (emit.isDone) return;
-          emit(AuthAuthenticated(user));
-        },
-      );
-    } on EmailNotVerifiedException {
-      final sendResult = await _sendOtp(event.email);
-      await sendResult.fold((failure) async => emit(AuthError(failure)), (
-        _,
-      ) async {
-        if (!emit.isDone) emit(AuthOtpRequired(event.email));
-      });
-    }catch (e) {
-      if (!emit.isDone) emit(AuthError(UnknownFailure(e.toString())));
-    }
-  }
+  // Future<void> _onLogin(LoginRequested event, Emitter<AuthState> emit) async {
+  //   emit(const AuthLoading());
+  //   try {
+  //     final result = await _loginUser(
+  //       LoginParams(email: event.email, password: event.password),
+  //     );
+  //     await result.fold(
+  //       (failure) async {
+  //         emit(AuthError(failure));
+  //       },
+  //       (user) async {
+  //         _currentUser = user;
+  //         await _storage.saveEmail(user.email);
+  //         if (emit.isDone) return;
+  //         emit(AuthAuthenticated(user));
+  //       },
+  //     );
+  //   } on EmailNotVerifiedException {
+  //     final sendResult = await _sendOtp(event.email);
+  //     await sendResult.fold((failure) async => emit(AuthError(failure)), (
+  //       _,
+  //     ) async {
+  //       if (!emit.isDone) emit(AuthOtpRequired(event.email));
+  //     });
+  //   }catch (e) {
+  //     if (!emit.isDone) emit(AuthError(UnknownFailure(e.toString())));
+  //   }
+  // }
+
+  Future<void> _onLogin(
+  LoginRequested event,
+  Emitter<AuthState> emit,
+) async {
+  emit(const AuthLoading());
+
+  final result = await _loginUser(
+    LoginParams(
+      email: event.email,
+      password: event.password,
+    ),
+  );
+
+  await result.fold(
+    (failure) async {
+      if (failure is EmailNotVerifiedFailure) {
+        final sendResult = await _sendOtp(event.email);
+
+        await sendResult.fold(
+          (sendFailure) async {
+            if (!emit.isDone) {
+              emit(AuthError(sendFailure));
+            }
+          },
+          (_) async {
+            if (!emit.isDone) {
+              emit(AuthOtpRequired(event.email));
+            }
+          },
+        );
+
+        return;
+      }
+
+      if (!emit.isDone) {
+        emit(AuthError(failure));
+      }
+    },
+    (user) async {
+      _currentUser = user;
+
+      await _storage.saveEmail(user.email);
+
+      if (emit.isDone) return;
+
+      emit(AuthAuthenticated(user));
+    },
+  );
+}
 
   Future<void> _onRegister(
     RegisterRequested event,
@@ -205,9 +338,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       VerifyOtpParams(email: event.email, otp: event.otp),
     );
 
-    result.fold((failure) => emit(AuthError(failure)), (user) {
-      _currentUser = user;
-      emit(AuthAuthenticated(user));
+    result.fold((failure) {
+      if (!emit.isDone) emit(AuthError(failure));
+    }, (user) {
+      if (!emit.isDone) {
+        _currentUser = user;
+        emit(AuthAuthenticated(user));
+      }
     });
   }
 
@@ -218,8 +355,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
     final result = await _resendOtp(event.email);
     result.match(
-      (failure) => emit(AuthError(failure)),
-      (_) => emit(const OtpResendSent()),
+      (failure) {
+        if (!emit.isDone) emit(AuthError(failure));
+      },
+      (_) {
+        if (!emit.isDone) emit(const OtpResendSent());
+      },
     );
   }
 
@@ -230,8 +371,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
     final result = await _sendOtp(event.email);
     result.match(
-      (failure) => emit(AuthError(failure)),
-      (_) => emit(AuthOtpRequired(event.email)),
+      (failure) {
+        if (!emit.isDone) emit(AuthError(failure));
+      },
+      (_) {
+        if (!emit.isDone) emit(AuthOtpRequired(event.email));
+      },
     );
   }
 
@@ -242,8 +387,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const SsoOtpSending());
     final result = await _sendSsoLoginOtp(event.email);
     result.match(
-      (failure) => emit(AuthError(failure)),
-      (_) => emit(SsoOtpRequired(event.email)),
+      (failure) {
+        if (!emit.isDone) emit(AuthError(failure));
+      },
+      (_) {
+        if (!emit.isDone) emit(SsoOtpRequired(event.email));
+      },
     );
   }
 
@@ -276,8 +425,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _setPassword(event.password);
 
     await result.fold((failure) async => emit(AuthError(failure)), (_) async {
-      if (_currentUser == null || emit.isDone) return;
-      emit(AuthAuthenticated(_currentUser!));
+      if (emit.isDone) return;
+
+      if (_currentUser != null) {
+        emit(AuthAuthenticated(_currentUser!));
+        return;
+      }
+
+      // Fallback: retrieve stored user if _currentUser is null
+      // (e.g., if bloc was recreated while request was in flight)
+      final storedResult = await _checkAuthStatus();
+      storedResult.fold(
+        (failure) => emit(AuthError(failure)),
+        (user) {
+          if (user != null) {
+            _currentUser = user;
+            emit(AuthAuthenticated(user));
+          } else {
+            emit(AuthError(UnknownFailure('User not found after password set')));
+          }
+        },
+      );
     });
   }
 
@@ -288,16 +456,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const EmailExistenceChecking());
     final result = await _checkEmailExists(event.email);
     result.match(
-      (failure) => emit(EmailExistenceCheckFailed(email: event.email)),
-      (r) => emit(
-        EmailExistenceChecked(
-          email: event.email,
-          exists: r.exists,
-          hasLocalProfile: r.hasLocalProfile,
-          localEntry: r.localEntry,
-          hasLocalPassword: r.hasLocalPassword,
-        ),
-      ),
+      (failure) {
+        if (!emit.isDone) emit(EmailExistenceCheckFailed(email: event.email));
+      },
+      (r) {
+        if (!emit.isDone) {
+          emit(
+            EmailExistenceChecked(
+              email: event.email,
+              exists: r.exists,
+              hasLocalProfile: r.hasLocalProfile,
+              localEntry: r.localEntry,
+              hasLocalPassword: r.hasLocalPassword,
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -308,13 +482,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoading());
     final result = await _forgotPassword(event.email);
     result.match(
-      (failure) => emit(AuthError(failure)),
-      (message) => emit(PasswordResetSent(message)),
+      (failure) {
+        if (!emit.isDone) emit(AuthError(failure));
+      },
+      (message) {
+        if (!emit.isDone) emit(PasswordResetSent(message));
+      },
     );
   }
 
   Future<void> _onLogout(LogoutRequested event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
+
+    // If tokens are already cleared (forced logout), skip API call
+    final hasToken = await _storage.hasAccessToken();
+    if (!hasToken) {
+      _currentUser = null;
+      if (!emit.isDone) emit(const AuthLoggedOut('Logged out'));
+      return;
+    }
+
     final result = await _logoutUser();
     await result.fold((failure) async => emit(AuthError(failure)), (
       message,

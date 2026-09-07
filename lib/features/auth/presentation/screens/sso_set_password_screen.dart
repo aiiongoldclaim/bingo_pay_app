@@ -32,6 +32,7 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -63,10 +64,15 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   }
 
   void _submit() {
+    if (_isSubmitting) return;
+    // if (context.read<AuthBloc>().state is AuthLoading) return;
+    _isSubmitting = true;
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
         SsoSetPasswordRequested(password: _passwordController.text),
       );
+    } else {
+      _isSubmitting = false;
     }
   }
 
@@ -135,6 +141,9 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
         backgroundColor: isDark ? ThemeColors.ink : ThemeColors.background,
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
+            if (state is! AuthLoading) {
+              _isSubmitting = false;
+            }
             if (state is AuthError) {
               AppSnackbar.showError(context, state.failure.message);
             } else if (state is AuthAuthenticated) {

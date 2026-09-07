@@ -30,6 +30,12 @@ class AuthFailure extends Failure {
   const AuthFailure({required String message}) : super(message);
 }
 
+class EmailNotVerifiedFailure extends Failure {
+  const EmailNotVerifiedFailure({
+    String message = 'Email address is not verified',
+  }) : super(message);
+}
+
 class CacheFailure extends Failure {
   const CacheFailure({required String message}) : super(message);
 }

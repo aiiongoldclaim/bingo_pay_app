@@ -5,6 +5,8 @@ import '../../router/app_router.dart';
 import '../../router/route_guard.dart';
 import '../../storage/secure_storage_service.dart';
 import '../request_queue_manager.dart';
+import '../../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../../features/auth/presentation/bloc/auth_event.dart';
 
 class AuthInterceptor extends Interceptor {
   final SecureStorageService _storage;
@@ -119,6 +121,9 @@ class AuthInterceptor extends Interceptor {
     await _storage.clearAll();
     _queueManager.clear();
     getIt<AppRouter>().updateAuthState(const RouteAuthState.unauthenticated());
+    // Sync AuthBloc state by emitting logout event so _currentUser is cleared
+    // and AuthLoggedOut state is emitted for consistency
+    getIt<AuthBloc>().add(const LogoutRequested());
   }
 
   Future<_TokenPair?> _refreshTokens(

@@ -138,4 +138,9 @@ class CartCubit extends Cubit<CartState> {
       (_) => loadCart(),
     );
   }
+
+  void clearForLogout() {
+    _itemVersion.clear();
+    emit(const CartState());
+  }
 }

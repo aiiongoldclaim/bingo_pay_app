@@ -98,8 +98,10 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
   }
 
   void _resend() {
+    if (_isResending) return;
     if (_secondsLeft > 0) return;
 
+    setState(() => _isResending = true);
     _otpController.clear();
 
     context.read<AuthBloc>().add(
@@ -129,13 +131,13 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
         children: [
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
-              if (state is AuthLoading) {
+              if (state is AuthLoading || state is SsoOtpSending) {
                 setState(() => _isResending = true);
               } else if (state is AuthError) {
                 setState(() => _isResending = false);
                 AppSnackbar.showError(context, state.failure.message);
               } else if (state is SsoOtpRequired) {
-                // Only handle SsoOtpRequired if this is from resend (when not on initial load)
+                // Only handle SsoOtpRequired if this is from resend (check if we initiated it)
                 if (!_isInitialLoad) {
                   setState(() => _isResending = false);
                   _startCooldown();
