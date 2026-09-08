@@ -10,6 +10,8 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -33,6 +35,7 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _isSubmitting = false;
+  Failure? _currentError;
 
   @override
   void initState() {
@@ -145,61 +148,75 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
               _isSubmitting = false;
             }
             if (state is AuthError) {
-              AppSnackbar.showError(context, state.failure.message);
+              setState(() => _currentError = state.failure);
+              if (state.failure is! RateLimitFailure) {
+                AppSnackbar.showError(context, state.failure.message);
+              }
             } else if (state is AuthAuthenticated) {
+              setState(() => _currentError = null);
               context.go(AppRoutes.home);
             }
           },
           child: SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final matrics = AuthMetrics.of(constraints);
-                final wide = matrics.isTablet && matrics.isLandscape;
-            
-                return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    matrics.pagePadH,
-                    matrics.pagePadV,
-                    matrics.pagePadH,
-                    matrics.pagePadV,
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - (matrics.pagePadV * 2),
-                    ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: matrics.contentMaxWidth,
-                              ),
-                              child: wide
-                                  ? _WideLayout(
-                                      m: matrics,
-                                      isDark: isDark,
-                                      screen: this,
-                                    )
-                                  : _NarrowLayout(
-                                      m: matrics,
-                                      isDark: isDark,
-                                      screen: this,
+            child: _currentError != null
+                ? _currentError!.buildErrorWidget(
+                    onRetry: () {
+                      setState(() => _currentError = null);
+                      if (_formKey.currentState?.validate() ?? false) {
+                        _submit();
+                      }
+                    },
+                    fullScreen: true,
+                  )
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final matrics = AuthMetrics.of(constraints);
+                      final wide = matrics.isTablet && matrics.isLandscape;
+
+                      return SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(
+                          matrics.pagePadH,
+                          matrics.pagePadV,
+                          matrics.pagePadH,
+                          matrics.pagePadV,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight - (matrics.pagePadV * 2),
+                          ),
+                          child: IntrinsicHeight(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Center(
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxWidth: matrics.contentMaxWidth,
                                     ),
+                                    child: wide
+                                        ? _WideLayout(
+                                            m: matrics,
+                                            isDark: isDark,
+                                            screen: this,
+                                          )
+                                        : _NarrowLayout(
+                                            m: matrics,
+                                            isDark: isDark,
+                                            screen: this,
+                                          ),
+                                  ),
+                                ),
+
+                                const Spacer(),
+                                SizedBox(height: matrics.blockGap),
+                                AuthSecureNote(metrics: matrics),
+                              ],
                             ),
                           ),
-            
-                          const Spacer(),
-                          SizedBox(height: matrics.blockGap),
-                          AuthSecureNote(metrics: matrics),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ),
       ),

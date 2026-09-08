@@ -11,6 +11,8 @@ import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -117,6 +119,20 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     });
   }
 
+  void _showRateLimitError(BuildContext context, RateLimitFailure failure) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      builder: (_) => failure.buildErrorWidget(
+        onRetry: () {
+          Navigator.pop(context);
+          _resend();
+        },
+        fullScreen: false,
+      ),
+    );
+  }
+
   // ------------------------------------ UI ------------------------------------
 
   @override
@@ -135,7 +151,18 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
                 setState(() => _isResending = true);
               } else if (state is AuthError) {
                 setState(() => _isResending = false);
-                AppSnackbar.showError(context, state.failure.message);
+                // Sync resend cooldown with server's Retry-After on rate limit
+                if (state.failure is RateLimitFailure) {
+                  final rateLimitFailure = state.failure as RateLimitFailure;
+                  final retryAfter = rateLimitFailure.retryAfterSeconds ?? 60;
+                  setState(() {
+                    _secondsLeft = retryAfter;
+                  });
+                  _startCooldown();
+                  _showRateLimitError(context, rateLimitFailure);
+                } else {
+                  AppSnackbar.showError(context, state.failure.message);
+                }
               } else if (state is SsoOtpRequired) {
                 // Only handle SsoOtpRequired if this is from resend (check if we initiated it)
                 if (!_isInitialLoad) {

@@ -5,6 +5,24 @@ import '../entities/kyc_entity.dart';
 import '../entities/register_entity.dart';
 import '../entities/user_entity.dart';
 
+/// Authentication repository following consistent return type conventions:
+///
+/// **Return type patterns:**
+/// 1. **Either<Failure, UserEntity> or RegisterEntity**: Operations returning rich domain data
+///    - login, register, verifyOtp, verifySsoLogin, getStoredUser
+///    - These operations have domain significance beyond their execution
+///
+/// 2. **Either<Failure, Unit>**: Side-effect-only operations
+///    - sendOtp, resendOtp, sendSsoLoginOtp, setPassword
+///    - Success is indicated by state transition; UI generates own success messages
+///    - Server message not needed as action result is implicit from state change
+///
+/// 3. **Either<Failure, String>**: Operations with user-visible messages
+///    - forgotPassword, logout
+///    - Server returns custom message meant to be displayed to user
+///    - Message provides semantic feedback beyond just success/failure
+///
+/// This pattern ensures use case contracts are predictable and self-documenting.
 abstract interface class AuthRepository {
   Future<Either<Failure, UserEntity>> login({
     required String email,

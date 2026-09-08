@@ -26,7 +26,6 @@ import 'auth_state.dart';
 
 @singleton
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  UserEntity? _currentUser;
   final SecureStorageService _storage;
 
   final RegisterUseCase _registerUser;
@@ -186,7 +185,6 @@ on<KycStatusPolled>(
         if (!emit.isDone) emit(const AuthUnauthenticated());
         return;
       }
-      _currentUser = user;
       // Check if user is SSO authenticated but password not set
       if (!user.passwordSet) {
         if (!emit.isDone) emit(SsoSetPasswordRequired(user.email));
@@ -264,8 +262,6 @@ on<KycStatusPolled>(
       }
     },
     (user) async {
-      _currentUser = user;
-
       await _storage.saveEmail(user.email);
 
       if (emit.isDone) return;
@@ -342,7 +338,6 @@ on<KycStatusPolled>(
       if (!emit.isDone) emit(AuthError(failure));
     }, (user) {
       if (!emit.isDone) {
-        _currentUser = user;
         emit(AuthAuthenticated(user));
       }
     });
@@ -409,7 +404,6 @@ on<KycStatusPolled>(
     await result.fold((failure) async => emit(AuthError(failure)), (
       user,
     ) async {
-      _currentUser = user;
       await _storage.saveEmail(user.email);
       if (emit.isDone) return;
       emit(SsoSetPasswordRequired(user.email));
@@ -427,19 +421,12 @@ on<KycStatusPolled>(
     await result.fold((failure) async => emit(AuthError(failure)), (_) async {
       if (emit.isDone) return;
 
-      if (_currentUser != null) {
-        emit(AuthAuthenticated(_currentUser!));
-        return;
-      }
-
-      // Fallback: retrieve stored user if _currentUser is null
-      // (e.g., if bloc was recreated while request was in flight)
+      // Always fetch fresh user data to avoid stale session issues
       final storedResult = await _checkAuthStatus();
       storedResult.fold(
         (failure) => emit(AuthError(failure)),
         (user) {
           if (user != null) {
-            _currentUser = user;
             emit(AuthAuthenticated(user));
           } else {
             emit(AuthError(UnknownFailure('User not found after password set')));
@@ -497,7 +484,6 @@ on<KycStatusPolled>(
     // If tokens are already cleared (forced logout), skip API call
     final hasToken = await _storage.hasAccessToken();
     if (!hasToken) {
-      _currentUser = null;
       if (!emit.isDone) emit(const AuthLoggedOut('Logged out'));
       return;
     }
@@ -506,7 +492,6 @@ on<KycStatusPolled>(
     await result.fold((failure) async => emit(AuthError(failure)), (
       message,
     ) async {
-      _currentUser = null;
       if (emit.isDone) return;
       emit(AuthLoggedOut(message));
     });
@@ -533,14 +518,14 @@ on<KycStatusPolled>(
     emit(KycSubmitted(const KycEntity(status: 'under_review')));
 
     // Update the authenticated user's KYC status and notify the router
-    if (_currentUser != null) {
+    final currentState = state;
+    if (currentState is AuthAuthenticated) {
       final updatedUser = UserEntity(
-        id: _currentUser!.id,
-        email: _currentUser!.email,
-        name: _currentUser!.name,
+        id: currentState.user.id,
+        email: currentState.user.email,
+        name: currentState.user.name,
         kycStatus: 'under_review',
       );
-      _currentUser = updatedUser;
       emit(AuthAuthenticated(updatedUser));
     }
   }

@@ -339,6 +339,8 @@ import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -379,6 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _checkedEmail;
   bool? _emailExists;
   bool _checkingEmail = false;
+  Failure? _currentError;
 
   @override
   void initState() {
@@ -402,7 +405,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordFocus.dispose();
     _confirmPasswordFocus.dispose();
 
-    _emailDebounce?.cancel();
     super.dispose();
   }
 
@@ -426,7 +428,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submit() {
     if (_isSubmitting) return;
     // if (context.read<AuthBloc>().state is AuthLoading) return;
-    if (_emailExists == true) {
+
+    final currentEmail = _emailController.text.trim();
+    final isEmailCheckFresh = _checkedEmail == currentEmail;
+
+    // Only use email existence result if it's fresh (checked email matches current email)
+    if (_emailExists == true && isEmailCheckFresh) {
       AppSnackbar.showError(context, 'This email is already registered');
       return;
     }
@@ -436,7 +443,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context.read<AuthBloc>().add(
         RegisterRequested(
           fullName: _fullNameController.text.trim(),
-          email: _emailController.text.trim(),
+          email: currentEmail,
           password: _passwordController.text,
           countryId: _countryIdController.text.trim(),
           phone: _phoneController.text.trim(),
@@ -520,7 +527,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return CountryPickerBottomSheet.getFlagEmoji(countryCode);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -532,10 +538,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _isSubmitting = false;
           }
           if (state is AuthError) {
-            AppSnackbar.showError(context, state.failure.message);
+            setState(() => _currentError = state.failure);
+            if (state.failure is! RateLimitFailure) {
+              AppSnackbar.showError(context, state.failure.message);
+            }
           } else if (state is AuthOtpRequired) {
+            setState(() => _currentError = null);
             context.push(AppRoutes.registerOtp, extra: state.email);
           } else if (state is SsoOtpRequired) {
+            setState(() => _currentError = null);
             context.push(AppRoutes.ssoLoginOtp, extra: state.email);
           } else if (state is EmailExistenceChecking) {
             setState(() => _checkingEmail = true);
@@ -562,15 +573,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         buildWhen: (prev, curr) =>
-        (prev is AuthLoading) != (curr is AuthLoading),
+            (prev is AuthLoading) != (curr is AuthLoading) ||
+            (prev is AuthError) != (curr is AuthError),
 
         builder: (context, state) {
+          if (_currentError != null) {
+            return SafeArea(
+              child: _currentError!.buildErrorWidget(
+                onRetry: () {
+                  setState(() => _currentError = null);
+                  if (_formKey.currentState?.validate() ?? false) {
+                    _submit();
+                  }
+                },
+                fullScreen: true,
+              ),
+            );
+          }
+
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
             child: SafeArea(
               child: AuthResponsiveLayout(
                 title: 'Create Account',
-                subtitle: 'Join TheVaults and start\nShopping smarter every day.',
+                subtitle:
+                    'Join TheVaults and start\nShopping smarter every day.',
                 // topActionLabel: 'Sign In',
                 onTopAction: () => context.go(AppRoutes.login),
                 formBuilder: _buildForm,
@@ -605,9 +632,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
             prefixIcon: const Icon(Icons.person_outline_rounded),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r"[a-zA-Z\s]"),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s]")),
             ],
           ),
 
@@ -627,41 +652,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
             validator: Validators.email,
             onChanged: _onEmailChanged,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'[a-zA-Z0-9@.\-]'),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@.\-]')),
             ],
-            prefixIcon: const Icon(
-              Icons.mail_outline_rounded,
-            ),
+            prefixIcon: const Icon(Icons.mail_outline_rounded),
             suffixIcon: _checkingEmail
                 ? Padding(
-              padding: const EdgeInsets.all(14),
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(
-                    isDark
-                        ? ThemeColors.gold1
-                        : ThemeColors.blue,
-                  ),
-                ),
-              ),
-            )
+                    padding: const EdgeInsets.all(14),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(
+                          isDark ? ThemeColors.gold1 : ThemeColors.blue,
+                        ),
+                      ),
+                    ),
+                  )
                 : _emailExists == null ||
-                _checkedEmail !=
-                    _emailController.text.trim()
+                      _checkedEmail != _emailController.text.trim()
                 ? null
                 : Icon(
-              _emailExists!
-                  ? Icons.error_outline_rounded
-                  : Icons.check_circle_outline_rounded,
-              color: _emailExists!
-                  ? ThemeColors.red
-                  : ThemeColors.green,
-            ),
+                    _emailExists!
+                        ? Icons.error_outline_rounded
+                        : Icons.check_circle_outline_rounded,
+                    color: _emailExists! ? ThemeColors.red : ThemeColors.green,
+                  ),
           ),
 
           if (!_checkingEmail &&
@@ -698,37 +714,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               final cleanVal = value.trim();
 
-              if (cleanVal.length <
-                  (_selectedCountry?.minLength ?? 10)) {
+              if (cleanVal.length < (_selectedCountry?.minLength ?? 10)) {
                 return 'Phone number must be at least '
                     '${_selectedCountry?.minLength ?? 10} digits';
               }
 
-              if (cleanVal.length >
-                  (_selectedCountry?.maxLength ?? 10)) {
+              if (cleanVal.length > (_selectedCountry?.maxLength ?? 10)) {
                 return 'Phone number must be at most '
                     '${_selectedCountry?.maxLength ?? 10} digits';
               }
 
               return null;
             },
-            autovalidateMode:
-            AutovalidateMode.onUserInteraction,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'[0-9]'),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
               LengthLimitingTextInputFormatter(
                 _selectedCountry?.maxLength ?? 10,
               ),
             ],
             prefixIcon: _CountryPrefix(
               m: m,
-              flag: _getFlagEmoji(
-                _selectedCountry?.code ?? 'IN',
-              ),
-              dialCode:
-              _selectedCountry?.dialCode ?? '+91',
+              flag: _getFlagEmoji(_selectedCountry?.code ?? 'IN'),
+              dialCode: _selectedCountry?.dialCode ?? '+91',
               onTap: _showCountryPicker,
             ),
           ),
@@ -749,14 +757,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
             validator: Validators.password,
             onChanged: (_) => setState(() {}),
-            prefixIcon: const Icon(
-              Icons.lock_outline_rounded,
-            ),
-            inputFormatters: [
-              FilteringTextInputFormatter.deny(
-                RegExp(r'\s'),
-              ),
-            ],
+            prefixIcon: const Icon(Icons.lock_outline_rounded),
+            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword
@@ -791,19 +793,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               FocusScope.of(context).unfocus();
               _submit();
             },
-            prefixIcon: const Icon(
-              Icons.lock_outline_rounded,
-            ),
-            inputFormatters: [
-              FilteringTextInputFormatter.deny(
-                RegExp(r'\s'),
-              ),
-            ],
+            prefixIcon: const Icon(Icons.lock_outline_rounded),
+            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
             validator: (v) =>
-                Validators.confirmPassword(
-                  v,
-                  _passwordController.text,
-                ),
+                Validators.confirmPassword(v, _passwordController.text),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureConfirm
@@ -868,7 +861,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
 }
 
-
 class _CountryPrefix extends StatelessWidget {
   final AuthMetrics m;
   final String flag;
@@ -920,7 +912,9 @@ class _CountryPrefix extends StatelessWidget {
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: m.linkText + 4,
-              color: isDark ? ThemeColors.mediumPurple : ThemeColors.textSecondary,
+              color: isDark
+                  ? ThemeColors.mediumPurple
+                  : ThemeColors.textSecondary,
             ),
           ],
         ),
@@ -928,5 +922,3 @@ class _CountryPrefix extends StatelessWidget {
     );
   }
 }
-
-

@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/utils/logger.dart' as log;
 import '../../domain/entities/email_existence_result.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/register_entity.dart';
@@ -226,22 +227,41 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// Logout the user by clearing local credentials and optionally notifying the server.
+  ///
+  /// This is a **best-effort** logout:
+  /// - **Remote logout**: Attempts to notify the server to invalidate the session/token.
+  ///   If this fails (network, server error, etc.), the failure is logged but does NOT
+  ///   prevent local logout from proceeding.
+  /// - **Local logout**: Always clears local credentials/tokens, ensuring the app
+  ///   appears logged out to the user even if remote logout fails.
+  ///
+  /// Rationale: If the server is unreachable or has an error, the user should still
+  /// be able to log out of the app. The server can clean up stale sessions using
+  /// token expiration or other mechanisms.
+  ///
+  /// Returns the server message if remote logout succeeds, or a default message
+  /// if remote logout fails but local logout succeeds.
   @override
   Future<Either<Failure, String>> logout() async {
     String message = 'Logged out successfully';
 
+    // Attempt remote logout (best-effort, failures are logged but not fatal)
     try {
       message = await _remote.logout();
-    } catch (_) {
-      // Best effort.
-      // Local authentication data must still be cleared.
+    } catch (e) {
+      // Log the remote logout failure for debugging/monitoring, but don't expose it
+      log.AppLogger.logError('Remote logout failed (best-effort, proceeding with local logout)', e);
+      // Use default success message since local logout will proceed
     }
 
+    // Always clear local credentials, even if remote logout failed
     try {
       await _local.clearAll();
-
       return Right(message);
     } catch (e) {
+      // Local logout failure IS a problem - user is stuck in a bad state
+      log.AppLogger.logError('Local logout failed (critical)', e);
       return Left(
         ErrorHandler.mapObjectToFailure(e),
       );
