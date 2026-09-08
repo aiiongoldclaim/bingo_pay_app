@@ -448,10 +448,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: email,
       onUseDifferentEmail: () => Navigator.of(context).pop(),
       onSendOtp: () {
+        _awaitingSsoOtp = true;
         context.read<AuthBloc>().add(SsoOtpSendRequested(email: email));
       },
     );
   }
+
+  // Set right before the initial SSO OTP send so this screen's listener
+  // only navigates for that send, not for a resend triggered later from
+  // the already-open OTP screen (which emits the same SsoOtpRequired state).
+  bool _awaitingSsoOtp = false;
 
   List<Country> _countries = [];
   Country? _selectedCountry;
@@ -515,7 +521,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return CountryPickerBottomSheet.getFlagEmoji(countryCode);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -528,7 +533,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           } else if (state is AuthOtpRequired) {
             context.push(AppRoutes.registerOtp, extra: state.email);
           } else if (state is SsoOtpRequired) {
-            context.push(AppRoutes.ssoLoginOtp, extra: state.email);
+            if (_awaitingSsoOtp) {
+              _awaitingSsoOtp = false;
+              context.push(AppRoutes.ssoLoginOtp, extra: state.email);
+            }
           } else if (state is EmailExistenceChecking) {
             setState(() => _checkingEmail = true);
           } else if (state is EmailExistenceChecked) {
@@ -554,7 +562,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         },
         buildWhen: (prev, curr) =>
-        (prev is AuthLoading) != (curr is AuthLoading),
+            (prev is AuthLoading) != (curr is AuthLoading),
 
         builder: (context, state) {
           return AppInteractionBlocker(
@@ -562,7 +570,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: SafeArea(
               child: AuthResponsiveLayout(
                 title: 'Create Account',
-                subtitle: 'Join TheVaults and start\nShopping smarter every day.',
+                subtitle:
+                    'Join TheVaults and start\nShopping smarter every day.',
                 // topActionLabel: 'Sign In',
                 onTopAction: () => context.go(AppRoutes.login),
                 formBuilder: _buildForm,
@@ -597,9 +606,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
             prefixIcon: const Icon(Icons.person_outline_rounded),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r"[a-zA-Z\s]"),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s]")),
             ],
           ),
 
@@ -619,41 +626,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
             validator: Validators.email,
             onChanged: _onEmailChanged,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'[a-zA-Z0-9@.\-]'),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@.\-]')),
             ],
-            prefixIcon: const Icon(
-              Icons.mail_outline_rounded,
-            ),
+            prefixIcon: const Icon(Icons.mail_outline_rounded),
             suffixIcon: _checkingEmail
                 ? Padding(
-              padding: const EdgeInsets.all(14),
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(
-                    isDark
-                        ? ThemeColors.gold1
-                        : ThemeColors.blue,
-                  ),
-                ),
-              ),
-            )
+                    padding: const EdgeInsets.all(14),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(
+                          isDark ? ThemeColors.gold1 : ThemeColors.blue,
+                        ),
+                      ),
+                    ),
+                  )
                 : _emailExists == null ||
-                _checkedEmail !=
-                    _emailController.text.trim()
+                      _checkedEmail != _emailController.text.trim()
                 ? null
                 : Icon(
-              _emailExists!
-                  ? Icons.error_outline_rounded
-                  : Icons.check_circle_outline_rounded,
-              color: _emailExists!
-                  ? ThemeColors.red
-                  : ThemeColors.green,
-            ),
+                    _emailExists!
+                        ? Icons.error_outline_rounded
+                        : Icons.check_circle_outline_rounded,
+                    color: _emailExists! ? ThemeColors.red : ThemeColors.green,
+                  ),
           ),
 
           if (!_checkingEmail &&
@@ -690,37 +688,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               final cleanVal = value.trim();
 
-              if (cleanVal.length <
-                  (_selectedCountry?.minLength ?? 10)) {
+              if (cleanVal.length < (_selectedCountry?.minLength ?? 10)) {
                 return 'Phone number must be at least '
                     '${_selectedCountry?.minLength ?? 10} digits';
               }
 
-              if (cleanVal.length >
-                  (_selectedCountry?.maxLength ?? 10)) {
+              if (cleanVal.length > (_selectedCountry?.maxLength ?? 10)) {
                 return 'Phone number must be at most '
                     '${_selectedCountry?.maxLength ?? 10} digits';
               }
 
               return null;
             },
-            autovalidateMode:
-            AutovalidateMode.onUserInteraction,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'[0-9]'),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
               LengthLimitingTextInputFormatter(
                 _selectedCountry?.maxLength ?? 10,
               ),
             ],
             prefixIcon: _CountryPrefix(
               m: m,
-              flag: _getFlagEmoji(
-                _selectedCountry?.code ?? 'IN',
-              ),
-              dialCode:
-              _selectedCountry?.dialCode ?? '+91',
+              flag: _getFlagEmoji(_selectedCountry?.code ?? 'IN'),
+              dialCode: _selectedCountry?.dialCode ?? '+91',
               onTap: _showCountryPicker,
             ),
           ),
@@ -741,14 +731,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
             validator: Validators.password,
             onChanged: (_) => setState(() {}),
-            prefixIcon: const Icon(
-              Icons.lock_outline_rounded,
-            ),
-            inputFormatters: [
-              FilteringTextInputFormatter.deny(
-                RegExp(r'\s'),
-              ),
-            ],
+            prefixIcon: const Icon(Icons.lock_outline_rounded),
+            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword
@@ -783,19 +767,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               FocusScope.of(context).unfocus();
               _submit();
             },
-            prefixIcon: const Icon(
-              Icons.lock_outline_rounded,
-            ),
-            inputFormatters: [
-              FilteringTextInputFormatter.deny(
-                RegExp(r'\s'),
-              ),
-            ],
+            prefixIcon: const Icon(Icons.lock_outline_rounded),
+            inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
             validator: (v) =>
-                Validators.confirmPassword(
-                  v,
-                  _passwordController.text,
-                ),
+                Validators.confirmPassword(v, _passwordController.text),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscureConfirm
@@ -860,7 +835,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
 }
 
-
 class _CountryPrefix extends StatelessWidget {
   final AuthMetrics m;
   final String flag;
@@ -912,7 +886,9 @@ class _CountryPrefix extends StatelessWidget {
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: m.linkText + 4,
-              color: isDark ? ThemeColors.mediumPurple : ThemeColors.textSecondary,
+              color: isDark
+                  ? ThemeColors.mediumPurple
+                  : ThemeColors.textSecondary,
             ),
           ],
         ),
@@ -920,5 +896,3 @@ class _CountryPrefix extends StatelessWidget {
     );
   }
 }
-
-

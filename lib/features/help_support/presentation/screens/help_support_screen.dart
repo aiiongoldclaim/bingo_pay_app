@@ -137,7 +137,7 @@ class _HelpTopBar extends StatelessWidget {
         children: [
           IconButton(
             onPressed: () =>
-            context.canPop() ? context.pop() : context.go(AppRoutes.account),
+            context.canPop() ? context.pop() : context.go(AppRoutes.profile),
             splashRadius: m.backIconSize * 1.2,
             icon: Icon(
               Icons.arrow_back_ios_rounded,

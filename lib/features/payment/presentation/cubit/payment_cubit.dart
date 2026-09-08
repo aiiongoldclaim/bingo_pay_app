@@ -2,7 +2,7 @@ import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/api/api_endpoints.dart';
 import 'package:bingo_pay/core/error/error_handler.dart';
 import 'package:bingo_pay/core/error/failures.dart';
-import 'package:bingo_pay/features/account/data/account_model/account_profile_response.dart';
+import 'package:bingo_pay/features/profile/data/profile_model/profile_response.dart';
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
@@ -20,15 +20,15 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     String? variantUuid,
     int quantity = 1,
     List<CartItemEntity> cartItems = const [],
-    String? offeringUuid,   // NEW
-  String? slotUuid,       // NEW
-  int? participants,      // NEW
+    String? offeringUuid, // NEW
+    String? slotUuid, // NEW
+    int? participants, // NEW
     BigodPaymentDataSource? bigodPaymentDataSource,
     ClearCartUseCase? clearCartUseCase,
-  })  : _bigodPaymentDataSource =
-            bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
-        _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
-        super(
+  }) : _bigodPaymentDataSource =
+           bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
+       _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
+       super(
          PaymentMethodState.initial(
            productPrice: productPrice,
            productName: productName,
@@ -38,9 +38,9 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
            quantity: quantity,
            cartItems: cartItems,
 
-           offeringUuid: offeringUuid,   // NEW
-         slotUuid: slotUuid,           // NEW
-         participants: participants,   // NEW
+           offeringUuid: offeringUuid, // NEW
+           slotUuid: slotUuid, // NEW
+           participants: participants, // NEW
          ),
        );
 
@@ -85,7 +85,10 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     final orderNumber =
         data['orderNumber'] ?? data['orderId'] ?? data['uuid'] ?? data['id'];
     if (orderNumber == null) return null;
-    return (orderNumber: orderNumber.toString(), uuid: data['uuid']?.toString());
+    return (
+      orderNumber: orderNumber.toString(),
+      uuid: data['uuid']?.toString(),
+    );
   }
 
   void selectPaymentMethod(PaymentMethod method) {
@@ -96,15 +99,15 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     try {
       final client = GetIt.I<ApiClient>();
       final response = await client.dio.get(ApiEndpoints.profile);
-      final profile = AccountResponseModel.fromJson(
+      final profileResponse = ProfileResponseModel.fromJson(
         response.data as Map<String, dynamic>,
       );
-      final usdt = profile.account.usdtBalance;
+      final usdt = profileResponse.profile.usdtBalance;
 
       emit(
         state.copyWith(
           usdtBalance: usdt,
-          bigoldBalance: profile.account.bigoldBalance / 1e8,
+          bigoldBalance: profileResponse.profile.bigoldBalance / 1e8,
           walletBalance: usdt,
         ),
       );
@@ -164,9 +167,9 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         variantUuid: state.isCartFlow ? null : state.variantUuid,
         quantity: state.isCartFlow ? null : state.quantity,
 
-  offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
-  slotUuid: state.isServiceBooking ? state.slotUuid : null,
-  participants: state.isServiceBooking ? state.participants : null,
+        offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
+        slotUuid: state.isServiceBooking ? state.slotUuid : null,
+        participants: state.isServiceBooking ? state.participants : null,
       );
 
       if (intent.customerBalance != null &&
@@ -181,8 +184,9 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         return;
       }
 
-      final confirmation =
-          await _bigodPaymentDataSource.confirmPayment(intent.token);
+      final confirmation = await _bigodPaymentDataSource.confirmPayment(
+        intent.token,
+      );
 
       await _clearCartIfNeeded();
 

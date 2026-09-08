@@ -144,7 +144,7 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
     if (widget.location.startsWith(AppRoutes.home)) return 0;
     if (widget.location.startsWith(AppRoutes.categories)) return 1;
     if (widget.location.startsWith(AppRoutes.orders)) return 3;
-    if (widget.location.startsWith(AppRoutes.account)) return 4;
+    if (widget.location.startsWith(AppRoutes.profile)) return 4;
     return 0;
   }
 
@@ -163,7 +163,7 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
         context.push(AppRoutes.orders);
         break;
       case 4:
-        context.push(AppRoutes.account);
+        context.push(AppRoutes.profile);
         break;
     }
   }
@@ -172,7 +172,7 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
     AppRoutes.home,
     AppRoutes.categories,
     AppRoutes.orders,
-    AppRoutes.account,
+    AppRoutes.profile,
   ];
 
   @override

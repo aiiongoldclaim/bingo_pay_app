@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/config/app_config.dart';
-import '../../../account/domain/usecase/get_account_usecase.dart';
+import '../../../profile/domain/usecase/get_profile_usecase.dart';
 import '../../data/model/edit_profile_model..dart';
 import 'edit_profile_state.dart';
 
@@ -18,9 +18,9 @@ class EditProfileCubit extends Cubit<EditProfileState> {
   final ImagePicker _picker = ImagePicker();
 
   EditProfileCubit(this._client, this._getProfile)
-      : super(const EditProfileState());
+    : super(const EditProfileState());
 
-  /// Same use case the Profile screen (AccountCubit) uses — guarantees the
+  /// Same use case the Profile screen (ProfileCubit) uses — guarantees the
   /// name/email shown here always matches what Profile shows.
   Future<void> load() async {
     emit(state.copyWith(status: EditProfileStatus.loading, clearMessage: true));
@@ -37,7 +37,7 @@ class EditProfileCubit extends Cubit<EditProfileState> {
       (account) => emit(
         state.copyWith(
           status: EditProfileStatus.ready,
-          profile: EditProfileModel.fromAccountEntity(account),
+          profile: EditProfileModel.fromProfileEntity(account),
         ),
       ),
     );
@@ -102,10 +102,7 @@ class EditProfileCubit extends Cubit<EditProfileState> {
     );
 
     try {
-      final formMap = <String, dynamic>{
-        'fullName': name,
-        'phoneNumber': phone,
-      };
+      final formMap = <String, dynamic>{'fullName': name, 'phoneNumber': phone};
 
       final image = state.pickedImage;
       if (image != null) {

@@ -448,15 +448,6 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     );
   }
 
-  void toggleFavourite(String productId) {
-    final s = state;
-    if (s is! ProductListingLoaded) return;
-    final updated = s.filteredProducts.map((p) {
-      return p.id == productId ? p.copyWith(isFavourite: !p.isFavourite) : p;
-    }).toList();
-    emit(s.copyWith(filteredProducts: updated));
-  }
-
   List<ListingProductModel> _applyPriceFilter(
       List<ListingProductModel> list, String? label) {
     if (label == null) return list;

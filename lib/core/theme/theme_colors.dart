@@ -73,18 +73,6 @@ class ThemeColors {
   static const gold800 = Color(0xFF5a4414);
   static const heroText1 = Color(0xFF231806);
 
-  // =========================
-  // BACKGROUND
-  // =========================
-
-  // static const Color purple = Color(0xFF6D28D9);
-  // static const Color purpleLight = Color(0xFF8B5CF6);
-
-  // static const Color background = Color(0xFFF4F6FB);
-
-  // =========================
-  // SURFACE
-  // =========================
 
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surface2 = Color(0xFFF1F4FB);

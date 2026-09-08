@@ -915,7 +915,7 @@ class _MyMembershipViewState
                   context.pop();
                 } else {
                   context.go(
-                    AppRoutes.account,
+                    AppRoutes.profile,
                   );
                 }
               },

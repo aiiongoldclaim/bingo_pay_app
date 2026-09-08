@@ -333,7 +333,7 @@ class _EditTopBar extends StatelessWidget {
           IconButton(
             onPressed: () => context.canPop()
                 ? context.pop()
-                : context.go(AppRoutes.account),
+                : context.go(AppRoutes.profile),
             splashRadius: m.backIconSize * 1.2,
             icon: Icon(
               Icons.arrow_back_ios_rounded,

@@ -319,6 +319,72 @@ void main() {
             reason: "must be B's stock, not A's leftover 3");
       },
     );
+
+    test(
+      'F-12: selecting quantity 5 on a stock-10 variant, then switching to '
+      'a stock-2 variant, never leaves quantity submittable above the new '
+      "variant's stock",
+      () async {
+        final json = _realisticApiResponse();
+        (json['data'] as Map)['data']['variants'] = [
+          {
+            'uuid': 'var-high-stock',
+            'title': 'Large',
+            'variantName': 'Large / High Stock',
+            'combinationKey': 'high-stock',
+            'salePrice': '5000.0',
+            'basePrice': '5000.0',
+            'inventory': {'availableStock': 10},
+            'attributes': <dynamic>[],
+          },
+          {
+            'uuid': 'var-low-stock',
+            'title': 'Small',
+            'variantName': 'Small / Low Stock',
+            'combinationKey': 'low-stock',
+            'salePrice': '4500.0',
+            'basePrice': '4500.0',
+            'inventory': {'availableStock': 2},
+            'attributes': <dynamic>[],
+          },
+        ];
+        final product = ProductDetailModel.fromJson(json);
+        when(() => repository.getProductDetail('prod-uuid-123'))
+            .thenAnswer((_) async => product);
+
+        final cubit = ProductDetailCubit(repository, membershipRepository);
+        addTearDown(cubit.close);
+        await cubit.loadProduct('prod-uuid-123');
+
+        // Variant 0 (stock 10) is selected by default — bump quantity up.
+        expect((cubit.state as ProductDetailLoaded).product.availableStock, 10);
+        for (var i = 0; i < 4; i++) {
+          cubit.incrementQuantity();
+        }
+        expect((cubit.state as ProductDetailLoaded).quantity, 5,
+            reason: 'sanity check: quantity 5 selected on the stock-10 '
+                'variant, exactly the finding\'s scenario');
+
+        // Switch to the stock-2 variant.
+        cubit.selectVariant(1);
+
+        final loaded = cubit.state as ProductDetailLoaded;
+        expect(loaded.product.availableStock, 2);
+        expect(loaded.quantity, lessThanOrEqualTo(2),
+            reason: 'F-12: quantity must never remain above the newly '
+                "selected variant's stock — the old quantity=5 must not "
+                'survive the switch to a stock-2 variant');
+
+        // Also prove the bound is actively enforced going forward, not
+        // just reset once: incrementQuantity() must stop at the new cap.
+        for (var i = 0; i < 5; i++) {
+          cubit.incrementQuantity();
+        }
+        expect((cubit.state as ProductDetailLoaded).quantity, 2,
+            reason: 'incrementQuantity() must clamp at availableStock (2) '
+                'for the now-selected low-stock variant');
+      },
+    );
   });
 
   group('out-of-stock variant selection', () {

@@ -1,4 +1,4 @@
-import '../../../account/domain/enities/account_entity.dart';
+import '../../../profile/domain/enities/profile_entity.dart';
 
 class EditProfileModel {
   final String fullName;
@@ -41,14 +41,14 @@ class EditProfileModel {
         profileImageUrl: json['profileImageUrl'] as String?,
       );
 
-  /// Mirrors the same account data the Profile screen (AccountCubit) shows,
+  /// Mirrors the same profile data the Profile screen (ProfileCubit) shows,
   /// so Edit Profile never disagrees with it on name/email.
-  factory EditProfileModel.fromAccountEntity(AccountEntity account) =>
+  factory EditProfileModel.fromProfileEntity(ProfileEntity profile) =>
       EditProfileModel(
-        fullName: account.fullName,
-        email: account.email,
-        phoneNumber: account.phone,
-        profileImageUrl: account.profileImageUrl,
+        fullName: profile.fullName,
+        email: profile.email,
+        phoneNumber: profile.phone,
+        profileImageUrl: profile.profileImageUrl,
       );
 
   Map<String, dynamic> toJson() => {

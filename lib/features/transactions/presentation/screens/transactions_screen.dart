@@ -278,10 +278,10 @@ class _TransactionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<TransactionsCubit, TransactionsState>(
@@ -298,7 +298,7 @@ class _TransactionsView extends StatelessWidget {
                   child:
                   state is TransactionsLoading ||
                       state is TransactionsInitial
-                      ? Center(child: CircularProgressIndicator(color: c.brand))
+                      ? Center(child: CircularProgressIndicator(color: colors.brand))
                       : state is TransactionsError
                       ? _ErrorView(metrics: m, message: state.message)
                       : state is TransactionsLoaded
@@ -339,7 +339,7 @@ class _TransactionsTopBar extends StatelessWidget {
           IconButton(
             onPressed: () => context.canPop()
                 ? context.pop()
-                : context.go(AppRoutes.account),
+                : context.go(AppRoutes.profile),
             splashRadius: m.backIconSize * 1.2,
             icon: Icon(
               Icons.arrow_back_ios_rounded,

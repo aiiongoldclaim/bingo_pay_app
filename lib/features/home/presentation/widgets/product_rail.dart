@@ -70,6 +70,7 @@ class ProductRail extends StatelessWidget {
                         p.uuid != null &&
                         wishlistState.items.any((e) => e.id == p.uuid),
                     isAddingToCart: p.uuid != null && addingIds.contains(p.uuid),
+                    isOutOfStock: p.stock == 0,
                     onTap: () => onProductTap?.call(p),
                     onWishlistTap: p.uuid == null
                         ? null

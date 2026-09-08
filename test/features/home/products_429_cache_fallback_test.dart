@@ -1,7 +1,7 @@
 import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/services/product_cache_service.dart';
-import 'package:bingo_pay/features/account/domain/enities/account_entity.dart';
-import 'package:bingo_pay/features/account/domain/usecase/get_account_usecase.dart';
+import 'package:bingo_pay/features/profile/domain/enities/profile_entity.dart';
+import 'package:bingo_pay/features/profile/domain/usecase/get_profile_usecase.dart';
 import 'package:bingo_pay/features/categories/data/datasources/category_remote_datasource.dart';
 import 'package:bingo_pay/features/categories/data/models/categories_model.dart';
 import 'package:bingo_pay/features/categories/data/models/categories_response_model.dart';
@@ -28,22 +28,22 @@ class MockGetProfileUseCase extends Mock implements GetProfileUseCase {}
 class MockProductRepository extends Mock implements ProductRepository {}
 
 Map<String, dynamic> _fakeProductJson(String id) => {
-      'uuid': id,
-      'brand': {'name': 'Brand'},
-      'title': 'Product $id',
-      'media': <dynamic>[],
-      'variants': <dynamic>[],
-      'isFeatured': false,
-    };
+  'uuid': id,
+  'brand': {'name': 'Brand'},
+  'title': 'Product $id',
+  'media': <dynamic>[],
+  'variants': <dynamic>[],
+  'isFeatured': false,
+};
 
 DioException _throttled() => DioException(
-      requestOptions: RequestOptions(path: '/api/v1/products'),
-      response: Response(
-        requestOptions: RequestOptions(path: '/api/v1/products'),
-        statusCode: 429,
-      ),
-      type: DioExceptionType.badResponse,
-    );
+  requestOptions: RequestOptions(path: '/api/v1/products'),
+  response: Response(
+    requestOptions: RequestOptions(path: '/api/v1/products'),
+    statusCode: 429,
+  ),
+  type: DioExceptionType.badResponse,
+);
 
 void main() {
   setUpAll(() {
@@ -62,8 +62,10 @@ void main() {
       apiClient = MockApiClient();
       dio = MockDio();
       when(() => apiClient.dio).thenReturn(dio);
-      repository =
-          ProductRepositoryImpl(apiClient: apiClient, cacheService: cacheService);
+      repository = ProductRepositoryImpl(
+        apiClient: apiClient,
+        cacheService: cacheService,
+      );
     });
 
     test('falls back to cached products on a 429 without throwing', () async {
@@ -104,8 +106,7 @@ void main() {
         ]);
 
         when(
-          () =>
-              dio.get(any(), queryParameters: any(named: 'queryParameters')),
+          () => dio.get(any(), queryParameters: any(named: 'queryParameters')),
         ).thenAnswer(
           (_) async => Response(
             requestOptions: RequestOptions(path: '/api/v1/products'),
@@ -118,9 +119,13 @@ void main() {
 
         final result = await repository.getAllProducts(page: 1, limit: 20);
 
-        expect(result, isEmpty,
-            reason: 'an empty 200 response is not an error — it must not '
-                'be masked by whatever is sitting in the cache');
+        expect(
+          result,
+          isEmpty,
+          reason:
+              'an empty 200 response is not an error — it must not '
+              'be masked by whatever is sitting in the cache',
+        );
       },
     );
   });
@@ -138,7 +143,7 @@ void main() {
         );
         when(() => getProfile()).thenAnswer(
           (_) async => const Right(
-            AccountEntity(
+            ProfileEntity(
               id: 'u1',
               uuid: 'u1',
               fullName: 'Test User',
@@ -155,18 +160,26 @@ void main() {
         final cachedProducts = [
           ProductModel.fromJson(_fakeProductJson('cached-1')),
         ];
-        when(() => productRepository.getAllProducts(page: 1, limit: 20))
-            .thenAnswer((_) async => cachedProducts);
+        when(
+          () => productRepository.getAllProducts(page: 1, limit: 20),
+        ).thenAnswer((_) async => cachedProducts);
 
-        final cubit =
-            HomeCubit(categoryDataSource, getProfile, productRepository);
+        final cubit = HomeCubit(
+          categoryDataSource,
+          getProfile,
+          productRepository,
+        );
         addTearDown(cubit.close);
 
         await cubit.loadHome();
 
-        expect(cubit.state.status, HomeStatus.loaded,
-            reason: 'a 429 the repository already recovered from cache '
-                'must not surface as a dashboard error');
+        expect(
+          cubit.state.status,
+          HomeStatus.loaded,
+          reason:
+              'a 429 the repository already recovered from cache '
+              'must not surface as a dashboard error',
+        );
         expect(cubit.state.recommended.length, 1);
       },
     );
@@ -183,7 +196,7 @@ void main() {
         );
         when(() => getProfile()).thenAnswer(
           (_) async => const Right(
-            AccountEntity(
+            ProfileEntity(
               id: 'u1',
               uuid: 'u1',
               fullName: 'Test User',
@@ -198,11 +211,15 @@ void main() {
         // The repository already resolved a genuinely empty 200 to [] —
         // HomeCubit must render that as the empty state, not go hunting
         // for stale data anywhere itself.
-        when(() => productRepository.getAllProducts(page: 1, limit: 20))
-            .thenAnswer((_) async => <ProductModel>[]);
+        when(
+          () => productRepository.getAllProducts(page: 1, limit: 20),
+        ).thenAnswer((_) async => <ProductModel>[]);
 
-        final cubit =
-            HomeCubit(categoryDataSource, getProfile, productRepository);
+        final cubit = HomeCubit(
+          categoryDataSource,
+          getProfile,
+          productRepository,
+        );
         addTearDown(cubit.close);
 
         await cubit.loadHome();
@@ -230,7 +247,7 @@ void main() {
         );
         when(() => getProfile()).thenAnswer(
           (_) async => const Right(
-            AccountEntity(
+            ProfileEntity(
               id: 'u1',
               uuid: 'u1',
               fullName: 'Test User',
@@ -244,22 +261,33 @@ void main() {
         );
         // Mirrors ProductRepositoryImpl on a fresh install: API call fails
         // and there's no cache to fall back to, so it rethrows.
-        when(() => productRepository.getAllProducts(page: 1, limit: 20))
-            .thenThrow(Exception('Network unreachable'));
+        when(
+          () => productRepository.getAllProducts(page: 1, limit: 20),
+        ).thenThrow(Exception('Network unreachable'));
 
-        final cubit =
-            HomeCubit(categoryDataSource, getProfile, productRepository);
+        final cubit = HomeCubit(
+          categoryDataSource,
+          getProfile,
+          productRepository,
+        );
         addTearDown(cubit.close);
 
         await cubit.loadHome();
 
-        expect(cubit.state.status, HomeStatus.loaded,
-            reason: 'products alone failing with nothing to fall back to '
-                'must not surface as a dashboard-wide error');
+        expect(
+          cubit.state.status,
+          HomeStatus.loaded,
+          reason:
+              'products alone failing with nothing to fall back to '
+              'must not surface as a dashboard-wide error',
+        );
         expect(cubit.state.flashDeals, isEmpty);
         expect(cubit.state.recommended, isEmpty);
-        expect(cubit.state.errorMessage, isNull,
-            reason: 'no explicit failure messaging should be attached');
+        expect(
+          cubit.state.errorMessage,
+          isNull,
+          reason: 'no explicit failure messaging should be attached',
+        );
       },
     );
   });

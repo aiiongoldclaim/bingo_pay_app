@@ -78,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   subtitle: 'Manage your preferences',
                   onBack: () => context.canPop()
                       ? context.pop()
-                      : context.go(AppRoutes.account),
+                      : context.go(AppRoutes.profile),
                 ),
 
                 Expanded(

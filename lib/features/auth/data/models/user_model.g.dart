@@ -13,6 +13,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   kycStatus: json['kycStatus'] as String,
   emailVerified: json['emailVerified'] as bool? ?? false,
   phoneVerified: json['phoneVerified'] as bool? ?? false,
+  passwordSet: json['passwordSet'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -22,4 +23,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'kycStatus': instance.kycStatus,
   'emailVerified': instance.emailVerified,
   'phoneVerified': instance.phoneVerified,
+  'passwordSet': instance.passwordSet,
 };

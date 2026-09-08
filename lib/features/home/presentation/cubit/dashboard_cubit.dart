@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../account/domain/usecase/get_account_usecase.dart';
+import '../../../profile/domain/usecase/get_profile_usecase.dart';
 import '../../../categories/data/datasources/category_remote_datasource.dart';
 import '../../../categories/data/models/categories_model.dart';
 import '../../data/models/product_model.dart';
@@ -15,11 +15,8 @@ class HomeCubit extends Cubit<HomeState> {
   final GetProfileUseCase _getProfile;
   final ProductRepository _productRepository;
 
-  HomeCubit(
-    this._categoryDataSource,
-    this._getProfile,
-    this._productRepository,
-  ) : super(const HomeState());
+  HomeCubit(this._categoryDataSource, this._getProfile, this._productRepository)
+    : super(const HomeState());
 
   String? _currentRequestId;
   int _requestCounter = 0;
@@ -75,8 +72,6 @@ class HomeCubit extends Cubit<HomeState> {
       productsFailed = true;
     }
 
-
-
     if (isClosed || _currentRequestId != requestId) return;
 
     if (categoriesFailed && profileFailed && productsFailed) {
@@ -89,12 +84,13 @@ class HomeCubit extends Cubit<HomeState> {
       return;
     }
 
-
     final discounted = products.where((p) => p.discount > 0).toList()
       ..sort((a, b) => b.discount.compareTo(a.discount));
     final flashDeals = discounted.take(6).toList();
     final flashDealSet = flashDeals.toSet();
-    final recommended = products.where((p) => !flashDealSet.contains(p)).toList();
+    final recommended = products
+        .where((p) => !flashDealSet.contains(p))
+        .toList();
 
     emit(
       state.copyWith(

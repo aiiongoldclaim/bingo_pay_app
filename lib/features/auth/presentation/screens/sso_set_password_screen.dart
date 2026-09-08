@@ -146,7 +146,37 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
               builder: (context, constraints) {
                 final matrics = AuthMetrics.of(constraints);
                 final wide = matrics.isTablet && matrics.isLandscape;
-            
+
+                if (!wide) {
+                  // Phone (and tablet portrait): stays fixed (no visible
+                  // scroll) while everything fits, but scrolls up once the
+                  // keyboard opens or the password checklist pushes content
+                  // past the viewport, instead of overflowing.
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: matrics.pagePadH,
+                      vertical: matrics.pagePadV * 0.5,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - matrics.pagePadV,
+                      ),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: matrics.contentMaxWidth,
+                          ),
+                          child: _NarrowLayout(
+                            m: matrics,
+                            isDark: isDark,
+                            screen: this,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
                 return SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(
                     matrics.pagePadH,
@@ -167,20 +197,14 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                               constraints: BoxConstraints(
                                 maxWidth: matrics.contentMaxWidth,
                               ),
-                              child: wide
-                                  ? _WideLayout(
-                                      m: matrics,
-                                      isDark: isDark,
-                                      screen: this,
-                                    )
-                                  : _NarrowLayout(
-                                      m: matrics,
-                                      isDark: isDark,
-                                      screen: this,
-                                    ),
+                              child: _WideLayout(
+                                m: matrics,
+                                isDark: isDark,
+                                screen: this,
+                              ),
                             ),
                           ),
-            
+
                           const Spacer(),
                           SizedBox(height: matrics.blockGap),
                           AuthSecureNote(metrics: matrics),
@@ -203,15 +227,6 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        InkResponse(
-          onTap: _confirmAbandon,
-          radius: 24,
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Icon(Icons.arrow_back_ios_rounded, size: 22, color: ink),
-          ),
-        ),
-        SizedBox(width: m.fieldGap * 0.6),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -372,7 +387,9 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                   Icon(
                     Icons.info_rounded,
                     size: 20,
-                    color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
+                    color: isDark
+                        ? ThemeColors.primaryPurple
+                        : ThemeColors.deepPurple,
                   ),
                   SizedBox(width: m.fieldGap * 0.6),
                   Expanded(
@@ -385,7 +402,9 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                           style: AppTextStyles.labelMedium.copyWith(
                             fontSize: m.linkText - 1,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
+                            color: isDark
+                                ? ThemeColors.primaryPurple
+                                : ThemeColors.deepPurple,
                           ),
                         ),
                         SizedBox(height: 4),
@@ -394,7 +413,9 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
                           style: AppTextStyles.bodySmall.copyWith(
                             fontSize: m.footerText,
                             height: 1.45,
-                            color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+                            color: isDark
+                                ? ThemeColors.inkDim
+                                : ThemeColors.inkMid,
                           ),
                         ),
                       ],
@@ -452,9 +473,6 @@ class _NarrowLayout extends StatelessWidget {
           ),
           SizedBox(height: m.blockGap * 0.7),
         ],
-
-        screen.buildHeadline(m, isDark, alignStart: true),
-        SizedBox(height: m.blockGap),
 
         screen.buildForm(m, isDark),
       ],
@@ -595,10 +613,7 @@ class _HeroArt extends StatelessWidget {
       ),
       child: AspectRatio(
         aspectRatio: 1,
-        child: Image.asset(
-          AppImages.onboard1Dark,
-          fit: BoxFit.contain,
-        ),
+        child: Image.asset(AppImages.onboard1Dark, fit: BoxFit.contain),
       ),
     );
   }

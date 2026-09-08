@@ -7,7 +7,6 @@ import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -15,7 +14,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_metrics.dart';
-import '../widgets/auth_secure_note.dart';
 
 class SsoOtpVerificationScreen extends StatefulWidget {
   final String email;
@@ -38,7 +36,6 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
   bool _isResending = false;
   bool _isInitialLoad = true;
 
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +53,6 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     _otpController.dispose();
     _otpFocusNode.dispose();
     _cooldownTimer?.cancel();
-    _otpFocusNode.dispose();
     super.dispose();
   }
 
@@ -79,10 +75,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     if (otp.length != _otpLength) {
       _otpFocusNode.requestFocus();
 
-      AppSnackbar.showError(
-        context,
-        'Enter the $_otpLength-digit code',
-      );
+      AppSnackbar.showError(context, 'Enter the $_otpLength-digit code');
 
       return;
     }
@@ -90,10 +83,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     FocusScope.of(context).unfocus();
 
     context.read<AuthBloc>().add(
-      SsoOtpVerifyRequested(
-        email: widget.email,
-        otp: otp,
-      ),
+      SsoOtpVerifyRequested(email: widget.email, otp: otp),
     );
   }
 
@@ -102,11 +92,7 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
 
     _otpController.clear();
 
-    context.read<AuthBloc>().add(
-      SsoOtpSendRequested(
-        email: widget.email,
-      ),
-    );
+    context.read<AuthBloc>().add(SsoOtpSendRequested(email: widget.email));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -122,127 +108,68 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     ResponsiveUtils.setDeviceType(context);
     final colors = context.colors;
 
-
     return Scaffold(
       backgroundColor: colors.background,
-      body: Stack(
-        children: [
-          BlocListener<AuthBloc, AuthState>(
-            listener: (context, state) {
-              if (state is AuthLoading) {
-                setState(() => _isResending = true);
-              } else if (state is AuthError) {
+      body: SafeArea(
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is SsoOtpSending) {
+              setState(() => _isResending = true);
+            } else if (state is AuthError) {
+              setState(() => _isResending = false);
+              AppSnackbar.showError(context, state.failure.message);
+            } else if (state is SsoOtpRequired) {
+              // Only handle SsoOtpRequired if this is from resend (when not on initial load)
+              if (!_isInitialLoad) {
                 setState(() => _isResending = false);
-                AppSnackbar.showError(context, state.failure.message);
-              } else if (state is SsoOtpRequired) {
-                // Only handle SsoOtpRequired if this is from resend (when not on initial load)
-                if (!_isInitialLoad) {
-                  setState(() => _isResending = false);
-                  _startCooldown();
-                  AppSnackbar.showSuccess(context, 'OTP resent to ${widget.email}');
-                }
-              } else if (state is SsoSetPasswordRequired) {
-                setState(() => _isResending = false);
-                if (mounted) {
-                  context.pushReplacement(
-                    AppRoutes.ssoSetPassword,
-                    extra: state.email,
-                  );
-                }
-              } else if (state is AuthAuthenticated) {
-                setState(() => _isResending = false);
-                if (mounted) {
-                  context.go(AppRoutes.home);
-                }
+                _startCooldown();
+                AppSnackbar.showSuccess(
+                  context,
+                  'OTP resent to ${widget.email}',
+                );
               }
-            },
-            child: LayoutBuilder(
-          builder: (context, constraints) {
-            final m = AuthMetrics.of(constraints);
-            final isWide = m.isTablet && m.isLandscape;
-
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      m.pagePadH,
-                      m.pagePadV,
-                      m.pagePadH,
-                      m.pagePadV,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: m.contentMaxWidth,
-                        ),
-                        child: isWide
-                            ? _WideLayout(
-                                m: m,
-                                onBack: () => context.pop(),
-                                form: _form(m, alignStart: true),
-                              )
-                            : _NarrowLayout(
-                                metrics: m,
-                                onBack: () => context.pop(),
-                                form: _form(m, alignStart: false),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    m.pagePadH,
-                    m.fieldGap * 0.5,
-                    m.pagePadH,
-                    m.pagePadV,
-                  ),
-                  child: AuthSecureNote(metrics: m,),
-                ),
-              ],
-            );
+            } else if (state is SsoSetPasswordRequired) {
+              setState(() => _isResending = false);
+              if (mounted) {
+                context.pushReplacement(
+                  AppRoutes.ssoSetPassword,
+                  extra: state.email,
+                );
+              }
+            } else if (state is AuthAuthenticated) {
+              setState(() => _isResending = false);
+              if (mounted) {
+                context.go(AppRoutes.home);
+              }
+            }
           },
-            ),
-          ),
-          // Loading Overlay for Resend
-          if (_isResending)
-            Positioned.fill(
-              child: Container(
-                color: ThemeColors.black.withValues(alpha: 0.3),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final m = AuthMetrics.of(constraints);
+              final isWide = m.isTablet && m.isLandscape;
+
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  m.pagePadH,
+                  m.pagePadV,
+                  m.pagePadH,
+                  m.pagePadV,
+                ),
                 child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 48,
-                          height: 48,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 3,
-                            valueColor: AlwaysStoppedAnimation(colors.brand),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
+                    child: isWide
+                        ? _WideLayout(m: m, form: _form(m, alignStart: true))
+                        : _NarrowLayout(
+                            metrics: m,
+                            form: _form(m, alignStart: false),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Sending OTP...',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontSize: 16,
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
-              ),
-            ),
-        ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -325,14 +252,9 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
 
 /// Phone (portrait + landscape) aur tablet portrait —
 class _NarrowLayout extends StatelessWidget {
-  const _NarrowLayout({
-    required this.metrics,
-    required this.onBack,
-    required this.form,
-  });
+  const _NarrowLayout({required this.metrics, required this.form});
 
   final AuthMetrics metrics;
-  final VoidCallback onBack;
   final Widget form;
 
   @override
@@ -342,7 +264,7 @@ class _NarrowLayout extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _TopBar(m: metrics, onBack: onBack),
+        _TopBar(m: metrics),
 
         SizedBox(height: metrics.blockGap),
 
@@ -358,14 +280,9 @@ class _NarrowLayout extends StatelessWidget {
 }
 
 class _WideLayout extends StatelessWidget {
-  const _WideLayout({
-    required this.m,
-    required this.onBack,
-    required this.form,
-  });
+  const _WideLayout({required this.m, required this.form});
 
   final AuthMetrics m;
-  final VoidCallback onBack;
   final Widget form;
 
   @override
@@ -373,7 +290,7 @@ class _WideLayout extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _TopBar(m: m, onBack: onBack),
+        _TopBar(m: m),
         SizedBox(height: m.sectionGap),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -382,9 +299,7 @@ class _WideLayout extends StatelessWidget {
             SizedBox(width: m.paneGap),
             Expanded(
               flex: 4,
-              child: Center(
-                child: _HeroArt(m: m,),
-              ),
+              child: Center(child: _HeroArt(m: m)),
             ),
           ],
         ),
@@ -394,10 +309,9 @@ class _WideLayout extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.m, required this.onBack});
+  const _TopBar({required this.m});
 
   final AuthMetrics m;
-  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -406,15 +320,6 @@ class _TopBar extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        InkResponse(
-          onTap: onBack,
-          radius: 24,
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Icon(Icons.arrow_back_ios_rounded, size: 22, color: colors.textPrimary,),
-          ),
-        ),
-        SizedBox(width: m.fieldGap * 0.6),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -428,9 +333,7 @@ class _TopBar extends StatelessWidget {
                   ),
                   TextSpan(
                     text: 'Vault',
-                    style: TextStyle(
-                      color: colors.brand
-                    ),
+                    style: TextStyle(color: colors.brand),
                   ),
                 ],
               ),
@@ -462,15 +365,22 @@ class _HeroArt extends StatelessWidget {
 
   final AuthMetrics m;
 
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return AspectRatio(
-      aspectRatio: 1,
-      child: Image.asset(colors.isDark ? AppImages.onboard1Dark : AppImages.onboard1,fit: BoxFit.contain,),
-
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: m.heroImageMax * 0.9,
+        maxHeight: m.heroImageMaxH * 10,
+      ),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Image.asset(
+          colors.isDark ? AppImages.onboard1Dark : AppImages.onboard1,
+          fit: BoxFit.contain,
+        ),
+      ),
     );
   }
 }
@@ -580,10 +490,7 @@ class _OtpInput extends StatelessWidget {
               fill: colors.surface,
               border: colors.border,
             ),
-            focusedPinTheme: themed(
-              fill: colors.surface,
-              border: colors.brand,
-            ),
+            focusedPinTheme: themed(fill: colors.surface, border: colors.brand),
             submittedPinTheme: themed(
               fill: colors.brandSoft,
               border: colors.brand,
@@ -657,9 +564,9 @@ class _ResendRow extends StatelessWidget {
                 ],
               ),
             )
-          else
+          else if (canResend)
             InkWell(
-              onTap: canResend ? onResend : null,
+              onTap: onResend,
               borderRadius: BorderRadius.circular(6),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
@@ -668,17 +575,17 @@ class _ResendRow extends StatelessWidget {
                   style: AppTextStyles.labelMedium.copyWith(
                     fontSize: metrics.linkText,
                     fontWeight: FontWeight.w700,
-                    color: canResend ? colors.brand : colors.textMuted,
+                    color: colors.brand,
                   ),
                 ),
               ),
-            ),
-
-          if (!canResend && !isResending)
+            )
+          else
             Text(
-              ' ($minutes:$seconds)',
-              style: AppTextStyles.bodyMedium.copyWith(
+              '$minutes:$seconds',
+              style: AppTextStyles.labelMedium.copyWith(
                 fontSize: metrics.linkText,
+                fontWeight: FontWeight.w600,
                 color: colors.textMuted,
               ),
             ),

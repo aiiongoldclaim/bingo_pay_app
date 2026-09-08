@@ -193,6 +193,7 @@ import 'home_metrics.dart';
 // }
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../data/models/product_model.dart';
 import 'home_metrics.dart';
@@ -204,6 +205,7 @@ class ProductCard extends StatelessWidget {
     required this.product,
     this.isWishlisted = false,
     this.isAddingToCart = false,
+    this.isOutOfStock = false,
     this.onTap,
     this.onWishlistTap,
     this.onAddToCart,
@@ -214,6 +216,7 @@ class ProductCard extends StatelessWidget {
   final ProductModel product;
   final bool isWishlisted;
   final bool isAddingToCart;
+  final bool isOutOfStock;
   final VoidCallback? onTap;
   final VoidCallback? onWishlistTap;
   final VoidCallback? onAddToCart;
@@ -287,6 +290,33 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                if (isOutOfStock)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: m.pagePadding * 0.25,
+                      ),
+                      decoration: BoxDecoration(
+                        color: c.textPrimary.withValues(alpha: 0.7),
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(8),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        AppStrings.outOfStockTitleCase,
+                        style: TextStyle(
+                          fontSize: m.productNameSize * 0.85,
+                          fontWeight: FontWeight.w700,
+                          color: c.surface,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
 
@@ -372,10 +402,10 @@ class ProductCard extends StatelessWidget {
 
                 // ── Add to cart ──
                 Material(
-                  color: c.brand,
+                  color: isOutOfStock ? c.surfaceAlt : c.brand,
                   borderRadius: BorderRadius.circular(6),
                   child: InkWell(
-                    onTap: isAddingToCart ? null : onAddToCart,
+                    onTap: (isOutOfStock || isAddingToCart) ? null : onAddToCart,
                     borderRadius: BorderRadius.circular(6),
                     child: Padding(
                       padding: EdgeInsets.all(m.pagePadding * 0.35),
@@ -390,9 +420,11 @@ class ProductCard extends StatelessWidget {
                                 ),
                               )
                             : Icon(
-                                Icons.shopping_bag_outlined,
+                                isOutOfStock
+                                    ? Icons.remove_shopping_cart_outlined
+                                    : Icons.shopping_bag_outlined,
                                 size: m.searchIconSize * 0.85,
-                                color: Colors.white,
+                                color: isOutOfStock ? c.textMuted : Colors.white,
                               ),
                       ),
                     ),

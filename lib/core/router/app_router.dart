@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
-import '../../features/account/presentation/cubit/account_cubit.dart';
-import '../../features/account/presentation/screens/account_page.dart';
+import '../../features/profile/presentation/cubit/profile_cubit.dart';
+import '../../features/profile/presentation/screens/profile_page.dart';
 import '../../features/auctions/presentation/screens/auction_screen.dart';
 import '../../features/auctions/presentation/screens/my_bids_screen.dart';
 import '../../features/auth/presentation/screens/otp_verification_screen.dart';
@@ -20,7 +20,7 @@ import '../../features/membershipNew/presentation/screens/membership_plan.dart';
 import '../../features/membershipNew/presentation/screens/membership_screen.dart';
 import '../../features/membershipNew/presentation/screens/membership_success_screen.dart';
 import '../../features/membershipNew/presentation/widgets/membership_checkout_args.dart';
-import '../../features/notification/features/screens/notidication_screen.dart';
+import '../../features/notification/features/screens/notification_screen.dart';
 import '../../features/order_details/presentaion/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
 import '../../features/address/domain/repositories/address_respository.dart';
@@ -40,7 +40,8 @@ import '../../features/setting/features/screens/setting_screen.dart';
 import '../config/app_config.dart';
 import '../widgets/buyer_shell_screen.dart';
 import '../../features/customer/shop/presentation/screens/checkout_placeholder_screen.dart';
-import '../../features/customer/profile/presentation/screens/profile_screen.dart';
+import '../../features/customer/profile/presentation/screens/profile_screen.dart'
+    as legacy_profile;
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_document_screen.dart';
 import '../../features/auth/presentation/screens/kyc/kyc_screen.dart';
@@ -172,7 +173,7 @@ class AppRouter {
           builder: (context, state) =>
               OrderDetailScreen(order: state.extra as OrderModel),
           redirect: (context, state) =>
-          state.extra is OrderModel ? null : AppRoutes.orders,
+              state.extra is OrderModel ? null : AppRoutes.orders,
         ),
 
         GoRoute(
@@ -219,7 +220,7 @@ class AppRouter {
             );
           },
           redirect: (context, state) =>
-          state.extra is PaymentArgs ? null : AppRoutes.home,
+              state.extra is PaymentArgs ? null : AppRoutes.home,
         ),
 
         GoRoute(
@@ -232,7 +233,7 @@ class AppRouter {
             );
           },
           redirect: (context, state) =>
-          state.extra is ReviewPayArgs ? null : AppRoutes.home,
+              state.extra is ReviewPayArgs ? null : AppRoutes.home,
         ),
 
         GoRoute(
@@ -252,11 +253,13 @@ class AppRouter {
             final args = state.extra as AddEditAddressArgs;
             return BlocProvider.value(
               value: args.cubit,
-              child: AddEditAddressScreen(existingAddress: args.existingAddress),
+              child: AddEditAddressScreen(
+                existingAddress: args.existingAddress,
+              ),
             );
           },
           redirect: (context, state) =>
-          state.extra is AddEditAddressArgs ? null : AppRoutes.home,
+              state.extra is AddEditAddressArgs ? null : AppRoutes.home,
         ),
 
         GoRoute(
@@ -269,7 +272,7 @@ class AppRouter {
             );
           },
           redirect: (context, state) =>
-          state.extra is ImageViewerArgs ? null : AppRoutes.home,
+              state.extra is ImageViewerArgs ? null : AppRoutes.home,
         ),
 
         // Deep link routes for product sharing
@@ -278,7 +281,8 @@ class AppRouter {
           builder: (context, state) {
             final productId = state.pathParameters['id'] ?? '';
             return BlocProvider(
-              create: (_) => getIt<ProductDetailCubit>()..loadProduct(productId),
+              create: (_) =>
+                  getIt<ProductDetailCubit>()..loadProduct(productId),
               child: const ProductDetailScreen(),
             );
           },
@@ -325,7 +329,7 @@ class AppRouter {
             );
           },
           redirect: (context, state) =>
-          state.extra is PaymentMethodCubit ? null : AppRoutes.home,
+              state.extra is PaymentMethodCubit ? null : AppRoutes.home,
         ),
 
         GoRoute(
@@ -457,11 +461,11 @@ class AppRouter {
             ),
 
             GoRoute(
-              path: AppRoutes.account,
+              path: AppRoutes.profile,
               builder: (context, state) {
                 return BlocProvider(
-                  create: (_) => getIt<AccountCubit>(),
-                  child: const AccountScreen(),
+                  create: (_) => getIt<ProfileCubit>(),
+                  child: const ProfileScreen(),
                 );
               },
             ),
@@ -511,9 +515,8 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.buyerProfile,
-              builder: (_, _) => const ProfileScreen(),
+              builder: (_, _) => const legacy_profile.ProfileScreen(),
             ),
-
 
             // GoRoute(
             //   path: AppRoutes.buyerSettings,

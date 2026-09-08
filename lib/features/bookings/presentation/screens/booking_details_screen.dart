@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/booking_details_entity.dart';
@@ -9,6 +8,7 @@ import '../cubit/booking_cubit.dart';
 import '../cubit/booking_state.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
 import '../../../services/presentation/cubit/services_state.dart';
+import '../widgets/booking_details_metrics.dart';
 
 class BookingDetailsScreen extends StatelessWidget {
   const BookingDetailsScreen({
@@ -28,9 +28,7 @@ class BookingDetailsScreen extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// MAIN VIEW
-// -----------------------------------------------------------------------------
+
 
 class _BookingDetailsView extends StatefulWidget {
   const _BookingDetailsView({
@@ -49,51 +47,52 @@ class _BookingDetailsViewState
   BookingDetailsEntity? _lastLoadedBooking;
 
   Future<void> _showRescheduleSuccessDialog(BuildContext context) async {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) {
         return AlertDialog(
-          backgroundColor: c.surface,
+          backgroundColor: colors.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(m.dialogRadius),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: m.dialogIconBox,
+                height: m.dialogIconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check_rounded,
-                  color: c.brand,
-                  size: 32,
+                  color: colors.brand,
+                  size: m.dialogIconSize,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: m.dialogGapLg),
               Text(
                 'Booking Rescheduled',
                 style: TextStyle(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: 16,
+                  fontSize: m.dialogTitleSize,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: m.dialogGapSm),
               Text(
                 'Your appointment has been rescheduled successfully.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: m.dialogBodySize,
                   height: 1.4,
                 ),
               ),
@@ -113,11 +112,11 @@ class _BookingDetailsViewState
                   await Future.delayed(const Duration(milliseconds: 800));
 
                   if (context.mounted) {
-                    Navigator.of(context).pop(); // Go back to my bookings
+                    Navigator.of(context).pop();
                   }
                 },
                 style: FilledButton.styleFrom(
-                  backgroundColor: c.brand,
+                  backgroundColor: colors.brand,
                 ),
                 child: const Text(
                   'Back to Bookings',
@@ -131,51 +130,52 @@ class _BookingDetailsViewState
   }
 
   Future<void> _showCancelSuccessDialog(BuildContext context) async {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) {
         return AlertDialog(
-          backgroundColor: c.surface,
+          backgroundColor: colors.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(m.dialogRadius),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: m.dialogIconBox,
+                height: m.dialogIconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.check_rounded,
-                  color: c.brand,
-                  size: 32,
+                  color: colors.brand,
+                  size: m.dialogIconSize,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: m.dialogGapLg),
               Text(
                 'Booking Cancelled',
                 style: TextStyle(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: 16,
+                  fontSize: m.dialogTitleSize,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: m.dialogGapSm),
               Text(
                 'Your booking has been cancelled successfully.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: m.dialogBodySize,
                   height: 1.4,
                 ),
               ),
@@ -199,7 +199,7 @@ class _BookingDetailsViewState
                   }
                 },
                 style: FilledButton.styleFrom(
-                  backgroundColor: c.brand,
+                  backgroundColor: colors.brand,
                 ),
                 child: const Text(
                   'Back to Bookings',
@@ -264,9 +264,22 @@ class _BookingDetailsViewState
           builder: (context, state) {
             // -----------------------------------------------------------------
             // Initial/detail loading
+            //
+            // If a booking is already loaded (e.g. pull-to-refresh re-triggers
+            // fetchBookingDetails), keep it on screen so the RefreshIndicator's
+            // own spinner is what the user sees, instead of swapping the whole
+            // scroll view out for the skeleton and losing scroll position.
             // -----------------------------------------------------------------
 
             if (state is BookingDetailLoading) {
+              final booking = _lastLoadedBooking;
+
+              if (booking != null) {
+                return _BookingDetailsContent(
+                  booking: booking,
+                );
+              }
+
               return const _BookingDetailsLoading();
             }
 
@@ -336,9 +349,7 @@ class _BookingDetailsViewState
   }
 }
 
-// -----------------------------------------------------------------------------
-// MAIN CONTENT
-// -----------------------------------------------------------------------------
+
 
 class _BookingDetailsContent extends StatelessWidget {
   const _BookingDetailsContent({
@@ -349,8 +360,19 @@ class _BookingDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
+    final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
+
+    return RefreshIndicator(
+      color: c.brand,
+      backgroundColor: c.surface,
+      onRefresh: () {
+        return context.read<BookingCubit>().fetchBookingDetails(booking.uuid);
+      },
+      child: CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
       slivers: [
         SliverToBoxAdapter(
           child: _BookingDetailsHeader(
@@ -358,92 +380,96 @@ class _BookingDetailsContent extends StatelessWidget {
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            20,
-            4,
-            20,
-            40,
+          padding: EdgeInsets.fromLTRB(
+            m.pagePadH,
+            m.pagePadTop,
+            m.pagePadH,
+            m.pagePadBottom,
           ),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                _BookingHeroCard(
-                  booking: booking,
+          sliver: SliverToBoxAdapter(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _BookingHeroCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _SectionTitle(
+                      title: 'Appointment',
+                      icon: Icons.calendar_today_rounded,
+                    ),
+                    SizedBox(height: m.sectionTitleGap),
+                    _AppointmentCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _SectionTitle(
+                      title: 'Service',
+                      icon: Icons.auto_awesome_rounded,
+                    ),
+                    SizedBox(height: m.sectionTitleGap),
+                    _ServiceCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _SectionTitle(
+                      title: 'Provider',
+                      icon: Icons.storefront_rounded,
+                    ),
+                    SizedBox(height: m.sectionTitleGap),
+                    _ProviderCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _SectionTitle(
+                      title: 'Service Address',
+                      icon: Icons.location_on_outlined,
+                    ),
+                    SizedBox(height: m.sectionTitleGap),
+                    _AddressCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _SectionTitle(
+                      title: 'Payment',
+                      icon: Icons.payments_outlined,
+                    ),
+                    SizedBox(height: m.sectionTitleGap),
+                    _PaymentCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _SectionTitle(
+                      title: 'Booking Information',
+                      icon: Icons.receipt_long_outlined,
+                    ),
+                    SizedBox(height: m.sectionTitleGap),
+                    _BookingInformationCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.sectionGap),
+                    _TimelineCard(
+                      booking: booking,
+                    ),
+                    SizedBox(height: m.bottomActionsGap),
+                    _BottomActions(
+                      booking: booking,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                const _SectionTitle(
-                  title: 'Appointment',
-                  icon: Icons.calendar_today_rounded,
-                ),
-                const SizedBox(height: 10),
-                _AppointmentCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 18),
-                const _SectionTitle(
-                  title: 'Service',
-                  icon: Icons.auto_awesome_rounded,
-                ),
-                const SizedBox(height: 10),
-                _ServiceCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 18),
-                const _SectionTitle(
-                  title: 'Provider',
-                  icon: Icons.storefront_rounded,
-                ),
-                const SizedBox(height: 10),
-                _ProviderCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 18),
-                const _SectionTitle(
-                  title: 'Service Address',
-                  icon: Icons.location_on_outlined,
-                ),
-                const SizedBox(height: 10),
-                _AddressCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 18),
-                const _SectionTitle(
-                  title: 'Payment',
-                  icon: Icons.payments_outlined,
-                ),
-                const SizedBox(height: 10),
-                _PaymentCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 18),
-                const _SectionTitle(
-                  title: 'Booking Information',
-                  icon: Icons.receipt_long_outlined,
-                ),
-                const SizedBox(height: 10),
-                _BookingInformationCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 18),
-                _TimelineCard(
-                  booking: booking,
-                ),
-                const SizedBox(height: 24),
-                _BottomActions(
-                  booking: booking,
-                ),
-              ],
+              ),
             ),
           ),
         ),
       ],
+      ),
     );
   }
 }
 
-// -----------------------------------------------------------------------------
-// HEADER
-// -----------------------------------------------------------------------------
 
 class _BookingDetailsHeader extends StatelessWidget {
   const _BookingDetailsHeader({
@@ -454,109 +480,68 @@ class _BookingDetailsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.colors;
+    final m = BookingDetailsMetrics.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        16,
-      ),
-      child: Row(
-        children: [
-          _HeaderButton(
-            icon: Icons.arrow_back_ios_new_rounded,
-            onTap: onBack,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Booking Details',
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.4,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Review your appointment',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-              ],
+    return SizedBox(
+      height: m.headerHeight,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(m.headerPadLeft, 0, m.headerPadRight, 0),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: onBack,
+              splashRadius: m.headerBackSplash,
+              icon: Icon(
+                Icons.arrow_back_ios_rounded,
+                size: m.headerBackIconSize,
+                color: colors.textPrimary,
+              ),
             ),
-          ),
-          _HeaderButton(
-            icon: Icons.more_horiz_rounded,
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderButton extends StatelessWidget {
-  const _HeaderButton({
-    required this.icon,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(13),
-        child: Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: c.surface,
-            borderRadius: BorderRadius.circular(13),
-            border: Border.all(
-              color: c.border,
-            ),
-            boxShadow: c.isDark
-                ? null
-                : [
-                    BoxShadow(
-                      color: c.textPrimary.withValues(
-                        alpha: 0.04,
-                      ),
-                      blurRadius: 12,
-                      offset: const Offset(0, 3),
+            SizedBox(width: m.headerTitleGapW),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Booking Details',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colors.textPrimary,
+                      fontFamily: 'Inter',
+                      fontSize: m.headerTitleSize,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                      height: 1.15,
                     ),
-                  ],
-          ),
-          child: Icon(
-            icon,
-            size: 17,
-            color: c.textPrimary,
-          ),
+                  ),
+                  SizedBox(height: m.headerTitleGapH),
+                  Text(
+                    'Review your appointment',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colors.textSecondary,
+                      fontFamily: 'Inter',
+                      fontSize: m.headerSubtitleSize,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-// -----------------------------------------------------------------------------
-// HERO
-// -----------------------------------------------------------------------------
+
+
 
 class _BookingHeroCard extends StatelessWidget {
   const _BookingHeroCard({
@@ -568,11 +553,12 @@ class _BookingHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Container(
       decoration: BoxDecoration(
         color: c.surface,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(m.heroRadius),
         border: Border.all(
           color: c.border,
         ),
@@ -583,26 +569,26 @@ class _BookingHeroCard extends StatelessWidget {
                   color: c.textPrimary.withValues(
                     alpha: 0.055,
                   ),
-                  blurRadius: 25,
-                  offset: const Offset(0, 8),
+                  blurRadius: m.heroShadowBlur,
+                  offset: Offset(0, m.heroShadowOffsetY),
                 ),
               ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(m.heroRadius),
         child: Column(
           children: [
             Container(
-              height: 5,
+              height: m.heroTopBarHeight,
               width: double.infinity,
               color: c.brand,
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                19,
+              padding: EdgeInsets.fromLTRB(
+                m.heroPadH,
+                m.heroPadTop,
+                m.heroPadH,
+                m.heroPadBottom,
               ),
               child: Column(
                 children: [
@@ -611,19 +597,19 @@ class _BookingHeroCard extends StatelessWidget {
                         CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 54,
-                        height: 54,
+                        width: m.heroIconBox,
+                        height: m.heroIconBox,
                         decoration: BoxDecoration(
                           color: c.brandSoft,
                           borderRadius:
-                              BorderRadius.circular(17),
+                              BorderRadius.circular(m.heroIconRadius),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.content_cut_rounded,
-                          size: 25,
+                          size: m.heroIconSize,
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: m.heroTitleGapW),
                       Expanded(
                         child: Column(
                           crossAxisAlignment:
@@ -645,7 +631,7 @@ class _BookingHeroCard extends StatelessWidget {
                                 letterSpacing: -0.35,
                               ),
                             ),
-                            const SizedBox(height: 5),
+                            SizedBox(height: m.heroSubtitleGapH),
                             Text(
                               booking.offering.offeringName
                                       .isNotEmpty
@@ -659,7 +645,7 @@ class _BookingHeroCard extends StatelessWidget {
                                   .copyWith(
                                 color: c.textSecondary,
                                 fontFamily: 'Inter',
-                                fontSize: 11,
+                                fontSize: m.heroSubtitleSize,
                                 fontWeight:
                                     FontWeight.w600,
                                 letterSpacing: 0.3,
@@ -668,7 +654,7 @@ class _BookingHeroCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: m.heroBadgeGapW),
                       _StatusBadge(
                         label: _formatStatus(
                           booking.status,
@@ -676,13 +662,13 @@ class _BookingHeroCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: m.heroMetaGapH),
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: EdgeInsets.all(m.heroMetaPad),
                     decoration: BoxDecoration(
                       color: c.background,
                       borderRadius:
-                          BorderRadius.circular(17),
+                          BorderRadius.circular(m.heroMetaRadius),
                       border: Border.all(
                         color: c.border,
                       ),
@@ -700,7 +686,7 @@ class _BookingHeroCard extends StatelessWidget {
                         ),
                         Container(
                           width: 1,
-                          height: 32,
+                          height: m.heroDividerHeight,
                           color: c.border,
                         ),
                         Expanded(
@@ -739,19 +725,20 @@ class _HeroMeta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
+      padding: EdgeInsets.symmetric(
+        horizontal: m.heroMetaHPad,
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            size: 17,
+            size: m.heroMetaIconSize,
             color: c.brand,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: m.heroMetaIconGapW),
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -762,11 +749,11 @@ class _HeroMeta extends StatelessWidget {
                   style: TextStyle(
                     color: c.textMuted,
                     fontFamily: 'Inter',
-                    fontSize: 9.5,
+                    fontSize: m.heroMetaLabelSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: m.heroMetaLabelGapH),
                 Text(
                   value,
                   maxLines: 1,
@@ -774,7 +761,7 @@ class _HeroMeta extends StatelessWidget {
                   style: TextStyle(
                     color: c.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 11,
+                    fontSize: m.heroMetaValueSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -787,9 +774,7 @@ class _HeroMeta extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// SECTION TITLE
-// -----------------------------------------------------------------------------
+
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle({
@@ -803,21 +788,22 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Row(
       children: [
         Icon(
           icon,
-          size: 16,
+          size: m.sectionIconSize,
           color: c.brand,
         ),
-        const SizedBox(width: 7),
+        SizedBox(width: m.sectionIconGapW),
         Text(
           title,
           style: TextStyle(
             color: c.textPrimary,
             fontFamily: 'Inter',
-            fontSize: 14,
+            fontSize: m.sectionTitleTextSize,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -826,9 +812,7 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// APPOINTMENT
-// -----------------------------------------------------------------------------
+
 
 class _AppointmentCard extends StatelessWidget {
   const _AppointmentCard({
@@ -840,6 +824,7 @@ class _AppointmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     final start = _parseApiDate(
       booking.scheduledStartAt,
@@ -866,12 +851,12 @@ class _AppointmentCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 62,
-                height: 68,
+                width: m.apptBoxW,
+                height: m.apptBoxH,
                 decoration: BoxDecoration(
                   color: c.brandSoft,
                   borderRadius:
-                      BorderRadius.circular(16),
+                      BorderRadius.circular(m.apptBoxRadius),
                 ),
                 child: Column(
                   mainAxisAlignment:
@@ -884,18 +869,18 @@ class _AppointmentCard extends StatelessWidget {
                       style: TextStyle(
                         color: c.brand,
                         fontFamily: 'Inter',
-                        fontSize: 10,
+                        fontSize: m.apptMonthSize,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.7,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: m.apptDateGapH),
                     Text(
                       DateFormat('dd').format(startDate),
                       style: TextStyle(
                         color: c.textPrimary,
                         fontFamily: 'Inter',
-                        fontSize: 24,
+                        fontSize: m.apptDaySize,
                         height: 1,
                         fontWeight: FontWeight.w800,
                       ),
@@ -903,7 +888,7 @@ class _AppointmentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: m.apptTextGapW),
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -916,26 +901,26 @@ class _AppointmentCard extends StatelessWidget {
                       style: TextStyle(
                         color: c.textPrimary,
                         fontFamily: 'Inter',
-                        fontSize: 14,
+                        fontSize: m.apptDateTextSize,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: m.apptTimeGapH),
                     Row(
                       children: [
                         Icon(
                           Icons.schedule_rounded,
-                          size: 16,
+                          size: m.apptTimeIconSize,
                           color: c.brand,
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: m.apptTimeIconGapW),
                         Expanded(
                           child: Text(
                             timeText,
                             style: TextStyle(
                               color: c.textSecondary,
                               fontFamily: 'Inter',
-                              fontSize: 12,
+                              fontSize: m.apptTimeTextSize,
                               fontWeight:
                                   FontWeight.w600,
                             ),
@@ -948,27 +933,27 @@ class _AppointmentCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 15),
+          SizedBox(height: m.apptDividerGapH),
           Container(
             height: 1,
             color: c.border,
           ),
-          const SizedBox(height: 13),
+          SizedBox(height: m.apptInfoGapH),
           Row(
             children: [
               Icon(
                 Icons.info_outline_rounded,
-                size: 16,
+                size: m.apptInfoIconSize,
                 color: c.textMuted,
               ),
-              const SizedBox(width: 7),
+              SizedBox(width: m.apptInfoIconGapW),
               Expanded(
                 child: Text(
                   _appointmentMessage(booking),
                   style: TextStyle(
                     color: c.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: 11,
+                    fontSize: m.apptInfoTextSize,
                   ),
                 ),
               ),
@@ -995,9 +980,7 @@ class _AppointmentCard extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// SERVICE
-// -----------------------------------------------------------------------------
+
 
 class _ServiceCard extends StatelessWidget {
   const _ServiceCard({
@@ -1042,9 +1025,7 @@ class _ServiceCard extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// PROVIDER
-// -----------------------------------------------------------------------------
+
 
 class _ProviderCard extends StatelessWidget {
   const _ProviderCard({
@@ -1055,26 +1036,27 @@ class _ProviderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return _Card(
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: m.providerIconBox,
+            height: m.providerIconBox,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               borderRadius:
-                  BorderRadius.circular(15),
+                  BorderRadius.circular(m.providerIconRadius),
             ),
             child: Icon(
               Icons.storefront_rounded,
-              color: c.brand,
-              size: 22,
+              color: colors.brand,
+              size: m.providerIconSize,
             ),
           ),
-          const SizedBox(width: 13),
+          SizedBox(width: m.providerTextGapW),
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -1087,19 +1069,19 @@ class _ProviderCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 14,
+                    fontSize: m.providerTitleSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: m.providerSubtitleGapH),
                 Text(
                   'Service provider',
                   style: TextStyle(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: 11,
+                    fontSize: m.providerSubtitleSize,
                   ),
                 ),
               ],
@@ -1107,8 +1089,8 @@ class _ProviderCard extends StatelessWidget {
           ),
           Icon(
             Icons.verified_rounded,
-            color: c.brand,
-            size: 19,
+            color: colors.brand,
+            size: m.providerCheckSize,
           ),
         ],
       ),
@@ -1116,9 +1098,7 @@ class _ProviderCard extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// ADDRESS
-// -----------------------------------------------------------------------------
+
 
 class _AddressCard extends StatelessWidget {
   const _AddressCard({
@@ -1130,6 +1110,7 @@ class _AddressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
     final address = booking.address;
 
     final addressParts = <String>[
@@ -1154,20 +1135,20 @@ class _AddressCard extends StatelessWidget {
             CrossAxisAlignment.start,
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: m.addressIconBox,
+            height: m.addressIconBox,
             decoration: BoxDecoration(
               color: c.brandSoft,
               borderRadius:
-                  BorderRadius.circular(13),
+                  BorderRadius.circular(m.addressIconRadius),
             ),
             child: Icon(
               Icons.location_on_outlined,
               color: c.brand,
-              size: 20,
+              size: m.addressIconSize,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: m.addressTextGapW),
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -1180,11 +1161,11 @@ class _AddressCard extends StatelessWidget {
                   style: TextStyle(
                     color: c.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 13,
+                    fontSize: m.addressNameSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 5),
+                SizedBox(height: m.addressLineGapH),
                 Text(
                   addressParts.isNotEmpty
                       ? addressParts.join(', ')
@@ -1192,18 +1173,18 @@ class _AddressCard extends StatelessWidget {
                   style: TextStyle(
                     color: c.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: 11.5,
+                    fontSize: m.addressLineSize,
                     height: 1.4,
                   ),
                 ),
                 if (address.phone.isNotEmpty) ...[
-                  const SizedBox(height: 5),
+                  SizedBox(height: m.addressLineGapH),
                   Text(
                     _formatPhone(address.phone),
                     style: TextStyle(
                       color: c.textSecondary,
                       fontFamily: 'Inter',
-                      fontSize: 11,
+                      fontSize: m.addressPhoneSize,
                     ),
                   ),
                 ],
@@ -1216,9 +1197,7 @@ class _AddressCard extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// PAYMENT
-// -----------------------------------------------------------------------------
+
 
 class _PaymentCard extends StatelessWidget {
   const _PaymentCard({
@@ -1229,7 +1208,8 @@ class _PaymentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
     final offering = booking.offering;
 
     final price = offering.salePrice != null &&
@@ -1260,20 +1240,20 @@ class _PaymentCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: m.addressIconBox,
+                height: m.addressIconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   borderRadius:
-                      BorderRadius.circular(13),
+                      BorderRadius.circular(m.addressIconRadius),
                 ),
                 child: Icon(
                   Icons.credit_card_rounded,
-                  color: c.brand,
-                  size: 20,
+                  color: colors.brand,
+                  size: m.addressIconSize,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: m.addressTextGapW),
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -1282,19 +1262,19 @@ class _PaymentCard extends StatelessWidget {
                     Text(
                       paymentModeText,
                       style: TextStyle(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
-                        fontSize: 13,
+                        fontSize: m.paymentModeSize,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    SizedBox(height: m.paymentStatusGapH),
                     Text(
                       _paymentStatusText(booking),
                       style: TextStyle(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
-                        fontSize: 10.5,
+                        fontSize: m.paymentStatusSize,
                       ),
                     ),
                   ],
@@ -1303,33 +1283,33 @@ class _PaymentCard extends StatelessWidget {
               Text(
                 formattedPrice,
                 style: TextStyle(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: 17,
+                  fontSize: m.paymentPriceSize,
                   fontWeight: FontWeight.w800,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: m.paymentBannerGapH),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
+            padding: EdgeInsets.symmetric(
+              horizontal: m.paymentBannerHPad,
+              vertical: m.paymentBannerVPad,
             ),
             decoration: BoxDecoration(
-              color: c.background,
+              color: colors.background,
               borderRadius:
-                  BorderRadius.circular(11),
+                  BorderRadius.circular(m.paymentBannerRadius),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.check_circle_outline_rounded,
-                  size: 16,
-                  color: c.brand,
+                  size: m.paymentBannerIconSize,
+                  color: colors.brand,
                 ),
-                const SizedBox(width: 7),
+                SizedBox(width: m.paymentBannerIconGapW),
                 Expanded(
                   child: Text(
                     booking.paymentMode.toUpperCase() ==
@@ -1337,9 +1317,9 @@ class _PaymentCard extends StatelessWidget {
                         ? 'Paid via prepaid payment'
                         : 'Payment mode: ${booking.paymentMode}',
                     style: TextStyle(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
-                      fontSize: 10.5,
+                      fontSize: m.paymentBannerTextSize,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -1368,9 +1348,7 @@ class _PaymentCard extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// BOOKING INFORMATION
-// -----------------------------------------------------------------------------
+
 
 class _BookingInformationCard extends StatelessWidget {
   const _BookingInformationCard({
@@ -1413,9 +1391,7 @@ class _BookingInformationCard extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// TIMELINE
-// -----------------------------------------------------------------------------
+
 
 class _TimelineCard extends StatelessWidget {
   const _TimelineCard({
@@ -1426,7 +1402,8 @@ class _TimelineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
     final timeline = booking.timeline;
 
     return _Card(
@@ -1437,20 +1414,20 @@ class _TimelineCard extends StatelessWidget {
           Text(
             'Booking Timeline',
             style: TextStyle(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
-              fontSize: 13,
+              fontSize: m.timelineTitleSize,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: m.timelineTitleGapH),
           if (timeline.isEmpty)
             Text(
               'No timeline events available.',
               style: TextStyle(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
-                fontSize: 11,
+                fontSize: m.timelineEmptySize,
               ),
             )
           else
@@ -1522,40 +1499,41 @@ class _TimelineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Row(
       crossAxisAlignment:
           CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 20,
+          width: m.timelineDotColW,
           child: Column(
             children: [
               Container(
-                width: 10,
-                height: 10,
+                width: m.timelineDotSize,
+                height: m.timelineDotSize,
                 decoration: BoxDecoration(
                   color: active
-                      ? c.brand
-                      : c.border,
+                      ? colors.brand
+                      : colors.border,
                   shape: BoxShape.circle,
                 ),
               ),
               if (!isLast)
                 Container(
                   width: 1.5,
-                  height: 43,
-                  color: c.border,
+                  height: m.timelineLineH,
+                  color: colors.border,
                 ),
             ],
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: m.timelineTextGapW),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(
-              bottom: 18,
+            padding: EdgeInsets.only(
+              bottom: m.timelineItemPadBottom,
             ),
             child: Column(
               crossAxisAlignment:
@@ -1564,19 +1542,19 @@ class _TimelineItem extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 12,
+                    fontSize: m.timelineItemTitleSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: m.timelineItemGapH),
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: 10.5,
+                    fontSize: m.timelineItemSubtitleSize,
                   ),
                 ),
               ],
@@ -1588,9 +1566,7 @@ class _TimelineItem extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// COMMON CARD
-// -----------------------------------------------------------------------------
+
 
 class _Card extends StatelessWidget {
   const _Card({
@@ -1601,26 +1577,27 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(19),
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(m.cardRadius),
         border: Border.all(
-          color: c.border,
+          color: colors.border,
         ),
-        boxShadow: c.isDark
+        boxShadow: colors.isDark
             ? null
             : [
                 BoxShadow(
-                  color: c.textPrimary.withValues(
+                  color: colors.textPrimary.withValues(
                     alpha: 0.035,
                   ),
-                  blurRadius: 15,
-                  offset: const Offset(0, 4),
+                  blurRadius: m.cardShadowBlur,
+                  offset: Offset(0, m.cardShadowOffsetY),
                 ),
               ],
       ),
@@ -1629,9 +1606,7 @@ class _Card extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// DETAIL ROW
-// -----------------------------------------------------------------------------
+
 
 class _DetailRow extends StatelessWidget {
   const _DetailRow({
@@ -1646,37 +1621,38 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Row(
       children: [
         Container(
-          width: 32,
-          height: 32,
+          width: m.detailIconBox,
+          height: m.detailIconBox,
           decoration: BoxDecoration(
-            color: c.brandSoft,
+            color: colors.brandSoft,
             borderRadius:
-                BorderRadius.circular(10),
+                BorderRadius.circular(m.detailIconRadius),
           ),
           child: Icon(
             icon,
-            size: 15,
-            color: c.brand,
+            size: m.detailIconSize,
+            color: colors.brand,
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: m.detailGapW),
         Expanded(
           child: Text(
             label,
             style: TextStyle(
-              color: c.textSecondary,
+              color: colors.textSecondary,
               fontFamily: 'Inter',
-              fontSize: 11,
+              fontSize: m.detailLabelSize,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: m.detailGapW),
         Flexible(
           child: Text(
             value,
@@ -1684,9 +1660,9 @@ class _DetailRow extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
-              fontSize: 11.5,
+              fontSize: m.detailValueSize,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -1696,32 +1672,28 @@ class _DetailRow extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// DIVIDER
-// -----------------------------------------------------------------------------
 
 class _Divider extends StatelessWidget {
   const _Divider();
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 13,
+      padding: EdgeInsets.symmetric(
+        vertical: m.dividerVPad,
       ),
       child: Container(
         height: 1,
-        color: c.border,
+        color: colors.border,
       ),
     );
   }
 }
 
-// -----------------------------------------------------------------------------
-// STATUS
-// -----------------------------------------------------------------------------
+
 
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({
@@ -1732,29 +1704,30 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 95,
+      constraints: BoxConstraints(
+        maxWidth: m.badgeMaxWidth,
       ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 6,
+      padding: EdgeInsets.symmetric(
+        horizontal: m.badgeHPad,
+        vertical: m.badgeVPad,
       ),
       decoration: BoxDecoration(
-        color: c.brandSoft,
+        color: colors.brandSoft,
         borderRadius:
-            BorderRadius.circular(20),
+            BorderRadius.circular(m.badgeRadius),
       ),
       child: Text(
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: c.brand,
+          color: colors.brand,
           fontFamily: 'Inter',
-          fontSize: 9.5,
+          fontSize: m.badgeFontSize,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -1762,9 +1735,7 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// BOTTOM ACTIONS
-// -----------------------------------------------------------------------------
+
 
 class _BottomActions extends StatefulWidget {
   const _BottomActions({
@@ -1790,7 +1761,8 @@ class _BottomActionsState extends State<_BottomActions> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     final status = widget.booking.status.toUpperCase();
 
@@ -1839,7 +1811,7 @@ class _BottomActionsState extends State<_BottomActions> {
               if (canChangeTime) ...[
                 SizedBox(
                   width: double.infinity,
-                  height: 46,
+                  height: m.changeTimeBtnHeight,
                   child: OutlinedButton.icon(
                     onPressed: (isCancelling || isRescheduling)
                         ? null
@@ -1854,28 +1826,28 @@ class _BottomActionsState extends State<_BottomActions> {
                               _loadAvailability(context);
                             }
                           },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.sync_rounded,
-                      size: 17,
+                      size: m.changeTimeIconSize,
                     ),
                     label: const Text(
                       'Change time',
                     ),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: c.brand,
+                      foregroundColor: colors.brand,
                       disabledForegroundColor:
-                          c.textMuted,
+                      colors.textMuted,
                       side: BorderSide(
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                       shape:
                           RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(30),
+                            BorderRadius.circular(m.changeTimeRadius),
                       ),
-                      textStyle: const TextStyle(
+                      textStyle: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 12,
+                        fontSize: m.changeTimeFontSize,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -1883,7 +1855,7 @@ class _BottomActionsState extends State<_BottomActions> {
                 ),
               ],
               if (_isChangeTimeExpanded) ...[
-                const SizedBox(height: 14),
+                SizedBox(height: m.actionsGap),
                 _ChangeTimeSlots(
                   booking: widget.booking,
                   availabilityState: _availabilityState,
@@ -1891,7 +1863,7 @@ class _BottomActionsState extends State<_BottomActions> {
                 ),
               ],
               if (canCancel && !_isChangeTimeExpanded) ...[
-                const SizedBox(height: 14),
+                SizedBox(height: m.actionsGap),
                 IgnorePointer(
                   ignoring: isCancelling || isRescheduling,
                   child: Opacity(
@@ -1908,27 +1880,27 @@ class _BottomActionsState extends State<_BottomActions> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 7),
+                SizedBox(height: m.slideHintGapH),
                 Text(
                   isCancelling
                       ? 'Cancelling your booking...'
                       : 'Slide all the way to cancel your booking',
                   style: TextStyle(
-                    color: c.textMuted,
+                    color: colors.textMuted,
                     fontFamily: 'Inter',
-                    fontSize: 9.5,
+                    fontSize: m.slideHintSize,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
               if (isRescheduling) ...[
-                const SizedBox(height: 14),
+                SizedBox(height: m.actionsGap),
                 Text(
                   'Rescheduling your booking...',
                   style: TextStyle(
-                    color: c.textMuted,
+                    color: colors.textMuted,
                     fontFamily: 'Inter',
-                    fontSize: 11,
+                    fontSize: m.reschedulingTextSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -1984,9 +1956,7 @@ class _BottomActionsState extends State<_BottomActions> {
   }
 }
 
-// -----------------------------------------------------------------------------
-// CHANGE TIME SLOTS
-// -----------------------------------------------------------------------------
+
 
 class _ChangeTimeSlots extends StatelessWidget {
   const _ChangeTimeSlots({
@@ -2002,24 +1972,25 @@ class _ChangeTimeSlots extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
     final state = availabilityState;
 
     if (state.status == AvailabilityStatus.loading) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
           color: c.surface,
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(m.cardRadius),
           border: Border.all(color: c.border),
         ),
         child: Column(
           children: [
             SizedBox(
-              height: 40,
+              height: m.slotsLoadingHeight,
               child: Center(
                 child: SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: m.slotsSpinnerSize,
+                  height: m.slotsSpinnerSize,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation(
@@ -2029,13 +2000,13 @@ class _ChangeTimeSlots extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: m.slotsMsgGapH),
             Text(
               'Loading available slots...',
               style: TextStyle(
                 color: c.textSecondary,
                 fontFamily: 'Inter',
-                fontSize: 11,
+                fontSize: m.slotsMsgSize,
               ),
             ),
           ],
@@ -2045,10 +2016,10 @@ class _ChangeTimeSlots extends StatelessWidget {
 
     if (state.status == AvailabilityStatus.error) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
           color: c.surface,
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(m.cardRadius),
           border: Border.all(color: c.border),
         ),
         child: Column(
@@ -2056,15 +2027,15 @@ class _ChangeTimeSlots extends StatelessWidget {
             Icon(
               Icons.error_outline_rounded,
               color: c.brand,
-              size: 24,
+              size: m.slotsErrorIconSize,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: m.slotsMsgGapH),
             Text(
               'Failed to load availability',
               style: TextStyle(
                 color: c.textSecondary,
                 fontFamily: 'Inter',
-                fontSize: 11,
+                fontSize: m.slotsMsgSize,
               ),
             ),
           ],
@@ -2075,10 +2046,10 @@ class _ChangeTimeSlots extends StatelessWidget {
     final availability = state.availability;
     if (availability == null || availability.days.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
           color: c.surface,
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(m.cardRadius),
           border: Border.all(color: c.border),
         ),
         child: Text(
@@ -2086,7 +2057,7 @@ class _ChangeTimeSlots extends StatelessWidget {
           style: TextStyle(
             color: c.textSecondary,
             fontFamily: 'Inter',
-            fontSize: 11,
+            fontSize: m.slotsMsgSize,
           ),
         ),
       );
@@ -2095,31 +2066,31 @@ class _ChangeTimeSlots extends StatelessWidget {
     return Container(
           decoration: BoxDecoration(
             color: c.surface,
-            borderRadius: BorderRadius.circular(19),
+            borderRadius: BorderRadius.circular(m.cardRadius),
             border: Border.all(color: c.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  16,
-                  12,
-                  16,
-                  8,
+                padding: EdgeInsets.fromLTRB(
+                  m.slotsHeaderPadH,
+                  m.slotsHeaderPadTop,
+                  m.slotsHeaderPadH,
+                  m.slotsHeaderPadBottom,
                 ),
                 child: Text(
                   'Pick a new time',
                   style: TextStyle(
                     color: c.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 13,
+                    fontSize: m.slotsHeaderTitleSize,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               SizedBox(
-                height: 320,
+                height: m.slotsListHeight,
                 child: SingleChildScrollView(
                   child: Column(
                     children: availability.days
@@ -2163,6 +2134,7 @@ class _DaySlots extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     try {
       final dateTime = DateTime.parse(day.date).toLocal();
@@ -2174,8 +2146,8 @@ class _DaySlots extends StatelessWidget {
         children: [
           if (!isFirst)
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
+              padding: EdgeInsets.symmetric(
+                horizontal: m.slotsHeaderPadH,
               ),
               child: Container(
                 height: 1,
@@ -2183,30 +2155,30 @@ class _DaySlots extends StatelessWidget {
               ),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              12,
-              16,
-              10,
+            padding: EdgeInsets.fromLTRB(
+              m.slotsHeaderPadH,
+              m.slotsHeaderPadTop,
+              m.slotsHeaderPadH,
+              m.dayHeaderPadBottom,
             ),
             child: Text(
               dateStr,
               style: TextStyle(
                 color: c.textSecondary,
                 fontFamily: 'Inter',
-                fontSize: 10,
+                fontSize: m.dayLabelSize,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.3,
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
+            padding: EdgeInsets.symmetric(
+              horizontal: m.slotsHeaderPadH,
             ),
             child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: m.daySlotsSpacing,
+              runSpacing: m.daySlotsSpacing,
               children: day.slots
                   .map<Widget>(
                     (slot) => _TimeSlotButton(
@@ -2222,7 +2194,7 @@ class _DaySlots extends StatelessWidget {
                   .toList(),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: m.dayBottomGapH),
         ],
       );
     } catch (e) {
@@ -2243,6 +2215,7 @@ class _TimeSlotButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     final isAvailable = slot.remaining != null &&
         slot.remaining > 0;
@@ -2261,12 +2234,12 @@ class _TimeSlotButton extends StatelessWidget {
               ? onPressed
               : null,
           borderRadius:
-              BorderRadius.circular(12),
+              BorderRadius.circular(m.slotRadius),
           child: Container(
             padding:
-                const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
+                EdgeInsets.symmetric(
+              horizontal: m.slotHPad,
+              vertical: m.slotVPad,
             ),
             decoration: BoxDecoration(
               color: isAvailable
@@ -2277,7 +2250,7 @@ class _TimeSlotButton extends StatelessWidget {
                     alpha: 0.3,
                   ),
               borderRadius:
-                  BorderRadius.circular(12),
+                  BorderRadius.circular(m.slotRadius),
               border: Border.all(
                 color: isAvailable
                     ? c.brand.withValues(
@@ -2293,7 +2266,7 @@ class _TimeSlotButton extends StatelessWidget {
                     ? c.brand
                     : c.textMuted,
                 fontFamily: 'Inter',
-                fontSize: 11,
+                fontSize: m.slotTextSize,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -2306,14 +2279,7 @@ class _TimeSlotButton extends StatelessWidget {
   }
 }
 
-// CANCEL DIALOG
-// -----------------------------------------------------------------------------
-//
-// IMPORTANT:
-// The TextEditingController belongs to this StatefulWidget.
-// It is created in initState() and disposed ONLY in dispose().
-// It is therefore never disposed while the dialog route is rebuilding.
-// -----------------------------------------------------------------------------
+
 
 class _CancelBookingDialog extends StatefulWidget {
   const _CancelBookingDialog();
@@ -2385,11 +2351,12 @@ class _CancelBookingDialogState
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return AlertDialog(
       backgroundColor: c.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(m.dialogRadius),
       ),
       title: Text(
         'Cancel booking?',
@@ -2410,10 +2377,10 @@ class _CancelBookingDialogState
               style: TextStyle(
                 color: c.textSecondary,
                 fontFamily: 'Inter',
-                fontSize: 12,
+                fontSize: m.dialogBodySize,
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: m.cancelFieldGapH),
             TextField(
               controller: _reasonController,
               focusNode: _reasonFocusNode,
@@ -2426,7 +2393,7 @@ class _CancelBookingDialogState
                 fillColor: c.background,
                 border: OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(14),
+                      BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
                     color: c.border,
                   ),
@@ -2434,7 +2401,7 @@ class _CancelBookingDialogState
                 enabledBorder:
                     OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(14),
+                      BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
                     color: c.border,
                   ),
@@ -2442,7 +2409,7 @@ class _CancelBookingDialogState
                 focusedBorder:
                     OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(14),
+                      BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
                     color: c.brand,
                   ),
@@ -2450,7 +2417,7 @@ class _CancelBookingDialogState
                 errorBorder:
                     OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(14),
+                      BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
                     color: c.brand,
                   ),
@@ -2458,7 +2425,7 @@ class _CancelBookingDialogState
                 focusedErrorBorder:
                     OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(14),
+                      BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
                     color: c.brand,
                   ),
@@ -2493,9 +2460,7 @@ class _CancelBookingDialogState
   }
 }
 
-// -----------------------------------------------------------------------------
-// SLIDE TO CANCEL
-// -----------------------------------------------------------------------------
+
 
 class _SlideToCancel extends StatefulWidget {
   const _SlideToCancel({
@@ -2517,9 +2482,6 @@ class _SlideToCancelState
 
   late final AnimationController _resetController;
   Animation<double>? _resetAnimation;
-
-  static const double _handleSize = 50;
-  static const double _horizontalPadding = 4;
 
   @override
   void initState() {
@@ -2600,14 +2562,17 @@ class _SlideToCancelState
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
+    final handleSize = m.slideHandleSize;
+    final horizontalPadding = m.slideHPad;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final trackWidth = constraints.maxWidth;
 
         final maxDrag = (trackWidth -
-                _handleSize -
-                (_horizontalPadding * 2))
+                handleSize -
+                (horizontalPadding * 2))
             .clamp(0.0, double.infinity);
 
         final progress = maxDrag <= 0
@@ -2616,12 +2581,12 @@ class _SlideToCancelState
                 .clamp(0.0, 1.0);
 
         return Container(
-          height: 58,
+          height: m.slideHeight,
           width: double.infinity,
           decoration: BoxDecoration(
             color: c.surface,
             borderRadius:
-                BorderRadius.circular(30),
+                BorderRadius.circular(m.slideRadius),
             border: Border.all(
               color: c.border,
             ),
@@ -2632,26 +2597,26 @@ class _SlideToCancelState
                       color: c.textPrimary.withValues(
                         alpha: 0.045,
                       ),
-                      blurRadius: 18,
-                      offset: const Offset(0, 5),
+                      blurRadius: m.slideShadowBlur,
+                      offset: Offset(0, m.slideShadowOffsetY),
                     ),
                   ],
           ),
           child: ClipRRect(
             borderRadius:
-                BorderRadius.circular(30),
+                BorderRadius.circular(m.slideRadius),
             child: Stack(
               alignment: Alignment.centerLeft,
               children: [
                 Positioned.fill(
                   child: Container(
-                    margin: const EdgeInsets.all(
-                      _horizontalPadding,
+                    margin: EdgeInsets.all(
+                      horizontalPadding,
                     ),
                     decoration: BoxDecoration(
                       color: c.background,
                       borderRadius:
-                          BorderRadius.circular(26),
+                          BorderRadius.circular(m.slideInnerRadius),
                     ),
                   ),
                 ),
@@ -2666,7 +2631,7 @@ class _SlideToCancelState
                       style: TextStyle(
                         color: c.textSecondary,
                         fontFamily: 'Inter',
-                        fontSize: 12,
+                        fontSize: m.slideTextSize,
                         fontWeight:
                             FontWeight.w700,
                         letterSpacing: 0.1,
@@ -2675,7 +2640,7 @@ class _SlideToCancelState
                   ),
                 ),
                 Positioned(
-                  right: 18,
+                  right: m.slideChevronRightPad,
                   child: IgnorePointer(
                     child: Opacity(
                       opacity:
@@ -2706,8 +2671,8 @@ class _SlideToCancelState
                 ),
                 Positioned(
                   left:
-                      _horizontalPadding + _dragX,
-                  top: _horizontalPadding,
+                      horizontalPadding + _dragX,
+                  top: horizontalPadding,
                   child: GestureDetector(
                     behavior:
                         HitTestBehavior.opaque,
@@ -2757,8 +2722,8 @@ class _SlideToCancelState
                           const Duration(
                         milliseconds: 120,
                       ),
-                      width: _handleSize,
-                      height: _handleSize,
+                      width: handleSize,
+                      height: handleSize,
                       decoration:
                           BoxDecoration(
                         color: c.brand,
@@ -2768,9 +2733,9 @@ class _SlideToCancelState
                             color: c.brand.withValues(
                               alpha: 0.22,
                             ),
-                            blurRadius: 12,
+                            blurRadius: m.slideHandleShadowBlur,
                             offset:
-                                const Offset(0, 4),
+                                Offset(0, m.slideHandleShadowOffsetY),
                           ),
                         ],
                       ),
@@ -2786,7 +2751,7 @@ class _SlideToCancelState
                                   'completed',
                                 ),
                                 color: c.surface,
-                                size: 22,
+                                size: m.slideCheckIconSize,
                               )
                             : Icon(
                                 Icons
@@ -2795,7 +2760,7 @@ class _SlideToCancelState
                                   'arrow',
                                 ),
                                 color: c.surface,
-                                size: 21,
+                                size: m.slideArrowIconSize,
                               ),
                       ),
                     ),
@@ -2809,7 +2774,7 @@ class _SlideToCancelState
                             BoxDecoration(
                           borderRadius:
                               BorderRadius.circular(
-                            30,
+                            m.slideRadius,
                           ),
                           border: Border.all(
                             color: c.brand.withValues(
@@ -2830,9 +2795,6 @@ class _SlideToCancelState
   }
 }
 
-// -----------------------------------------------------------------------------
-// CHEVRON
-// -----------------------------------------------------------------------------
 
 class _SlideChevron extends StatelessWidget {
   const _SlideChevron({
@@ -2845,68 +2807,70 @@ class _SlideChevron extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final m = BookingDetailsMetrics.of(context);
+
     return Opacity(
       opacity: opacity,
       child: Icon(
         Icons.chevron_right_rounded,
-        size: 18,
+        size: m.chevronIconSize,
         color: color,
       ),
     );
   }
 }
 
-// -----------------------------------------------------------------------------
-// LOADING
-// -----------------------------------------------------------------------------
+
 
 class _BookingDetailsLoading extends StatelessWidget {
   const _BookingDetailsLoading();
 
   @override
   Widget build(BuildContext context) {
+    final m = BookingDetailsMetrics.of(context);
+
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            20,
-            14,
-            20,
-            16,
+          padding: EdgeInsets.fromLTRB(
+            m.loadingHeaderPadH,
+            m.loadingHeaderPadTop,
+            m.loadingHeaderPadH,
+            m.loadingHeaderPadBottom,
           ),
           child: Row(
             children: [
-              const _LoadingBox(
-                width: 42,
-                height: 42,
-                radius: 13,
+              _LoadingBox(
+                width: m.loadingAvatarBox,
+                height: m.loadingAvatarBox,
+                radius: m.loadingAvatarRadius,
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: m.loadingAvatarGapW),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     _LoadingBox(
-                      width: 150,
-                      height: 18,
-                      radius: 6,
+                      width: m.loadingTitleWidth,
+                      height: m.loadingTitleHeight,
+                      radius: m.loadingTitleRadius,
                     ),
-                    SizedBox(height: 7),
+                    SizedBox(height: m.loadingTitleGapH),
                     _LoadingBox(
-                      width: 110,
-                      height: 11,
-                      radius: 5,
+                      width: m.loadingSubWidth,
+                      height: m.loadingSubHeight,
+                      radius: m.loadingSubRadius,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 14),
-              const _LoadingBox(
-                width: 42,
-                height: 42,
-                radius: 13,
+              SizedBox(width: m.loadingAvatarGapW),
+              _LoadingBox(
+                width: m.loadingAvatarBox,
+                height: m.loadingAvatarBox,
+                radius: m.loadingAvatarRadius,
               ),
             ],
           ),
@@ -2914,26 +2878,26 @@ class _BookingDetailsLoading extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              20,
-              4,
-              20,
-              40,
+            padding: EdgeInsets.fromLTRB(
+              m.loadingListPadH,
+              m.loadingListPadTop,
+              m.loadingListPadH,
+              m.loadingListPadBottom,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                _LoadingCard(),
-                SizedBox(height: 18),
-                _LoadingCard(),
-                SizedBox(height: 18),
-                _LoadingCard(),
-                SizedBox(height: 18),
-                _LoadingCard(),
-                SizedBox(height: 18),
-                _LoadingCard(),
-                SizedBox(height: 18),
-                _LoadingCard(),
+              children: [
+                const _LoadingCard(),
+                SizedBox(height: m.loadingCardGapH),
+                const _LoadingCard(),
+                SizedBox(height: m.loadingCardGapH),
+                const _LoadingCard(),
+                SizedBox(height: m.loadingCardGapH),
+                const _LoadingCard(),
+                SizedBox(height: m.loadingCardGapH),
+                const _LoadingCard(),
+                SizedBox(height: m.loadingCardGapH),
+                const _LoadingCard(),
               ],
             ),
           ),
@@ -2949,13 +2913,14 @@ class _LoadingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(m.loadingCardPad),
       decoration: BoxDecoration(
         color: c.surface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(m.loadingCardRadius),
         border: Border.all(
           color: c.border,
         ),
@@ -2964,35 +2929,35 @@ class _LoadingCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment:
             CrossAxisAlignment.start,
-        children: const [
+        children: [
           _LoadingBox(
-            width: 130,
-            height: 15,
-            radius: 6,
+            width: m.loadingLine1Width,
+            height: m.loadingLine1Height,
+            radius: m.loadingLine1Radius,
           ),
-          SizedBox(height: 16),
+          SizedBox(height: m.loadingGap1),
           _LoadingBox(
             width: double.infinity,
-            height: 12,
-            radius: 5,
+            height: m.loadingLine2Height,
+            radius: m.loadingLine2Radius,
           ),
-          SizedBox(height: 10),
+          SizedBox(height: m.loadingGap2),
           _LoadingBox(
-            width: 220,
-            height: 12,
-            radius: 5,
+            width: m.loadingLine3Width,
+            height: m.loadingLine2Height,
+            radius: m.loadingLine2Radius,
           ),
-          SizedBox(height: 20),
+          SizedBox(height: m.loadingGap3),
           _LoadingBox(
             width: double.infinity,
             height: 1,
             radius: 1,
           ),
-          SizedBox(height: 18),
+          SizedBox(height: m.loadingGap4),
           _LoadingBox(
-            width: 160,
-            height: 11,
-            radius: 5,
+            width: m.loadingLine4Width,
+            height: m.loadingLine4Height,
+            radius: m.loadingLine4Radius,
           ),
         ],
       ),
@@ -3029,9 +2994,6 @@ class _LoadingBox extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// ERROR
-// -----------------------------------------------------------------------------
 
 class _BookingDetailsError extends StatelessWidget {
   const _BookingDetailsError({
@@ -3045,16 +3007,17 @@ class _BookingDetailsError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
+    final m = BookingDetailsMetrics.of(context);
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(m.cardPad),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 64,
-              height: 64,
+              width: m.errorIconBox,
+              height: m.errorIconBox,
               decoration: BoxDecoration(
                 color: c.brandSoft,
                 shape: BoxShape.circle,
@@ -3062,34 +3025,34 @@ class _BookingDetailsError extends StatelessWidget {
               child: Icon(
                 Icons.error_outline_rounded,
                 color: c.brand,
-                size: 30,
+                size: m.errorIconSize,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: m.errorGap1),
             Text(
               'Unable to load booking',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: c.textPrimary,
                 fontFamily: 'Inter',
-                fontSize: 17,
+                fontSize: m.errorTitleSize,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: m.errorGap2),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: c.textSecondary,
                 fontFamily: 'Inter',
-                fontSize: 12,
+                fontSize: m.errorBodySize,
                 height: 1.4,
               ),
             ),
-            const SizedBox(height: 18),
+            SizedBox(height: m.errorGap3),
             SizedBox(
-              height: 44,
+              height: m.errorBtnHeight,
               child: ElevatedButton(
                 onPressed: onRetry,
                 style: ElevatedButton.styleFrom(
@@ -3097,7 +3060,7 @@ class _BookingDetailsError extends StatelessWidget {
                   foregroundColor: c.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(24),
+                        BorderRadius.circular(m.errorBtnRadius),
                   ),
                 ),
                 child: const Text(
@@ -3116,9 +3079,6 @@ class _BookingDetailsError extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// HELPERS
-// -----------------------------------------------------------------------------
 
 DateTime? _parseApiDate(String? value) {
   if (value == null || value.trim().isEmpty) {
