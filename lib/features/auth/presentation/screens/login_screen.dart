@@ -210,6 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _loginFormManager = LoginFormManager();
 
   bool _obscurePassword = true;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -238,7 +239,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submit() {
-    if (context.read<AuthBloc>().state is AuthLoading) return;
+    if (_isSubmitting) return;
+    // if (context.read<AuthBloc>().state is AuthLoading) return;
+    _isSubmitting = true;
     FocusScope.of(context).unfocus();
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
@@ -247,6 +250,8 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text,
         ),
       );
+    } else {
+      _isSubmitting = false;
     }
   }
 
@@ -267,6 +272,9 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          if (state is! AuthLoading) {
+            _isSubmitting = false;
+          }
           if (state is AuthAuthenticated) {
             context.go(AppRoutes.home);
           } else if (state is AuthOtpRequired) {

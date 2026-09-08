@@ -373,6 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
+  bool _isSubmitting = false;
 
   Timer? _emailDebounce;
   String? _checkedEmail;
@@ -423,12 +424,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _submit() {
-    if (context.read<AuthBloc>().state is AuthLoading) return;
+    if (_isSubmitting) return;
+    // if (context.read<AuthBloc>().state is AuthLoading) return;
     if (_emailExists == true) {
       AppSnackbar.showError(context, 'This email is already registered');
       return;
     }
 
+    _isSubmitting = true;
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
         RegisterRequested(
@@ -439,6 +442,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           phone: _phoneController.text.trim(),
         ),
       );
+    } else {
+      _isSubmitting = false;
     }
   }
 
@@ -528,6 +533,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          if (state is! AuthLoading) {
+            _isSubmitting = false;
+          }
           if (state is AuthError) {
             AppSnackbar.showError(context, state.failure.message);
           } else if (state is AuthOtpRequired) {

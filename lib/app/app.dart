@@ -91,6 +91,7 @@ class _AppState extends State<App> {
     } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
       _authDetermined = true;
       _wishlistCubit.clearForLogout();
+      _cartCubit.clearForLogout();
       unawaited(
         _router.updateAuthState(
           RouteAuthState.unauthenticated(hasSeenOnboarding: _onboardingSeen),

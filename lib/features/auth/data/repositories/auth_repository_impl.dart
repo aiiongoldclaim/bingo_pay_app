@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
+
 import '../../../../core/error/error_handler.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/email_existence_result.dart';
 import '../../domain/entities/kyc_entity.dart';
@@ -16,7 +16,10 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remote;
   final AuthLocalDataSource _local;
 
-  AuthRepositoryImpl(this._remote, this._local);
+  AuthRepositoryImpl(
+    this._remote,
+    this._local,
+  );
 
   @override
   Future<Either<Failure, UserEntity>> login({
@@ -24,17 +27,23 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final result = await _remote.login(email: email, password: password);
+      final result = await _remote.login(
+        email: email,
+        password: password,
+      );
+
       await _local.saveTokens(
         accessToken: result.token,
         refreshToken: result.refreshToken,
       );
+
       await _local.saveUser(result.user);
+
       return Right(result.user);
-    } on EmailNotVerifiedException {
-      rethrow;
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -56,8 +65,10 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       return Right(result.data);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -67,27 +78,40 @@ class AuthRepositoryImpl implements AuthRepository {
     required String otp,
   }) async {
     try {
-      final result = await _remote.verifyOtp(email: email, otp: otp);
+      final result = await _remote.verifyOtp(
+        email: email,
+        otp: otp,
+      );
 
       await _local.saveTokens(
         accessToken: result.token,
         refreshToken: result.refreshToken,
       );
+
       await _local.saveUser(result.user);
 
       return Right(result.user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> sendSsoLoginOtp({required String email}) async {
+  Future<Either<Failure, Unit>> sendSsoLoginOtp({
+    required String email,
+  }) async {
     try {
-      await _remote.sendSsoLoginOtp(email: email);
+      await _remote.sendSsoLoginOtp(
+        email: email,
+      );
+
       return const Right(unit);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -97,45 +121,74 @@ class AuthRepositoryImpl implements AuthRepository {
     required String otp,
   }) async {
     try {
-      final result = await _remote.verifySsoLogin(email: email, otp: otp);
+      final result = await _remote.verifySsoLogin(
+        email: email,
+        otp: otp,
+      );
+
       await _local.saveTokens(
         accessToken: result.token,
         refreshToken: result.refreshToken,
       );
+
       await _local.saveUser(result.user);
+
       return Right(result.user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> setPassword({required String password}) async {
+  Future<Either<Failure, Unit>> setPassword({
+    required String password,
+  }) async {
     try {
-      await _remote.setPassword(password: password);
+      await _remote.setPassword(
+        password: password,
+      );
+
       return const Right(unit);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> sendOtp({required String email}) async {
+  Future<Either<Failure, Unit>> sendOtp({
+    required String email,
+  }) async {
     try {
-      await _remote.sendOtp(email: email);
+      await _remote.sendOtp(
+        email: email,
+      );
+
       return const Right(unit);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> resendOtp({required String email}) async {
+  Future<Either<Failure, Unit>> resendOtp({
+    required String email,
+  }) async {
     try {
-      await _remote.resendOtp(email: email);
+      await _remote.resendOtp(
+        email: email,
+      );
+
       return const Right(unit);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -144,10 +197,15 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
   }) async {
     try {
-      final result = await _remote.checkEmailExists(email: email);
+      final result = await _remote.checkEmailExists(
+        email: email,
+      );
+
       return Right(result);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -156,26 +214,37 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
   }) async {
     try {
-      final message = await _remote.forgotPassword(email: email);
+      final message = await _remote.forgotPassword(
+        email: email,
+      );
+
       return Right(message);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
   @override
   Future<Either<Failure, String>> logout() async {
     String message = 'Logged out successfully';
+
     try {
       message = await _remote.logout();
     } catch (_) {
-      // Best-effort — clear local storage even if API call fails
+      // Best effort.
+      // Local authentication data must still be cleared.
     }
+
     try {
       await _local.clearAll();
+
       return Right(message);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -183,9 +252,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity?>> getStoredUser() async {
     try {
       final user = await _local.getUser();
+
       return Right(user);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -201,9 +273,12 @@ class AuthRepositoryImpl implements AuthRepository {
         dateOfBirth: dateOfBirth,
         address: address,
       );
+
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -217,9 +292,12 @@ class AuthRepositoryImpl implements AuthRepository {
         filePath: filePath,
         documentType: documentType,
       );
+
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -228,10 +306,15 @@ class AuthRepositoryImpl implements AuthRepository {
     required String filePath,
   }) async {
     try {
-      final kyc = await _remote.uploadKycSelfie(filePath: filePath);
+      final kyc = await _remote.uploadKycSelfie(
+        filePath: filePath,
+      );
+
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 
@@ -239,9 +322,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, KycEntity>> getKycStatus() async {
     try {
       final kyc = await _remote.getKycStatus();
+
       return Right(kyc);
-    } on Exception catch (e) {
-      return Left(ErrorHandler.mapExceptionToFailure(e));
+    } catch (e) {
+      return Left(
+        ErrorHandler.mapObjectToFailure(e),
+      );
     }
   }
 }

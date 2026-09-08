@@ -426,7 +426,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void _submit() {
-    if (context.read<AuthBloc>().state is AuthLoading) return;
+    // if (context.read<AuthBloc>().state is AuthLoading) return;
     FocusScope.of(context).unfocus();
 
     final error = Validators.otp(_otpController.text, length: _otpLength);
@@ -443,7 +443,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _resend() {
     if (_secondsLeft > 0) return;
-    if (context.read<AuthBloc>().state is AuthLoading) return;
+    // if (context.read<AuthBloc>().state is AuthLoading) return;
     _otpController.clear();
     setState(() => _otpError = null);
     context.read<AuthBloc>().add(OtpResendRequested(email: widget.email));
@@ -540,7 +540,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   fontFamily: 'Inter',
                   fontSize: m.footerText + 1,
                   fontWeight: FontWeight.w700,
-                  color: colors.statusWarning,
+                  // color: colors.statusWarning,
+                  color: colors.error,
                 ),
               ),
             ],
@@ -569,7 +570,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontSize: m.footerText,
                       fontWeight: FontWeight.w500,
-                      color: colors.statusWarning,
+                      // color: colors.statusWarning,
+                      color: colors.error,
                     ),
                   ),
                 ),
@@ -689,7 +691,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         width: boxW,
         height: boxH,
         textStyle: pinTextStyle,
-        decoration: deco(c.surface, hasError ? c.statusWarning : c.border),
+        decoration: deco(
+          c.surface,
+          //hasError ? c.statusWarning : c.border
+          hasError ? c.error : c.border, // CHANGE HERE
+           ),
       ),
 
       focusedPinTheme: PinTheme(
@@ -698,7 +704,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         textStyle: pinTextStyle,
         decoration: deco(
           c.surface,
-          hasError ? c.statusWarning : c.brand,
+          // hasError ? c.statusWarning : c.brand,
+          hasError ? c.error : c.brand, // CHANGE HERE
           width: 1.8,
         ),
       ),
@@ -709,15 +716,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         textStyle: pinTextStyle,
         decoration: deco(
           hasError ? c.surface : c.brandSoft,
-          hasError ? c.statusWarning : c.brand,
+          // hasError ? c.statusWarning : c.brand,
+          hasError ? c.error : c.brand, // CHANGE HERE
         ),
       ),
 
       errorPinTheme: PinTheme(
         width: boxW,
         height: boxH,
-        textStyle: pinTextStyle.copyWith(color: c.statusWarning),
-        decoration: deco(c.surface, c.statusWarning, width: 1.5),
+        textStyle: pinTextStyle.copyWith(
+          // color: c.statusWarning
+          color: c.error, // CHANGE HERE
+          ),
+        decoration: deco(c.surface, 
+        // c.statusWarning,
+        c.error, // CHANGE HERE
+         width: 1.5),
       ),
     );
   }

@@ -10,6 +10,7 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   Future<void> _confirmLogout(BuildContext context) async {
+    if (context.read<AuthBloc>().state is AuthLoading) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
