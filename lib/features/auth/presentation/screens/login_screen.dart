@@ -1,175 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:sizer/sizer.dart';
-// import '../../../../core/router/app_routes.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// import '../../../../core/utils/validators.dart';
-// import '../../../../core/widgets/app_button.dart';
-// import '../../../../core/widgets/app_snackbar.dart';
-// import '../../../../core/widgets/app_text_field.dart';
-// import '../bloc/auth_bloc.dart';
-// import '../bloc/auth_event.dart';
-// import '../bloc/auth_state.dart';
-// import '../widgets/auth_shell.dart';
-
-// class LoginScreen extends StatefulWidget {
-//   const LoginScreen({super.key});
-
-//   @override
-//   State<LoginScreen> createState() => _LoginScreenState();
-// }
-
-// class _LoginScreenState extends State<LoginScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   final _emailController = TextEditingController();
-//   final _passwordController = TextEditingController();
-//   bool _obscurePassword = true;
-
-//   @override
-//   void dispose() {
-//     _emailController.dispose();
-//     _passwordController.dispose();
-//     super.dispose();
-//   }
-
-//   void _submit() {
-//     if (_formKey.currentState?.validate() ?? false) {
-//       context.read<AuthBloc>().add(
-//             LoginRequested(
-//               email: _emailController.text.trim(),
-//               password: _passwordController.text,
-//             ),
-//           );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: ThemeColors.background,
-//       body: BlocListener<AuthBloc, AuthState>(
-//         listener: (context, state) {
-//           if (state is AuthAuthenticated) {
-//             context.go(AppRoutes.home);
-//           } else if (state is AuthOtpRequired) {
-//             context.push(AppRoutes.registerOtp, extra: state.email);
-//           } else if (state is AuthError) {
-//             AppSnackbar.showError(context, state.failure.message);
-//           }
-//         },
-//         child: SafeArea(
-//           child: SingleChildScrollView(
-//             padding: EdgeInsets.symmetric(horizontal: 6.w),
-//             child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.stretch,
-//                 children: [
-//                   SizedBox(height: 6.h),
-//                   const AuthBrandHeader(
-//                     title: 'Welcome Back',
-//                     subtitle: 'Sign in to continue to BingoPay',
-//                   ),
-//                   SizedBox(height: 4.h),
-//                   AuthCard(
-//                     children: [
-//                       AppTextField(
-//                         controller: _emailController,
-//                         label: 'Email',
-//                         keyboardType: TextInputType.emailAddress,
-//                         prefixIcon: const Icon(
-//                           Icons.mail_outline_rounded,
-//                           color: ThemeColors.inkDim,
-//                         ),
-//                         // validator: Validators.email,
-//                       ),
-//                       SizedBox(height: 2.h),
-//                       AppTextField(
-//                         controller: _passwordController,
-//                         label: 'Password',
-//                         obscureText: _obscurePassword,
-//                         validator: Validators.password,
-//                         prefixIcon: const Icon(
-//                           Icons.lock_outline_rounded,
-//                           color: ThemeColors.inkDim,
-//                         ),
-//                         suffixIcon: IconButton(
-//                           icon: Icon(
-//                             _obscurePassword
-//                                 ? Icons.visibility_outlined
-//                                 : Icons.visibility_off_outlined,
-//                             color: ThemeColors.inkDim,
-//                           ),
-//                           onPressed: () => setState(
-//                             () => _obscurePassword = !_obscurePassword,
-//                           ),
-//                         ),
-//                       ),
-//                       Align(
-//                         alignment: Alignment.centerRight,
-//                         child: TextButton(
-//                           onPressed: () =>
-//                               context.push(AppRoutes.forgotPassword),
-//                           style: TextButton.styleFrom(
-//                             foregroundColor: ThemeColors.blue,
-//                             padding: EdgeInsets.zero,
-//                             minimumSize: Size.zero,
-//                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-//                           ),
-//                           child: Text(
-//                             'Forgot Password?',
-//                             style: AppTextStyles.labelLarge.copyWith(
-//                               color: ThemeColors.blue,
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                       SizedBox(height: 1.h),
-//                       BlocBuilder<AuthBloc, AuthState>(
-//                         builder: (context, state) => AppButton(
-//                           label: 'Sign In',
-//                           onPressed: _submit,
-//                           isLoading: state is AuthLoading,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   SizedBox(height: 3.h),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       Text(
-//                         "Don't have an account?",
-//                         style: AppTextStyles.bodyMedium,
-//                       ),
-//                       TextButton(
-//                         onPressed: () => context.go(AppRoutes.register),
-//                         style: TextButton.styleFrom(
-//                           foregroundColor: ThemeColors.blue,
-//                         ),
-//                         child: Text(
-//                           'Register',
-//                           style: AppTextStyles.labelLarge.copyWith(
-//                             color: ThemeColors.blue,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   SizedBox(height: 3.h),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-//NEW
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -186,6 +14,8 @@ import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -211,6 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
   bool _isSubmitting = false;
+  Failure? _currentError;
 
   @override
   void initState() {
@@ -276,18 +107,38 @@ class _LoginScreenState extends State<LoginScreen> {
             _isSubmitting = false;
           }
           if (state is AuthAuthenticated) {
+            setState(() => _currentError = null);
             context.go(AppRoutes.home);
           } else if (state is AuthOtpRequired) {
+            setState(() => _currentError = null);
             context.push(AppRoutes.registerOtp, extra: state.email);
           } else if (state is AuthError) {
-            AppSnackbar.showError(context, state.failure.message);
+            setState(() => _currentError = state.failure);
+            if (state.failure is! RateLimitFailure) {
+              AppSnackbar.showError(context, state.failure.message);
+            }
           }
         },
 
         buildWhen: (prev, curr) =>
-        (prev is AuthLoading) != (curr is AuthLoading),
+        (prev is AuthLoading) != (curr is AuthLoading) ||
+        (prev is AuthError) != (curr is AuthError),
 
         builder: (context, state) {
+          if (_currentError != null) {
+            return SafeArea(
+              child: _currentError!.buildErrorWidget(
+                onRetry: () {
+                  setState(() => _currentError = null);
+                  if (_formKey.currentState?.validate() ?? false) {
+                    _submit();
+                  }
+                },
+                fullScreen: true,
+              ),
+            );
+          }
+
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
             child: SafeArea(
