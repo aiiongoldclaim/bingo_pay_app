@@ -177,21 +177,29 @@ on<KycStatusPolled>(
   ) async {
     if (emit.isDone) return;
     emit(const AuthLoading());
-    final result = await _checkAuthStatus();
-    result.match((failure) {
+    try {
+      final result = await _checkAuthStatus().timeout(
+        const Duration(seconds: 5),
+      );
+      result.fold(
+        (failure) {
+          if (!emit.isDone) emit(const AuthUnauthenticated());
+        },
+        (user) {
+          if (user == null) {
+            if (!emit.isDone) emit(const AuthUnauthenticated());
+            return;
+          }
+          if (!user.passwordSet) {
+            if (!emit.isDone) emit(SsoSetPasswordRequired(user.email));
+            return;
+          }
+          if (!emit.isDone) emit(AuthAuthenticated(user));
+        },
+      );
+    } catch (e) {
       if (!emit.isDone) emit(const AuthUnauthenticated());
-    }, (user) {
-      if (user == null) {
-        if (!emit.isDone) emit(const AuthUnauthenticated());
-        return;
-      }
-      // Check if user is SSO authenticated but password not set
-      if (!user.passwordSet) {
-        if (!emit.isDone) emit(SsoSetPasswordRequired(user.email));
-        return;
-      }
-      if (!emit.isDone) emit(AuthAuthenticated(user));
-    });
+    }
   }
 
   // Future<void> _onLogin(LoginRequested event, Emitter<AuthState> emit) async {

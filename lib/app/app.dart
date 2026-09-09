@@ -83,11 +83,18 @@ class _AppState extends State<App> {
           RouteAuthState.authenticated(
             isKycPending: false,
             // isKycPending: state.user.kycStatus != 'approved',
-            hasSeenOnboarding: _onboardingSeen,
+            hasSeenOnboarding: onboardingSeen,
           ),
         ),
       );
       _cartCubit.loadCart();
+    } else if (state is SsoSetPasswordRequired) {
+      _authDetermined = true;
+      unawaited(
+        _router.updateAuthState(
+          const RouteAuthState.unauthenticated(hasSeenOnboarding: false),
+        ),
+      );
     } else if (state is AuthUnauthenticated || state is AuthLoggedOut) {
       _authDetermined = true;
       _wishlistCubit.clearForLogout();
