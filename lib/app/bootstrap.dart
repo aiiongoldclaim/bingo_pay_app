@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_flavor/flutter_flavor.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:intro/intro.dart';
 import '../core/config/flavor_config.dart';
 import '../core/di/injection.dart';
 import 'app.dart';
@@ -29,13 +28,11 @@ import 'app_bloc_observer.dart';
 Future<void> bootstrap() async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
 
-  // Native splash ko hold karo jab tak Flutter ka pehla frame ready na ho
   FlutterNativeSplash.preserve(widgetsBinding: binding);
 
-  // Remove native splash after first frame is rendered                                                                           
-      binding.addPostFrameCallback((_) {                                                                                              
-         FlutterNativeSplash.remove();                                                                                                 
-        }); 
+  binding.addPostFrameCallback((_) {
+    FlutterNativeSplash.remove();
+  });
 
   final view = binding.platformDispatcher.views.first;
   final shortestSide = view.physicalSize.shortestSide / view.devicePixelRatio;
@@ -51,53 +48,8 @@ Future<void> bootstrap() async {
   Bloc.observer = AppBlocObserver();
 
   runApp(
-    Intro(
-      controller: IntroController(stepCount: 7),
-      cardDecoration: IntroCardDecoration(
-        tapBarrierToContinue: true,
-        showPreviousButton: false,
-        nextButtonStyle: ButtonStyle(
-          backgroundColor: MaterialStateColor.resolveWith(
-            (states) => Colors.lightBlue,
-          ),
-          shape: MaterialStateProperty.resolveWith(
-            (states) => const RoundedRectangleBorder(),
-          ),
-        ),
-        closeButtonStyle: ButtonStyle(
-          backgroundColor: MaterialStateColor.resolveWith(
-            (states) => Colors.lime,
-          ),
-          shape: MaterialStateProperty.resolveWith(
-            (states) => const RoundedRectangleBorder(),
-          ),
-          foregroundColor: MaterialStateColor.resolveWith(
-            (states) => Colors.white,
-          ),
-        ),
-      ),
-      topLayerBuilder: (context, controller) {
-        return Padding(
-          // padding: EdgeInsets.only(top: 6.h, left: 80.w, right: 20),
-          padding: const EdgeInsets.only(top: 48, left: 280, right: 20),
-          child: TextButton(
-            onPressed: controller.close,
-            style: ButtonStyle(
-              foregroundColor: MaterialStateColor.resolveWith(
-                (states) => Colors.white70,
-              ),
-              backgroundColor: MaterialStateColor.resolveWith(
-                (states) => Colors.white24,
-              ),
-            ),
-            child: const Text("Exit"),
-          ),
-        );
-      },
-      child: FlavorConfig.instance.isProduction
-          ? const App()
-          : FlavorBanner(child: const App()),
-    ),
+    FlavorConfig.instance.isProduction
+        ? const App()
+        : FlavorBanner(child: const App()),
   );
-
 }
