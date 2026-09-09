@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sizer/sizer.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -32,7 +34,7 @@ class _BookingCardState extends State<BookingCard> {
     if (widget.booking.uuid.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Invoice is not available for this booking yet.'),
+          content: Text(AppStrings.invoiceNotAvailable),
         ),
       );
       return;
@@ -49,7 +51,7 @@ class _BookingCardState extends State<BookingCard> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to download invoice. Please try again.'),
+            content: Text(AppStrings.invoiceDownloadFailed),
           ),
         );
       }
@@ -91,7 +93,7 @@ class _BookingCardState extends State<BookingCard> {
           onTap: _openDetail,
           borderRadius: BorderRadius.circular(22),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+            padding: EdgeInsets.fromLTRB(3.59.w, 1.66.h, 3.59.w, 1.42.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -100,7 +102,7 @@ class _BookingCardState extends State<BookingCard> {
                   children: [
                     ServiceThumb(booking: widget.booking),
 
-                    const SizedBox(width: 13),
+                    SizedBox(width: 3.33.w),
 
                     Expanded(
                       child: Column(
@@ -118,12 +120,12 @@ class _BookingCardState extends State<BookingCard> {
                                     color: colors.textPrimary,
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 16,
+                                    fontSize: 16.sp,
                                     letterSpacing: -0.2,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 2.05.w),
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -134,10 +136,10 @@ class _BookingCardState extends State<BookingCard> {
                                     color: status.color,
                                     background: status.background,
                                   ),
-                                  const SizedBox(width: 3),
+                                  SizedBox(width: 0.77.w),
                                   Icon(
                                     Icons.arrow_forward_ios_rounded,
-                                    size: 14,
+                                    size: 14.sp,
                                     color: colors.textMuted,
                                   ),
                                 ],
@@ -148,7 +150,7 @@ class _BookingCardState extends State<BookingCard> {
                           if (widget.booking.offering.offeringName
                               .trim()
                               .isNotEmpty) ...[
-                            const SizedBox(height: 3),
+                            SizedBox(height: 0.36.h),
                             Text(
                               widget.booking.offering.offeringName,
                               maxLines: 1,
@@ -156,16 +158,16 @@ class _BookingCardState extends State<BookingCard> {
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: colors.textSecondary,
                                 fontFamily: 'Inter',
-                                fontSize: 12.5,
+                                fontSize: 12.5.sp,
                               ),
                             ),
                           ],
 
-                          const SizedBox(height: 9),
+                          SizedBox(height: 1.07.h),
 
                           ScheduleLine(booking: widget.booking),
 
-                          const SizedBox(height: 6),
+                          SizedBox(height: 0.71.h),
 
                           IconLine(
                             icon: Icons.location_on_outlined,
@@ -177,11 +179,11 @@ class _BookingCardState extends State<BookingCard> {
                   ],
                 ),
 
-                const SizedBox(height: 13),
+                SizedBox(height: 1.54.h),
 
                 Container(height: 1, color: colors.border),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 1.42.h),
 
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -193,7 +195,7 @@ class _BookingCardState extends State<BookingCard> {
                         Expanded(
                           flex: 4,
                           child: MetaBlock(
-                            label: 'Booking ID',
+                            label: AppStrings.bookingIdLabel,
                             value: '#${widget.booking.bookingNumber}',
                           ),
                         ),
@@ -201,7 +203,7 @@ class _BookingCardState extends State<BookingCard> {
                         Expanded(
                           flex: 3,
                           child: MetaBlock(
-                            label: 'Participants',
+                            label: AppStrings.participantsLabel,
                             value: '${widget.booking.participants}',
                             leading: Icons.people_alt_rounded,
                           ),
@@ -210,7 +212,7 @@ class _BookingCardState extends State<BookingCard> {
                         Expanded(
                           flex: 4,
                           child: MetaBlock(
-                            label: 'Payment',
+                            label: AppStrings.paymentLabel,
                             value: '₹ ${widget.booking.orderItem.totalAmount}',
                             pill: widget.booking.paymentMode,
                           ),
@@ -219,7 +221,7 @@ class _BookingCardState extends State<BookingCard> {
                     );
 
                     final action = SizedBox(
-                      width: stacked ? double.infinity : 168,
+                      width: stacked ? double.infinity : 43.08.w,
                       child: InvoiceButton(
                         loading: _generatingPdf,
                         onTap: _generatingPdf ? null : _downloadInvoice,
@@ -228,7 +230,7 @@ class _BookingCardState extends State<BookingCard> {
 
                     if (stacked) {
                       return Column(
-                        children: [meta, const SizedBox(height: 12), action],
+                        children: [meta, SizedBox(height: 1.42.h), action],
                       );
                     }
 
@@ -236,7 +238,7 @@ class _BookingCardState extends State<BookingCard> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(child: meta),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 3.08.w),
                         action,
                       ],
                     );
@@ -296,26 +298,26 @@ class _BookingCardState extends State<BookingCard> {
   String _statusLabel(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return 'Pending';
+        return AppStrings.statusPending;
 
       case 'CONFIRMED':
-        return 'Upcoming';
+        return AppStrings.statusUpcoming;
 
       case 'IN_PROGRESS':
       case 'STARTED':
-        return 'In progress';
+        return AppStrings.statusInProgress;
 
       case 'COMPLETED':
-        return 'Completed';
+        return AppStrings.statusCompleted;
 
       case 'CANCELLED':
-        return 'Cancelled';
+        return AppStrings.statusCancelled;
 
       case 'REJECTED':
-        return 'Rejected';
+        return AppStrings.statusRejected;
 
       case 'RESCHEDULED':
-        return 'Rescheduled';
+        return AppStrings.statusRescheduled;
 
       default:
         return _prettyStatus(status);
@@ -324,7 +326,7 @@ class _BookingCardState extends State<BookingCard> {
 
   String _prettyStatus(String value) {
     if (value.trim().isEmpty) {
-      return 'Pending';
+      return AppStrings.statusPending;
     }
 
     return value

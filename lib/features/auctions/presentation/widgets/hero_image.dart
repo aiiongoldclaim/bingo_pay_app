@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
+
 class HeroImage extends StatelessWidget {
   final String? imageUrl;
 
@@ -10,6 +12,8 @@ class HeroImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return AspectRatio(
       aspectRatio: 1.15,
       child: imageUrl != null
@@ -17,31 +21,31 @@ class HeroImage extends StatelessWidget {
               imageUrl!,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) {
-                return _placeholder();
+                return _placeholder(colors);
               },
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) {
                   return child;
                 }
 
-                return const Center(
+                return Center(
                   child: CircularProgressIndicator(
-                    color: Colors.white,
+                    color: colors.onHeroBanner,
                   ),
                 );
               },
             )
-          : _placeholder(),
+          : _placeholder(colors),
     );
   }
 
-  Widget _placeholder() {
+  Widget _placeholder(AppThemeColors colors) {
     return Container(
-      color: Colors.grey.shade200,
-      child: const Icon(
+      color: colors.surfaceAlt,
+      child: Icon(
         Icons.image_outlined,
         size: 60,
-        color: Colors.grey,
+        color: colors.textMuted,
       ),
     );
   }

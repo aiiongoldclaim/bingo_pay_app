@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/bookings_entity.dart';
@@ -55,11 +56,11 @@ class BookingsLoadedView extends StatelessWidget {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 40),
+              padding: EdgeInsets.fromLTRB(4.1.w, 0.71.h, 4.1.w, 4.74.h),
               sliver: SliverList.separated(
                 itemCount: visible.length,
                 separatorBuilder: (_, __) {
-                  return const SizedBox(height: 14);
+                  return SizedBox(height: 1.66.h);
                 },
                 itemBuilder: (context, index) {
                   return BookingCard(booking: visible[index], index: index);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sizer/sizer.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../cubit/booking_cubit.dart';
@@ -16,13 +18,13 @@ class BookingErrorView extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
+        padding: EdgeInsets.symmetric(horizontal: 7.69.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 70,
-              height: 70,
+              width: 17.95.w,
+              height: 17.95.w,
               decoration: BoxDecoration(
                 color: colors.brandSoft,
                 shape: BoxShape.circle,
@@ -30,12 +32,12 @@ class BookingErrorView extends StatelessWidget {
               child: Icon(
                 Icons.error_outline_rounded,
                 color: colors.brand,
-                size: 32,
+                size: 32.sp,
               ),
             ),
-            const SizedBox(height: 18),
+            SizedBox(height: 2.13.h),
             Text(
-              'Unable to load bookings',
+              AppStrings.unableToLoadBookings,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
                 color: colors.textPrimary,
@@ -43,7 +45,7 @@ class BookingErrorView extends StatelessWidget {
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 7),
+            SizedBox(height: 0.83.h),
             Text(
               message,
               textAlign: TextAlign.center,
@@ -52,13 +54,13 @@ class BookingErrorView extends StatelessWidget {
                 fontFamily: 'Inter',
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 2.37.h),
             OutlinedButton.icon(
               onPressed: () {
                 context.read<BookingCubit>().fetchBookings();
               },
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try again'),
+              label: const Text(AppStrings.tryAgainSentenceCase),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colors.brand,
                 side: BorderSide(color: colors.brand),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/bookings_entity.dart';
 import '../cubit/booking_cubit.dart';

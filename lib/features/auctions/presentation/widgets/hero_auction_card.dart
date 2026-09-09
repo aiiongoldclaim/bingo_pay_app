@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
 import 'hero_information.dart';
@@ -17,6 +18,8 @@ class HeroAuctionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     final imageUrl =
         auction.images != null && auction.images!.isNotEmpty
             ? auction.images!.first
@@ -25,15 +28,17 @@ class HeroAuctionCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B1324),
+        color: colors.auctionHeroBackground,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.10),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: colors.isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.textPrimary.withValues(alpha: 0.10),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
       ),
       clipBehavior: Clip.antiAlias,
       child: LayoutBuilder(

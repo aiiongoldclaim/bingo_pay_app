@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 
@@ -30,18 +31,18 @@ class MetaBlock extends StatelessWidget {
           style: TextStyle(
             color: colors.textMuted,
             fontFamily: 'Inter',
-            fontSize: 10,
+            fontSize: 10.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: 3),
+        SizedBox(height: 0.36.h),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (leading != null) ...[
-              Icon(leading, size: 13, color: colors.brand),
-              const SizedBox(width: 4),
+              Icon(leading, size: 13.sp, color: colors.brand),
+              SizedBox(width: 1.03.w),
             ],
             Flexible(
               child: Text(
@@ -51,18 +52,18 @@ class MetaBlock extends StatelessWidget {
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: 12.5,
+                  fontSize: 12.5.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
             ),
             if (pill != null && pill!.trim().isNotEmpty) ...[
-              const SizedBox(width: 5),
+              SizedBox(width: 1.28.w),
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2.5,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 1.54.w,
+                    vertical: 0.3.h,
                   ),
                   decoration: BoxDecoration(
                     color: colors.statusSuccessSoft,
@@ -75,7 +76,7 @@ class MetaBlock extends StatelessWidget {
                     style: TextStyle(
                       color: colors.statusSuccess,
                       fontFamily: 'Inter',
-                      fontSize: 9,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -98,8 +99,8 @@ class MetaDivider extends StatelessWidget {
 
     return Container(
       width: 1,
-      height: 34,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
+      height: 4.03.h,
+      margin: EdgeInsets.symmetric(horizontal: 2.56.w),
       color: colors.border,
     );
   }

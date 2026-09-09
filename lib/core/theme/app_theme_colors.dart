@@ -57,6 +57,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color error;
   final Color onError;
 
+  // ── Auction hero (gold-on-navy spotlight card) ────────────
+  final Color auctionHeroBackground;
+  final Color auctionAccent;
+  final Color onAuctionAccent;
+
   // ── Overlays ─────────────────────────────────────────────
   /// Dialog / bottom sheet barrier
   final Color scrim;
@@ -108,6 +113,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.statusWarningSoft,
     required this.error,
     required this.onError,
+    required this.auctionHeroBackground,
+    required this.auctionAccent,
+    required this.onAuctionAccent,
     required this.scrim,
     required this.dialogShadow,
     required this.onboardingBackground,
@@ -163,6 +171,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarningSoft: Color(0xFFFFF3E5),
     error: ThemeColors.red,
     onError: ThemeColors.white,
+
+    auctionHeroBackground: ThemeColors.auctionHeroBackground,
+    auctionAccent: ThemeColors.auctionGold,
+    onAuctionAccent: ThemeColors.black,
 
     scrim: Color(0xA6000000),
     dialogShadow: Color(0x334C1E76),
@@ -234,6 +246,10 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     error: Color(0xFFF87171),
     onError: Color(0xFF2A0E0A),
 
+    auctionHeroBackground: ThemeColors.auctionHeroBackground,
+    auctionAccent: ThemeColors.auctionGold,
+    onAuctionAccent: ThemeColors.black,
+
     scrim: Color(0xA6000000),
     dialogShadow: Color(0x8C000000),
 
@@ -287,6 +303,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? statusWarningSoft,
     Color? error,
     Color? onError,
+    Color? auctionHeroBackground,
+    Color? auctionAccent,
+    Color? onAuctionAccent,
     Color? scrim,
     Color? dialogShadow,
     LinearGradient? onboardingBackground,
@@ -335,6 +354,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusWarningSoft: statusWarningSoft ?? this.statusWarningSoft,
       error: error ?? this.error,
       onError: onError ?? this.onError,
+      auctionHeroBackground: auctionHeroBackground ?? this.auctionHeroBackground,
+      auctionAccent: auctionAccent ?? this.auctionAccent,
+      onAuctionAccent: onAuctionAccent ?? this.onAuctionAccent,
       scrim: scrim ?? this.scrim,
       dialogShadow: dialogShadow ?? this.dialogShadow,
       onboardingBackground: onboardingBackground ?? this.onboardingBackground,
@@ -402,6 +424,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       Color.lerp(statusWarningSoft, other.statusWarningSoft, t)!,
       error: Color.lerp(error, other.error, t)!,
       onError: Color.lerp(onError, other.onError, t)!,
+      auctionHeroBackground:
+      Color.lerp(auctionHeroBackground, other.auctionHeroBackground, t)!,
+      auctionAccent: Color.lerp(auctionAccent, other.auctionAccent, t)!,
+      onAuctionAccent:
+      Color.lerp(onAuctionAccent, other.onAuctionAccent, t)!,
       scrim: Color.lerp(scrim, other.scrim, t)!,
       dialogShadow: Color.lerp(dialogShadow, other.dialogShadow, t)!,
       onboardingBackground: LinearGradient.lerp(

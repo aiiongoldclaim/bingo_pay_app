@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/error/error_handler.dart';
 import '../../domain/repositories/booking_repository.dart';
 import 'booking_state.dart';
@@ -32,7 +33,7 @@ class BookingCubit extends Cubit<BookingState>{
       final bookings = await repository.getBookings();
       emit(BookingListLoaded(bookings));
     } catch (e) {
-      emit(BookingError(_describe(e, "Failed to fetch bookings")));
+      emit(BookingError(_describe(e, AppStrings.failedToFetchBookings)));
     }
   }
 
@@ -43,7 +44,7 @@ class BookingCubit extends Cubit<BookingState>{
       final bookingDetails = await repository.getBookingDetails(bookingUuid);
       emit(BookingDetailLoaded(bookingDetails));
     } catch (e) {
-      emit(BookingDetailError(_describe(e, "Failed to fetch booking details")));
+      emit(BookingDetailError(_describe(e, AppStrings.failedToFetchBookingDetails)));
     }
   }
 
@@ -54,7 +55,7 @@ class BookingCubit extends Cubit<BookingState>{
       await repository.cancelBooking(bookingUuid: bookingUuid, reason: reason);
       emit(BookingCancelSuccess());
     } catch (e) {
-      emit(BookingCancelError(_describe(e, "Failed to cancel booking")));
+      emit(BookingCancelError(_describe(e, AppStrings.failedToCancelBookingMsg)));
     }
   }
 
@@ -68,7 +69,7 @@ class BookingCubit extends Cubit<BookingState>{
       );
       emit(BookingRescheduleSuccess(bookingDetails));
     } catch (e) {
-      emit(BookingRescheduleError(_describe(e, "Failed to reschedule booking")));
+      emit(BookingRescheduleError(_describe(e, AppStrings.failedToRescheduleBookingMsg)));
     }
   }
 }

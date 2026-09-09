@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'booking_filter.dart';
@@ -11,21 +13,21 @@ class FilterChipsRow extends StatelessWidget {
   final ValueChanged<BookingFilter> onChanged;
 
   static const _labels = <BookingFilter, String>{
-    BookingFilter.all: 'All',
-    BookingFilter.completed: 'Completed',
-    BookingFilter.cancelled: 'Cancelled',
-    BookingFilter.rescheduled: 'Rescheduled',
+    BookingFilter.all: AppStrings.bookingFilterAll,
+    BookingFilter.completed: AppStrings.bookingFilterCompleted,
+    BookingFilter.cancelled: AppStrings.bookingFilterCancelled,
+    BookingFilter.rescheduled: AppStrings.bookingFilterRescheduled,
   };
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 46,
+      height: 5.45.h,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        padding: EdgeInsets.fromLTRB(4.1.w, 0, 4.1.w, 0),
         itemCount: _labels.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 9),
+        separatorBuilder: (_, __) => SizedBox(width: 2.31.w),
         itemBuilder: (context, index) {
           final entry = _labels.entries.elementAt(index);
 
@@ -64,7 +66,7 @@ class BookingFilterChip extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 18),
+          padding: EdgeInsets.symmetric(horizontal: 4.62.w),
           decoration: BoxDecoration(
             color: active ? colors.brand : colors.brandSoft,
             borderRadius: BorderRadius.circular(24),
@@ -76,7 +78,7 @@ class BookingFilterChip extends StatelessWidget {
               color: active ? colors.onBrand : colors.brand,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
-              fontSize: 13,
+              fontSize: 13.sp,
             ),
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 
@@ -14,13 +15,13 @@ class BookingsLoadingView extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+            padding: EdgeInsets.fromLTRB(5.13.w, 1.66.h, 5.13.w, 1.66.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                BookingSkeleton(width: 130, height: 18),
-                SizedBox(height: 6),
-                BookingSkeleton(width: 200, height: 12),
+              children: [
+                BookingSkeleton(width: 33.33.w, height: 2.13.h),
+                SizedBox(height: 0.71.h),
+                BookingSkeleton(width: 51.28.w, height: 1.42.h),
               ],
             ),
           ),
@@ -28,59 +29,59 @@ class BookingsLoadingView extends StatelessWidget {
 
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+            padding: EdgeInsets.fromLTRB(4.1.w, 0, 4.1.w, 1.66.h),
             child: Row(
-              children: const [
-                BookingSkeleton(width: 66, height: 34),
-                SizedBox(width: 9),
-                BookingSkeleton(width: 96, height: 34),
-                SizedBox(width: 9),
-                BookingSkeleton(width: 104, height: 34),
+              children: [
+                BookingSkeleton(width: 16.92.w, height: 4.03.h),
+                SizedBox(width: 2.31.w),
+                BookingSkeleton(width: 24.62.w, height: 4.03.h),
+                SizedBox(width: 2.31.w),
+                BookingSkeleton(width: 26.67.w, height: 4.03.h),
               ],
             ),
           ),
         ),
 
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 4.1.w),
           sliver: SliverList.separated(
             itemCount: 4,
-            separatorBuilder: (_, __) => const SizedBox(height: 14),
+            separatorBuilder: (_, __) => SizedBox(height: 1.66.h),
             itemBuilder: (_, __) {
               return Container(
-                height: 196,
+                height: 23.22.h,
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: colors.border),
                 ),
-                padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.all(3.59.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const BookingSkeleton(width: 74, height: 92),
-                        const SizedBox(width: 13),
+                        BookingSkeleton(width: 18.97.w, height: 10.9.h),
+                        SizedBox(width: 3.33.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              BookingSkeleton(height: 16),
-                              SizedBox(height: 8),
-                              BookingSkeleton(width: 120, height: 12),
-                              SizedBox(height: 14),
-                              BookingSkeleton(height: 12),
-                              SizedBox(height: 8),
-                              BookingSkeleton(width: 140, height: 12),
+                            children: [
+                              BookingSkeleton(height: 1.9.h),
+                              SizedBox(height: 0.95.h),
+                              BookingSkeleton(width: 30.77.w, height: 1.42.h),
+                              SizedBox(height: 1.66.h),
+                              BookingSkeleton(height: 1.42.h),
+                              SizedBox(height: 0.95.h),
+                              BookingSkeleton(width: 35.9.w, height: 1.42.h),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    const BookingSkeleton(height: 42),
+                    SizedBox(height: 1.9.h),
+                    BookingSkeleton(height: 4.98.h),
                   ],
                 ),
               );

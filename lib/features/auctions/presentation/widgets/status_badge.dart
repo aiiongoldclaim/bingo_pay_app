@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
+
 class StatusBadge extends StatelessWidget {
   final String status;
 
@@ -10,7 +12,8 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _getStatusColor();
+    final colors = context.colors;
+    final color = _getStatusColor(colors);
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -18,7 +21,7 @@ class StatusBadge extends StatelessWidget {
         vertical: 4,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -32,22 +35,22 @@ class StatusBadge extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor() {
+  Color _getStatusColor(AppThemeColors colors) {
     switch (status) {
       case 'LIVE':
-        return Colors.green;
+        return colors.statusSuccess;
 
       case 'ENDING_SOON':
-        return Colors.orange;
+        return colors.statusWarning;
 
       case 'STARTING_SOON':
-        return Colors.blue;
+        return colors.statusInfo;
 
       case 'CLOSED':
-        return Colors.grey;
+        return colors.textMuted;
 
       default:
-        return Colors.grey;
+        return colors.textMuted;
     }
   }
 }

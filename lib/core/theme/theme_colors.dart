@@ -110,6 +110,12 @@ class ThemeColors {
 
   static const Color black = Color(0xFF000000);
   // =========================
+  // AUCTION HERO (gold-on-navy spotlight card)
+  // =========================
+  static const Color auctionHeroBackground = Color(0xFF0B1324);
+  static const Color auctionGold = Color(0xFFE4B94F);
+
+  // =========================
   // DARK MODE PALETTE  (NEW)
   // =========================
   static const Color darkBackground = Color(0xFF0A0A0B);
