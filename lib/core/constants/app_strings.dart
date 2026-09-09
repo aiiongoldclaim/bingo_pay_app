@@ -226,4 +226,123 @@ class AppStrings {
   static const String sortPriceLowToHigh = 'Price: Low to High';
   static const String sortPriceHighToLow = 'Price: High to Low';
   static const String sortHighestRated = 'Highest Rated';
+
+  // ── Bookings: My Bookings list ─────────────────────────────────────
+  static const String myBookingsTitle = 'My Bookings';
+  static const String myBookingsSubtitle = 'View and manage all your bookings';
+  static const String bookingFilterAll = 'All';
+  static const String bookingFilterCompleted = 'Completed';
+  static const String bookingFilterCancelled = 'Cancelled';
+  static const String bookingFilterRescheduled = 'Rescheduled';
+  static const String nothingHereTitle = 'Nothing here';
+  static const String noBookingsYetTitle = 'No bookings yet';
+  static const String noBookingsMatchFilter =
+      'No bookings match this filter right now.';
+  static const String noBookingsBody =
+      'Your appointments will appear here once you make a booking.';
+  static const String unableToLoadBookings = 'Unable to load bookings';
+  static const String invoiceNotAvailable =
+      'Invoice is not available for this booking yet.';
+  static const String invoiceDownloadFailed =
+      'Failed to download invoice. Please try again.';
+  static const String bookingIdLabel = 'Booking ID';
+  static const String participantsLabel = 'Participants';
+  static const String paymentLabel = 'Payment';
+  static const String statusPending = 'Pending';
+  static const String statusUpcoming = 'Upcoming';
+  static const String statusInProgress = 'In progress';
+  static const String statusCompleted = 'Completed';
+  static const String statusCancelled = 'Cancelled';
+  static const String statusRejected = 'Rejected';
+  static const String statusRescheduled = 'Rescheduled';
+  static const String generatingEllipsis = 'Generating...';
+  static const String downloadInvoiceCta = 'Download Invoice';
+  static const String timePlaceholder = '--:--';
+  static const String datePlaceholder = '--';
+
+  // ── Bookings: Booking Details ────────────────────────────────────
+  static const String bookingDetailsTitle = 'Booking Details';
+  static const String reviewYourAppointment = 'Review your appointment';
+  static const String bookingRescheduledTitle = 'Booking Rescheduled';
+  static const String bookingRescheduledMessage =
+      'Your appointment has been rescheduled successfully.';
+  static const String bookingCancelledTitle = 'Booking Cancelled';
+  static const String bookingCancelledMessage =
+      'Your booking has been cancelled successfully.';
+  static const String backToBookings = 'Back to Bookings';
+  static const String unableToLoadBooking = 'Unable to load booking';
+  static const String tryAgainSentenceCase = 'Try again';
+
+  static const String sectionAppointment = 'Appointment';
+  static const String sectionService = 'Service';
+  static const String sectionProvider = 'Provider';
+  static const String sectionServiceAddress = 'Service Address';
+  static const String sectionBookingInformation = 'Booking Information';
+
+  static const String bookingLabel = 'Booking';
+  static const String offeringLabel = 'Offering';
+  static const String durationLabel = 'Duration';
+  static const String bookingNumberLabel = 'Booking number';
+  static const String orderNumberLabel = 'Order number';
+  static const String reschedulesLabel = 'Reschedules';
+
+  static const String addressFallback = 'Address';
+  static const String serviceProviderFallback = 'Service Provider';
+  static const String serviceProviderSubtitle = 'Service provider';
+
+  static const String appointmentRescheduledMsg =
+      'This appointment was rescheduled.';
+  static const String appointmentCancelledMsg =
+      'This appointment has been cancelled.';
+  static const String appointmentCompletedMsg =
+      'This appointment has been completed.';
+  static const String appointmentScheduledMsg =
+      'Your appointment is scheduled.';
+
+  static const String paidViaPrepaidPayment = 'Paid via prepaid payment';
+  static const String paymentCompletedStatus = 'Payment completed';
+  static const String payAfterServiceStatus = 'Pay after service';
+  static const String paymentInformationStatus = 'Payment information';
+
+  static const String bookingTimeline = 'Booking Timeline';
+  static const String noTimelineEvents = 'No timeline events available.';
+  static const String timelineBookingCreated = 'Booking created';
+  static const String timelineBookingRescheduled = 'Booking rescheduled';
+  static const String timelineBookingConfirmed = 'Booking confirmed';
+  static const String timelineCheckedIn = 'Checked in';
+  static const String timelineServiceStarted = 'Service started';
+  static const String timelineServiceCompleted = 'Service completed';
+  static const String timelineBookingCancelled = 'Booking cancelled';
+
+  static const String cancelBookingQuestion = 'Cancel booking?';
+  static const String cancellationReasonPrompt =
+      'Please provide a reason for cancellation.';
+  static const String cancellationReasonHint = 'Cancellation reason';
+  static const String cancellationReasonRequired =
+      'Please enter a cancellation reason.';
+  static const String keepBooking = 'Keep booking';
+  static const String cancelBookingCta = 'Cancel booking';
+  static const String slideToCancel = 'Slide to cancel';
+  static const String slideAllTheWayToCancel =
+      'Slide all the way to cancel your booking';
+  static const String cancellingYourBooking = 'Cancelling your booking...';
+  static const String reschedulingYourBooking =
+      'Rescheduling your booking...';
+  static const String changeTimeCta = 'Change time';
+  static const String pickANewTime = 'Pick a new time';
+  static const String loadingAvailableSlots = 'Loading available slots...';
+  static const String failedToLoadAvailability =
+      'Failed to load availability';
+  static const String noAvailableSlots = 'No available slots';
+
+  static const String failedToFetchBookings = 'Failed to fetch bookings';
+  static const String failedToFetchBookingDetails =
+      'Failed to fetch booking details';
+  static const String failedToCancelBookingMsg = 'Failed to cancel booking';
+  static const String failedToRescheduleBookingMsg =
+      'Failed to reschedule booking';
+
+  static String paymentModeText(String mode) => 'Payment mode: $mode';
+  static String participantsCountText(int count) =>
+      '$count ${count == 1 ? 'person' : 'people'}';
 }

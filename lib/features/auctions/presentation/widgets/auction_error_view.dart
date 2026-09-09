@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
+
 class AuctionErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -12,6 +14,8 @@ class AuctionErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -22,24 +26,24 @@ class AuctionErrorView extends StatelessWidget {
               width: 70,
               height: 70,
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.08),
+                color: colors.error.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.error_outline,
                 size: 38,
-                color: Colors.red,
+                color: colors.error,
               ),
             ),
 
             const SizedBox(height: 18),
 
-            const Text(
+            Text(
               'Unable to load auctions',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF07152D),
+                color: colors.textPrimary,
               ),
             ),
 
@@ -49,7 +53,7 @@ class AuctionErrorView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.grey.shade600,
+                color: colors.textSecondary,
                 height: 1.4,
               ),
             ),
@@ -59,8 +63,8 @@ class AuctionErrorView extends StatelessWidget {
             ElevatedButton(
               onPressed: onRetry,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE4B94F),
-                foregroundColor: Colors.black,
+                backgroundColor: colors.auctionAccent,
+                foregroundColor: colors.onAuctionAccent,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 25,

@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
+
 class HeroCountdown extends StatefulWidget {
   final int secondsRemaining;
 
@@ -74,6 +76,7 @@ class _HeroCountdownState extends State<HeroCountdown> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final duration = Duration(seconds: _remaining);
 
     final days = duration.inDays;
@@ -84,10 +87,10 @@ class _HeroCountdownState extends State<HeroCountdown> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'CLOSES IN',
           style: TextStyle(
-            color: Colors.white54,
+            color: colors.onHeroBanner.withValues(alpha: 0.54),
             fontSize: 10,
             letterSpacing: 1.5,
             fontWeight: FontWeight.w600,
@@ -135,20 +138,22 @@ class _TimeValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       children: [
         Text(
           value.toString().padLeft(2, '0'),
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.onHeroBanner,
             fontSize: 24,
             fontWeight: FontWeight.w600,
           ),
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: colors.onHeroBanner.withValues(alpha: 0.54),
             fontSize: 8,
             letterSpacing: 1,
           ),
@@ -163,12 +168,14 @@ class _Colon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5),
+    final colors = context.colors;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Text(
         ':',
         style: TextStyle(
-          color: Colors.white38,
+          color: colors.onHeroBanner.withValues(alpha: 0.38),
           fontSize: 22,
         ),
       ),

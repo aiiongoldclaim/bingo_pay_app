@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
+
 class HeroBidInfo extends StatelessWidget {
   final AuctionEntity auction;
 
@@ -12,15 +14,17 @@ class HeroBidInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final onHeroMuted = colors.onHeroBanner.withValues(alpha: 0.54);
     final price = auction.currentBid ?? auction.startingPrice;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'CURRENT BID',
           style: TextStyle(
-            color: Colors.white54,
+            color: onHeroMuted,
             fontSize: 10,
             letterSpacing: 1.5,
             fontWeight: FontWeight.w600,
@@ -29,8 +33,8 @@ class HeroBidInfo extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           '\$$price',
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.onHeroBanner,
             fontSize: 28,
             fontWeight: FontWeight.w700,
           ),
@@ -39,8 +43,8 @@ class HeroBidInfo extends StatelessWidget {
         Text(
           '${auction.bidCount} '
           '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: onHeroMuted,
             fontSize: 12,
           ),
         ),

@@ -92,9 +92,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  // ============================================================
-  // CONTENT
-  // ============================================================
 
   Widget _buildContent(MyBidsEntity myBids) {
     final filteredItems = _filterItems(myBids.items);
@@ -116,25 +113,16 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
         const SizedBox(height: 22),
 
-        // ========================================================
-        // SUMMARY
-        // ========================================================
 
         _buildSummary(myBids.summary),
 
         const SizedBox(height: 24),
 
-        // ========================================================
-        // FILTERS
-        // ========================================================
 
         _buildFilters(),
 
         const SizedBox(height: 18),
 
-        // ========================================================
-        // LIST
-        // ========================================================
 
         if (filteredItems.isEmpty)
           _buildEmptyFilter()
@@ -144,9 +132,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  // ============================================================
-  // HEADER
-  // ============================================================
 
   Widget _buildHeader() {
     return const Text(
@@ -159,9 +144,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  // ============================================================
-  // SUMMARY
-  // ============================================================
 
   Widget _buildSummary(MyBidsSummaryEntity summary) {
     return LayoutBuilder(
@@ -253,9 +235,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  // ============================================================
-  // FILTERS
-  // ============================================================
 
   Widget _buildFilters() {
     const filters = [
@@ -315,9 +294,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  // ============================================================
-  // FILTER LOGIC
-  // ============================================================
+
 
   List<MyBidItemEntity> _filterItems(
     List<MyBidItemEntity> items,
@@ -411,9 +388,7 @@ bool _isWon(MyBidItemEntity item) {
         status.contains('live');
   }
 
-  // ============================================================
-  // BID LIST
-  // ============================================================
+
 
   Widget _buildBidList(List<MyBidItemEntity> items) {
     return Column(
@@ -442,9 +417,7 @@ bool _isWon(MyBidItemEntity item) {
     );
   }
 
-  // ============================================================
-  // PAY NOW
-  // ============================================================
+
 
   void _payNow(MyBidItemEntity item) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -455,13 +428,10 @@ bool _isWon(MyBidItemEntity item) {
       ),
     );
 
-    // TODO:
-    // Navigate to your payment screen here.
+
   }
 
-  // ============================================================
-  // DETAILS
-  // ============================================================
+
 
   void _showDetails(MyBidItemEntity item) {
     showModalBottomSheet(
@@ -476,9 +446,6 @@ bool _isWon(MyBidItemEntity item) {
     );
   }
 
-  // ============================================================
-  // EMPTY
-  // ============================================================
 
   Widget _buildEmptyFilter() {
     return Container(
@@ -526,9 +493,6 @@ bool _isWon(MyBidItemEntity item) {
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
 
   Widget _buildError(String message) {
     return RefreshIndicator(
@@ -596,9 +560,7 @@ bool _isWon(MyBidItemEntity item) {
   }
 }
 
-// ============================================================
-// SUMMARY CARD
-// ============================================================
+
 
 class _SummaryCard extends StatelessWidget {
   final String title;
@@ -649,9 +611,6 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-// ============================================================
-// BID ROW
-// ============================================================
 
 class _MyBidRow extends StatelessWidget {
   final MyBidItemEntity bid;
@@ -709,9 +668,7 @@ class _MyBidRow extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // DESKTOP
-  // ============================================================
+
 
   Widget _buildDesktopRow(
     String currency,
@@ -783,9 +740,7 @@ class _MyBidRow extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // MOBILE
-  // ============================================================
+
 
   Widget _buildMobileRow(
     String currency,
@@ -864,9 +819,7 @@ class _MyBidRow extends StatelessWidget {
     );
   }
 
-  // ============================================================
-  // LOT
-  // ============================================================
+
 
   Widget _buildLot() {
     return Column(
@@ -908,9 +861,7 @@ class _MyBidRow extends StatelessWidget {
   }
 }
 
-// ============================================================
-// MONEY
-// ============================================================
+
 
 class _MoneyText extends StatelessWidget {
   final String? value;
@@ -937,9 +888,7 @@ class _MoneyText extends StatelessWidget {
   }
 }
 
-// ============================================================
-// INFO COLUMN
-// ============================================================
+
 
 class _InfoColumn extends StatelessWidget {
   final String title;
@@ -976,9 +925,6 @@ class _InfoColumn extends StatelessWidget {
   }
 }
 
-// ============================================================
-// STANDING BADGE
-// ============================================================
 
 class _StandingBadge extends StatelessWidget {
   final String status;
@@ -1073,9 +1019,6 @@ class _StandingBadge extends StatelessWidget {
   }
 }
 
-// ============================================================
-// PAY BUTTON
-// ============================================================
 
 class _PayButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -1116,9 +1059,7 @@ class _PayButton extends StatelessWidget {
   }
 }
 
-// ============================================================
-// DETAILS BUTTON
-// ============================================================
+
 
 class _DetailsButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -1158,9 +1099,7 @@ class _DetailsButton extends StatelessWidget {
   }
 }
 
-// ============================================================
-// DETAILS SHEET
-// ============================================================
+
 
 class _BidDetailsSheet extends StatelessWidget {
   final MyBidItemEntity bid;
@@ -1361,9 +1300,6 @@ class _BidDetailsSheet extends StatelessWidget {
   }
 }
 
-// ============================================================
-// DETAIL ITEM
-// ============================================================
 
 class _DetailItem extends StatelessWidget {
   final String title;

@@ -306,7 +306,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               children: [
                 ProductTopBar(
                   metrics: m,
-                  cartCount: cartState.state.totalItems,
+                  cartCount: cartState.state.uniqueItems,
                   isWishlisted: isWishlisted,
                   onBack: () => context.canPop()
                       ? context.pop()

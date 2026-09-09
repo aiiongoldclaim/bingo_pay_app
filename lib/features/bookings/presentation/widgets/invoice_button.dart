@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 
 class InvoiceButton extends StatelessWidget {
@@ -20,8 +22,8 @@ class InvoiceButton extends StatelessWidget {
         child: Opacity(
           opacity: onTap == null ? 0.6 : 1.0,
           child: Container(
-            height: 42,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            height: 4.98.h,
+            padding: EdgeInsets.symmetric(horizontal: 3.08.w),
             decoration: BoxDecoration(
               color: colors.surface,
               borderRadius: BorderRadius.circular(12),
@@ -32,8 +34,8 @@ class InvoiceButton extends StatelessWidget {
               children: [
                 if (loading)
                   SizedBox(
-                    width: 15,
-                    height: 15,
+                    width: 3.85.w,
+                    height: 3.85.w,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       color: colors.brand,
@@ -42,20 +44,22 @@ class InvoiceButton extends StatelessWidget {
                 else
                   Icon(
                     Icons.file_download_outlined,
-                    size: 17,
+                    size: 17.sp,
                     color: colors.brand,
                   ),
-                const SizedBox(width: 8),
+                SizedBox(width: 2.05.w),
                 Flexible(
                   child: Text(
-                    loading ? 'Generating...' : 'Download Invoice',
+                    loading
+                        ? AppStrings.generatingEllipsis
+                        : AppStrings.downloadInvoiceCta,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: colors.brand,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 12.5,
+                      fontSize: 12.5.sp,
                     ),
                   ),
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/bookings_entity.dart';
@@ -13,8 +14,8 @@ class ServiceThumb extends StatelessWidget {
     final colors = context.colors;
 
     return Container(
-      width: 74,
-      height: 92,
+      width: 18.97.w,
+      height: 10.9.h,
       decoration: BoxDecoration(
         color: colors.brandSoft,
         borderRadius: BorderRadius.circular(16),
@@ -24,7 +25,7 @@ class ServiceThumb extends StatelessWidget {
       child: Icon(
         _serviceIcon(booking.service.title),
         color: colors.brand,
-        size: 30,
+        size: 30.sp,
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart'
 import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dart';
 
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import 'hero_bid_info.dart';
 import 'hero_countdown.dart';
 
@@ -21,28 +22,30 @@ class HeroInformation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               SizedBox(
                 width: 8,
                 height: 8,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Color(0xFFE4B94F),
+                    color: colors.auctionAccent,
                     shape: BoxShape.circle,
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'BIDDING OPEN NOW',
                 style: TextStyle(
-                  color: Color(0xFFE4B94F),
+                  color: colors.auctionAccent,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2,
@@ -57,8 +60,8 @@ class HeroInformation extends StatelessWidget {
             auction.title,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colors.onHeroBanner,
               fontSize: 26,
               height: 1.15,
               fontWeight: FontWeight.w700,
@@ -70,7 +73,7 @@ class HeroInformation extends StatelessWidget {
           Container(
             width: 70,
             height: 1,
-            color: const Color(0xFFE4B94F),
+            color: colors.auctionAccent,
           ),
 
           const SizedBox(height: 22),
@@ -93,8 +96,8 @@ class HeroInformation extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onTap,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE4B94F),
-                foregroundColor: Colors.black,
+                backgroundColor: colors.auctionAccent,
+                foregroundColor: colors.onAuctionAccent,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
@@ -135,9 +138,9 @@ class HeroInformation extends StatelessWidget {
                 await cubit.getAuctions();
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFE4B94F),
-                side: const BorderSide(
-                  color: Color(0xFFE4B94F),
+                foregroundColor: colors.auctionAccent,
+                side: BorderSide(
+                  color: colors.auctionAccent,
                   width: 1.2,
                 ),
                 shape: RoundedRectangleBorder(

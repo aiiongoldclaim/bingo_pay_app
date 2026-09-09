@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 
@@ -15,8 +16,8 @@ class IconLine extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: colors.brand),
-        const SizedBox(width: 6),
+        Icon(icon, size: 14.sp, color: colors.brand),
+        SizedBox(width: 1.54.w),
         Flexible(
           child: Text(
             value,
@@ -25,7 +26,7 @@ class IconLine extends StatelessWidget {
             style: TextStyle(
               color: colors.textSecondary,
               fontFamily: 'Inter',
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w600,
             ),
           ),

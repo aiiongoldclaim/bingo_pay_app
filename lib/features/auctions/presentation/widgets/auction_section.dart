@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
 import 'auction_product_card.dart';
@@ -21,6 +22,8 @@ class AuctionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 30),
       child: Column(
@@ -37,9 +40,10 @@ class AuctionSection extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
+                        color: colors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -47,7 +51,7 @@ class AuctionSection extends StatelessWidget {
                       subtitle,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade600,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ],
@@ -55,7 +59,7 @@ class AuctionSection extends StatelessWidget {
                 Text(
                   'View all',
                   style: TextStyle(
-                    color: Colors.deepPurple.shade700,
+                    color: colors.brand,
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),

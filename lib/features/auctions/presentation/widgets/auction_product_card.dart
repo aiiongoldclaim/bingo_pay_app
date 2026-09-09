@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 
+import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
 import 'status_badge.dart';
@@ -17,6 +18,8 @@ class AuctionProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     final imageUrl =
         auction.images != null && auction.images!.isNotEmpty
             ? auction.images!.first
@@ -33,18 +36,20 @@ class AuctionProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: Colors.grey.shade200,
+                color: colors.border,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              boxShadow: colors.isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: colors.textPrimary.withValues(alpha: 0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
@@ -58,10 +63,10 @@ class AuctionProductCard extends StatelessWidget {
                           imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) {
-                            return _placeholder();
+                            return _placeholder(colors);
                           },
                         )
-                      : _placeholder(),
+                      : _placeholder(colors),
                 ),
 
                 Expanded(
@@ -82,7 +87,7 @@ class AuctionProductCard extends StatelessWidget {
                               '${auction.bidCount} bids',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade600,
+                                color: colors.textSecondary,
                               ),
                             ),
                           ],
@@ -94,9 +99,10 @@ class AuctionProductCard extends StatelessWidget {
                           auction.title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
+                            color: colors.textPrimary,
                           ),
                         ),
 
@@ -108,7 +114,7 @@ class AuctionProductCard extends StatelessWidget {
                               : 'Starting Price',
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade600,
+                            color: colors.textSecondary,
                           ),
                         ),
 
@@ -120,16 +126,18 @@ class AuctionProductCard extends StatelessWidget {
                           children: [
                             Text(
                               '\$$price',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
+                                color: colors.textPrimary,
                               ),
                             ),
 
                             if (auction.status == 'LIVE')
-                              const Icon(
+                              Icon(
                                 Icons.arrow_forward,
                                 size: 18,
+                                color: colors.textPrimary,
                               ),
                           ],
                         ),
@@ -145,14 +153,14 @@ class AuctionProductCard extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() {
+  Widget _placeholder(AppThemeColors colors) {
     return Container(
-      color: Colors.grey.shade100,
-      child: const Center(
+      color: colors.surfaceAlt,
+      child: Center(
         child: Icon(
           Icons.image_outlined,
           size: 45,
-          color: Colors.grey,
+          color: colors.textMuted,
         ),
       ),
     );

@@ -151,12 +151,12 @@ class _CategoriesView extends StatelessWidget {
                           0,
                         ),
                         child: BlocBuilder<CartCubit, CartState>(
-                          buildWhen: (a, b) => a.totalItems != b.totalItems,
+                          buildWhen: (a, b) => a.uniqueItems != b.uniqueItems,
                           builder: (context, cartState) => CatHeader(
                             metrics: m,
                             brandName: 'TheVaults',
                             tagline: 'Style. Curated for You.',
-                            cartCount: cartState.totalItems,
+                            cartCount: cartState.uniqueItems,
                             onWishlistTap: () =>
                                 context.push(AppRoutes.buyerWishlist),
                             onCartTap: () => context.push(AppRoutes.cart),

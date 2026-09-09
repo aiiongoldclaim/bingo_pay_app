@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
 import 'auction_section.dart';
@@ -22,6 +23,7 @@ class AuctionContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final heroAuction = _getHeroAuction();
 
     final hasAuctions =
@@ -69,8 +71,8 @@ class AuctionContent extends StatelessWidget {
           ),
 
         if (!hasAuctions)
-          const Padding(
-            padding: EdgeInsets.all(40),
+          Padding(
+            padding: const EdgeInsets.all(40),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -78,14 +80,14 @@ class AuctionContent extends StatelessWidget {
                   Icon(
                     Icons.gavel_outlined,
                     size: 48,
-                    color: Colors.grey,
+                    color: colors.textMuted,
                   ),
-                  SizedBox(height: 14),
+                  const SizedBox(height: 14),
                   Text(
                     'No auctions available',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey,
+                      color: colors.textMuted,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
