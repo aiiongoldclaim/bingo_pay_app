@@ -61,6 +61,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color auctionHeroBackground;
   final Color auctionAccent;
   final Color onAuctionAccent;
+  final Color auctionAccentInk;
 
   // ── Overlays ─────────────────────────────────────────────
   /// Dialog / bottom sheet barrier
@@ -116,6 +117,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.auctionHeroBackground,
     required this.auctionAccent,
     required this.onAuctionAccent,
+    required this.auctionAccentInk,
     required this.scrim,
     required this.dialogShadow,
     required this.onboardingBackground,
@@ -175,6 +177,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     auctionHeroBackground: ThemeColors.auctionHeroBackground,
     auctionAccent: ThemeColors.auctionGold,
     onAuctionAccent: ThemeColors.black,
+    auctionAccentInk: ThemeColors.accentInk,
 
     scrim: Color(0xA6000000),
     dialogShadow: Color(0x334C1E76),
@@ -249,6 +252,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     auctionHeroBackground: ThemeColors.auctionHeroBackground,
     auctionAccent: ThemeColors.auctionGold,
     onAuctionAccent: ThemeColors.black,
+    auctionAccentInk: ThemeColors.goldLight,
 
     scrim: Color(0xA6000000),
     dialogShadow: Color(0x8C000000),
@@ -306,6 +310,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? auctionHeroBackground,
     Color? auctionAccent,
     Color? onAuctionAccent,
+    Color? auctionAccentInk,
     Color? scrim,
     Color? dialogShadow,
     LinearGradient? onboardingBackground,
@@ -357,6 +362,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       auctionHeroBackground: auctionHeroBackground ?? this.auctionHeroBackground,
       auctionAccent: auctionAccent ?? this.auctionAccent,
       onAuctionAccent: onAuctionAccent ?? this.onAuctionAccent,
+      auctionAccentInk: auctionAccentInk ?? this.auctionAccentInk,
       scrim: scrim ?? this.scrim,
       dialogShadow: dialogShadow ?? this.dialogShadow,
       onboardingBackground: onboardingBackground ?? this.onboardingBackground,
@@ -429,6 +435,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       auctionAccent: Color.lerp(auctionAccent, other.auctionAccent, t)!,
       onAuctionAccent:
       Color.lerp(onAuctionAccent, other.onAuctionAccent, t)!,
+      auctionAccentInk:
+      Color.lerp(auctionAccentInk, other.auctionAccentInk, t)!,
       scrim: Color.lerp(scrim, other.scrim, t)!,
       dialogShadow: Color.lerp(dialogShadow, other.dialogShadow, t)!,
       onboardingBackground: LinearGradient.lerp(

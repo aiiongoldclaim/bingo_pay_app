@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
+import 'package:bingo_pay/core/widgets/custom_app_bar.dart';
 import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dart';
 import 'package:bingo_pay/features/auctions/presentation/cubit/auction_state.dart';
 
@@ -60,18 +61,9 @@ class _AuctionScreenState extends State<AuctionScreen> {
     return Scaffold(
       backgroundColor: colors.background,
 
-      appBar: AppBar(
-        backgroundColor: colors.surface,
-        elevation: 0,
+      appBar: const CustomAppBar(
+        title: 'Auctions',
         centerTitle: true,
-        title: Text(
-          'Auctions',
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-          ),
-        ),
       ),
 
       body: BlocBuilder<AuctionCubit, AuctionState>(
