@@ -3,7 +3,6 @@ import 'package:bingo_pay/core/services/product_cache_service.dart';
 import 'package:bingo_pay/features/profile/domain/enities/profile_entity.dart';
 import 'package:bingo_pay/features/profile/domain/usecase/get_profile_usecase.dart';
 import 'package:bingo_pay/features/categories/data/datasources/category_remote_datasource.dart';
-import 'package:bingo_pay/features/categories/data/models/categories_model.dart';
 import 'package:bingo_pay/features/categories/data/models/categories_response_model.dart';
 import 'package:bingo_pay/features/home/data/models/product_model.dart';
 import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart';

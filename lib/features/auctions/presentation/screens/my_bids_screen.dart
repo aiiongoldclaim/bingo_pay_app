@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sizer/sizer.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../cubit/auction_cubit.dart';
 import '../cubit/auction_state.dart';
@@ -39,32 +39,10 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   backgroundColor: Colors.white,
-      //   surfaceTintColor: Colors.transparent,
-      //   // leading: IconButton(
-      //   //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
-      //   //   onPressed: () {
-      //   //     // Navigator.of(context).pop();
-      //   //     log('Back button pressed',stackTrace: StackTrace.fromString("Satyam"),name: "MyBidsScreen");
-      //   //   },
-      //   // ),
-      //   title: const Text(
-      //     'My Bids',
-      //     style: TextStyle(
-      //       color: Color(0xFF101828),
-      //       fontSize: 20,
-      //       fontWeight: FontWeight.w700,
-      //     ),
-      //   ),
-      //   centerTitle: false,
-      //   iconTheme: const IconThemeData(
-      //     color: Color(0xFF101828),
-      //   ),
-      // ),
+      backgroundColor: colors.background,
       appBar: const CustomAppBar(
         title: 'My Bids',
         centerTitle: true,
@@ -72,9 +50,9 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
       body: BlocBuilder<AuctionCubit, AuctionState>(
         builder: (context, state) {
           if (state is MyBidsLoading) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
-                color: Color(0xFFE4B94F),
+                color: colors.auctionAccent,
               ),
             );
           }
@@ -85,7 +63,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
           if (state is MyBidsLoaded) {
             return RefreshIndicator(
-              color: const Color(0xFFE4B94F),
+              color: colors.auctionAccent,
               onRefresh: _refresh,
               child: _buildContent(state.myBids),
             );
@@ -99,34 +77,35 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
 
   Widget _buildContent(MyBidsEntity myBids) {
+    final colors = context.colors;
     final filteredItems = _filterItems(myBids.items);
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+      padding: EdgeInsets.fromLTRB(5.w, 2.5.h, 5.w, 3.8.h),
       children: [
         _buildHeader(),
-        const SizedBox(height: 4),
+        SizedBox(height: 0.5.h),
 
-        const Text(
+        Text(
           'Every auction you have bid on, and where you stand in each.',
           style: TextStyle(
-            fontSize: 14,
-            color: Color(0xFF667085),
+            fontSize: 14.sp,
+            color: colors.textSecondary,
           ),
         ),
 
-        const SizedBox(height: 22),
+        SizedBox(height: 2.75.h),
 
 
         _buildSummary(myBids.summary),
 
-        const SizedBox(height: 24),
+        SizedBox(height: 3.h),
 
 
         _buildFilters(),
 
-        const SizedBox(height: 18),
+        SizedBox(height: 2.25.h),
 
 
         if (filteredItems.isEmpty)
@@ -139,18 +118,22 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
 
   Widget _buildHeader() {
-    return const Text(
+    final colors = context.colors;
+
+    return Text(
       'My bids',
       style: TextStyle(
-        fontSize: 28,
+        fontSize: 28.sp,
         fontWeight: FontWeight.w800,
-        color: Color(0xFF10264D),
+        color: colors.textPrimary,
       ),
     );
   }
 
 
   Widget _buildSummary(MyBidsSummaryEntity summary) {
+    final colors = context.colors;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 700;
@@ -162,31 +145,31 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
                 child: _SummaryCard(
                   title: 'Leading',
                   value: summary.leading,
-                  valueColor: const Color(0xFF16803C),
+                  valueColor: colors.statusSuccess,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 3.w),
               Expanded(
                 child: _SummaryCard(
                   title: 'Outbid',
                   value: summary.outbid,
-                  valueColor: const Color(0xFFB76E00),
+                  valueColor: colors.statusWarning,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 3.w),
               Expanded(
                 child: _SummaryCard(
                   title: 'Won',
                   value: summary.won,
-                  valueColor: const Color(0xFF10264D),
+                  valueColor: colors.textPrimary,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 3.w),
               Expanded(
                 child: _SummaryCard(
                   title: 'Payment due',
                   value: summary.paymentDue,
-                  valueColor: const Color(0xFFB4232F),
+                  valueColor: colors.error,
                 ),
               ),
             ],
@@ -194,43 +177,43 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         }
 
         return SizedBox(
-          height: 105,
+          height: 13.1.h,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
               SizedBox(
-                width: 155,
+                width: 38.8.w,
                 child: _SummaryCard(
                   title: 'Leading',
                   value: summary.leading,
-                  valueColor: const Color(0xFF16803C),
+                  valueColor: colors.statusSuccess,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 3.w),
               SizedBox(
-                width: 155,
+                width: 38.8.w,
                 child: _SummaryCard(
                   title: 'Outbid',
                   value: summary.outbid,
-                  valueColor: const Color(0xFFB76E00),
+                  valueColor: colors.statusWarning,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 3.w),
               SizedBox(
-                width: 155,
+                width: 38.8.w,
                 child: _SummaryCard(
                   title: 'Won',
                   value: summary.won,
-                  valueColor: const Color(0xFF10264D),
+                  valueColor: colors.textPrimary,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 3.w),
               SizedBox(
-                width: 155,
+                width: 38.8.w,
                 child: _SummaryCard(
                   title: 'Payment due',
                   value: summary.paymentDue,
-                  valueColor: const Color(0xFFB4232F),
+                  valueColor: colors.error,
                 ),
               ),
             ],
@@ -242,6 +225,8 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
 
   Widget _buildFilters() {
+    final colors = context.colors;
+
     const filters = [
       'All',
       'Active',
@@ -257,7 +242,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
           final selected = _selectedFilter == filter;
 
           return Padding(
-            padding: const EdgeInsets.only(right: 9),
+            padding: EdgeInsets.only(right: 2.25.w),
             child: GestureDetector(
               onTap: () {
                 setState(() {
@@ -266,29 +251,23 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 17,
-                  vertical: 10,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 4.3.w,
+                  vertical: 1.25.h,
                 ),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? const Color(0xFF061D43)
-                      : Colors.white,
+                  color: selected ? colors.brand : colors.surface,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: selected
-                        ? const Color(0xFF0074FF)
-                        : const Color(0xFFD0D5DD),
+                    color: selected ? colors.brand : colors.border,
                   ),
                 ),
                 child: Text(
                   filter,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
-                    color: selected
-                        ? Colors.white
-                        : const Color(0xFF667085),
+                    color: selected ? colors.onBrand : colors.textSecondary,
                   ),
                 ),
               ),
@@ -336,17 +315,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         status.contains('due') ||
         item.allotment!.isOverdue;
   }
-
-  // bool _isWon(MyBidItemEntity item) {
-  //   final myStatus = item.myStatus.toLowerCase();
-  //   final allotmentStatus =
-  //       item.allotment?.status.toLowerCase() ?? '';
-
-  //   return myStatus.contains('won') ||
-  //       myStatus.contains('winner') ||
-  //       allotmentStatus.contains('won') ||
-  //       allotmentStatus.contains('winner');
-  // }
 
 bool _isWon(MyBidItemEntity item) {
   final myStatus = item.myStatus.trim().toLowerCase();
@@ -396,6 +364,8 @@ bool _isWon(MyBidItemEntity item) {
 
 
   Widget _buildBidList(List<MyBidItemEntity> items) {
+    final colors = context.colors;
+
     return Column(
       children: [
         ...items.map(
@@ -410,12 +380,12 @@ bool _isWon(MyBidItemEntity item) {
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 1.h),
+        Text(
           'Select a row for the full bidding history, who won, and any payment owed.',
           style: TextStyle(
-            fontSize: 12,
-            color: Color(0xFF667085),
+            fontSize: 12.sp,
+            color: colors.textSecondary,
           ),
         ),
       ],
@@ -437,7 +407,6 @@ bool _isWon(MyBidItemEntity item) {
   }
 
 
-
   void _showDetails(MyBidItemEntity item) {
     showModalBottomSheet(
       context: context,
@@ -453,44 +422,46 @@ bool _isWon(MyBidItemEntity item) {
 
 
   Widget _buildEmptyFilter() {
+    final colors = context.colors;
+
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 55,
+      padding: EdgeInsets.symmetric(
+        horizontal: 5.w,
+        vertical: 6.9.h,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFFD9DEE8),
+          color: colors.border,
         ),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.gavel_outlined,
-            size: 50,
-            color: Color(0xFF98A2B3),
+            size: 50.sp,
+            color: colors.textMuted,
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 1.75.h),
           Text(
             _selectedFilter == 'All'
                 ? 'No bids yet'
                 : 'No $_selectedFilter bids',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
+            style: TextStyle(
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF101828),
+              color: colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 6),
-          const Text(
+          SizedBox(height: 0.75.h),
+          Text(
             'Your bids will appear here.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF667085),
+              fontSize: 13.sp,
+              color: colors.textSecondary,
             ),
           ),
         ],
@@ -500,8 +471,10 @@ bool _isWon(MyBidItemEntity item) {
 
 
   Widget _buildError(String message) {
+    final colors = context.colors;
+
     return RefreshIndicator(
-      color: const Color(0xFFE4B94F),
+      color: colors.auctionAccent,
       onRefresh: _refresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -510,50 +483,51 @@ bool _isWon(MyBidItemEntity item) {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.25,
           ),
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
-            size: 60,
-            color: Color(0xFFD92D20),
+            size: 60.sp,
+            color: colors.error,
           ),
-          const SizedBox(height: 18),
-          const Text(
+          SizedBox(height: 2.25.h),
+          Text(
             'Something went wrong',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF101828),
+              color: colors.textPrimary,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 1.h),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: 14.sp,
               height: 1.5,
-              color: Color(0xFF667085),
+              color: colors.textSecondary,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 2.5.h),
           Center(
             child: ElevatedButton(
               onPressed: _refresh,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE4B94F),
-                foregroundColor: Colors.white,
+                backgroundColor: colors.auctionAccent,
+                foregroundColor: colors.onAuctionAccent,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 13,
+                padding: EdgeInsets.symmetric(
+                  horizontal: 7.w,
+                  vertical: 1.6.h,
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Try Again',
                 style: TextStyle(
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -580,14 +554,16 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
-      height: 105,
-      padding: const EdgeInsets.fromLTRB(16, 15, 16, 12),
+      height: 13.1.h,
+      padding: EdgeInsets.fromLTRB(4.w, 1.9.h, 4.w, 1.5.h),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFD9DEE8),
+          color: colors.border,
         ),
       ),
       child: Column(
@@ -595,17 +571,17 @@ class _SummaryCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 13,
+            style: TextStyle(
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF667085),
+              color: colors.textSecondary,
             ),
           ),
           const Spacer(),
           Text(
             value.toString(),
             style: TextStyle(
-              fontSize: 25,
+              fontSize: 25.sp,
               fontWeight: FontWeight.w800,
               color: valueColor,
             ),
@@ -615,6 +591,7 @@ class _SummaryCard extends StatelessWidget {
     );
   }
 }
+
 
 
 class _MyBidRow extends StatelessWidget {
@@ -630,24 +607,25 @@ class _MyBidRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final currency = bid.currency.isEmpty ? 'US\$' : bid.currency;
 
     final highest = bid.myHighestBid;
     final current = bid.finalBid ?? bid.currentBid;
 
     return Material(
-      color: Colors.white,
+      color: colors.surface,
       child: InkWell(
         onTap: onDetails,
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 17,
+          padding: EdgeInsets.symmetric(
+            horizontal: 5.w,
+            vertical: 2.1.h,
           ),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: Color(0xFFD9DEE8),
+                color: colors.border,
               ),
             ),
           ),
@@ -655,6 +633,7 @@ class _MyBidRow extends StatelessWidget {
             builder: (context, constraints) {
               if (constraints.maxWidth < 760) {
                 return _buildMobileRow(
+                  context,
                   currency,
                   highest,
                   current,
@@ -662,6 +641,7 @@ class _MyBidRow extends StatelessWidget {
               }
 
               return _buildDesktopRow(
+                context,
                 currency,
                 highest,
                 current,
@@ -676,16 +656,19 @@ class _MyBidRow extends StatelessWidget {
 
 
   Widget _buildDesktopRow(
+    BuildContext context,
     String currency,
     String? highest,
     String? current,
   ) {
+    final colors = context.colors;
+
     return Row(
       children: [
         // LOT
         Expanded(
           flex: 4,
-          child: _buildLot(),
+          child: _buildLot(context),
         ),
 
         // STANDING
@@ -716,20 +699,20 @@ class _MyBidRow extends StatelessWidget {
 
         // BIDS
         SizedBox(
-          width: 60,
+          width: 15.w,
           child: Text(
             bid.myBidCount.toString(),
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF667085),
+            style: TextStyle(
+              fontSize: 13.sp,
+              color: colors.textSecondary,
             ),
           ),
         ),
 
         // ACTION
         SizedBox(
-          width: 105,
+          width: 26.3.w,
           child: Align(
             alignment: Alignment.centerRight,
             child: onPayNow != null
@@ -748,10 +731,13 @@ class _MyBidRow extends StatelessWidget {
 
 
   Widget _buildMobileRow(
+    BuildContext context,
     String currency,
     String? highest,
     String? current,
   ) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -759,23 +745,23 @@ class _MyBidRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: _buildLot(),
+              child: _buildLot(context),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 3.w),
             _StandingBadge(
               status: bid.myStatus,
             ),
           ],
         ),
 
-        const SizedBox(height: 16),
+        SizedBox(height: 2.h),
 
         Container(
           height: 1,
-          color: const Color(0xFFF0F1F4),
+          color: colors.border,
         ),
 
-        const SizedBox(height: 14),
+        SizedBox(height: 1.75.h),
 
         Row(
           children: [
@@ -806,7 +792,7 @@ class _MyBidRow extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 14),
+        SizedBox(height: 1.75.h),
 
         SizedBox(
           width: double.infinity,
@@ -826,7 +812,9 @@ class _MyBidRow extends StatelessWidget {
 
 
 
-  Widget _buildLot() {
+  Widget _buildLot(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -834,20 +822,20 @@ class _MyBidRow extends StatelessWidget {
           bid.title.isEmpty ? 'Auction' : bid.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 14,
+          style: TextStyle(
+            fontSize: 14.sp,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF10264D),
+            color: colors.textPrimary,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: 0.75.h),
         Text(
           bid.number.isEmpty
               ? bid.uuid
               : bid.number,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFF667085),
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: colors.textSecondary,
           ),
         ),
       ],
@@ -879,15 +867,17 @@ class _MoneyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Text(
       value == null || value!.isEmpty
           ? '-'
           : '$currency$value',
       textAlign: TextAlign.center,
-      style: const TextStyle(
-        fontSize: 13,
+      style: TextStyle(
+        fontSize: 13.sp,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF101828),
+        color: colors.textPrimary,
       ),
     );
   }
@@ -906,23 +896,25 @@ class _InfoColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFF667085),
+          style: TextStyle(
+            fontSize: 11.sp,
+            color: colors.textSecondary,
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: 0.6.h),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 13,
+          style: TextStyle(
+            fontSize: 13.sp,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF101828),
+            color: colors.textPrimary,
           ),
         ),
       ],
@@ -940,6 +932,7 @@ class _StandingBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final normalized = status.toLowerCase();
 
     final isLeading =
@@ -965,30 +958,30 @@ class _StandingBadge extends StatelessWidget {
 
     if (isPayment) {
       text = 'Payment due';
-      background = const Color(0xFFFFF2DF);
-      foreground = const Color(0xFF9A5B00);
+      background = colors.statusWarningSoft;
+      foreground = colors.statusWarning;
     } else if (isWon) {
       text = 'Won';
-      background = const Color(0xFFE8F7EE);
-      foreground = const Color(0xFF16803C);
+      background = colors.statusSuccessSoft;
+      foreground = colors.statusSuccess;
     } else if (isLeading) {
       text = 'You lead';
-      background = const Color(0xFFE7F6ED);
-      foreground = const Color(0xFF16803C);
+      background = colors.statusSuccessSoft;
+      foreground = colors.statusSuccess;
     } else if (isLost) {
       text = 'Outbid';
-      background = const Color(0xFFFDECEC);
-      foreground = const Color(0xFFD92D20);
+      background = colors.error.withValues(alpha: 0.1);
+      foreground = colors.error;
     } else {
       text = _prettyStatus(status);
-      background = const Color(0xFFF2F4F7);
-      foreground = const Color(0xFF475467);
+      background = colors.surfaceAlt;
+      foreground = colors.textSecondary;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
+      padding: EdgeInsets.symmetric(
+        horizontal: 2.5.w,
+        vertical: 0.75.h,
       ),
       decoration: BoxDecoration(
         color: background,
@@ -999,7 +992,7 @@ class _StandingBadge extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 11.sp,
           fontWeight: FontWeight.w700,
           color: foreground,
         ),
@@ -1036,26 +1029,28 @@ class _PayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return SizedBox(
       width: expanded ? double.infinity : null,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF061D43),
-          foregroundColor: const Color(0xFFE4B94F),
+          backgroundColor: colors.auctionHeroBackground,
+          foregroundColor: colors.auctionAccent,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 10,
+          padding: EdgeInsets.symmetric(
+            horizontal: 3.8.w,
+            vertical: 1.25.h,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
           ),
         ),
-        child: const Text(
+        child: Text(
           'Pay now',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1077,25 +1072,27 @@ class _DetailsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return SizedBox(
       width: expanded ? double.infinity : null,
       child: TextButton(
         onPressed: onPressed,
         style: TextButton.styleFrom(
-          backgroundColor: const Color(0xFFF2F4F7),
-          foregroundColor: const Color(0xFF344054),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 10,
+          backgroundColor: colors.surfaceAlt,
+          foregroundColor: colors.textSecondary,
+          padding: EdgeInsets.symmetric(
+            horizontal: 3.8.w,
+            vertical: 1.25.h,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(9),
           ),
         ),
-        child: const Text(
+        child: Text(
           'Details',
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1115,19 +1112,20 @@ class _BidDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final currency =
         bid.currency.isEmpty ? 'US\$' : bid.currency;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        30,
+      padding: EdgeInsets.fromLTRB(
+        5.w,
+        1.75.h,
+        5.w,
+        3.75.h,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(22),
         ),
       ),
@@ -1141,34 +1139,34 @@ class _BidDetailsSheet extends StatelessWidget {
                   width: 42,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD0D5DD),
+                    color: colors.border,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 22),
+              SizedBox(height: 2.75.h),
 
               Text(
                 bid.title,
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF10264D),
+                  color: colors.textPrimary,
                 ),
               ),
 
-              const SizedBox(height: 5),
+              SizedBox(height: 0.6.h),
 
               Text(
                 bid.number,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF667085),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: colors.textSecondary,
                 ),
               ),
 
-              const SizedBox(height: 22),
+              SizedBox(height: 2.75.h),
 
               _DetailItem(
                 title: 'Standing',
@@ -1241,18 +1239,18 @@ class _BidDetailsSheet extends StatelessWidget {
                 ),
 
               if (bid.allotment != null) ...[
-                const SizedBox(height: 8),
+                SizedBox(height: 1.h),
 
-                const Text(
+                Text(
                   'Allotment',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF10264D),
+                    color: colors.textPrimary,
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 1.25.h),
 
                 _DetailItem(
                   title: 'Status',
@@ -1317,29 +1315,31 @@ class _DetailItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9),
+      padding: EdgeInsets.symmetric(vertical: 1.1.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF667085),
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: colors.textSecondary,
               ),
             ),
           ),
-          const SizedBox(width: 15),
+          SizedBox(width: 3.8.w),
           Flexible(
             child: Text(
               value,
               textAlign: TextAlign.right,
-              style: const TextStyle(
-                fontSize: 13,
+              style: TextStyle(
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
+                color: colors.textPrimary,
               ),
             ),
           ),

@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../../core/theme/app_text_styles.dart';
-import '../../../../core/constants/svg_image.dart';
 import '../../../../core/router/app_routes.dart';
-import 'package:flutter_svg/svg.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-
 import 'profile_metrics.dart';
 
 class ProfileMenuList extends StatelessWidget {

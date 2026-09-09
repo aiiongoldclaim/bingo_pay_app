@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 
 import '../../data/models/member_ship_model.dart';
-import '../screens/membership_screen.dart';
 import 'membership_metrices.dart';
 
 class MembershipBenefitsCard extends StatelessWidget {

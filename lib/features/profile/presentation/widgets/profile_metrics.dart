@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../../core/utils/responsive_utils.dart';
-
 class ProfileMetrics {
   // Page
   final double pageHPad;

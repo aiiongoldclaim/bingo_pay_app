@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:bingo_pay/core/error/failures.dart';
 import 'package:bingo_pay/core/widgets/app_button.dart';
 import 'package:bingo_pay/features/cart/domain/entities/cart_entity.dart';
-import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/add_cart_item_usecase.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/get_cart_usecase.dart';

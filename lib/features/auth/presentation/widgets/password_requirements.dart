@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/theme/theme_colors.dart';
 import 'auth_metrics.dart';
 
 class PasswordRequirements extends StatelessWidget {

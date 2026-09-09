@@ -102,7 +102,6 @@ import 'package:go_router/go_router.dart';
 
 import '../router/app_routes.dart';
 import 'custom_bottom_nav.dart';
-import 'qr_fab.dart';
 import '../di/injection.dart';
 import '../../features/home/presentation/cubit/dashboard_cubit.dart';
 

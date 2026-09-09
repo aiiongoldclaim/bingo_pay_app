@@ -7,7 +7,6 @@ import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/product_card.dart';
-import '../../../product_details/data/models/product_details_model.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_model.dart';
