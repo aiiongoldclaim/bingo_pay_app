@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intro/intro.dart';
 import 'package:sizer/sizer.dart';
 
 import '../core/di/injection.dart';
@@ -38,6 +39,10 @@ class _AppState extends State<App> {
 
   final _prefs = getIt<PreferencesService>();
   late final bool _onboardingSeen;
+
+  // Home screen's product tour is registered here, at the root of the
+  // widget tree, so `Intro.of(context)` can be resolved from any screen.
+  final _introController = IntroController(stepCount: 6);
 
   @override
   void initState() {
@@ -161,19 +166,22 @@ class _AppState extends State<App> {
               debugShowCheckedModeBanner: false,
               routerConfig: _router.router,
               builder: (context, child) {
-                return Stack(
-                  children: [
-                    child ?? const SizedBox.shrink(),
-                    StreamBuilder<bool>(
-                      stream: _connectivity.isConnected,
-                      builder: (context, snapshot) {
-                        final isConnected = snapshot.data ?? true;
-                        return isConnected
-                            ? const SizedBox.shrink()
-                            : const NoInternetScreen();
-                      },
-                    ),
-                  ],
+                return Intro(
+                  controller: _introController,
+                  child: Stack(
+                    children: [
+                      child ?? const SizedBox.shrink(),
+                      StreamBuilder<bool>(
+                        stream: _connectivity.isConnected,
+                        builder: (context, snapshot) {
+                          final isConnected = snapshot.data ?? true;
+                          return isConnected
+                              ? const SizedBox.shrink()
+                              : const NoInternetScreen();
+                        },
+                      ),
+                    ],
+                  ),
                 );
               },
             );

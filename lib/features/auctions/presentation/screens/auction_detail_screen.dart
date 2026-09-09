@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entity.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/bid_entity.dart';
 import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dart';
 import 'package:bingo_pay/features/auctions/presentation/cubit/auction_state.dart';
+
+import '../../../../core/widgets/custom_app_bar.dart';
 
 class AuctionDetailScreen extends StatefulWidget {
   final String auctionId;
@@ -38,20 +41,13 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F8),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF07152D),
-        elevation: 0,
+      backgroundColor: colors.background,
+      appBar: const CustomAppBar(
+        title: 'Auction Details',
         centerTitle: true,
-        title: const Text(
-          'Auction Details',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
       ),
       body: BlocBuilder<AuctionCubit, AuctionState>(
         builder: (context, state) {
@@ -164,6 +160,8 @@ class _ProductSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -186,11 +184,11 @@ class _ProductSection extends StatelessWidget {
                 child: Text(
                   auction.badge,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.1,
-                    color: Color(0xFF697593),
+                    color: colors.textSecondary,
                   ),
                 ),
               ),
@@ -201,11 +199,11 @@ class _ProductSection extends StatelessWidget {
 
         Text(
           auction.title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 27,
             height: 1.15,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF07152D),
+            color: colors.textPrimary,
           ),
         ),
 
@@ -216,7 +214,7 @@ class _ProductSection extends StatelessWidget {
             auction.itemName!,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade600,
+              color: colors.textSecondary,
             ),
           ),
         ],
@@ -228,7 +226,7 @@ class _ProductSection extends StatelessWidget {
               Icon(
                 Icons.storefront_outlined,
                 size: 17,
-                color: Colors.grey.shade600,
+                color: colors.textSecondary,
               ),
               const SizedBox(width: 7),
               Flexible(
@@ -237,7 +235,7 @@ class _ProductSection extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color: colors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -276,10 +274,11 @@ class _AuctionImageState extends State<_AuctionImage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final images = widget.images ?? [];
 
     if (images.isEmpty) {
-      return _placeholder();
+      return _placeholder(colors);
     }
 
     return Column(
@@ -288,18 +287,20 @@ class _AuctionImageState extends State<_AuctionImage> {
           height: 360,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: Colors.grey.shade200,
+              color: colors.border,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.035),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            boxShadow: colors.isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.textPrimary.withValues(alpha: 0.035),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
           ),
           clipBehavior: Clip.antiAlias,
           child: PageView.builder(
@@ -315,7 +316,7 @@ class _AuctionImageState extends State<_AuctionImage> {
                 images[index],
                 fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) {
-                  return _placeholder();
+                  return _placeholder(colors);
                 },
                 loadingBuilder: (
                   context,
@@ -355,8 +356,8 @@ class _AuctionImageState extends State<_AuctionImage> {
                   width: selected ? 22 : 6,
                   decoration: BoxDecoration(
                     color: selected
-                        ? const Color(0xFFE4B94F)
-                        : Colors.grey.shade300,
+                        ? colors.auctionAccent
+                        : colors.border,
                     borderRadius:
                         BorderRadius.circular(10),
                   ),
@@ -369,16 +370,16 @@ class _AuctionImageState extends State<_AuctionImage> {
     );
   }
 
-  Widget _placeholder() {
+  Widget _placeholder(AppThemeColors colors) {
     return Container(
       height: 360,
       width: double.infinity,
-      color: Colors.grey.shade100,
-      child: const Center(
+      color: colors.surfaceAlt,
+      child: Center(
         child: Icon(
           Icons.image_outlined,
           size: 60,
-          color: Colors.grey,
+          color: colors.textMuted,
         ),
       ),
     );
@@ -480,7 +481,7 @@ class _BidPanelState extends State<_BidPanel> {
             ..showSnackBar(
               SnackBar(
                 content: Text(error),
-                backgroundColor: Colors.red.shade700,
+                backgroundColor: context.colors.error,
               ),
             );
         }
@@ -525,6 +526,8 @@ class _BidPanelState extends State<_BidPanel> {
         return true;
       },
       builder: (context, state) {
+        final colors = context.colors;
+
         final isPlacingBid =
             state is AuctionDetailLoaded
                 ? state.isPlacingBid
@@ -534,13 +537,13 @@ class _BidPanelState extends State<_BidPanel> {
           width: double.infinity,
           padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
-            color: const Color(0xFF07152D),
+            color: colors.auctionHeroBackground,
             borderRadius:
                 BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF07152D)
-                    .withOpacity(0.16),
+                color: colors.auctionHeroBackground
+                    .withValues(alpha: 0.16),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -550,10 +553,10 @@ class _BidPanelState extends State<_BidPanel> {
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'CURRENT BID',
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: colors.onHeroBanner.withValues(alpha: 0.54),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.8,
@@ -564,8 +567,8 @@ class _BidPanelState extends State<_BidPanel> {
 
               Text(
                 '${auction.currency} $currentBid',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: colors.onHeroBanner,
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
                 ),
@@ -576,8 +579,8 @@ class _BidPanelState extends State<_BidPanel> {
               Text(
                 '${auction.bidCount} '
                 '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
-                style: const TextStyle(
-                  color: Colors.white54,
+                style: TextStyle(
+                  color: colors.onHeroBanner.withValues(alpha: 0.54),
                   fontSize: 14,
                 ),
               ),
@@ -596,8 +599,8 @@ class _BidPanelState extends State<_BidPanel> {
               Text(
                 'NEXT VALID BID — '
                 '${auction.currency} ${auction.minimumNextBid}',
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: colors.onHeroBanner.withValues(alpha: 0.70),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.1,
@@ -689,8 +692,8 @@ class _BidPanelState extends State<_BidPanel> {
                 'Minimum bid is '
                 '${auction.currency} '
                 '${auction.minimumNextBid}',
-                style: const TextStyle(
-                  color: Colors.white54,
+                style: TextStyle(
+                  color: colors.onHeroBanner.withValues(alpha: 0.54),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -702,8 +705,8 @@ class _BidPanelState extends State<_BidPanel> {
                 const SizedBox(height: 12),
                 Text(
                   auction.viewer!.ineligibleReason!,
-                  style: const TextStyle(
-                    color: Colors.white54,
+                  style: TextStyle(
+                    color: colors.onHeroBanner.withValues(alpha: 0.54),
                     fontSize: 11,
                     height: 1.4,
                   ),
@@ -785,7 +788,7 @@ class _BidPanelState extends State<_BidPanel> {
         SnackBar(
           content: Text(message),
           backgroundColor:
-              Colors.red.shade700,
+              context.colors.error,
         ),
       );
   }
@@ -890,6 +893,8 @@ class _NextBidBoxState
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment:
           CrossAxisAlignment.start,
@@ -898,12 +903,12 @@ class _NextBidBoxState
           height: 52,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.08),
+            color: colors.onHeroBanner.withValues(alpha: 0.08),
             border: Border.all(
               color: _hasError
-                  ? Colors.redAccent
-                      .withOpacity(0.7)
-                  : Colors.white24,
+                  ? colors.error
+                      .withValues(alpha: 0.7)
+                  : colors.onHeroBanner.withValues(alpha: 0.14),
             ),
             borderRadius:
                 BorderRadius.circular(5),
@@ -911,18 +916,18 @@ class _NextBidBoxState
           child: Theme(
             data: Theme.of(context).copyWith(
               textSelectionTheme:
-                  const TextSelectionThemeData(
+                  TextSelectionThemeData(
                 selectionColor:
-                    Color(0x66E4B94F),
+                    colors.auctionAccent.withValues(alpha: 0.4),
                 selectionHandleColor:
-                    Color(0xFFE4B94F),
+                    colors.auctionAccent,
               ),
             ),
             child: TextField(
               controller:
                   widget.controller,
               cursorColor:
-                  const Color(0xFFE4B94F),
+                  colors.auctionAccent,
               keyboardType:
                   const TextInputType.numberWithOptions(
                 decimal: true,
@@ -936,17 +941,17 @@ class _NextBidBoxState
               ],
               textInputAction:
                   TextInputAction.done,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: colors.onHeroBanner,
                 fontSize: 18,
                 fontWeight:
                     FontWeight.w600,
               ),
               decoration:
-                  const InputDecoration(
+                  InputDecoration(
                 filled: true,
                 fillColor:
-                    Color(0x14000000),
+                    Colors.black.withValues(alpha: 0.078),
                 border:
                     InputBorder.none,
                 enabledBorder:
@@ -956,7 +961,7 @@ class _NextBidBoxState
                 disabledBorder:
                     InputBorder.none,
                 contentPadding:
-                    EdgeInsets.symmetric(
+                    const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 14,
                 ),
@@ -971,8 +976,8 @@ class _NextBidBoxState
             'Bid must be at least '
             '${widget.currency} '
             '${widget.minimumValue}',
-            style: const TextStyle(
-              color: Colors.redAccent,
+            style: TextStyle(
+              color: colors.error,
               fontSize: 10,
             ),
           ),
@@ -997,6 +1002,8 @@ class _BidButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return ElevatedButton(
       onPressed:
           enabled && !isLoading
@@ -1005,12 +1012,12 @@ class _BidButton extends StatelessWidget {
       style:
           ElevatedButton.styleFrom(
         backgroundColor:
-            const Color(0xFFE4B94F),
-        foregroundColor: Colors.black,
+            colors.auctionAccent,
+        foregroundColor: colors.onAuctionAccent,
         disabledBackgroundColor:
-            Colors.grey.shade700,
+            colors.textMuted,
         disabledForegroundColor:
-            Colors.white54,
+            colors.onHeroBanner.withValues(alpha: 0.54),
         elevation: 0,
         padding: EdgeInsets.zero,
         shape:
@@ -1020,7 +1027,7 @@ class _BidButton extends StatelessWidget {
         ),
       ),
       child: isLoading
-          ? const SizedBox(
+          ? SizedBox(
               width: 19,
               height: 19,
               child:
@@ -1029,7 +1036,7 @@ class _BidButton extends StatelessWidget {
                 valueColor:
                     AlwaysStoppedAnimation<
                         Color>(
-                  Colors.black,
+                  colors.onAuctionAccent,
                 ),
               ),
             )
@@ -1150,6 +1157,8 @@ class _CountdownState
     final seconds =
         duration.inSeconds % 60;
 
+    final colors = context.colors;
+
     return Container(
       padding:
           const EdgeInsets.symmetric(
@@ -1159,22 +1168,22 @@ class _CountdownState
       decoration:
           BoxDecoration(
         color:
-            Colors.white.withOpacity(0.055),
+            colors.onHeroBanner.withValues(alpha: 0.055),
         borderRadius:
             BorderRadius.circular(12),
         border: Border.all(
           color:
-              Colors.white.withOpacity(0.08),
+              colors.onHeroBanner.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'BIDDING CLOSES IN',
             style: TextStyle(
-              color: Colors.white60,
+              color: colors.onHeroBanner.withValues(alpha: 0.60),
               fontSize: 12,
               letterSpacing: 2,
               fontWeight:
@@ -1225,6 +1234,8 @@ class _CountdownValue
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment:
           CrossAxisAlignment.start,
@@ -1233,8 +1244,8 @@ class _CountdownValue
           value
               .toString()
               .padLeft(2, '0'),
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: colors.onHeroBanner,
             fontSize: 25,
             fontWeight:
                 FontWeight.w700,
@@ -1243,8 +1254,8 @@ class _CountdownValue
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: colors.onHeroBanner.withValues(alpha: 0.54),
             fontSize: 12,
             letterSpacing: 1.2,
           ),
@@ -1260,15 +1271,17 @@ class _CountdownColon
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    final colors = context.colors;
+
+    return Padding(
       padding:
-          EdgeInsets.symmetric(
+          const EdgeInsets.symmetric(
         horizontal: 7,
       ),
       child: Text(
         ':',
         style: TextStyle(
-          color: Colors.white38,
+          color: colors.onHeroBanner.withValues(alpha: 0.38),
           fontSize: 22,
         ),
       ),
@@ -1287,6 +1300,8 @@ class _ModernAboutSection
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     final description =
         auction.description
             ?.trim() ??
@@ -1315,18 +1330,20 @@ class _ModernAboutSection
               const EdgeInsets.all(18),
           decoration:
               BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius:
                 BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black
-                    .withOpacity(0.035),
-                blurRadius: 18,
-                offset:
-                    const Offset(0, 7),
-              ),
-            ],
+            boxShadow: colors.isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.textPrimary
+                          .withValues(alpha: 0.035),
+                      blurRadius: 18,
+                      offset:
+                          const Offset(0, 7),
+                    ),
+                  ],
           ),
           child: Column(
             crossAxisAlignment:
@@ -1338,7 +1355,7 @@ class _ModernAboutSection
                   style:
                        TextStyle(
                     color:
-                        Color(0xFF07152D),
+                        colors.textPrimary,
                     fontSize: 16,
                     fontWeight:
                         FontWeight.w700,
@@ -1353,9 +1370,9 @@ class _ModernAboutSection
                     ? description
                     : 'No description available for this auction.',
                 style:
-                    const TextStyle(
+                    TextStyle(
                   color:
-                      Color(0xFF697593),
+                      colors.textSecondary,
                   fontSize: 13,
                   height: 1.65,
                 ),
@@ -1484,6 +1501,8 @@ class _ModernBidActivitySection
                 );
               }
 
+              final colors = context.colors;
+
               return Container(
                 width: double.infinity,
                 padding:
@@ -1493,25 +1512,27 @@ class _ModernBidActivitySection
                 ),
                 decoration:
                     BoxDecoration(
-                  color: Colors.white,
+                  color: colors.surface,
                   borderRadius:
                       BorderRadius.circular(
                     20,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black
-                          .withOpacity(
-                        0.035,
-                      ),
-                      blurRadius: 18,
-                      offset:
-                          const Offset(
-                        0,
-                        7,
-                      ),
-                    ),
-                  ],
+                  boxShadow: colors.isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: colors.textPrimary
+                                .withValues(
+                              alpha: 0.035,
+                            ),
+                            blurRadius: 18,
+                            offset:
+                                const Offset(
+                              0,
+                              7,
+                            ),
+                          ),
+                        ],
                 ),
                 child: Column(
                   children:
@@ -1561,6 +1582,8 @@ class _ModernBidItem
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Padding(
       padding:
           const EdgeInsets.fromLTRB(
@@ -1577,12 +1600,9 @@ class _ModernBidItem
             decoration:
                 BoxDecoration(
               color: isLeading
-                  ? const Color(
-                      0xFFE4B94F,
-                    ).withOpacity(0.16)
-                  : const Color(
-                      0xFFF2F4F7,
-                    ),
+                  ? colors.auctionAccent
+                      .withValues(alpha: 0.16)
+                  : colors.surfaceAlt,
               shape:
                   BoxShape.circle,
             ),
@@ -1594,12 +1614,8 @@ class _ModernBidItem
                       .person_outline_rounded,
               size: 18,
               color: isLeading
-                  ? const Color(
-                      0xFF07152D,
-                    )
-                  : const Color(
-                      0xFF697593,
-                    ),
+                  ? colors.textPrimary
+                  : colors.textSecondary,
             ),
           ),
 
@@ -1619,11 +1635,9 @@ class _ModernBidItem
                         overflow:
                             TextOverflow.ellipsis,
                         style:
-                            const TextStyle(
+                            TextStyle(
                           color:
-                              Color(
-                            0xFF07152D,
-                          ),
+                              colors.textPrimary,
                           fontSize: 13,
                           fontWeight:
                               FontWeight.w700,
@@ -1645,10 +1659,9 @@ class _ModernBidItem
                         decoration:
                             BoxDecoration(
                           color:
-                              const Color(
-                            0xFFE4B94F,
-                          ).withOpacity(
-                            0.15,
+                              colors.auctionAccent
+                                  .withValues(
+                            alpha: 0.15,
                           ),
                           borderRadius:
                               BorderRadius
@@ -1657,14 +1670,12 @@ class _ModernBidItem
                           ),
                         ),
                         child:
-                            const Text(
+                            Text(
                           'LEADING',
                           style:
                               TextStyle(
                             color:
-                                Color(
-                              0xFF80651A,
-                            ),
+                                colors.auctionAccentInk,
                             fontSize: 10,
                             fontWeight:
                                 FontWeight
@@ -1683,9 +1694,9 @@ class _ModernBidItem
                 Text(
                   _date(),
                   style:
-                      const TextStyle(
+                      TextStyle(
                     color:
-                        Color(0xFF9AA3B2),
+                        colors.textMuted,
                     fontSize: 11.5,
                   ),
                 ),
@@ -1704,12 +1715,8 @@ class _ModernBidItem
                 style:
                     TextStyle(
                   color: isLeading
-                      ? const Color(
-                          0xFF1F6B45,
-                        )
-                      : const Color(
-                          0xFF07152D,
-                        ),
+                      ? colors.statusSuccess
+                      : colors.textPrimary,
                   fontSize: 14,
                   fontWeight:
                       FontWeight.w800,
@@ -1723,9 +1730,9 @@ class _ModernBidItem
                     ? 'CURRENT'
                     : 'BID',
                 style:
-                    const TextStyle(
+                    TextStyle(
                   color:
-                      Color(0xFF9AA3B2),
+                      colors.textMuted,
                   fontSize: 10,
                   fontWeight:
                       FontWeight.w800,
@@ -1819,6 +1826,8 @@ class _ModernAuctionDetailsSection
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     final details = [
       _AuctionDetailItem(
         icon:
@@ -1913,18 +1922,20 @@ class _ModernAuctionDetailsSection
               const EdgeInsets.all(10),
           decoration:
               BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius:
                 BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black
-                    .withOpacity(0.035),
-                blurRadius: 18,
-                offset:
-                    const Offset(0, 7),
-              ),
-            ],
+            boxShadow: colors.isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.textPrimary
+                          .withValues(alpha: 0.035),
+                      blurRadius: 18,
+                      offset:
+                          const Offset(0, 7),
+                    ),
+                  ],
           ),
           child:
               LayoutBuilder(
@@ -2007,6 +2018,8 @@ class _AuctionDetailTile
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       padding:
           const EdgeInsets.symmetric(
@@ -2016,7 +2029,7 @@ class _AuctionDetailTile
       decoration:
           BoxDecoration(
         color:
-            const Color(0xFFF7F8FA),
+            colors.surfaceAlt,
         borderRadius:
             BorderRadius.circular(13),
       ),
@@ -2028,10 +2041,8 @@ class _AuctionDetailTile
             decoration:
                 BoxDecoration(
               color:
-                  const Color(
-                0xFFE4B94F,
-              ).withOpacity(
-                .13,
+                  colors.auctionAccent.withValues(
+                alpha: .13,
               ),
               borderRadius:
                   BorderRadius.circular(
@@ -2042,9 +2053,7 @@ class _AuctionDetailTile
               item.icon,
               size: 15,
               color:
-                  const Color(
-                0xFF07152D,
-              ),
+                  colors.textPrimary,
             ),
           ),
 
@@ -2063,9 +2072,9 @@ class _AuctionDetailTile
                   overflow:
                       TextOverflow.ellipsis,
                   style:
-                      const TextStyle(
+                      TextStyle(
                     color:
-                        Color(0xFF9AA3B2),
+                        colors.textMuted,
                     fontSize: 12.5,
                     fontWeight:
                         FontWeight.w600,
@@ -2080,9 +2089,9 @@ class _AuctionDetailTile
                   overflow:
                       TextOverflow.ellipsis,
                   style:
-                      const TextStyle(
+                      TextStyle(
                     color:
-                        Color(0xFF07152D),
+                        colors.textPrimary,
                     fontSize: 11.5,
                     fontWeight:
                         FontWeight.w700,
@@ -2112,6 +2121,8 @@ class _ModernSectionHeader
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Row(
       children: [
         Container(
@@ -2120,8 +2131,8 @@ class _ModernSectionHeader
           decoration:
               BoxDecoration(
             color:
-                const Color(0xFFE4B94F)
-                    .withOpacity(.14),
+                colors.auctionAccent
+                    .withValues(alpha: .14),
             borderRadius:
                 BorderRadius.circular(
               10,
@@ -2131,7 +2142,7 @@ class _ModernSectionHeader
             icon,
             size: 17,
             color:
-                const Color(0xFF07152D),
+                colors.textPrimary,
           ),
         ),
 
@@ -2140,9 +2151,9 @@ class _ModernSectionHeader
         Text(
           title,
           style:
-              const TextStyle(
+              TextStyle(
             color:
-                Color(0xFF07152D),
+                colors.textPrimary,
             fontSize: 17,
             fontWeight:
                 FontWeight.w800,
@@ -2155,9 +2166,9 @@ class _ModernSectionHeader
           Text(
             trailing!,
             style:
-                const TextStyle(
+                TextStyle(
               color:
-                  Color(0xFF697593),
+                  colors.textSecondary,
               fontSize: 12,
               fontWeight:
                   FontWeight.w600,
@@ -2181,6 +2192,8 @@ class _ModernChip
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       padding:
           const EdgeInsets.symmetric(
@@ -2190,7 +2203,7 @@ class _ModernChip
       decoration:
           BoxDecoration(
         color:
-            const Color(0xFFF4F5F7),
+            colors.surfaceAlt,
         borderRadius:
             BorderRadius.circular(
           9,
@@ -2204,9 +2217,7 @@ class _ModernChip
             icon,
             size: 13,
             color:
-                const Color(
-              0xFF697593,
-            ),
+                colors.textSecondary,
           ),
 
           const SizedBox(width: 5),
@@ -2216,7 +2227,7 @@ class _ModernChip
             style:
                  TextStyle(
               color:
-                  Color(0xFF4F5C73),
+                  colors.textSecondary,
               fontSize: 11,
               fontWeight:
                   FontWeight.w600,
@@ -2235,6 +2246,8 @@ class _ModernLoadingCard
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       width: double.infinity,
       padding:
@@ -2243,15 +2256,15 @@ class _ModernLoadingCard
       ),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius:
             BorderRadius.circular(
           20,
         ),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          SizedBox(
+          const SizedBox(
             width: 26,
             height: 26,
             child:
@@ -2259,13 +2272,13 @@ class _ModernLoadingCard
               strokeWidth: 2.2,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             'Loading bid activity...',
             style:
                 TextStyle(
               color:
-                  Color(0xFF697593),
+                  colors.textSecondary,
               fontSize: 11,
               fontWeight:
                   FontWeight.w500,
@@ -2290,13 +2303,15 @@ class _ModernErrorCard
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       width: double.infinity,
       padding:
           const EdgeInsets.all(20),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius:
             BorderRadius.circular(
           20,
@@ -2310,28 +2325,28 @@ class _ModernErrorCard
             decoration:
                 BoxDecoration(
               color:
-                  Colors.red.withOpacity(
-                .08,
+                  colors.error.withValues(
+                alpha: .08,
               ),
               shape:
                   BoxShape.circle,
             ),
             child:
-                const Icon(
+                Icon(
               Icons.cloud_off_outlined,
-              color: Colors.red,
+              color: colors.error,
               size: 21,
             ),
           ),
 
           const SizedBox(height: 10),
 
-          const Text(
+          Text(
             'Unable to load bid activity',
             style:
                 TextStyle(
               color:
-                  Color(0xFF07152D),
+                  colors.textPrimary,
               fontSize: 13,
               fontWeight:
                   FontWeight.w700,
@@ -2345,9 +2360,9 @@ class _ModernErrorCard
             textAlign:
                 TextAlign.center,
             style:
-                const TextStyle(
+                TextStyle(
               color:
-                  Color(0xFF697593),
+                  colors.textSecondary,
               fontSize: 10,
               height: 1.4,
             ),
@@ -2358,12 +2373,12 @@ class _ModernErrorCard
           TextButton(
             onPressed: onRetry,
             child:
-                const Text(
+                Text(
               'Try again',
               style:
                   TextStyle(
                 color:
-                    Color(0xFF07152D),
+                    colors.textPrimary,
                 fontSize: 11,
                 fontWeight:
                     FontWeight.w700,
@@ -2387,6 +2402,8 @@ class _ModernEmptyBidCard
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       width: double.infinity,
       padding:
@@ -2396,7 +2413,7 @@ class _ModernEmptyBidCard
       ),
       decoration:
           BoxDecoration(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius:
             BorderRadius.circular(
           20,
@@ -2408,28 +2425,28 @@ class _ModernEmptyBidCard
             width: 48,
             height: 48,
             decoration:
-                const BoxDecoration(
+                BoxDecoration(
               color:
-                  Color(0xFFF3F5F8),
+                  colors.surfaceAlt,
               shape:
                   BoxShape.circle,
             ),
             child:
-                const Icon(
+                Icon(
               Icons.gavel_outlined,
               color:
-                  Color(0xFF697593),
+                  colors.textSecondary,
             ),
           ),
 
           const SizedBox(height: 12),
 
-          const Text(
+          Text(
             'No bids yet',
             style:
                 TextStyle(
               color:
-                  Color(0xFF07152D),
+                  colors.textPrimary,
               fontSize: 14,
               fontWeight:
                   FontWeight.w700,
@@ -2445,9 +2462,9 @@ class _ModernEmptyBidCard
             textAlign:
                 TextAlign.center,
             style:
-                const TextStyle(
+                TextStyle(
               color:
-                  Color(0xFF697593),
+                  colors.textSecondary,
               fontSize: 10.5,
               height: 1.4,
             ),
@@ -2465,6 +2482,8 @@ class _ModernTrustCard
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
       width: double.infinity,
       padding:
@@ -2472,7 +2491,7 @@ class _ModernTrustCard
       decoration:
           BoxDecoration(
         color:
-            const Color(0xFFEEF7F2),
+            colors.statusSuccessSoft,
         borderRadius:
             BorderRadius.circular(
           18,
@@ -2484,24 +2503,24 @@ class _ModernTrustCard
             width: 38,
             height: 38,
             decoration:
-                const BoxDecoration(
-              color: Colors.white,
+                BoxDecoration(
+              color: colors.surface,
               shape:
                   BoxShape.circle,
             ),
             child:
-                const Icon(
+                Icon(
               Icons
                   .verified_user_outlined,
               color:
-                  Color(0xFF1F6B45),
+                  colors.statusSuccess,
               size: 19,
             ),
           ),
 
           const SizedBox(width: 11),
 
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
@@ -2511,19 +2530,19 @@ class _ModernTrustCard
                   style:
                       TextStyle(
                     color:
-                        Color(0xFF164A32),
+                        colors.statusSuccess,
                     fontSize: 12.5,
                     fontWeight:
                         FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 3),
+                const SizedBox(height: 3),
                 Text(
                   'Your bids and auction activity are handled securely.',
                   style:
                       TextStyle(
                     color:
-                        Color(0xFF5D806D),
+                        colors.textSecondary,
                     fontSize: 12.5,
                     height: 1.35,
                   ),
@@ -2549,27 +2568,28 @@ class _StatusBadge
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     Color color;
 
     switch (status) {
       case 'LIVE':
-        color = Colors.green;
+        color = colors.statusSuccess;
         break;
 
       case 'ENDING_SOON':
-        color = Colors.orange;
+        color = colors.statusWarning;
         break;
 
       case 'STARTING_SOON':
-        color = Colors.blue;
+        color = colors.statusInfo;
         break;
 
       case 'CLOSED':
-        color = Colors.grey;
+        color = colors.textMuted;
         break;
 
       default:
-        color = Colors.grey;
+        color = colors.textMuted;
     }
 
     return Container(
@@ -2581,7 +2601,7 @@ class _StatusBadge
       decoration:
           BoxDecoration(
         color:
-            color.withOpacity(0.10),
+            color.withValues(alpha: 0.10),
         borderRadius:
             BorderRadius.circular(
           20,
@@ -2637,6 +2657,8 @@ class _ErrorView
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Center(
       child: Padding(
         padding:
@@ -2650,22 +2672,22 @@ class _ErrorView
               height: 70,
               decoration:
                   BoxDecoration(
-                color: Colors.red
-                    .withOpacity(0.08),
+                color: colors.error
+                    .withValues(alpha: 0.08),
                 shape:
                     BoxShape.circle,
               ),
               child:
-                  const Icon(
+                  Icon(
                 Icons.error_outline,
                 size: 38,
-                color: Colors.red,
+                color: colors.error,
               ),
             ),
 
             const SizedBox(height: 18),
 
-            const Text(
+            Text(
               'Unable to load auction',
               style:
                   TextStyle(
@@ -2673,7 +2695,7 @@ class _ErrorView
                 fontWeight:
                     FontWeight.w700,
                 color:
-                    Color(0xFF07152D),
+                    colors.textPrimary,
               ),
             ),
 
@@ -2686,7 +2708,7 @@ class _ErrorView
               style:
                   TextStyle(
                 color:
-                    Colors.grey.shade600,
+                    colors.textSecondary,
                 height: 1.4,
               ),
             ),
@@ -2698,11 +2720,9 @@ class _ErrorView
               style:
                   ElevatedButton.styleFrom(
                 backgroundColor:
-                    const Color(
-                  0xFFE4B94F,
-                ),
+                    colors.auctionAccent,
                 foregroundColor:
-                    Colors.black,
+                    colors.onAuctionAccent,
                 elevation: 0,
                 padding:
                     const EdgeInsets

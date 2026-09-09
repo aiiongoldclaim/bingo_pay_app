@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/widgets/custom_app_bar.dart';
 import '../cubit/auction_cubit.dart';
 import '../cubit/auction_state.dart';
 import '../../domain/entities/my_bids_entity.dart';
@@ -40,29 +41,33 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        //   onPressed: () {
-        //     // Navigator.of(context).pop();
-        //     log('Back button pressed',stackTrace: StackTrace.fromString("Satyam"),name: "MyBidsScreen");
-        //   },
-        // ),
-        title: const Text(
-          'My Bids',
-          style: TextStyle(
-            color: Color(0xFF101828),
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: false,
-        iconTheme: const IconThemeData(
-          color: Color(0xFF101828),
-        ),
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   backgroundColor: Colors.white,
+      //   surfaceTintColor: Colors.transparent,
+      //   // leading: IconButton(
+      //   //   icon: const Icon(Icons.arrow_back_ios_new_rounded),
+      //   //   onPressed: () {
+      //   //     // Navigator.of(context).pop();
+      //   //     log('Back button pressed',stackTrace: StackTrace.fromString("Satyam"),name: "MyBidsScreen");
+      //   //   },
+      //   // ),
+      //   title: const Text(
+      //     'My Bids',
+      //     style: TextStyle(
+      //       color: Color(0xFF101828),
+      //       fontSize: 20,
+      //       fontWeight: FontWeight.w700,
+      //     ),
+      //   ),
+      //   centerTitle: false,
+      //   iconTheme: const IconThemeData(
+      //     color: Color(0xFF101828),
+      //   ),
+      // ),
+      appBar: const CustomAppBar(
+        title: 'My Bids',
+        centerTitle: true,
       ),
       body: BlocBuilder<AuctionCubit, AuctionState>(
         builder: (context, state) {
