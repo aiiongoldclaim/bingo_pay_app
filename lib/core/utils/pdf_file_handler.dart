@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Opens or shares a downloaded PDF's raw [bytes].
 ///
@@ -19,7 +19,7 @@ Future<void> openOrSharePdf(List<int> bytes, String filename) async {
         await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/$filename');
     await file.writeAsBytes(pdfBytes, flush: true);
-    await OpenFilex.open(file.path);
+    await launchUrl(Uri.file(file.path));
   } else {
     await Printing.sharePdf(bytes: pdfBytes, filename: filename);
   }

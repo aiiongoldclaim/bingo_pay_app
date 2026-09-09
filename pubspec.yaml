@@ -44,7 +44,6 @@ dependencies:
   # printing: ^5.14.2
   printing: ^5.15.0
   path_provider: ^2.1.5
-  open_filex: ^4.7.0
   mobile_scanner: ^7.2.0
   flutter_svg: ^2.3.0
   lottie: ^3.3.1
