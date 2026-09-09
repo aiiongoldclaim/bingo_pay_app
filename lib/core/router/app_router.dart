@@ -81,7 +81,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart' as splash;
 class AppRouter {
   late final GoRouter router;
   RouteAuthState _authState = const RouteAuthState.loading();
-  bool _onboardingSeen = false;
+  late bool _onboardingSeen;
 
   /// Splash minimum visible duration
   // static const _minSplashDuration = Duration(milliseconds: 1500);
@@ -99,6 +99,7 @@ class AppRouter {
   }
 
   AppRouter() {
+    _onboardingSeen = getIt<PreferencesService>().isOnboardingSeen();
     router = GoRouter(
       initialLocation: AppRoutes.splash,
       redirect: (context, state) => RouteGuard.redirect(
