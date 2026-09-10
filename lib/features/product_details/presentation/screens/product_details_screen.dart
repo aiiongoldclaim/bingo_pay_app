@@ -408,7 +408,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = ProductMetrics.of(context);
 
     return Center(
@@ -421,14 +421,14 @@ class _ErrorView extends StatelessWidget {
               width: m.rowIconBox * 1.6,
               height: m.rowIconBox * 1.6,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Icon(
                 Icons.error_outline_rounded,
                 size: m.rowIconBox * 0.7,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
             SizedBox(height: m.gapLg),
@@ -436,7 +436,7 @@ class _ErrorView extends StatelessWidget {
               AppStrings.somethingWentWrongLower,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.sectionTitleSize,
@@ -447,7 +447,7 @@ class _ErrorView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.rowSubSize,
                 height: 1.45,

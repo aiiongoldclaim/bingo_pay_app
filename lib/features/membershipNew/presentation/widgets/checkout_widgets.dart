@@ -29,7 +29,7 @@ class CheckoutStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final dotSize = m.iconCircle * 0.56;
 
@@ -45,9 +45,9 @@ class CheckoutStepper extends StatelessWidget {
             width: dotSize,
             height: dotSize,
             decoration: BoxDecoration(
-              color: filled ? c.brand : c.surfaceAlt,
+              color: filled ? colors.brand : colors.surfaceAlt,
               shape: BoxShape.circle,
-              border: filled ? null : Border.all(color: c.border),
+              border: filled ? null : Border.all(color: colors.border),
             ),
             child: Center(
               child: done
@@ -61,7 +61,7 @@ class CheckoutStepper extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.labelSize,
                   fontWeight: FontWeight.w700,
-                  color: active ? ThemeColors.white : c.textSecondary,
+                  color: active ? ThemeColors.white : colors.textSecondary,
                 ),
               ),
             ),
@@ -75,7 +75,7 @@ class CheckoutStepper extends StatelessWidget {
             style: TextStyle(
               fontSize: m.captionSize,
               fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-              color: active ? c.textPrimary : c.textSecondary,
+              color: active ? colors.textPrimary : colors.textSecondary,
             ),
           ),
         ],
@@ -90,7 +90,7 @@ class CheckoutStepper extends StatelessWidget {
           left: m.cardPad * 0.2,
           right: m.cardPad * 0.2,
         ),
-        color: filled ? c.brand : c.border,
+        color: filled ? colors.brand : colors.border,
       ),
     );
 
@@ -127,7 +127,7 @@ class CheckoutHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final version = plan.version;
 
@@ -137,11 +137,11 @@ class CheckoutHeroCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: c.isDark
+        gradient: colors.isDark
             ? ThemeColors.heroBannerDark
             : ThemeColors.primaryGradient1,
         borderRadius: BorderRadius.circular(m.radiusLg),
-        border: c.isDark ? Border.all(color: c.border) : null,
+        border: colors.isDark ? Border.all(color: colors.border) : null,
       ),
       child: Stack(
         children: [
@@ -268,7 +268,7 @@ class CheckoutSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final version = plan.version;
     final price = version?.priceLabel ?? '--';
@@ -278,9 +278,9 @@ class CheckoutSummaryCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: c.border),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -290,7 +290,7 @@ class CheckoutSummaryCard extends StatelessWidget {
             style: TextStyle(
               fontSize: m.sectionTitleSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: m.rowGap * 0.7),
@@ -307,7 +307,7 @@ class CheckoutSummaryCard extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.rowGap * 0.55),
-            child: Divider(height: 1, color: c.border),
+            child: Divider(height: 1, color: colors.border),
           ),
           CheckoutSummaryRow(
             label: 'Total Amount',
@@ -337,7 +337,7 @@ class CheckoutSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -350,7 +350,7 @@ class CheckoutSummaryRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: emphasize ? m.sectionTitleSize : m.bodySize,
                 fontWeight: emphasize ? FontWeight.w700 : FontWeight.w500,
-                color: emphasize ? c.textPrimary : c.textSecondary,
+                color: emphasize ? colors.textPrimary : colors.textSecondary,
               ),
             ),
           ),
@@ -364,7 +364,7 @@ class CheckoutSummaryRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: emphasize ? m.sectionTitleSize : m.bodySize,
                 fontWeight: emphasize ? FontWeight.w700 : FontWeight.w600,
-                color: emphasize ? c.brand : c.textPrimary,
+                color: emphasize ? colors.brand : colors.textPrimary,
               ),
             ),
           ),
@@ -395,7 +395,7 @@ class BigodPaymentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final p = payment;
 
@@ -403,9 +403,9 @@ class BigodPaymentCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: c.brand, width: 1.4),
+        border: Border.all(color: colors.brand, width: 1.4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -427,7 +427,7 @@ class BigodPaymentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.bodySize,
                         fontWeight: FontWeight.w700,
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                       ),
                     ),
                     SizedBox(height: m.rowGap * 0.15),
@@ -438,7 +438,7 @@ class BigodPaymentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.captionSize,
                         fontWeight: FontWeight.w400,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ],
@@ -447,14 +447,14 @@ class BigodPaymentCard extends StatelessWidget {
               Icon(
                 Icons.check_circle_rounded,
                 size: m.smallIcon * 1.1,
-                color: c.brand,
+                color: colors.brand,
               ),
             ],
           ),
 
           if (p != null) ...[
             SizedBox(height: m.rowGap * 0.9),
-            Divider(height: 1, color: c.border),
+            Divider(height: 1, color: colors.border),
             SizedBox(height: m.rowGap * 0.7),
 
             _row(context, 'Rate', p.rateLabel),
@@ -464,7 +464,7 @@ class BigodPaymentCard extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(m.cardPad * 0.55),
               decoration: BoxDecoration(
-                color: expired ? c.statusWarningSoft : c.surfaceAlt,
+                color: expired ? colors.statusWarningSoft : colors.surfaceAlt,
                 borderRadius: BorderRadius.circular(m.radiusSm),
               ),
               child: Row(
@@ -474,7 +474,7 @@ class BigodPaymentCard extends StatelessWidget {
                         ? Icons.timer_off_outlined
                         : Icons.timer_outlined,
                     size: m.smallIcon,
-                    color: expired ? c.statusWarning : c.brand,
+                    color: expired ? colors.statusWarning : colors.brand,
                   ),
                   SizedBox(width: m.cardPad * 0.4),
                   Expanded(
@@ -485,7 +485,7 @@ class BigodPaymentCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.captionSize,
                         fontWeight: FontWeight.w600,
-                        color: expired ? c.statusWarning : c.textPrimary,
+                        color: expired ? colors.statusWarning : colors.textPrimary,
                       ),
                     ),
                   ),
@@ -509,7 +509,7 @@ class BigodPaymentCard extends StatelessWidget {
       String value, {
         bool bold = false,
       }) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -522,7 +522,7 @@ class BigodPaymentCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w500,
-                color: c.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
           ),
@@ -536,7 +536,7 @@ class BigodPaymentCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: bold ? m.bodySize : m.labelSize,
                 fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
-                color: bold ? c.brand : c.textPrimary,
+                color: bold ? colors.brand : colors.textPrimary,
               ),
             ),
           ),
@@ -554,7 +554,7 @@ class _QrExpansion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Theme(
@@ -564,14 +564,14 @@ class _QrExpansion extends StatelessWidget {
         child: ExpansionTile(
           tilePadding: EdgeInsets.zero,
           childrenPadding: EdgeInsets.only(bottom: m.rowGap * 0.5),
-          iconColor: c.brand,
-          collapsedIconColor: c.textSecondary,
+          iconColor: colors.brand,
+          collapsedIconColor: colors.textSecondary,
           title: Text(
             'Or scan with your wallet',
             style: TextStyle(
               fontSize: m.labelSize,
               fontWeight: FontWeight.w600,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           children: [

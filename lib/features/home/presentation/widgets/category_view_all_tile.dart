@@ -17,7 +17,7 @@ class CategoryViewAllTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -33,14 +33,14 @@ class CategoryViewAllTile extends StatelessWidget {
               height: m.categoryCircle,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
-                border: Border.all(color: c.brand, width: 1.2),
+                border: Border.all(color: colors.brand, width: 1.2),
               ),
               child: Icon(
                 Icons.arrow_forward_rounded,
                 size: m.categoryIconSize * 0.85,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
             SizedBox(height: m.pagePadding * 0.45),
@@ -53,7 +53,7 @@ class CategoryViewAllTile extends StatelessWidget {
                 fontSize: m.categoryLabelSize,
                 fontWeight: FontWeight.w600,
                 height: 1.15,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
           ],

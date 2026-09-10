@@ -24,7 +24,7 @@ class SettingsTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -43,7 +43,7 @@ class SettingsTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           Expanded(
@@ -54,7 +54,7 @@ class SettingsTopBar extends StatelessWidget {
                 Text(
                   title,
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.titleSize,
@@ -68,7 +68,7 @@ class SettingsTopBar extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.subtitleSize,
                       height: 1.2,
@@ -98,7 +98,7 @@ class SettingsSectionHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -108,7 +108,7 @@ class SettingsSectionHeading extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.titleMedium.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             fontSize: m.sectionHeadingSize,
@@ -132,19 +132,19 @@ class SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: m.pageHPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        boxShadow: c.isDark
+        boxShadow: colors.isDark
             ? null
             : [
           BoxShadow(
-            color: c.textPrimary.withValues(alpha: 0.03),
+            color: colors.textPrimary.withValues(alpha: 0.03),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -161,7 +161,7 @@ class SettingsCard extends StatelessWidget {
                 thickness: 1,
                 indent: m.tileHPad + m.iconBox + m.tileHPad * 0.8,
                 endIndent: m.tileHPad,
-                color: c.border,
+                color: colors.border,
               ),
           ],
         ],
@@ -197,9 +197,9 @@ class SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
-    final accent = isDestructive ? c.statusWarning : c.brand;
+    final accent = isDestructive ? colors.statusWarning : colors.brand;
     final isSwitch = switchValue != null;
 
     return Material(
@@ -220,8 +220,8 @@ class SettingsTile extends StatelessWidget {
                 height: m.iconBox,
                 decoration: BoxDecoration(
                   color: isDestructive
-                      ? c.statusWarningSoft
-                      : c.brandSoft,
+                      ? colors.statusWarningSoft
+                      : colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -240,7 +240,7 @@ class SettingsTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.labelLarge.copyWith(
-                        color: isDestructive ? c.statusWarning : c.textPrimary,
+                        color: isDestructive ? colors.statusWarning : colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: m.tileTitleSize,
@@ -254,7 +254,7 @@ class SettingsTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                           fontFamily: 'Inter',
                           fontSize: m.tileSubSize,
                           height: 1.3,
@@ -271,17 +271,17 @@ class SettingsTile extends StatelessWidget {
                 Switch(
                   value: switchValue!,
                   onChanged: onSwitchChanged,
-                  activeColor: c.surface,
-                  activeTrackColor: c.brand,
-                  inactiveThumbColor: c.surface,
-                  inactiveTrackColor: c.border,
+                  activeColor: colors.surface,
+                  activeTrackColor: colors.brand,
+                  inactiveThumbColor: colors.surface,
+                  inactiveTrackColor: colors.border,
                 )
               else ...[
                 if (trailingValue != null) ...[
                   Text(
                     trailingValue!,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.tileSubSize,
                     ),
@@ -291,7 +291,7 @@ class SettingsTile extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: m.chevronSize + 6,
-                  color: c.textMuted,
+                  color: colors.textMuted,
                 ),
               ],
             ],
@@ -323,7 +323,7 @@ class SettingsEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Center(
@@ -336,14 +336,14 @@ class SettingsEmptyView extends StatelessWidget {
               width: m.emptyIllustration,
               height: m.emptyIllustration,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Icon(
                 icon,
                 size: m.emptyIllustration * 0.42,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
 
@@ -353,7 +353,7 @@ class SettingsEmptyView extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleLarge.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.emptyTitleSize,
@@ -366,7 +366,7 @@ class SettingsEmptyView extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.emptySubSize,
                 height: 1.45,
@@ -379,7 +379,7 @@ class SettingsEmptyView extends StatelessWidget {
                 width: m.isTablet ? 260 : null,
                 height: m.btnHeight,
                 child: Material(
-                  color: c.brand,
+                  color: colors.brand,
                   borderRadius: BorderRadius.circular(12),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
@@ -390,7 +390,7 @@ class SettingsEmptyView extends StatelessWidget {
                         child: Text(
                           actionLabel!,
                           style: AppTextStyles.buttonText.copyWith(
-                            color: c.surface,
+                            color: colors.surface,
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w700,
                             fontSize: m.btnFontSize,

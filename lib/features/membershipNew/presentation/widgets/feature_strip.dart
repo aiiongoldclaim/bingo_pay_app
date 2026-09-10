@@ -20,13 +20,13 @@ class MembershipFeatureStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (features.isEmpty) return const SizedBox.shrink();
 
     Widget cell(MembershipPlanFeature f) => _FeatureCell(feature: f, metrics: m);
-    Widget vDivider() => Container(width: 1, color: c.border);
+    Widget vDivider() => Container(width: 1, color: colors.border);
 
     Widget content;
 
@@ -51,7 +51,7 @@ class MembershipFeatureStrip extends StatelessWidget {
           ),
         );
         if (i + 2 < features.length) {
-          rows.add(Divider(height: 1, color: c.border));
+          rows.add(Divider(height: 1, color: colors.border));
         }
       }
       content = Column(children: rows);
@@ -74,7 +74,7 @@ class MembershipFeatureStrip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: m.cardPad * 0.4),
       decoration: BoxDecoration(
-        color: c.surfaceAlt,
+        color: colors.surfaceAlt,
         borderRadius: BorderRadius.circular(m.radiusMd),
       ),
       child: content,
@@ -90,7 +90,7 @@ class _FeatureCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -112,7 +112,7 @@ class _FeatureCell extends StatelessWidget {
             style: TextStyle(
               fontSize: m.labelSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: m.rowGap * 0.25),
@@ -123,7 +123,7 @@ class _FeatureCell extends StatelessWidget {
               fontSize: m.captionSize,
               fontWeight: FontWeight.w400,
               height: 1.4,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ],

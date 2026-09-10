@@ -650,7 +650,7 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = AddAddressMetrics.of(context);
 
     return PopScope(
@@ -663,13 +663,13 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
-          statusBarIconBrightness: c.isDark
+          statusBarIconBrightness: colors.isDark
               ? Brightness.light
               : Brightness.dark,
-          statusBarBrightness: c.isDark ? Brightness.dark : Brightness.light,
+          statusBarBrightness: colors.isDark ? Brightness.dark : Brightness.light,
         ),
         child: Scaffold(
-          backgroundColor: c.background,
+          backgroundColor: colors.background,
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -744,7 +744,7 @@ class _AddressTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -763,7 +763,7 @@ class _AddressTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           Expanded(
@@ -774,7 +774,7 @@ class _AddressTopBar extends StatelessWidget {
                 Text(
                   isEdit ? 'Edit Address' : 'Add New Address',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.titleSize,
@@ -785,7 +785,7 @@ class _AddressTopBar extends StatelessWidget {
                 Text(
                   'All fields are required',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.subtitleSize,
                     height: 1.2,
@@ -816,15 +816,15 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -836,18 +836,18 @@ class _SectionCard extends StatelessWidget {
                 width: m.sectionIconBox,
                 height: m.sectionIconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(icon, size: m.sectionIconSize, color: c.brand),
+                child: Icon(icon, size: m.sectionIconSize, color: colors.brand),
               ),
               SizedBox(width: m.cardPad * 0.7),
               Expanded(
                 child: Text(
                   title,
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.sectionTitleSize,
@@ -1051,7 +1051,7 @@ class AddressField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -1062,7 +1062,7 @@ class AddressField extends StatelessWidget {
           TextSpan(
             text: label,
             style: AppTextStyles.bodySmall.copyWith(
-              color: c.textSecondary,
+              color: colors.textSecondary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w500,
               fontSize: m.fieldLabelSize,
@@ -1070,7 +1070,7 @@ class AddressField extends StatelessWidget {
             children: [
               TextSpan(
                 text: ' *',
-                style: TextStyle(color: c.statusWarning),
+                style: TextStyle(color: colors.statusWarning),
               ),
             ],
           ),
@@ -1086,7 +1086,7 @@ class AddressField extends StatelessWidget {
           textCapitalization: textCapitalization,
           validator: validator,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontSize: m.fieldTextSize,
           ),
@@ -1098,7 +1098,7 @@ class AddressField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: c.textMuted,
+              color: colors.textMuted,
               fontFamily: 'Inter',
               fontSize: m.fieldTextSize,
             ),
@@ -1107,7 +1107,7 @@ class AddressField extends StatelessWidget {
                 left: m.cardPad * 0.6,
                 right: m.gapSm * 0.8,
               ),
-              child: Icon(icon, size: m.fieldIconSize, color: c.textSecondary),
+              child: Icon(icon, size: m.fieldIconSize, color: colors.textSecondary),
             ),
             prefixIconConstraints: BoxConstraints(
               minWidth: 0,
@@ -1115,12 +1115,12 @@ class AddressField extends StatelessWidget {
             ),
             counterText: '',
             errorStyle: AppTextStyles.bodySmall.copyWith(
-              color: c.statusWarning,
+              color: colors.statusWarning,
               fontFamily: 'Inter',
               fontSize: m.errorSize,
             ),
             filled: true,
-            fillColor: c.surfaceAlt,
+            fillColor: colors.surfaceAlt,
             isDense: true,
             contentPadding: EdgeInsets.symmetric(
               horizontal: m.cardPad * 0.6,
@@ -1128,23 +1128,23 @@ class AddressField extends StatelessWidget {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.border),
+              borderSide: BorderSide(color: colors.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.border),
+              borderSide: BorderSide(color: colors.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.brand, width: 1.5),
+              borderSide: BorderSide(color: colors.brand, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.statusWarning),
+              borderSide: BorderSide(color: colors.statusWarning),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.statusWarning, width: 1.5),
+              borderSide: BorderSide(color: colors.statusWarning, width: 1.5),
             ),
           ),
         ),
@@ -1167,7 +1167,7 @@ class _DefaultSwitchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -1176,9 +1176,9 @@ class _DefaultSwitchCard extends StatelessWidget {
         vertical: m.cardPad * 0.7,
       ),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Row(
         children: [
@@ -1186,14 +1186,14 @@ class _DefaultSwitchCard extends StatelessWidget {
             width: m.sectionIconBox * 0.85,
             height: m.sectionIconBox * 0.85,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Icon(
               value ? Icons.star_rounded : Icons.star_border_rounded,
               size: m.sectionIconSize * 0.9,
-              color: c.brand,
+              color: colors.brand,
             ),
           ),
 
@@ -1207,7 +1207,7 @@ class _DefaultSwitchCard extends StatelessWidget {
                 Text(
                   'Set as default address',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: m.switchTitleSize,
@@ -1218,7 +1218,7 @@ class _DefaultSwitchCard extends StatelessWidget {
                 Text(
                   'Use this address for future orders',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.switchSubSize,
                     height: 1.3,
@@ -1231,10 +1231,10 @@ class _DefaultSwitchCard extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: c.surface,
-            activeTrackColor: c.brand,
-            inactiveThumbColor: c.surface,
-            inactiveTrackColor: c.border,
+            activeColor: colors.surface,
+            activeTrackColor: colors.brand,
+            inactiveThumbColor: colors.surface,
+            inactiveTrackColor: colors.border,
           ),
         ],
       ),
@@ -1256,7 +1256,7 @@ class _SaveBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -1267,8 +1267,8 @@ class _SaveBar extends StatelessWidget {
         m.gapSm * 0.5,
       ),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border, width: 1)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
       ),
       child: SafeArea(
         top: false,
@@ -1279,7 +1279,7 @@ class _SaveBar extends StatelessWidget {
               height: m.btnHeight,
               width: double.infinity,
               child: Material(
-                color: c.brand,
+                color: colors.brand,
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
@@ -1288,7 +1288,7 @@ class _SaveBar extends StatelessWidget {
                     child: Text(
                       isEdit ? 'UPDATE ADDRESS' : 'SAVE ADDRESS',
                       style: AppTextStyles.buttonText.copyWith(
-                        color: c.surface,
+                        color: colors.surface,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.btnFontSize,

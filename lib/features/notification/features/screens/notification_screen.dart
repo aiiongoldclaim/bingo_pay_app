@@ -85,10 +85,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: Builder(
@@ -116,7 +116,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     icon: Icon(
                       Icons.done_all_rounded,
                       size: m.topIconSize,
-                      color: _unreadCount > 0 ? c.brand : c.textMuted,
+                      color: _unreadCount > 0 ? colors.brand : colors.textMuted,
                     ),
                   ),
                 ),
@@ -213,11 +213,11 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
-      color: isSelected ? c.brand : c.surface,
+      color: isSelected ? colors.brand : colors.surface,
       borderRadius: BorderRadius.circular(m.chipHeight),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -228,7 +228,7 @@ class _FilterChip extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(m.chipHeight),
             border: Border.all(
-              color: isSelected ? c.brand : c.border,
+              color: isSelected ? colors.brand : colors.border,
               width: 1,
             ),
           ),
@@ -236,7 +236,7 @@ class _FilterChip extends StatelessWidget {
           child: Text(
             label,
             style: AppTextStyles.labelMedium.copyWith(
-              color: isSelected ? c.surface : c.textSecondary,
+              color: isSelected ? colors.surface : colors.textSecondary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
               fontSize: m.chipFontSize,
@@ -275,11 +275,11 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
-      color: item.isRead ? c.surface : c.brandSoft,
+      color: item.isRead ? colors.surface : colors.brandSoft,
       borderRadius: BorderRadius.circular(m.cardRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -289,7 +289,7 @@ class _NotificationTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(m.cardRadius),
             border: Border.all(
-              color: item.isRead ? c.border : c.brand.withValues(alpha: 0.3),
+              color: item.isRead ? colors.border : colors.brand.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -301,12 +301,12 @@ class _NotificationTile extends StatelessWidget {
                 height: m.notifIconBox,
                 decoration: BoxDecoration(
                   color: item.isRead
-                      ? c.surfaceAlt
-                      : c.surface.withValues(alpha: c.isDark ? 0.10 : 0.8),
+                      ? colors.surfaceAlt
+                      : colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.8),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(_icon, size: m.notifIconSize, color: c.brand),
+                child: Icon(_icon, size: m.notifIconSize, color: colors.brand),
               ),
 
               SizedBox(width: m.tileHPad * 0.8),
@@ -324,7 +324,7 @@ class _NotificationTile extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.labelLarge.copyWith(
-                              color: c.textPrimary,
+                              color: colors.textPrimary,
                               fontFamily: 'Inter',
                               fontWeight: item.isRead
                                   ? FontWeight.w600
@@ -340,7 +340,7 @@ class _NotificationTile extends StatelessWidget {
                             width: m.dotSize,
                             height: m.dotSize,
                             decoration: BoxDecoration(
-                              color: c.brand,
+                              color: colors.brand,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -355,7 +355,7 @@ class _NotificationTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: m.notifBodySize,
                         height: 1.4,
@@ -369,13 +369,13 @@ class _NotificationTile extends StatelessWidget {
                         Icon(
                           Icons.schedule_rounded,
                           size: m.notifTimeSize + 3,
-                          color: c.textMuted,
+                          color: colors.textMuted,
                         ),
                         SizedBox(width: m.gapXs),
                         Text(
                           item.time,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: c.textMuted,
+                            color: colors.textMuted,
                             fontFamily: 'Inter',
                             fontSize: m.notifTimeSize,
                           ),

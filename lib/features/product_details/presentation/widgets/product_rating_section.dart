@@ -155,7 +155,7 @@ class ProductRatingsBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return ProductSectionCard(
@@ -170,7 +170,7 @@ class ProductRatingsBlock extends StatelessWidget {
                 child: Text(
                   AppStrings.ratingsReviews,
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.sectionTitleSize,
@@ -184,12 +184,12 @@ class ProductRatingsBlock extends StatelessWidget {
 
           Row(
             children: [
-              Icon(Icons.star_rounded, size: m.priceSize, color: c.brand),
+              Icon(Icons.star_rounded, size: m.priceSize, color: colors.brand),
               SizedBox(width: m.gapSm * 0.7),
               Text(
                 rating,
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.priceSize * 0.8,
@@ -199,7 +199,7 @@ class ProductRatingsBlock extends StatelessWidget {
               Text(
                 AppStrings.ratingsCount(reviewCount),
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.rowSubSize,
                 ),

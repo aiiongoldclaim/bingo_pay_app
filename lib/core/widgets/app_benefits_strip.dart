@@ -50,7 +50,7 @@ class AppBenefitsStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.shortestSide >= 540;
     final isLandscape = size.width > size.height;
@@ -71,11 +71,11 @@ class AppBenefitsStrip extends StatelessWidget {
             width: iconBox,
             height: iconBox,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(b.icon, size: iconSize, color: c.brand),
+            child: Icon(b.icon, size: iconSize, color: colors.brand),
           ),
           SizedBox(width: gap),
           Flexible(
@@ -88,7 +88,7 @@ class AppBenefitsStrip extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: titleSize,
@@ -100,7 +100,7 @@ class AppBenefitsStrip extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: subSize,
                     height: 1.25,
@@ -116,7 +116,7 @@ class AppBenefitsStrip extends StatelessWidget {
     Widget divider() => Container(
       width: 1,
       height: iconBox * 0.9,
-      color: c.border,
+      color: colors.border,
     );
 
     final row = Row(
@@ -142,9 +142,9 @@ class AppBenefitsStrip extends StatelessWidget {
         vertical: pad * 0.9,
       ),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: row,
     );

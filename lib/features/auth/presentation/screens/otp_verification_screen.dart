@@ -330,7 +330,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   Widget _buildPinput(BuildContext context, AuthMetrics m) {
-    final c = context.c;
+    final colors = context.c;
     final hasError = _otpError != null;
 
     final boxW = m.isTablet ? (m.isLandscape ? 50.0 : 56.0) : 48.0;
@@ -340,7 +340,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       fontFamily: 'Inter',
       fontSize: m.isTablet ? 22 : 20,
       fontWeight: FontWeight.w700,
-      color: c.textPrimary,
+      color: colors.textPrimary,
     );
 
     BoxDecoration deco(Color fill, Color borderColor, {double width = 1}) =>
@@ -366,9 +366,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         height: boxH,
         textStyle: pinTextStyle,
         decoration: deco(
-          c.surface,
-          //hasError ? c.statusWarning : c.border
-          hasError ? c.error : c.border, // CHANGE HERE
+          colors.surface,
+          //hasError ? colors.statusWarning : colors.border
+          hasError ? colors.error : colors.border, // CHANGE HERE
            ),
       ),
 
@@ -377,9 +377,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         height: boxH,
         textStyle: pinTextStyle,
         decoration: deco(
-          c.surface,
-          // hasError ? c.statusWarning : c.brand,
-          hasError ? c.error : c.brand, // CHANGE HERE
+          colors.surface,
+          // hasError ? colors.statusWarning : colors.brand,
+          hasError ? colors.error : colors.brand, // CHANGE HERE
           width: 1.8,
         ),
       ),
@@ -389,9 +389,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         height: boxH,
         textStyle: pinTextStyle,
         decoration: deco(
-          hasError ? c.surface : c.brandSoft,
-          // hasError ? c.statusWarning : c.brand,
-          hasError ? c.error : c.brand, // CHANGE HERE
+          hasError ? colors.surface : colors.brandSoft,
+          // hasError ? colors.statusWarning : colors.brand,
+          hasError ? colors.error : colors.brand, // CHANGE HERE
         ),
       ),
 
@@ -399,12 +399,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         width: boxW,
         height: boxH,
         textStyle: pinTextStyle.copyWith(
-          // color: c.statusWarning
-          color: c.error, // CHANGE HERE
+          // color: colors.statusWarning
+          color: colors.error, // CHANGE HERE
           ),
-        decoration: deco(c.surface, 
-        // c.statusWarning,
-        c.error, // CHANGE HERE
+        decoration: deco(colors.surface, 
+        // colors.statusWarning,
+        colors.error, // CHANGE HERE
          width: 1.5),
       ),
     );

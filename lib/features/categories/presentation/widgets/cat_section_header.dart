@@ -19,7 +19,7 @@ class CatSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -36,7 +36,7 @@ class CatSectionHeader extends StatelessWidget {
                 fontSize: m.sectionTitleSize,
                 fontWeight: FontWeight.w700,
                 height: 1.2,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -52,7 +52,7 @@ class CatSectionHeader extends StatelessWidget {
                     //   style: TextStyle(
                     //     fontSize: m.viewAllSize,
                     //     fontWeight: FontWeight.w600,
-                    //     color: c.brand,
+                    //     color: colors.brand,
                     //   ),
                     // ),
 

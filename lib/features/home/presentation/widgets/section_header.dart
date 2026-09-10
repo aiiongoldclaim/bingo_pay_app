@@ -19,7 +19,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -33,7 +33,7 @@ class SectionHeader extends StatelessWidget {
               fontSize: metrics.sectionTitleSize,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.4,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
         ),
@@ -48,14 +48,14 @@ class SectionHeader extends StatelessWidget {
                     fontSize: metrics.viewAllSize,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.4,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
                 SizedBox(width: metrics.pagePadding * 0.2),
                 Icon(
                   Icons.chevron_right_rounded,
                   size: metrics.viewAllSize * 1.5,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ],
             ),

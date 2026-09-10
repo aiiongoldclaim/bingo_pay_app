@@ -73,11 +73,11 @@ class _Block extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: c.surfaceAlt,
+        color: colors.surfaceAlt,
         borderRadius: BorderRadius.circular(radius),
       ),
     );
@@ -102,7 +102,7 @@ class MembershipErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Center(
@@ -115,13 +115,13 @@ class MembershipErrorView extends StatelessWidget {
               width: m.iconBox * 1.7,
               height: m.iconBox * 1.7,
               decoration: BoxDecoration(
-                color: c.statusWarningSoft,
+                color: colors.statusWarningSoft,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.wifi_tethering_error_rounded,
                 size: m.iconSize * 1.5,
-                color: c.statusWarning,
+                color: colors.statusWarning,
               ),
             ),
             SizedBox(height: m.rowGap),
@@ -131,7 +131,7 @@ class MembershipErrorView extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.sectionTitleSize,
                 fontWeight: FontWeight.w700,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: m.rowGap * 0.4),
@@ -141,7 +141,7 @@ class MembershipErrorView extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w500,
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 height: 1.4,
               ),
             ),
@@ -178,7 +178,7 @@ class MembershipEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return ConstrainedBox(
@@ -191,11 +191,11 @@ class MembershipEmptyView extends StatelessWidget {
           Container(
             width: m.iconBox * 2,
             height: m.iconBox * 2,
-            decoration: BoxDecoration(color: c.brandSoft, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: colors.brandSoft, shape: BoxShape.circle),
             child: Icon(
               Icons.workspace_premium_outlined,
               size: m.iconSize * 1.8,
-              color: c.brand,
+              color: colors.brand,
             ),
           ),
           SizedBox(height: m.rowGap),
@@ -204,7 +204,7 @@ class MembershipEmptyView extends StatelessWidget {
             style: TextStyle(
               fontSize: m.sectionTitleSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: m.rowGap * 0.4),
@@ -216,7 +216,7 @@ class MembershipEmptyView extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w500,
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 height: 1.45,
               ),
             ),

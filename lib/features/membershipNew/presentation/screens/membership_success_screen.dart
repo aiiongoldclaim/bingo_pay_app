@@ -24,7 +24,7 @@ class MembershipActivatedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return PopScope(
       canPop: false,
@@ -36,15 +36,15 @@ class MembershipActivatedScreen extends StatelessWidget {
           final m = MembershipMetrics.of(context);
 
           return Scaffold(
-            backgroundColor: c.background,
+            backgroundColor: colors.background,
             appBar: AppBar(
-              backgroundColor: c.background,
+              backgroundColor: colors.background,
               leading: IconButton(
                 onPressed: () => context.go(AppRoutes.home),
                 icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: m.smallIcon,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               title: Text(
@@ -52,13 +52,13 @@ class MembershipActivatedScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.screenTitleSize,
                   fontWeight: FontWeight.w700,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               actions: [
                 TextButton(
                   onPressed: () => context.go(AppRoutes.home),
-                  style: TextButton.styleFrom(foregroundColor: c.brand),
+                  style: TextButton.styleFrom(foregroundColor: colors.brand),
                   child: Text(
                     'Done',
                     style: TextStyle(
@@ -136,7 +136,7 @@ class _WelcomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -148,7 +148,7 @@ class _WelcomeHeader extends StatelessWidget {
         m.sectionGap,
       ),
       decoration: BoxDecoration(
-        color: c.brandSoft.withValues(alpha: c.isDark ? 0.25 : 0.5),
+        color: colors.brandSoft.withValues(alpha: colors.isDark ? 0.25 : 0.5),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -160,7 +160,7 @@ class _WelcomeHeader extends StatelessWidget {
                 width: m.iconCircle * 1.7,
                 height: m.iconCircle * 1.7,
                 decoration: BoxDecoration(
-                  color: c.brand,
+                  color: colors.brand,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -178,7 +178,7 @@ class _WelcomeHeader extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: ThemeColors.gold1,
                     shape: BoxShape.circle,
-                    border: Border.all(color: c.background, width: 2),
+                    border: Border.all(color: colors.background, width: 2),
                   ),
                   child: Icon(
                     Icons.check_rounded,
@@ -196,7 +196,7 @@ class _WelcomeHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: m.heroTitleSize * 0.68,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'CormorantGaramond',
             ),
           ),
@@ -208,7 +208,7 @@ class _WelcomeHeader extends StatelessWidget {
               fontSize: m.bodySize,
               fontWeight: FontWeight.w400,
               height: 1.5,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ],
@@ -229,7 +229,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final cell = <Widget>[
@@ -263,9 +263,9 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusLg),
-        border: Border.all(color: c.border),
+        border: Border.all(color: colors.border),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -292,7 +292,7 @@ class _SummaryCard extends StatelessWidget {
         required String value,
         bool emphasise = false,
       }) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -302,10 +302,10 @@ class _SummaryCard extends StatelessWidget {
           width: m.iconCircle * 0.62,
           height: m.iconCircle * 0.62,
           decoration: BoxDecoration(
-            color: c.brandSoft,
+            color: colors.brandSoft,
             borderRadius: BorderRadius.circular(m.radiusSm),
           ),
-          child: Icon(icon, size: m.iconSize * 0.7, color: c.brand),
+          child: Icon(icon, size: m.iconSize * 0.7, color: colors.brand),
         ),
         SizedBox(width: m.cardPad * 0.4),
         Expanded(
@@ -320,7 +320,7 @@ class _SummaryCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.captionSize,
                   fontWeight: FontWeight.w400,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
               SizedBox(height: m.rowGap * 0.18),
@@ -332,7 +332,7 @@ class _SummaryCard extends StatelessWidget {
                   fontSize: emphasise ? m.sectionTitleSize : m.labelSize,
                   fontWeight: FontWeight.w700,
                   height: 1.25,
-                  color: emphasise ? c.brand : c.textPrimary,
+                  color: emphasise ? colors.brand : colors.textPrimary,
                 ),
               ),
             ],
@@ -404,7 +404,7 @@ class _OrderSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -415,7 +415,7 @@ class _OrderSummary extends StatelessWidget {
           style: TextStyle(
             fontSize: m.sectionTitleSize,
             fontWeight: FontWeight.w700,
-            color: c.textPrimary,
+            color: colors.textPrimary,
           ),
         ),
         SizedBox(height: m.rowGap),
@@ -437,9 +437,9 @@ class _OrderSummary extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.all(m.cardPad * 0.8),
             decoration: BoxDecoration(
-              color: c.surface,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(m.radiusLg),
-              border: Border.all(color: c.border),
+              border: Border.all(color: colors.border),
             ),
             child: Row(
               children: [
@@ -447,13 +447,13 @@ class _OrderSummary extends StatelessWidget {
                   width: m.iconCircle * 0.7,
                   height: m.iconCircle * 0.7,
                   decoration: BoxDecoration(
-                    color: c.brandSoft,
+                    color: colors.brandSoft,
                     borderRadius: BorderRadius.circular(m.radiusSm),
                   ),
                   child: Icon(
                     Icons.receipt_long_outlined,
                     size: m.iconSize * 0.75,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
                 SizedBox(width: m.cardPad * 0.5),
@@ -467,7 +467,7 @@ class _OrderSummary extends StatelessWidget {
                         style: TextStyle(
                           fontSize: m.captionSize,
                           fontWeight: FontWeight.w400,
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                         ),
                       ),
                       SizedBox(height: m.rowGap * 0.18),
@@ -478,7 +478,7 @@ class _OrderSummary extends StatelessWidget {
                         style: TextStyle(
                           fontSize: m.labelSize,
                           fontWeight: FontWeight.w700,
-                          color: c.textPrimary,
+                          color: colors.textPrimary,
                         ),
                       ),
                     ],
@@ -488,7 +488,7 @@ class _OrderSummary extends StatelessWidget {
                 Icon(
                   Icons.copy_rounded,
                   size: m.smallIcon * 0.85,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ],
             ),
@@ -510,7 +510,7 @@ class _WhatsNext extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final items = <_NextItem>[
@@ -548,7 +548,7 @@ class _WhatsNext extends StatelessWidget {
           style: TextStyle(
             fontSize: m.sectionTitleSize,
             fontWeight: FontWeight.w700,
-            color: c.textPrimary,
+            color: colors.textPrimary,
           ),
         ),
         SizedBox(height: m.rowGap),
@@ -598,7 +598,7 @@ class _NextTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -607,9 +607,9 @@ class _NextTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(m.cardPad * 0.7),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.radiusMd),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,10 +619,10 @@ class _NextTile extends StatelessWidget {
               width: m.iconCircle * 0.75,
               height: m.iconCircle * 0.75,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
-              child: Icon(item.icon, size: m.iconSize * 0.85, color: c.brand),
+              child: Icon(item.icon, size: m.iconSize * 0.85, color: colors.brand),
             ),
             SizedBox(height: m.rowGap * 0.5),
             Text(
@@ -632,7 +632,7 @@ class _NextTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.captionSize * 1.05,
                 fontWeight: FontWeight.w700,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
             SizedBox(height: m.rowGap * 0.25),
@@ -644,14 +644,14 @@ class _NextTile extends StatelessWidget {
                 fontSize: m.captionSize * 0.88,
                 fontWeight: FontWeight.w400,
                 height: 1.3,
-                color: c.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
             SizedBox(height: m.rowGap * 0.4),
             Icon(
               Icons.chevron_right_rounded,
               size: m.smallIcon * 0.9,
-              color: c.brand,
+              color: colors.brand,
             ),
           ],
         ),
@@ -669,14 +669,14 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.fromLTRB(m.hPad, m.rowGap * 0.7, m.hPad, m.rowGap),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: Center(
         child: ConstrainedBox(
@@ -687,7 +687,7 @@ class _BottomBar extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => context.go(AppRoutes.home),
               style: ElevatedButton.styleFrom(
-                backgroundColor: c.brand,
+                backgroundColor: colors.brand,
                 foregroundColor: ThemeColors.white,
                 elevation: 0,
                 minimumSize: Size.zero,

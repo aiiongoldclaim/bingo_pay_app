@@ -199,7 +199,7 @@ class _CheckoutViewState
       }) {
     if (!mounted) return;
 
-    final c = context.c;
+    final colors = context.c;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -208,8 +208,8 @@ class _CheckoutViewState
           content: Text(message),
           backgroundColor:
           isError
-              ? c.statusWarning
-              : c.statusSuccess,
+              ? colors.statusWarning
+              : colors.statusSuccess,
           behavior:
           SnackBarBehavior.floating,
         ),
@@ -450,11 +450,11 @@ class _CheckoutViewState
       BuildContext context,
       MembershipMetrics metrics,
       ) {
-    final c = context.c;
+    final colors = context.c;
 
     return AppBar(
       backgroundColor:
-      c.background,
+      colors.background,
 
       leading: IconButton(
         onPressed: () {
@@ -466,7 +466,7 @@ class _CheckoutViewState
           Icons
               .arrow_back_ios_new_rounded,
           size: metrics.smallIcon,
-          color: c.textPrimary,
+          color: colors.textPrimary,
         ),
       ),
 
@@ -477,7 +477,7 @@ class _CheckoutViewState
           metrics.screenTitleSize,
           fontWeight:
           FontWeight.w700,
-          color: c.textPrimary,
+          color: colors.textPrimary,
         ),
       ),
 
@@ -493,7 +493,7 @@ class _CheckoutViewState
                     .verified_user_outlined,
                 size:
                 metrics.smallIcon,
-                color: c.brand,
+                color: colors.brand,
               ),
               SizedBox(
                 width:
@@ -508,7 +508,7 @@ class _CheckoutViewState
                   fontWeight:
                   FontWeight.w500,
                   color:
-                  c.textSecondary,
+                  colors.textSecondary,
                 ),
               ),
             ],
@@ -645,7 +645,7 @@ class _CheckoutViewState
       BuildContext context,
       MembershipMetrics metrics,
       ) {
-    final c = context.c;
+    final colors = context.c;
 
     return Column(
       crossAxisAlignment:
@@ -659,7 +659,7 @@ class _CheckoutViewState
             fontWeight:
             FontWeight.w700,
             color:
-            c.textPrimary,
+            colors.textPrimary,
           ),
         ),
 
@@ -730,7 +730,7 @@ class _CheckoutViewState
       BuildContext context,
       MembershipMetrics metrics,
       ) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -740,10 +740,10 @@ class _CheckoutViewState
         metrics.rowGap,
       ),
       decoration: BoxDecoration(
-        color: c.background,
+        color: colors.background,
         border: Border(
           top: BorderSide(
-            color: c.border,
+            color: colors.border,
           ),
         ),
       ),
@@ -774,7 +774,7 @@ class _CheckoutViewState
                       fontWeight:
                       FontWeight.w500,
                       color:
-                      c.textSecondary,
+                      colors.textSecondary,
                     ),
                   ),
 
@@ -797,7 +797,7 @@ class _CheckoutViewState
                           fontWeight:
                           FontWeight.w700,
                           color:
-                          c.textPrimary,
+                          colors.textPrimary,
                         ),
                       ),
                     ),
@@ -841,12 +841,12 @@ class _CheckoutViewState
                     ElevatedButton
                         .styleFrom(
                       backgroundColor:
-                      c.brand,
+                      colors.brand,
                       foregroundColor:
                       ThemeColors.white,
 
                       disabledBackgroundColor:
-                      c.brand.withValues(
+                      colors.brand.withValues(
                         alpha: 0.5,
                       ),
 

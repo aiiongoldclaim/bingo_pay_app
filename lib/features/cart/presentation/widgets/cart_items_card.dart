@@ -1,311 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:sizer/sizer.dart';
-//
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// import '../../domain/entities/cart_item_entity.dart';
-//
-// class CartItemsCard extends StatefulWidget {
-//   final List<CartItemEntity> items;
-//   final Set<int> pendingItemIds;
-//   final void Function(CartItemEntity item) onIncrease;
-//   final void Function(CartItemEntity item) onDecrease;
-//   final void Function(CartItemEntity item) onDelete;
-//
-//   const CartItemsCard({
-//     super.key,
-//     required this.items,
-//     this.pendingItemIds = const {},
-//     required this.onIncrease,
-//     required this.onDecrease,
-//     required this.onDelete,
-//   });
-//
-//   @override
-//   State<CartItemsCard> createState() => _CartItemsCardState();
-// }
-//
-// class _CartItemsCardState extends State<CartItemsCard> {
-//   final _listKey = GlobalKey<AnimatedListState>();
-//   late final List<CartItemEntity> _items;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _items = List.of(widget.items);
-//   }
-//
-//   @override
-//   void didUpdateWidget(covariant CartItemsCard oldWidget) {
-//     super.didUpdateWidget(oldWidget);
-//     _syncItems(widget.items);
-//   }
-//
-//   void _syncItems(List<CartItemEntity> newItems) {
-//     for (var i = _items.length - 1; i >= 0; i--) {
-//       final id = _items[i].id;
-//       if (newItems.any((e) => e.id == id)) continue;
-//       final removed = _items.removeAt(i);
-//       _listKey.currentState?.removeItem(
-//         i,
-//         (context, animation) => _buildTile(removed, animation, index: i),
-//         duration: const Duration(milliseconds: 280),
-//       );
-//     }
-//
-//     for (var i = 0; i < newItems.length; i++) {
-//       final existingIndex = _items.indexWhere((e) => e.id == newItems[i].id);
-//       if (existingIndex == -1) {
-//         _items.insert(i, newItems[i]);
-//         _listKey.currentState?.insertItem(
-//           i,
-//           duration: const Duration(milliseconds: 280),
-//         );
-//       } else {
-//         _items[existingIndex] = newItems[i];
-//       }
-//     }
-//   }
-//
-//   Widget _buildTile(
-//     CartItemEntity item,
-//     Animation<double> animation, {
-//     required int index,
-//   }) {
-//     final isLast = index >= _items.length - 1;
-//     return SizeTransition(
-//       sizeFactor: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-//       // alignment: Alignment.topCenter,
-//       child: FadeTransition(
-//         opacity: animation,
-//         child: Column(
-//           children: [
-//             CartItemTile(
-//               item: item,
-//               isPending: widget.pendingItemIds.contains(item.id),
-//               onIncrease: () => widget.onIncrease(item),
-//               onDecrease: () => widget.onDecrease(item),
-//               onDelete: () => widget.onDelete(item),
-//             ),
-//             if (!isLast) Divider(height: 3.h, color: ThemeColors.line),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: EdgeInsets.all(4.w),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(20),
-//         boxShadow: [
-//           BoxShadow(
-//             color: const Color(0xFF1A1D4E).withValues(alpha: 0.08),
-//             blurRadius: 20,
-//             offset: const Offset(0, 4),
-//           ),
-//         ],
-//       ),
-//       child: AnimatedList(
-//         key: _listKey,
-//         shrinkWrap: true,
-//         physics: const NeverScrollableScrollPhysics(),
-//         padding: EdgeInsets.zero,
-//         initialItemCount: _items.length,
-//         itemBuilder: (context, index, animation) =>
-//             _buildTile(_items[index], animation, index: index),
-//       ),
-//     );
-//   }
-// }
-//
-// class CartItemTile extends StatelessWidget {
-//   final CartItemEntity item;
-//   final bool isPending;
-//   final VoidCallback onIncrease;
-//   final VoidCallback onDecrease;
-//   final VoidCallback onDelete;
-//
-//   const CartItemTile({
-//     super.key,
-//     required this.item,
-//     this.isPending = false,
-//     required this.onIncrease,
-//     required this.onDecrease,
-//     required this.onDelete,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final thumbnail = item.product.thumbnail;
-//
-//     return AnimatedOpacity(
-//       duration: const Duration(milliseconds: 150),
-//       opacity: isPending ? 0.5 : 1,
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           /// Image / Icon
-//           ClipRRect(
-//             borderRadius: BorderRadius.circular(12),
-//             child: Container(
-//               width: 20.w,
-//               height: 20.w,
-//               color: ThemeColors.surface2,
-//               child: thumbnail != null
-//                   ? Image.network(
-//                       thumbnail,
-//                       fit: BoxFit.cover,
-//                       errorBuilder: (ctx, e, st) => Icon(
-//                         Icons.shopping_bag_outlined,
-//                         color: ThemeColors.blue,
-//                         size: 10.w,
-//                       ),
-//                     )
-//                   : Icon(
-//                       Icons.shopping_bag_outlined,
-//                       color: ThemeColors.blue,
-//                       size: 10.w,
-//                     ),
-//             ),
-//           ),
-//
-//           SizedBox(width: 3.w),
-//
-//           /// Product Info
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: Text(
-//                         item.vendor.shopName,
-//                         style: AppTextStyles.labelMedium.copyWith(
-//                           color: ThemeColors.inkDim,
-//                           fontWeight: FontWeight.w700,
-//                         ),
-//                       ),
-//                     ),
-//                     GestureDetector(
-//                       onTap: isPending ? null : onDelete,
-//                       child: isPending
-//                           ? SizedBox(
-//                               width: 18.sp,
-//                               height: 18.sp,
-//                               child: const CircularProgressIndicator(
-//                                 strokeWidth: 2,
-//                                 valueColor: AlwaysStoppedAnimation(
-//                                   ThemeColors.red,
-//                                 ),
-//                               ),
-//                             )
-//                           : Icon(
-//                               Icons.delete_outline,
-//                               size: 18.sp,
-//                               color: ThemeColors.inkDim,
-//                             ),
-//                     ),
-//                   ],
-//                 ),
-//
-//                 Text(
-//                   item.product.title,
-//                   maxLines: 2,
-//                   overflow: TextOverflow.ellipsis,
-//                   style: AppTextStyles.titleMedium.copyWith(
-//                     fontWeight: FontWeight.w700,
-//                     fontSize: 14.sp,
-//                   ),
-//                 ),
-//
-//                 SizedBox(height: 0.5.h),
-//
-//                 Row(
-//                   children: [
-//                     Text(
-//                       '\$${item.unitPrice.toStringAsFixed(0)}',
-//                       style: AppTextStyles.titleLarge.copyWith(
-//                         fontWeight: FontWeight.w800,
-//                         fontSize: 15.sp,
-//                       ),
-//                     ),
-//                     const Spacer(),
-//                     // Quantity controls - always visible
-//                     Container(
-//                       height: 4.h,
-//                       decoration: BoxDecoration(
-//                         color: const Color(0xFF1A1D4E),
-//                         borderRadius: BorderRadius.circular(14),
-//                       ),
-//                       child: Row(
-//                         mainAxisSize: MainAxisSize.min,
-//                         children: [
-//                           _QtyButton(
-//                             icon: Icons.remove,
-//                             onTap: isPending ? null : onDecrease,
-//                             isDisabled: isPending,
-//                           ),
-//                           Padding(
-//                             padding: EdgeInsets.symmetric(horizontal: 3.w),
-//                             child: Text(
-//                               '${item.quantity}',
-//                               style: AppTextStyles.titleMedium.copyWith(
-//                                 fontWeight: FontWeight.w700,
-//                                 color: Colors.white,
-//                               ),
-//                             ),
-//                           ),
-//                           _QtyButton(
-//                             icon: Icons.add,
-//                             onTap: isPending ? null : onIncrease,
-//                             isDisabled: isPending,
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-// class _QtyButton extends StatelessWidget {
-//   const _QtyButton({
-//     required this.icon,
-//     required this.onTap,
-//     this.isDisabled = false,
-//   });
-//   final IconData icon;
-//   final VoidCallback? onTap;
-//   final bool isDisabled;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: isDisabled ? null : onTap,
-//       child: Padding(
-//         padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-//         child: Icon(
-//           icon,
-//           size: 16.sp,
-//           color: isDisabled
-//               ? Colors.white.withValues(alpha: 0.5)
-//               : Colors.white,
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -459,7 +151,7 @@ class CartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return AnimatedOpacity(
@@ -468,14 +160,14 @@ class CartItemTile extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border, width: 1),
-          boxShadow: c.isDark
+          border: Border.all(color: colors.border, width: 1),
+          boxShadow: colors.isDark
               ? null
               : [
                   BoxShadow(
-                    color: c.textPrimary.withValues(alpha: 0.04),
+                    color: colors.textPrimary.withValues(alpha: 0.04),
                     blurRadius: 14,
                     offset: const Offset(0, 3),
                   ),
@@ -520,7 +212,7 @@ class CartItemTile extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: AppTextStyles.labelLarge.copyWith(
-                                      color: c.textPrimary,
+                                      color: colors.textPrimary,
                                       fontFamily: 'Inter',
                                       fontWeight: FontWeight.w700,
                                       fontSize: m.brandSize,
@@ -534,7 +226,7 @@ class CartItemTile extends StatelessWidget {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                     style: AppTextStyles.bodyMedium.copyWith(
-                                      color: c.textSecondary,
+                                      color: colors.textSecondary,
                                       fontFamily: 'Inter',
                                       fontSize: m.titleSize,
                                       height: 1.3,
@@ -555,7 +247,7 @@ class CartItemTile extends StatelessWidget {
                             Text(
                               '\$${item.unitPrice.toStringAsFixed(2)}',
                               style: AppTextStyles.titleMedium.copyWith(
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
                                 fontSize: m.priceSize,
@@ -614,7 +306,7 @@ class _SelectBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return GestureDetector(
@@ -624,10 +316,10 @@ class _SelectBox extends StatelessWidget {
         width: m.checkboxSize,
         height: m.checkboxSize,
         decoration: BoxDecoration(
-          color: isSelected ? c.brand : Colors.transparent,
+          color: isSelected ? colors.brand : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: isSelected ? c.brand : c.border,
+            color: isSelected ? colors.brand : colors.border,
             width: 1.5,
           ),
         ),
@@ -635,7 +327,7 @@ class _SelectBox extends StatelessWidget {
             ? Icon(
                 Icons.check_rounded,
                 size: m.checkboxSize * 0.72,
-                color: c.surface,
+                color: colors.surface,
               )
             : null,
       ),
@@ -651,13 +343,13 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final thumbnail = item.product.thumbnail;
 
     final fallback = Icon(
       Icons.shopping_bag_outlined,
-      color: c.brand,
+      color: colors.brand,
       size: m.thumbSize * 0.36,
     );
 
@@ -666,7 +358,7 @@ class _Thumbnail extends StatelessWidget {
       child: Container(
         width: m.thumbSize,
         height: m.thumbSize * 1.15,
-        color: c.surfaceAlt,
+        color: colors.surfaceAlt,
         alignment: Alignment.center,
         child: thumbnail != null
             ? Image.network(
@@ -695,7 +387,7 @@ class _MetaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -706,7 +398,7 @@ class _MetaRow extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: m.gapSm * 0.8),
             child: Text(
               '|',
-              style: TextStyle(color: c.border, fontSize: m.metaSize),
+              style: TextStyle(color: colors.border, fontSize: m.metaSize),
             ),
           ),
         ],
@@ -729,7 +421,7 @@ class _Meta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -738,7 +430,7 @@ class _Meta extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodySmall.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.metaSize,
           ),
@@ -747,7 +439,7 @@ class _Meta extends StatelessWidget {
         Text(
           value,
           style: AppTextStyles.bodySmall.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
             fontSize: m.metaSize,
@@ -773,7 +465,7 @@ class _OutlineAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
@@ -786,12 +478,12 @@ class _OutlineAction extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: m.gapSm * 1.1),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: c.border, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: m.actionIconSize, color: c.textSecondary),
+              Icon(icon, size: m.actionIconSize, color: colors.textSecondary),
               SizedBox(width: m.gapSm * 0.5),
               Flexible(
                 child: Text(
@@ -799,7 +491,7 @@ class _OutlineAction extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w500,
                     fontSize: m.actionFontSize,
@@ -831,7 +523,7 @@ class _QtyStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     // qty 1 par minus ka matlab "remove" — icon delete dikhata hai
@@ -841,9 +533,9 @@ class _QtyStepper extends StatelessWidget {
       height: m.qtyBoxHeight,
       width: m.qtyBoxWidth,
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -851,13 +543,13 @@ class _QtyStepper extends StatelessWidget {
           _QtyButton(
             icon: isRemoveMode ? Icons.delete_outline_rounded : Icons.remove,
             metrics: m,
-            color: isRemoveMode ? c.statusWarning : null,
+            color: isRemoveMode ? colors.statusWarning : null,
             onTap: isPending ? null : onDecrease,
           ),
           Text(
             '$quantity',
             style: AppTextStyles.titleMedium.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
               fontSize: m.qtyFontSize,
@@ -889,7 +581,7 @@ class _QtyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -901,7 +593,7 @@ class _QtyButton extends StatelessWidget {
         child: Icon(
           icon,
           size: m.qtyIconSize,
-          color: onTap == null ? c.textMuted : (color ?? c.textPrimary),
+          color: onTap == null ? colors.textMuted : (color ?? colors.textPrimary),
         ),
       ),
     );

@@ -516,7 +516,7 @@ class _EmptyProductsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -531,13 +531,13 @@ class _EmptyProductsState extends StatelessWidget {
             height: metrics.categoryCircle * 1.6,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: c.surfaceAlt,
+              color: colors.surfaceAlt,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.storefront_outlined,
               size: metrics.categoryCircle * 0.72,
-              color: c.brand,
+              color: colors.brand,
             ),
           ),
           SizedBox(height: metrics.pagePadding),
@@ -546,7 +546,7 @@ class _EmptyProductsState extends StatelessWidget {
             style: TextStyle(
               fontSize: metrics.sectionTitleSize * 1.1,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: metrics.pagePadding * 0.5),
@@ -556,7 +556,7 @@ class _EmptyProductsState extends StatelessWidget {
             style: TextStyle(
               fontSize: metrics.heroBodySize,
               height: 1.55,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
           SizedBox(height: metrics.sectionGap),
@@ -567,8 +567,8 @@ class _EmptyProductsState extends StatelessWidget {
               icon: const Icon(Icons.refresh_rounded),
               label: Text(AppStrings.refresh),
               style: OutlinedButton.styleFrom(
-                foregroundColor: c.brand,
-                side: BorderSide(color: c.brand, width: 1.4),
+                foregroundColor: colors.brand,
+                side: BorderSide(color: colors.brand, width: 1.4),
                 padding: EdgeInsets.symmetric(
                   vertical: metrics.pagePadding * 0.85,
                 ),

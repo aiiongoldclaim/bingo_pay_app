@@ -24,7 +24,7 @@ class HomeCategoryTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (labels.isEmpty) return const SizedBox.shrink();
-    final c = context.c;
+    final colors = context.c;
 
     // Last item = View All
     final itemCount = labels.length + (onViewAll != null ? 1 : 0);
@@ -37,7 +37,7 @@ class HomeCategoryTabs extends StatelessWidget {
             left: metrics.pagePadding,
             right: metrics.pagePadding,
             bottom: 0,
-            child: Container(height: 1, color: c.border),
+            child: Container(height: 1, color: colors.border),
           ),
           ListView.separated(
             scrollDirection: Axis.horizontal,
@@ -60,14 +60,14 @@ class HomeCategoryTabs extends StatelessWidget {
                             fontWeight: selected
                                 ? FontWeight.w700
                                 : FontWeight.w500,
-                            color: selected ? c.brand : c.textSecondary,
+                            color: selected ? colors.brand : colors.textSecondary,
                           ),
                         ),
                       ),
                     ),
                     Container(
                       height: 2.5,
-                      color: selected ? c.brand : Colors.transparent,
+                      color: selected ? colors.brand : Colors.transparent,
                     ),
                   ],
                 ),

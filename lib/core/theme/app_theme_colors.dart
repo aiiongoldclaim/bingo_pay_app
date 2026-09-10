@@ -265,11 +265,16 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     auctionAccent: ThemeColors.auctionGold,
     onAuctionAccent: ThemeColors.black,
     auctionAccentInk: ThemeColors.goldLight,
+    // Dark mode: starts from the same color as CustomAppBar's background
+    // (ThemeColors.darkBackground) so there's no visible seam under the
+    // app bar, then fades into a subtle purple wash further down.
     auctionListBackground: LinearGradient(
       colors: [
+        ThemeColors.darkBackground,
         ThemeColors.darkPurpleSoft,
         ThemeColors.darkBackground,
       ],
+      stops: [0.0, 0.35, 1.0],
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
     ),

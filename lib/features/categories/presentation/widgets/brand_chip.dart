@@ -55,7 +55,7 @@ class BrandChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final hasLogo = logoUrl != null && logoUrl!.isNotEmpty;
 
@@ -73,16 +73,16 @@ class BrandChip extends StatelessWidget {
               padding: EdgeInsets.all(m.pagePadding * 0.6),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: c.surface,
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(m.brandRadius),
-                border: Border.all(color: c.border),
+                border: Border.all(color: colors.border),
               ),
               child: hasLogo
                   ? Image.network(
                       logoUrl!,
                       fit: BoxFit.contain,
                       // Dark mode me black logos gayab ho jaate hain
-                      color: c.isDark ? c.textPrimary : null,
+                      color: colors.isDark ? colors.textPrimary : null,
                       errorBuilder: (_, __, ___) =>
                           _NameFallback(metrics: m, name: brand.name),
                     )
@@ -98,7 +98,7 @@ class BrandChip extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.brandNameSize,
                   height: 1.2,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ),
@@ -117,7 +117,7 @@ class _NameFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Text(
@@ -127,7 +127,7 @@ class _NameFallback extends StatelessWidget {
           fontSize: metrics.brandNameSize * 1.3,
           fontWeight: FontWeight.w800,
           letterSpacing: 0.5,
-          color: c.textPrimary,
+          color: colors.textPrimary,
         ),
       ),
     );

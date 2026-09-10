@@ -123,29 +123,29 @@
 //     BuildContext context,
 //     AddressEntity address,
 //   ) async {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     final confirmed = await showDialog<bool>(
 //       context: context,
 //       builder: (dialogContext) {
 //         return AlertDialog(
-//           backgroundColor: c.surface,
+//           backgroundColor: colors.surface,
 //           title: Text(
 //             'Delete address?',
-//             style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
+//             style: AppTextStyles.titleMedium.copyWith(color: colors.textPrimary),
 //           ),
 //           content: Text(
 //             'Remove ${address.fullName.isNotEmpty ? address.fullName : 'this address'} from your saved addresses?',
-//             style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary),
+//             style: AppTextStyles.bodyMedium.copyWith(color: colors.textSecondary),
 //           ),
 //           actions: [
 //             TextButton(
 //               onPressed: () => Navigator.pop(dialogContext, false),
-//               child: Text('Cancel', style: TextStyle(color: c.textSecondary)),
+//               child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
 //             ),
 //             TextButton(
 //               onPressed: () => Navigator.pop(dialogContext, true),
-//               child: Text('Delete', style: TextStyle(color: c.statusWarning)),
+//               child: Text('Delete', style: TextStyle(color: colors.statusWarning)),
 //             ),
 //           ],
 //         );
@@ -309,18 +309,18 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     if (widget.serviceUuid.trim().isEmpty) {
 //       return Scaffold(
-//         backgroundColor: c.background,
+//         backgroundColor: colors.background,
 //         appBar: _CheckoutAppBar(onBack: () => Navigator.pop(context)),
 //         body: const Center(child: Text('Invalid service ID')),
 //       );
 //     }
 
 //     return Scaffold(
-//       backgroundColor: c.background,
+//       backgroundColor: colors.background,
 //       body: SafeArea(
 //         bottom: false,
 //         child: MultiBlocProvider(
@@ -486,17 +486,17 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Container(
 //       decoration: BoxDecoration(
-//         color: c.surface,
+//         color: colors.surface,
 //         border: Border(
-//           bottom: BorderSide(color: c.border.withValues(alpha: 0.55)),
+//           bottom: BorderSide(color: colors.border.withValues(alpha: 0.55)),
 //         ),
 //         boxShadow: [
 //           BoxShadow(
-//             color: c.brand.withValues(alpha: 0.04),
+//             color: colors.brand.withValues(alpha: 0.04),
 //             blurRadius: 18,
 //             offset: const Offset(0, 5),
 //           ),
@@ -507,7 +507,7 @@
 //         child: Row(
 //           children: [
 //             Material(
-//               color: c.background,
+//               color: colors.background,
 //               borderRadius: BorderRadius.circular(13),
 //               child: InkWell(
 //                 onTap: onBack,
@@ -518,7 +518,7 @@
 //                   child: Icon(
 //                     Icons.arrow_back_ios_new_rounded,
 //                     size: 18,
-//                     color: c.textPrimary,
+//                     color: colors.textPrimary,
 //                   ),
 //                 ),
 //               ),
@@ -532,7 +532,7 @@
 //                   Text(
 //                     'Checkout',
 //                     style: AppTextStyles.titleLarge.copyWith(
-//                       color: c.textPrimary,
+//                       color: colors.textPrimary,
 //                       fontFamily: 'Inter',
 //                       fontWeight: FontWeight.w800,
 //                       fontSize: 19.sp,
@@ -542,7 +542,7 @@
 //                   Text(
 //                     'Complete your booking',
 //                     style: AppTextStyles.bodySmall.copyWith(
-//                       color: c.textSecondary,
+//                       color: colors.textSecondary,
 //                       fontFamily: 'Inter',
 //                       fontSize: 13.sp,
 //                     ),
@@ -553,18 +553,18 @@
 //             Container(
 //               padding: EdgeInsets.symmetric(horizontal: 2.7.w, vertical: 0.8.h),
 //               decoration: BoxDecoration(
-//                 color: c.brandSoft,
+//                 color: colors.brandSoft,
 //                 borderRadius: BorderRadius.circular(30),
 //               ),
 //               child: Row(
 //                 mainAxisSize: MainAxisSize.min,
 //                 children: [
-//                   Icon(Icons.lock_outline_rounded, size: 16, color: c.brand),
+//                   Icon(Icons.lock_outline_rounded, size: 16, color: colors.brand),
 //                   SizedBox(width: 1.w),
 //                   Text(
 //                     'Secure',
 //                     style: AppTextStyles.labelMedium.copyWith(
-//                       color: c.brand,
+//                       color: colors.brand,
 //                       fontFamily: 'Inter',
 //                       fontWeight: FontWeight.w700,
 //                       fontSize: 14.sp,
@@ -589,19 +589,19 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Container(
 //       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.7.h),
 //       decoration: BoxDecoration(
 //         gradient: LinearGradient(
 //           colors: [
-//             c.brand.withValues(alpha: 0.11),
-//             c.brandSoft.withValues(alpha: 0.55),
+//             colors.brand.withValues(alpha: 0.11),
+//             colors.brandSoft.withValues(alpha: 0.55),
 //           ],
 //         ),
 //         borderRadius: BorderRadius.circular(18),
-//         border: Border.all(color: c.brand.withValues(alpha: 0.13)),
+//         border: Border.all(color: colors.brand.withValues(alpha: 0.13)),
 //       ),
 //       child: Row(
 //         children: [
@@ -610,7 +610,7 @@
 //             child: Container(
 //               height: 1,
 //               margin: EdgeInsets.symmetric(horizontal: 2.w),
-//               color: c.brand.withValues(alpha: 0.25),
+//               color: colors.brand.withValues(alpha: 0.25),
 //             ),
 //           ),
 //           const _ProgressStep(number: '02', title: 'Address', active: true),
@@ -618,7 +618,7 @@
 //             child: Container(
 //               height: 1,
 //               margin: EdgeInsets.symmetric(horizontal: 2.w),
-//               color: c.brand.withValues(alpha: 0.25),
+//               color: colors.brand.withValues(alpha: 0.25),
 //             ),
 //           ),
 //           const _ProgressStep(number: '03', title: 'Payment', active: true),
@@ -641,7 +641,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Column(
 //       mainAxisSize: MainAxisSize.min,
@@ -650,12 +650,12 @@
 //           width: 30,
 //           height: 30,
 //           decoration: BoxDecoration(
-//             color: active ? c.brand : c.brandSoft,
+//             color: active ? colors.brand : colors.brandSoft,
 //             shape: BoxShape.circle,
 //             boxShadow: active
 //                 ? [
 //                     BoxShadow(
-//                       color: c.brand.withValues(alpha: 0.22),
+//                       color: colors.brand.withValues(alpha: 0.22),
 //                       blurRadius: 10,
 //                     ),
 //                   ]
@@ -665,7 +665,7 @@
 //             child: Text(
 //               number,
 //               style: TextStyle(
-//                 color: active ? c.surface : c.brand,
+//                 color: active ? colors.surface : colors.brand,
 //                 fontFamily: 'Inter',
 //                 fontSize: 12.5.sp,
 //                 fontWeight: FontWeight.w800,
@@ -677,7 +677,7 @@
 //         Text(
 //           title,
 //           style: TextStyle(
-//             color: active ? c.textPrimary : c.textSecondary,
+//             color: active ? colors.textPrimary : colors.textSecondary,
 //             fontFamily: 'Inter',
 //             fontSize: 12.5.sp,
 //             fontWeight: active ? FontWeight.w700 : FontWeight.w500,
@@ -697,7 +697,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Row(
 //       children: [
@@ -706,18 +706,18 @@
 //           height: 42,
 //           decoration: BoxDecoration(
 //             gradient: LinearGradient(
-//               colors: [c.brand, c.brand.withValues(alpha: 0.72)],
+//               colors: [colors.brand, colors.brand.withValues(alpha: 0.72)],
 //             ),
 //             borderRadius: BorderRadius.circular(13),
 //             boxShadow: [
 //               BoxShadow(
-//                 color: c.brand.withValues(alpha: 0.18),
+//                 color: colors.brand.withValues(alpha: 0.18),
 //                 blurRadius: 14,
 //                 offset: const Offset(0, 5),
 //               ),
 //             ],
 //           ),
-//           child: Icon(Icons.auto_awesome_rounded, color: c.surface, size: 20),
+//           child: Icon(Icons.auto_awesome_rounded, color: colors.surface, size: 20),
 //         ),
 //         SizedBox(width: 3.w),
 //         Expanded(
@@ -727,7 +727,7 @@
 //               Text(
 //                 'Almost there',
 //                 style: AppTextStyles.titleMedium.copyWith(
-//                   color: c.textPrimary,
+//                   color: colors.textPrimary,
 //                   fontFamily: 'Inter',
 //                   fontWeight: FontWeight.w800,
 //                   fontSize: 14.5.sp,
@@ -737,7 +737,7 @@
 //               Text(
 //                 'Review your booking details before payment.',
 //                 style: AppTextStyles.bodySmall.copyWith(
-//                   color: c.textSecondary,
+//                   color: colors.textSecondary,
 //                   fontFamily: 'Inter',
 //                   fontSize: 13.5.sp,
 //                   height: 1.35,
@@ -768,7 +768,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Row(
 //       children: [
@@ -776,10 +776,10 @@
 //           width: 40,
 //           height: 40,
 //           decoration: BoxDecoration(
-//             color: c.brandSoft,
+//             color: colors.brandSoft,
 //             borderRadius: BorderRadius.circular(12),
 //           ),
-//           child: Icon(icon, color: c.brand, size: 20),
+//           child: Icon(icon, color: colors.brand, size: 20),
 //         ),
 //         SizedBox(width: 2.7.w),
 //         Expanded(
@@ -789,7 +789,7 @@
 //               Text(
 //                 title,
 //                 style: AppTextStyles.titleMedium.copyWith(
-//                   color: c.textPrimary,
+//                   color: colors.textPrimary,
 //                   fontFamily: 'Inter',
 //                   fontWeight: FontWeight.w800,
 //                   fontSize: 15.sp,
@@ -799,7 +799,7 @@
 //               Text(
 //                 subtitle,
 //                 style: AppTextStyles.bodySmall.copyWith(
-//                   color: c.textSecondary,
+//                   color: colors.textSecondary,
 //                   fontFamily: 'Inter',
 //                   fontSize: 12.8.sp,
 //                   height: 1.3,
@@ -832,7 +832,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     final OfferingEntity? selectedOffering = _findOffering();
 
@@ -851,12 +851,12 @@
 
 //     return Container(
 //       decoration: BoxDecoration(
-//         color: c.surface,
+//         color: colors.surface,
 //         borderRadius: BorderRadius.circular(20),
-//         border: Border.all(color: c.border.withValues(alpha: 0.75)),
+//         border: Border.all(color: colors.border.withValues(alpha: 0.75)),
 //         boxShadow: [
 //           BoxShadow(
-//             color: c.brand.withValues(alpha: 0.07),
+//             color: colors.brand.withValues(alpha: 0.07),
 //             blurRadius: 25,
 //             offset: const Offset(0, 10),
 //           ),
@@ -874,8 +874,8 @@
 //             decoration: BoxDecoration(
 //               gradient: LinearGradient(
 //                 colors: [
-//                   c.brand.withValues(alpha: 0.09),
-//                   c.brandSoft.withValues(alpha: 0.35),
+//                   colors.brand.withValues(alpha: 0.09),
+//                   colors.brandSoft.withValues(alpha: 0.35),
 //                 ],
 //               ),
 //               borderRadius: const BorderRadius.vertical(
@@ -884,12 +884,12 @@
 //             ),
 //             child: Row(
 //               children: [
-//                 Icon(Icons.receipt_long_rounded, color: c.brand, size: 19),
+//                 Icon(Icons.receipt_long_rounded, color: colors.brand, size: 19),
 //                 SizedBox(width: 2.w),
 //                 Text(
 //                   'Booking Summary',
 //                   style: AppTextStyles.titleMedium.copyWith(
-//                     color: c.textPrimary,
+//                     color: colors.textPrimary,
 //                     fontFamily: 'Inter',
 //                     fontWeight: FontWeight.w800,
 //                     fontSize: 14.sp,
@@ -902,14 +902,14 @@
 //                     vertical: 0.55.h,
 //                   ),
 //                   decoration: BoxDecoration(
-//                     color: c.surface,
+//                     color: colors.surface,
 //                     borderRadius: BorderRadius.circular(30),
-//                     border: Border.all(color: c.brand.withValues(alpha: 0.14)),
+//                     border: Border.all(color: colors.brand.withValues(alpha: 0.14)),
 //                   ),
 //                   child: Text(
 //                     '1 ITEM',
 //                     style: TextStyle(
-//                       color: c.brand,
+//                       color: colors.brand,
 //                       fontFamily: 'Inter',
 //                       fontSize: 12.5.sp,
 //                       fontWeight: FontWeight.w800,
@@ -937,7 +937,7 @@
 //                         maxLines: 2,
 //                         overflow: TextOverflow.ellipsis,
 //                         style: AppTextStyles.bodyLarge.copyWith(
-//                           color: c.textPrimary,
+//                           color: colors.textPrimary,
 //                           fontFamily: 'Inter',
 //                           fontWeight: FontWeight.w800,
 //                           fontSize: 14.sp,
@@ -952,7 +952,7 @@
 //                         maxLines: 2,
 //                         overflow: TextOverflow.ellipsis,
 //                         style: AppTextStyles.bodySmall.copyWith(
-//                           color: c.textSecondary,
+//                           color: colors.textSecondary,
 //                           fontFamily: 'Inter',
 //                           fontSize: 13.5.sp,
 //                           // height: 1.35,
@@ -987,13 +987,13 @@
 //                           Icon(
 //                             Icons.verified_rounded,
 //                             size: 15,
-//                             color: c.brand,
+//                             color: colors.brand,
 //                           ),
 //                           SizedBox(width: 1.w),
 //                           Text(
 //                             'Professional service',
 //                             style: TextStyle(
-//                               color: c.textSecondary,
+//                               color: colors.textSecondary,
 //                               fontFamily: 'Inter',
 //                               fontSize: 13.sp,
 //                               fontWeight: FontWeight.w500,
@@ -1012,7 +1012,7 @@
 //                     Text(
 //                       _money(price, currency: currency),
 //                       style: AppTextStyles.titleMedium.copyWith(
-//                         color: c.brand,
+//                         color: colors.brand,
 //                         fontFamily: 'Inter',
 //                         fontWeight: FontWeight.w900,
 //                         fontSize: 15.sp,
@@ -1022,7 +1022,7 @@
 //                     Text(
 //                       '× 1',
 //                       style: TextStyle(
-//                         color: c.textSecondary,
+//                         color: colors.textSecondary,
 //                         fontFamily: 'Inter',
 //                         fontSize: 14.sp,
 //                       ),
@@ -1036,7 +1036,7 @@
 //           Container(
 //             margin: EdgeInsets.symmetric(horizontal: 3.5.w),
 //             height: 1,
-//             color: c.border.withValues(alpha: 0.7),
+//             color: colors.border.withValues(alpha: 0.7),
 //           ),
 
 //           Padding(
@@ -1046,7 +1046,7 @@
 //                 Text(
 //                   'Service total',
 //                   style: TextStyle(
-//                     color: c.textSecondary,
+//                     color: colors.textSecondary,
 //                     fontFamily: 'Inter',
 //                     fontSize: 14.sp,
 //                     fontWeight: FontWeight.w600,
@@ -1056,7 +1056,7 @@
 //                 Text(
 //                   _money(price, currency: currency),
 //                   style: TextStyle(
-//                     color: c.textPrimary,
+//                     color: colors.textPrimary,
 //                     fontFamily: 'Inter',
 //                     fontSize: 14.sp,
 //                     fontWeight: FontWeight.w800,
@@ -1156,23 +1156,23 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Container(
 //       padding: EdgeInsets.symmetric(horizontal: 2.3.w, vertical: 0.7.h),
 //       decoration: BoxDecoration(
-//         color: c.brandSoft.withValues(alpha: 0.7),
+//         color: colors.brandSoft.withValues(alpha: 0.7),
 //         borderRadius: BorderRadius.circular(8),
 //       ),
 //       child: Row(
 //         mainAxisSize: MainAxisSize.min,
 //         children: [
-//           Icon(icon, color: c.brand, size: 13),
+//           Icon(icon, color: colors.brand, size: 13),
 //           SizedBox(width: 1.w),
 //           Text(
 //             text,
 //             style: TextStyle(
-//               color: c.brand,
+//               color: colors.brand,
 //               fontFamily: 'Inter',
 //               fontSize: 11.5.sp,
 //               fontWeight: FontWeight.w700,
@@ -1195,7 +1195,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     final imageUrl = service.imageUrl;
 
@@ -1204,10 +1204,10 @@
 //       height: 82,
 //       decoration: BoxDecoration(
 //         borderRadius: BorderRadius.circular(16),
-//         gradient: LinearGradient(colors: [c.brandSoft, c.background]),
+//         gradient: LinearGradient(colors: [colors.brandSoft, colors.background]),
 //         boxShadow: [
 //           BoxShadow(
-//             color: c.brand.withValues(alpha: 0.10),
+//             color: colors.brand.withValues(alpha: 0.10),
 //             blurRadius: 12,
 //             offset: const Offset(0, 5),
 //           ),
@@ -1222,7 +1222,7 @@
 //                 errorBuilder: (_, __, ___) {
 //                   return Icon(
 //                     Icons.home_repair_service_outlined,
-//                     color: c.brand,
+//                     color: colors.brand,
 //                     size: 30,
 //                   );
 //                 },
@@ -1237,7 +1237,7 @@
 //                       height: 20,
 //                       child: CircularProgressIndicator(
 //                         strokeWidth: 2,
-//                         color: c.brand,
+//                         color: colors.brand,
 //                       ),
 //                     ),
 //                   );
@@ -1245,7 +1245,7 @@
 //               )
 //             : Icon(
 //                 Icons.home_repair_service_outlined,
-//                 color: c.brand,
+//                 color: colors.brand,
 //                 size: 30,
 //               ),
 //       ),
@@ -1289,20 +1289,20 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Container(
 //       padding: EdgeInsets.all(3.5.w),
 //       decoration: BoxDecoration(
-//         color: c.surface,
+//         color: colors.surface,
 //         borderRadius: BorderRadius.circular(18),
 //         border: Border.all(
-//           color: showError ? c.statusWarning : c.border.withValues(alpha: 0.75),
+//           color: showError ? colors.statusWarning : colors.border.withValues(alpha: 0.75),
 //           width: showError ? 1.2 : 1,
 //         ),
 //         boxShadow: [
 //           BoxShadow(
-//             color: c.brand.withValues(alpha: 0.045),
+//             color: colors.brand.withValues(alpha: 0.045),
 //             blurRadius: 20,
 //             offset: const Offset(0, 7),
 //           ),
@@ -1363,14 +1363,14 @@
 //                       Icon(
 //                         Icons.info_outline_rounded,
 //                         size: 17,
-//                         color: c.statusWarning,
+//                         color: colors.statusWarning,
 //                       ),
 //                       SizedBox(width: 1.5.w),
 //                       Expanded(
 //                         child: Text(
 //                           'Please select a service address',
 //                           style: TextStyle(
-//                             color: c.statusWarning,
+//                             color: colors.statusWarning,
 //                             fontFamily: 'Inter',
 //                             fontSize: 12.sp,
 //                             fontWeight: FontWeight.w500,
@@ -1410,16 +1410,16 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return AnimatedContainer(
 //       duration: const Duration(milliseconds: 200),
 //       curve: Curves.easeOut,
 //       decoration: BoxDecoration(
-//         color: isSelected ? c.brandSoft : c.background,
+//         color: isSelected ? colors.brandSoft : colors.background,
 //         borderRadius: BorderRadius.circular(14),
 //         border: Border.all(
-//           color: isSelected ? c.brand : c.border,
+//           color: isSelected ? colors.brand : colors.border,
 //           width: isSelected ? 1.5 : 1,
 //         ),
 //       ),
@@ -1438,7 +1438,7 @@
 //                       ? Icons.check_circle_rounded
 //                       : Icons.circle_outlined,
 //                   size: 22,
-//                   color: isSelected ? c.brand : c.textSecondary,
+//                   color: isSelected ? colors.brand : colors.textSecondary,
 //                 ),
 //                 SizedBox(width: 2.5.w),
 //                 Expanded(
@@ -1453,7 +1453,7 @@
 //                               maxLines: 1,
 //                               overflow: TextOverflow.ellipsis,
 //                               style: AppTextStyles.bodyMedium.copyWith(
-//                                 color: c.textPrimary,
+//                                 color: colors.textPrimary,
 //                                 fontFamily: 'Inter',
 //                                 fontWeight: FontWeight.w800,
 //                                 fontSize: 14.sp,
@@ -1468,13 +1468,13 @@
 //                                 vertical: 0.3.h,
 //                               ),
 //                               decoration: BoxDecoration(
-//                                 color: c.brand.withValues(alpha: 0.12),
+//                                 color: colors.brand.withValues(alpha: 0.12),
 //                                 borderRadius: BorderRadius.circular(20),
 //                               ),
 //                               child: Text(
 //                                 'Default',
 //                                 style: TextStyle(
-//                                   color: c.brand,
+//                                   color: colors.brand,
 //                                   fontFamily: 'Inter',
 //                                   fontSize: 10.5.sp,
 //                                   fontWeight: FontWeight.w700,
@@ -1487,7 +1487,7 @@
 //                       Text(
 //                         address.phoneNumber,
 //                         style: TextStyle(
-//                           color: c.textSecondary,
+//                           color: colors.textSecondary,
 //                           fontFamily: 'Inter',
 //                           fontSize: 12.5.sp,
 //                           fontWeight: FontWeight.w500,
@@ -1499,7 +1499,7 @@
 //                         maxLines: 3,
 //                         overflow: TextOverflow.ellipsis,
 //                         style: TextStyle(
-//                           color: c.textPrimary,
+//                           color: colors.textPrimary,
 //                           fontFamily: 'Inter',
 //                           fontSize: 12.sp,
 //                           fontWeight: FontWeight.w600,
@@ -1519,12 +1519,12 @@
 //                             icon: Icon(
 //                               Icons.edit_outlined,
 //                               size: 15,
-//                               color: c.brand,
+//                               color: colors.brand,
 //                             ),
 //                             label: Text(
 //                               'Edit',
 //                               style: TextStyle(
-//                                 color: c.brand,
+//                                 color: colors.brand,
 //                                 fontFamily: 'Inter',
 //                                 fontSize: 11.5.sp,
 //                                 fontWeight: FontWeight.w700,
@@ -1542,12 +1542,12 @@
 //                             icon: Icon(
 //                               Icons.delete_outline_rounded,
 //                               size: 15,
-//                               color: c.statusWarning,
+//                               color: colors.statusWarning,
 //                             ),
 //                             label: Text(
 //                               'Delete',
 //                               style: TextStyle(
-//                                 color: c.statusWarning,
+//                                 color: colors.statusWarning,
 //                                 fontFamily: 'Inter',
 //                                 fontSize: 11.5.sp,
 //                                 fontWeight: FontWeight.w700,
@@ -1567,13 +1567,13 @@
 //                       vertical: 0.4.h,
 //                     ),
 //                     decoration: BoxDecoration(
-//                       color: c.brand,
+//                       color: colors.brand,
 //                       borderRadius: BorderRadius.circular(20),
 //                     ),
 //                     child: Text(
 //                       'SELECTED',
 //                       style: TextStyle(
-//                         color: c.surface,
+//                         color: colors.surface,
 //                         fontFamily: 'Inter',
 //                         fontSize: 9.5.sp,
 //                         fontWeight: FontWeight.w800,
@@ -1597,7 +1597,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Material(
 //       color: Colors.transparent,
@@ -1608,19 +1608,19 @@
 //           width: double.infinity,
 //           padding: EdgeInsets.symmetric(vertical: 1.35.h),
 //           decoration: BoxDecoration(
-//             color: c.brandSoft.withValues(alpha: 0.35),
+//             color: colors.brandSoft.withValues(alpha: 0.35),
 //             borderRadius: BorderRadius.circular(11),
-//             border: Border.all(color: c.brand.withValues(alpha: 0.18)),
+//             border: Border.all(color: colors.brand.withValues(alpha: 0.18)),
 //           ),
 //           child: Row(
 //             mainAxisAlignment: MainAxisAlignment.center,
 //             children: [
-//               Icon(Icons.add_rounded, color: c.brand, size: 19),
+//               Icon(Icons.add_rounded, color: colors.brand, size: 19),
 //               SizedBox(width: 1.w),
 //               Text(
 //                 'Add New Address',
 //                 style: TextStyle(
-//                   color: c.brand,
+//                   color: colors.brand,
 //                   fontFamily: 'Inter',
 //                   fontSize: 13.sp,
 //                   fontWeight: FontWeight.w800,
@@ -1641,21 +1641,21 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Column(
 //       children: [
 //         Container(
 //           width: 64,
 //           height: 64,
-//           decoration: BoxDecoration(color: c.brandSoft, shape: BoxShape.circle),
-//           child: Icon(Icons.location_off_outlined, size: 30, color: c.brand),
+//           decoration: BoxDecoration(color: colors.brandSoft, shape: BoxShape.circle),
+//           child: Icon(Icons.location_off_outlined, size: 30, color: colors.brand),
 //         ),
 //         SizedBox(height: 1.5.h),
 //         Text(
 //           'No saved addresses yet',
 //           style: TextStyle(
-//             color: c.textPrimary,
+//             color: colors.textPrimary,
 //             fontFamily: 'Inter',
 //             fontSize: 14.sp,
 //             fontWeight: FontWeight.w700,
@@ -1666,7 +1666,7 @@
 //           'Add a service address to continue',
 //           textAlign: TextAlign.center,
 //           style: TextStyle(
-//             color: c.textSecondary,
+//             color: colors.textSecondary,
 //             fontFamily: 'Inter',
 //             fontSize: 12.sp,
 //           ),
@@ -1683,28 +1683,28 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Column(
 //       children: [
 //         Container(
 //           height: 120,
 //           decoration: BoxDecoration(
-//             color: c.background,
+//             color: colors.background,
 //             borderRadius: BorderRadius.circular(14),
-//             border: Border.all(color: c.border),
+//             border: Border.all(color: colors.border),
 //           ),
 //           child: Center(
-//             child: CircularProgressIndicator(strokeWidth: 2, color: c.brand),
+//             child: CircularProgressIndicator(strokeWidth: 2, color: colors.brand),
 //           ),
 //         ),
 //         SizedBox(height: 1.h),
 //         Container(
 //           height: 100,
 //           decoration: BoxDecoration(
-//             color: c.background,
+//             color: colors.background,
 //             borderRadius: BorderRadius.circular(14),
-//             border: Border.all(color: c.border),
+//             border: Border.all(color: colors.border),
 //           ),
 //         ),
 //       ],
@@ -1720,17 +1720,17 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Column(
 //       children: [
-//         Icon(Icons.location_off_outlined, size: 38, color: c.textSecondary),
+//         Icon(Icons.location_off_outlined, size: 38, color: colors.textSecondary),
 //         SizedBox(height: 1.h),
 //         Text(
 //           message,
 //           textAlign: TextAlign.center,
 //           style: TextStyle(
-//             color: c.textSecondary,
+//             color: colors.textSecondary,
 //             fontFamily: 'Inter',
 //             fontSize: 12.sp,
 //           ),
@@ -1741,8 +1741,8 @@
 //           icon: const Icon(Icons.refresh_rounded),
 //           label: const Text('Retry'),
 //           style: OutlinedButton.styleFrom(
-//             foregroundColor: c.brand,
-//             side: BorderSide(color: c.brand.withValues(alpha: 0.45)),
+//             foregroundColor: colors.brand,
+//             side: BorderSide(color: colors.brand.withValues(alpha: 0.45)),
 //           ),
 //         ),
 //       ],
@@ -1772,16 +1772,16 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Container(
 //       padding: EdgeInsets.all(3.5.w),
 //       decoration: BoxDecoration(
 //         gradient: LinearGradient(
-//           colors: [c.brand.withValues(alpha: 0.07), c.surface],
+//           colors: [colors.brand.withValues(alpha: 0.07), colors.surface],
 //         ),
 //         borderRadius: BorderRadius.circular(17),
-//         border: Border.all(color: c.brand.withValues(alpha: 0.13)),
+//         border: Border.all(color: colors.brand.withValues(alpha: 0.13)),
 //       ),
 //       child: Row(
 //         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1790,10 +1790,10 @@
 //             width: 40,
 //             height: 40,
 //             decoration: BoxDecoration(
-//               color: c.brandSoft,
+//               color: colors.brandSoft,
 //               borderRadius: BorderRadius.circular(12),
 //             ),
-//             child: Icon(Icons.home_rounded, color: c.brand, size: 20),
+//             child: Icon(Icons.home_rounded, color: colors.brand, size: 20),
 //           ),
 //           SizedBox(width: 2.7.w),
 //           Expanded(
@@ -1805,21 +1805,21 @@
 //                     Text(
 //                       'Service location',
 //                       style: TextStyle(
-//                         color: c.textSecondary,
+//                         color: colors.textSecondary,
 //                         fontFamily: 'Inter',
 //                         fontSize: 13.5.sp,
 //                         fontWeight: FontWeight.w500,
 //                       ),
 //                     ),
 //                     const Spacer(),
-//                     Icon(Icons.verified_rounded, color: c.brand, size: 16),
+//                     Icon(Icons.verified_rounded, color: colors.brand, size: 16),
 //                   ],
 //                 ),
 //                 SizedBox(height: 0.45.h),
 //                 Text(
 //                   address.fullName,
 //                   style: TextStyle(
-//                     color: c.textPrimary,
+//                     color: colors.textPrimary,
 //                     fontFamily: 'Inter',
 //                     fontSize: 13.5.sp,
 //                     fontWeight: FontWeight.w800,
@@ -1829,7 +1829,7 @@
 //                 Text(
 //                   address.phoneNumber,
 //                   style: TextStyle(
-//                     color: c.textPrimary,
+//                     color: colors.textPrimary,
 //                     fontFamily: 'Inter',
 //                     fontSize: 12.8.sp,
 //                     fontWeight: FontWeight.w500,
@@ -1839,7 +1839,7 @@
 //                 Text(
 //                   _formatAddress(address),
 //                   style: TextStyle(
-//                     color: c.textSecondary,
+//                     color: colors.textSecondary,
 //                     fontFamily: 'Inter',
 //                     fontSize: 13.5.sp,
 //                     height: 1.4,
@@ -1871,17 +1871,17 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Container(
 //       padding: EdgeInsets.all(3.5.w),
 //       decoration: BoxDecoration(
-//         color: c.surface,
+//         color: colors.surface,
 //         borderRadius: BorderRadius.circular(20),
-//         border: Border.all(color: c.border.withValues(alpha: 0.75)),
+//         border: Border.all(color: colors.border.withValues(alpha: 0.75)),
 //         boxShadow: [
 //           BoxShadow(
-//             color: c.brand.withValues(alpha: 0.06),
+//             color: colors.brand.withValues(alpha: 0.06),
 //             blurRadius: 24,
 //             offset: const Offset(0, 9),
 //           ),
@@ -1900,17 +1900,17 @@
 //                         begin: Alignment.topLeft,
 //                         end: Alignment.bottomRight,
 //                         colors: [
-//                           c.brand.withValues(alpha: 0.12),
-//                           c.brandSoft.withValues(alpha: 0.42),
+//                           colors.brand.withValues(alpha: 0.12),
+//                           colors.brandSoft.withValues(alpha: 0.42),
 //                         ],
 //                       )
 //                     : null,
-//                 color: selectedPayment == 0 ? null : c.background,
+//                 color: selectedPayment == 0 ? null : colors.background,
 //                 borderRadius: BorderRadius.circular(16),
 //                 border: Border.all(
 //                   color: selectedPayment == 0
-//                       ? c.brand.withValues(alpha: 0.55)
-//                       : c.border,
+//                       ? colors.brand.withValues(alpha: 0.55)
+//                       : colors.border,
 //                   width: selectedPayment == 0 ? 1.3 : 1,
 //                 ),
 //               ),
@@ -1921,12 +1921,12 @@
 //                     height: 48,
 //                     decoration: BoxDecoration(
 //                       gradient: LinearGradient(
-//                         colors: [c.brand, c.brand.withValues(alpha: 0.72)],
+//                         colors: [colors.brand, colors.brand.withValues(alpha: 0.72)],
 //                       ),
 //                       borderRadius: BorderRadius.circular(14),
 //                       boxShadow: [
 //                         BoxShadow(
-//                           color: c.brand.withValues(alpha: 0.20),
+//                           color: colors.brand.withValues(alpha: 0.20),
 //                           blurRadius: 14,
 //                           offset: const Offset(0, 5),
 //                         ),
@@ -1934,7 +1934,7 @@
 //                     ),
 //                     child: Icon(
 //                       Icons.account_balance_wallet_rounded,
-//                       color: c.surface,
+//                       color: colors.surface,
 //                       size: 22,
 //                     ),
 //                   ),
@@ -1951,7 +1951,7 @@
 //                               child: Text(
 //                                 'Pay with BinGold',
 //                                 style: TextStyle(
-//                                   color: c.textPrimary,
+//                                   color: colors.textPrimary,
 //                                   fontFamily: 'Inter',
 //                                   fontSize: 13.8.sp,
 //                                   fontWeight: FontWeight.w800,
@@ -1964,13 +1964,13 @@
 //                                 vertical: 0.4.h,
 //                               ),
 //                               decoration: BoxDecoration(
-//                                 color: c.brand.withValues(alpha: 0.10),
+//                                 color: colors.brand.withValues(alpha: 0.10),
 //                                 borderRadius: BorderRadius.circular(30),
 //                               ),
 //                               child: Text(
 //                                 'BIGOD',
 //                                 style: TextStyle(
-//                                   color: c.brand,
+//                                   color: colors.brand,
 //                                   fontFamily: 'Inter',
 //                                   fontSize: 13.sp,
 //                                   fontWeight: FontWeight.w900,
@@ -1985,7 +1985,7 @@
 //                         Text(
 //                           'Pay securely using your BIGOD balance.',
 //                           style: TextStyle(
-//                             color: c.textSecondary,
+//                             color: colors.textSecondary,
 //                             fontFamily: 'Inter',
 //                             fontSize: 13.sp,
 //                             fontWeight: FontWeight.w600,
@@ -2003,7 +2003,7 @@
 //                               width: 6,
 //                               height: 6,
 //                               decoration: BoxDecoration(
-//                                 color: c.brand,
+//                                 color: colors.brand,
 //                                 shape: BoxShape.circle,
 //                               ),
 //                             ),
@@ -2012,7 +2012,7 @@
 //                               child: Text(
 //                                 'Your BIGOD balance is unavailable right now.',
 //                                 style: TextStyle(
-//                                   color: c.textSecondary,
+//                                   color: colors.textSecondary,
 //                                   fontFamily: 'Inter',
 //                                   fontSize: 12.sp,
 //                                   height: 1.3,
@@ -2031,7 +2031,7 @@
 //                     selectedPayment == 0
 //                         ? Icons.radio_button_checked_rounded
 //                         : Icons.radio_button_off_rounded,
-//                     color: selectedPayment == 0 ? c.brand : c.textSecondary,
+//                     color: selectedPayment == 0 ? colors.brand : colors.textSecondary,
 //                     size: 22,
 //                   ),
 //                 ],
@@ -2044,20 +2044,20 @@
 //           Container(
 //             padding: EdgeInsets.all(2.7.w),
 //             decoration: BoxDecoration(
-//               color: c.background,
+//               color: colors.background,
 //               borderRadius: BorderRadius.circular(13),
-//               border: Border.all(color: c.border.withValues(alpha: 0.65)),
+//               border: Border.all(color: colors.border.withValues(alpha: 0.65)),
 //             ),
 //             child: Row(
 //               crossAxisAlignment: CrossAxisAlignment.start,
 //               children: [
-//                 Icon(Icons.shield_outlined, color: c.brand, size: 20),
+//                 Icon(Icons.shield_outlined, color: colors.brand, size: 20),
 //                 SizedBox(width: 2.w),
 //                 Expanded(
 //                   child: Text(
 //                     'Your final payable amount will be confirmed by the server before charging.',
 //                     style: TextStyle(
-//                       color: c.textSecondary,
+//                       color: colors.textSecondary,
 //                       fontFamily: 'Inter',
 //                       fontSize: 13.sp,
 //                       height: 1.4,
@@ -2075,12 +2075,12 @@
 //             height: 58,
 //             decoration: BoxDecoration(
 //               gradient: LinearGradient(
-//                 colors: [c.brand, c.brand.withValues(alpha: 0.82)],
+//                 colors: [colors.brand, colors.brand.withValues(alpha: 0.82)],
 //               ),
 //               borderRadius: BorderRadius.circular(15),
 //               boxShadow: [
 //                 BoxShadow(
-//                   color: c.brand.withValues(alpha: 0.25),
+//                   color: colors.brand.withValues(alpha: 0.25),
 //                   blurRadius: 18,
 //                   offset: const Offset(0, 8),
 //                 ),
@@ -2097,7 +2097,7 @@
 //                     Text(
 //                       'Continue to Pay',
 //                       style: AppTextStyles.buttonText.copyWith(
-//                         color: c.surface,
+//                         color: colors.surface,
 //                         fontFamily: 'Inter',
 //                         fontWeight: FontWeight.w800,
 //                         fontSize: 14.sp,
@@ -2107,7 +2107,7 @@
 //                     SizedBox(width: 2.w),
 //                     Icon(
 //                       Icons.arrow_forward_rounded,
-//                       color: c.surface,
+//                       color: colors.surface,
 //                       size: 19,
 //                     ),
 //                   ],
@@ -2123,14 +2123,14 @@
 //             children: [
 //               Icon(
 //                 Icons.lock_outline_rounded,
-//                 color: c.textSecondary,
+//                 color: colors.textSecondary,
 //                 size: 13,
 //               ),
 //               SizedBox(width: 1.w),
 //               Text(
 //                 'Secure checkout',
 //                 style: TextStyle(
-//                   color: c.textSecondary,
+//                   color: colors.textSecondary,
 //                   fontFamily: 'Inter',
 //                   fontSize: 13.5.sp,
 //                   fontWeight: FontWeight.w500,
@@ -2141,7 +2141,7 @@
 //                 width: 3,
 //                 height: 3,
 //                 decoration: BoxDecoration(
-//                   color: c.textSecondary,
+//                   color: colors.textSecondary,
 //                   shape: BoxShape.circle,
 //                 ),
 //               ),
@@ -2149,7 +2149,7 @@
 //               Text(
 //                 'Encrypted',
 //                 style: TextStyle(
-//                   color: c.textSecondary,
+//                   color: colors.textSecondary,
 //                   fontFamily: 'Inter',
 //                   fontSize: 13.5.sp,
 //                   fontWeight: FontWeight.w500,
@@ -2174,7 +2174,7 @@
 
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 
 //     return Center(
 //       child: Padding(
@@ -2182,12 +2182,12 @@
 //         child: Container(
 //           padding: EdgeInsets.all(7.w),
 //           decoration: BoxDecoration(
-//             color: c.surface,
+//             color: colors.surface,
 //             borderRadius: BorderRadius.circular(22),
-//             border: Border.all(color: c.border),
+//             border: Border.all(color: colors.border),
 //             boxShadow: [
 //               BoxShadow(
-//                 color: c.brand.withValues(alpha: 0.06),
+//                 color: colors.brand.withValues(alpha: 0.06),
 //                 blurRadius: 25,
 //                 offset: const Offset(0, 10),
 //               ),
@@ -2200,10 +2200,10 @@
 //                 width: 72,
 //                 height: 72,
 //                 decoration: BoxDecoration(
-//                   color: c.brandSoft,
+//                   color: colors.brandSoft,
 //                   shape: BoxShape.circle,
 //                 ),
-//                 child: Icon(Icons.cloud_off_rounded, size: 34, color: c.brand),
+//                 child: Icon(Icons.cloud_off_rounded, size: 34, color: colors.brand),
 //               ),
 
 //               SizedBox(height: 2.2.h),
@@ -2213,7 +2213,7 @@
 //                 textAlign: TextAlign.center,
 //                 style: TextStyle(
 //                   fontSize: 16.sp,
-//                   color: c.textPrimary,
+//                   color: colors.textPrimary,
 //                   fontFamily: 'Inter',
 //                   fontWeight: FontWeight.w800,
 //                 ),
@@ -2227,7 +2227,7 @@
 //                 textAlign: TextAlign.center,
 //                 style: TextStyle(
 //                   fontSize: 11.sp,
-//                   color: c.textSecondary,
+//                   color: colors.textSecondary,
 //                   fontFamily: 'Inter',
 //                   height: 1.45,
 //                 ),
@@ -2242,8 +2242,8 @@
 //                   icon: const Icon(Icons.refresh_rounded),
 //                   label: const Text('Try Again'),
 //                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: c.brand,
-//                     foregroundColor: c.surface,
+//                     backgroundColor: colors.brand,
+//                     foregroundColor: colors.surface,
 //                     elevation: 0,
 //                     shape: RoundedRectangleBorder(
 //                       borderRadius: BorderRadius.circular(13),
@@ -2391,29 +2391,29 @@ class _ServiceCheckoutScreenState extends State<ServiceCheckoutScreen> {
     BuildContext context,
     AddressEntity address,
   ) async {
-    final c = context.c;
+    final colors = context.c;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: c.surface,
+          backgroundColor: colors.surface,
           title: Text(
             'Delete address?',
-            style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
+            style: AppTextStyles.titleMedium.copyWith(color: colors.textPrimary),
           ),
           content: Text(
             'Remove ${address.fullName.isNotEmpty ? address.fullName : 'this address'} from your saved addresses?',
-            style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(color: colors.textSecondary),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: Text('Cancel', style: TextStyle(color: c.textSecondary)),
+              child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, true),
-              child: Text('Delete', style: TextStyle(color: c.statusWarning)),
+              child: Text('Delete', style: TextStyle(color: colors.statusWarning)),
             ),
           ],
         );
@@ -2563,18 +2563,18 @@ class _ServiceCheckoutScreenState extends State<ServiceCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     if (widget.serviceUuid.trim().isEmpty) {
       return Scaffold(
-        backgroundColor: c.background,
+        backgroundColor: colors.background,
         appBar: _CheckoutAppBar(onBack: () => Navigator.pop(context)),
         body: const Center(child: Text('Invalid service ID')),
       );
     }
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: MultiBlocProvider(
@@ -2749,17 +2749,17 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         border: Border(
-          bottom: BorderSide(color: c.border.withValues(alpha: 0.55)),
+          bottom: BorderSide(color: colors.border.withValues(alpha: 0.55)),
         ),
         boxShadow: [
           BoxShadow(
-            color: c.brand.withValues(alpha: 0.04),
+            color: colors.brand.withValues(alpha: 0.04),
             blurRadius: 18,
             offset: const Offset(0, 5),
           ),
@@ -2770,7 +2770,7 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           children: [
             Material(
-              color: c.background,
+              color: colors.background,
               borderRadius: BorderRadius.circular(13),
               child: InkWell(
                 onTap: onBack,
@@ -2781,7 +2781,7 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     size: 18,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
               ),
@@ -2795,7 +2795,7 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Text(
                     'Checkout',
                     style: AppTextStyles.titleLarge.copyWith(
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w800,
                       fontSize: 19.sp,
@@ -2805,7 +2805,7 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Text(
                     'Complete your booking',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: 13.sp,
                     ),
@@ -2819,18 +2819,18 @@ class _CheckoutAppBar extends StatelessWidget implements PreferredSizeWidget {
                 vertical: 0.8.h,
               ),
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.lock_outline_rounded, size: 16, color: c.brand),
+                  Icon(Icons.lock_outline_rounded, size: 16, color: colors.brand),
                   SizedBox(width: 1.w),
                   Text(
                     'Secure',
                     style: AppTextStyles.labelMedium.copyWith(
-                      color: c.brand,
+                      color: colors.brand,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                       fontSize: 14.sp,
@@ -2855,19 +2855,19 @@ class _CheckoutProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.7.h),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            c.brand.withValues(alpha: 0.11),
-            c.brandSoft.withValues(alpha: 0.55),
+            colors.brand.withValues(alpha: 0.11),
+            colors.brandSoft.withValues(alpha: 0.55),
           ],
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: c.brand.withValues(alpha: 0.13)),
+        border: Border.all(color: colors.brand.withValues(alpha: 0.13)),
       ),
       child: Row(
         children: [
@@ -2876,7 +2876,7 @@ class _CheckoutProgressHeader extends StatelessWidget {
             child: Container(
               height: 1,
               margin: EdgeInsets.symmetric(horizontal: 2.w),
-              color: c.brand.withValues(alpha: 0.25),
+              color: colors.brand.withValues(alpha: 0.25),
             ),
           ),
           const _ProgressStep(number: '02', title: 'Address', active: true),
@@ -2884,7 +2884,7 @@ class _CheckoutProgressHeader extends StatelessWidget {
             child: Container(
               height: 1,
               margin: EdgeInsets.symmetric(horizontal: 2.w),
-              color: c.brand.withValues(alpha: 0.25),
+              color: colors.brand.withValues(alpha: 0.25),
             ),
           ),
           const _ProgressStep(number: '03', title: 'Payment', active: true),
@@ -2907,7 +2907,7 @@ class _ProgressStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -2916,12 +2916,12 @@ class _ProgressStep extends StatelessWidget {
           width: 30,
           height: 30,
           decoration: BoxDecoration(
-            color: active ? c.brand : c.brandSoft,
+            color: active ? colors.brand : colors.brandSoft,
             shape: BoxShape.circle,
             boxShadow: active
                 ? [
                     BoxShadow(
-                      color: c.brand.withValues(alpha: 0.22),
+                      color: colors.brand.withValues(alpha: 0.22),
                       blurRadius: 10,
                     ),
                   ]
@@ -2931,7 +2931,7 @@ class _ProgressStep extends StatelessWidget {
             child: Text(
               number,
               style: TextStyle(
-                color: active ? c.surface : c.brand,
+                color: active ? colors.surface : colors.brand,
                 fontFamily: 'Inter',
                 fontSize: 12.5.sp,
                 fontWeight: FontWeight.w800,
@@ -2943,7 +2943,7 @@ class _ProgressStep extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: active ? c.textPrimary : c.textSecondary,
+            color: active ? colors.textPrimary : colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: 12.5.sp,
             fontWeight: active ? FontWeight.w700 : FontWeight.w500,
@@ -2963,7 +2963,7 @@ class _CheckoutIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Row(
       children: [
@@ -2972,18 +2972,18 @@ class _CheckoutIntro extends StatelessWidget {
           height: 42,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [c.brand, c.brand.withValues(alpha: 0.72)],
+              colors: [colors.brand, colors.brand.withValues(alpha: 0.72)],
             ),
             borderRadius: BorderRadius.circular(13),
             boxShadow: [
               BoxShadow(
-                color: c.brand.withValues(alpha: 0.18),
+                color: colors.brand.withValues(alpha: 0.18),
                 blurRadius: 14,
                 offset: const Offset(0, 5),
               ),
             ],
           ),
-          child: Icon(Icons.auto_awesome_rounded, color: c.surface, size: 20),
+          child: Icon(Icons.auto_awesome_rounded, color: colors.surface, size: 20),
         ),
         SizedBox(width: 3.w),
         Expanded(
@@ -2993,7 +2993,7 @@ class _CheckoutIntro extends StatelessWidget {
               Text(
                 'Almost there',
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
                   fontSize: 14.5.sp,
@@ -3003,7 +3003,7 @@ class _CheckoutIntro extends StatelessWidget {
               Text(
                 'Review your booking details before payment.',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: 13.5.sp,
                   height: 1.35,
@@ -3034,7 +3034,7 @@ class _SectionHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Row(
       children: [
@@ -3042,10 +3042,10 @@ class _SectionHeading extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: c.brandSoft,
+            color: colors.brandSoft,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: c.brand, size: 20),
+          child: Icon(icon, color: colors.brand, size: 20),
         ),
         SizedBox(width: 2.7.w),
         Expanded(
@@ -3055,7 +3055,7 @@ class _SectionHeading extends StatelessWidget {
               Text(
                 title,
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
                   fontSize: 15.sp,
@@ -3065,7 +3065,7 @@ class _SectionHeading extends StatelessWidget {
               Text(
                 subtitle,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: 12.8.sp,
                   height: 1.3,
@@ -3098,7 +3098,7 @@ class _OrderSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     final OfferingEntity? selectedOffering = _findOffering();
 
@@ -3117,12 +3117,12 @@ class _OrderSummaryCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: c.border.withValues(alpha: 0.75)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.75)),
         boxShadow: [
           BoxShadow(
-            color: c.brand.withValues(alpha: 0.07),
+            color: colors.brand.withValues(alpha: 0.07),
             blurRadius: 25,
             offset: const Offset(0, 10),
           ),
@@ -3140,8 +3140,8 @@ class _OrderSummaryCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  c.brand.withValues(alpha: 0.09),
-                  c.brandSoft.withValues(alpha: 0.35),
+                  colors.brand.withValues(alpha: 0.09),
+                  colors.brandSoft.withValues(alpha: 0.35),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(
@@ -3150,12 +3150,12 @@ class _OrderSummaryCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.receipt_long_rounded, color: c.brand, size: 19),
+                Icon(Icons.receipt_long_rounded, color: colors.brand, size: 19),
                 SizedBox(width: 2.w),
                 Text(
                   'Booking Summary',
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w800,
                     fontSize: 14.sp,
@@ -3168,16 +3168,16 @@ class _OrderSummaryCard extends StatelessWidget {
                     vertical: 0.55.h,
                   ),
                   decoration: BoxDecoration(
-                    color: c.surface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(
-                      color: c.brand.withValues(alpha: 0.14),
+                      color: colors.brand.withValues(alpha: 0.14),
                     ),
                   ),
                   child: Text(
                     '1 ITEM',
                     style: TextStyle(
-                      color: c.brand,
+                      color: colors.brand,
                       fontFamily: 'Inter',
                       fontSize: 12.5.sp,
                       fontWeight: FontWeight.w800,
@@ -3205,7 +3205,7 @@ class _OrderSummaryCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodyLarge.copyWith(
-                          color: c.textPrimary,
+                          color: colors.textPrimary,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w800,
                           fontSize: 14.sp,
@@ -3220,7 +3220,7 @@ class _OrderSummaryCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                           fontFamily: 'Inter',
                           fontSize: 13.5.sp,
                         ),
@@ -3254,13 +3254,13 @@ class _OrderSummaryCard extends StatelessWidget {
                           Icon(
                             Icons.verified_rounded,
                             size: 15,
-                            color: c.brand,
+                            color: colors.brand,
                           ),
                           SizedBox(width: 1.w),
                           Text(
                             'Professional service',
                             style: TextStyle(
-                              color: c.textSecondary,
+                              color: colors.textSecondary,
                               fontFamily: 'Inter',
                               fontSize: 13.sp,
                               fontWeight: FontWeight.w500,
@@ -3277,7 +3277,7 @@ class _OrderSummaryCard extends StatelessWidget {
                     Text(
                       _money(price, currency: currency),
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: c.brand,
+                        color: colors.brand,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w900,
                         fontSize: 15.sp,
@@ -3287,7 +3287,7 @@ class _OrderSummaryCard extends StatelessWidget {
                     Text(
                       '× 1',
                       style: TextStyle(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: 14.sp,
                       ),
@@ -3301,7 +3301,7 @@ class _OrderSummaryCard extends StatelessWidget {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 3.5.w),
             height: 1,
-            color: c.border.withValues(alpha: 0.7),
+            color: colors.border.withValues(alpha: 0.7),
           ),
 
           Padding(
@@ -3311,7 +3311,7 @@ class _OrderSummaryCard extends StatelessWidget {
                 Text(
                   'Service total',
                   style: TextStyle(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -3321,7 +3321,7 @@ class _OrderSummaryCard extends StatelessWidget {
                 Text(
                   _money(price, currency: currency),
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w800,
@@ -3417,23 +3417,23 @@ class _InfoPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 2.3.w, vertical: 0.7.h),
       decoration: BoxDecoration(
-        color: c.brandSoft.withValues(alpha: 0.7),
+        color: colors.brandSoft.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: c.brand, size: 13),
+          Icon(icon, color: colors.brand, size: 13),
           SizedBox(width: 1.w),
           Text(
             text,
             style: TextStyle(
-              color: c.brand,
+              color: colors.brand,
               fontFamily: 'Inter',
               fontSize: 11.5.sp,
               fontWeight: FontWeight.w700,
@@ -3456,7 +3456,7 @@ class _ServiceImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     final imageUrl = service.imageUrl;
 
@@ -3465,10 +3465,10 @@ class _ServiceImage extends StatelessWidget {
       height: 82,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(colors: [c.brandSoft, c.background]),
+        gradient: LinearGradient(colors: [colors.brandSoft, colors.background]),
         boxShadow: [
           BoxShadow(
-            color: c.brand.withValues(alpha: 0.10),
+            color: colors.brand.withValues(alpha: 0.10),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -3483,7 +3483,7 @@ class _ServiceImage extends StatelessWidget {
                 errorBuilder: (_, __, ___) {
                   return Icon(
                     Icons.home_repair_service_outlined,
-                    color: c.brand,
+                    color: colors.brand,
                     size: 30,
                   );
                 },
@@ -3498,7 +3498,7 @@ class _ServiceImage extends StatelessWidget {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     ),
                   );
@@ -3506,7 +3506,7 @@ class _ServiceImage extends StatelessWidget {
               )
             : Icon(
                 Icons.home_repair_service_outlined,
-                color: c.brand,
+                color: colors.brand,
                 size: 30,
               ),
       ),
@@ -3550,22 +3550,22 @@ class _AddressSelectionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: showError
-              ? c.statusWarning
-              : c.border.withValues(alpha: 0.75),
+              ? colors.statusWarning
+              : colors.border.withValues(alpha: 0.75),
           width: showError ? 1.2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: c.brand.withValues(alpha: 0.045),
+            color: colors.brand.withValues(alpha: 0.045),
             blurRadius: 20,
             offset: const Offset(0, 7),
           ),
@@ -3626,14 +3626,14 @@ class _AddressSelectionSection extends StatelessWidget {
                       Icon(
                         Icons.info_outline_rounded,
                         size: 17,
-                        color: c.statusWarning,
+                        color: colors.statusWarning,
                       ),
                       SizedBox(width: 1.5.w),
                       Expanded(
                         child: Text(
                           'Please select a service address',
                           style: TextStyle(
-                            color: c.statusWarning,
+                            color: colors.statusWarning,
                             fontFamily: 'Inter',
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
@@ -3673,16 +3673,16 @@ class _DynamicAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
       decoration: BoxDecoration(
-        color: isSelected ? c.brandSoft : c.background,
+        color: isSelected ? colors.brandSoft : colors.background,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isSelected ? c.brand : c.border,
+          color: isSelected ? colors.brand : colors.border,
           width: isSelected ? 1.5 : 1,
         ),
       ),
@@ -3701,7 +3701,7 @@ class _DynamicAddressCard extends StatelessWidget {
                       ? Icons.check_circle_rounded
                       : Icons.circle_outlined,
                   size: 22,
-                  color: isSelected ? c.brand : c.textSecondary,
+                  color: isSelected ? colors.brand : colors.textSecondary,
                 ),
                 SizedBox(width: 2.5.w),
                 Expanded(
@@ -3716,7 +3716,7 @@ class _DynamicAddressCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.bodyMedium.copyWith(
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w800,
                                 fontSize: 14.sp,
@@ -3731,13 +3731,13 @@ class _DynamicAddressCard extends StatelessWidget {
                                 vertical: 0.3.h,
                               ),
                               decoration: BoxDecoration(
-                                color: c.brand.withValues(alpha: 0.12),
+                                color: colors.brand.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 'Default',
                                 style: TextStyle(
-                                  color: c.brand,
+                                  color: colors.brand,
                                   fontFamily: 'Inter',
                                   fontSize: 10.5.sp,
                                   fontWeight: FontWeight.w700,
@@ -3750,7 +3750,7 @@ class _DynamicAddressCard extends StatelessWidget {
                       Text(
                         address.phoneNumber,
                         style: TextStyle(
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                           fontFamily: 'Inter',
                           fontSize: 12.5.sp,
                           fontWeight: FontWeight.w500,
@@ -3762,7 +3762,7 @@ class _DynamicAddressCard extends StatelessWidget {
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: c.textPrimary,
+                          color: colors.textPrimary,
                           fontFamily: 'Inter',
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600,
@@ -3782,12 +3782,12 @@ class _DynamicAddressCard extends StatelessWidget {
                             icon: Icon(
                               Icons.edit_outlined,
                               size: 15,
-                              color: c.brand,
+                              color: colors.brand,
                             ),
                             label: Text(
                               'Edit',
                               style: TextStyle(
-                                color: c.brand,
+                                color: colors.brand,
                                 fontFamily: 'Inter',
                                 fontSize: 11.5.sp,
                                 fontWeight: FontWeight.w700,
@@ -3805,12 +3805,12 @@ class _DynamicAddressCard extends StatelessWidget {
                             icon: Icon(
                               Icons.delete_outline_rounded,
                               size: 15,
-                              color: c.statusWarning,
+                              color: colors.statusWarning,
                             ),
                             label: Text(
                               'Delete',
                               style: TextStyle(
-                                color: c.statusWarning,
+                                color: colors.statusWarning,
                                 fontFamily: 'Inter',
                                 fontSize: 11.5.sp,
                                 fontWeight: FontWeight.w700,
@@ -3830,13 +3830,13 @@ class _DynamicAddressCard extends StatelessWidget {
                       vertical: 0.4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: c.brand,
+                      color: colors.brand,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       'SELECTED',
                       style: TextStyle(
-                        color: c.surface,
+                        color: colors.surface,
                         fontFamily: 'Inter',
                         fontSize: 9.5.sp,
                         fontWeight: FontWeight.w800,
@@ -3860,7 +3860,7 @@ class _AddNewAddressButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Material(
       color: Colors.transparent,
@@ -3871,19 +3871,19 @@ class _AddNewAddressButton extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: 1.35.h),
           decoration: BoxDecoration(
-            color: c.brandSoft.withValues(alpha: 0.35),
+            color: colors.brandSoft.withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(11),
-            border: Border.all(color: c.brand.withValues(alpha: 0.18)),
+            border: Border.all(color: colors.brand.withValues(alpha: 0.18)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_rounded, color: c.brand, size: 19),
+              Icon(Icons.add_rounded, color: colors.brand, size: 19),
               SizedBox(width: 1.w),
               Text(
                 'Add New Address',
                 style: TextStyle(
-                  color: c.brand,
+                  color: colors.brand,
                   fontFamily: 'Inter',
                   fontSize: 13.sp,
                   fontWeight: FontWeight.w800,
@@ -3904,7 +3904,7 @@ class _EmptyAddressView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Column(
       children: [
@@ -3912,16 +3912,16 @@ class _EmptyAddressView extends StatelessWidget {
           width: 64,
           height: 64,
           decoration: BoxDecoration(
-            color: c.brandSoft,
+            color: colors.brandSoft,
             shape: BoxShape.circle,
           ),
-          child: Icon(Icons.location_off_outlined, size: 30, color: c.brand),
+          child: Icon(Icons.location_off_outlined, size: 30, color: colors.brand),
         ),
         SizedBox(height: 1.5.h),
         Text(
           'No saved addresses yet',
           style: TextStyle(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontSize: 14.sp,
             fontWeight: FontWeight.w700,
@@ -3932,7 +3932,7 @@ class _EmptyAddressView extends StatelessWidget {
           'Add a service address to continue',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: 12.sp,
           ),
@@ -3949,28 +3949,28 @@ class _AddressLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Column(
       children: [
         Container(
           height: 120,
           decoration: BoxDecoration(
-            color: c.background,
+            color: colors.background,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: c.border),
+            border: Border.all(color: colors.border),
           ),
           child: Center(
-            child: CircularProgressIndicator(strokeWidth: 2, color: c.brand),
+            child: CircularProgressIndicator(strokeWidth: 2, color: colors.brand),
           ),
         ),
         SizedBox(height: 1.h),
         Container(
           height: 100,
           decoration: BoxDecoration(
-            color: c.background,
+            color: colors.background,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: c.border),
+            border: Border.all(color: colors.border),
           ),
         ),
       ],
@@ -3986,17 +3986,17 @@ class _AddressErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Column(
       children: [
-        Icon(Icons.location_off_outlined, size: 38, color: c.textSecondary),
+        Icon(Icons.location_off_outlined, size: 38, color: colors.textSecondary),
         SizedBox(height: 1.h),
         Text(
           message,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: 12.sp,
           ),
@@ -4007,8 +4007,8 @@ class _AddressErrorView extends StatelessWidget {
           icon: const Icon(Icons.refresh_rounded),
           label: const Text('Retry'),
           style: OutlinedButton.styleFrom(
-            foregroundColor: c.brand,
-            side: BorderSide(color: c.brand.withValues(alpha: 0.45)),
+            foregroundColor: colors.brand,
+            side: BorderSide(color: colors.brand.withValues(alpha: 0.45)),
           ),
         ),
       ],
@@ -4038,16 +4038,16 @@ class _DeliveringToCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [c.brand.withValues(alpha: 0.07), c.surface],
+          colors: [colors.brand.withValues(alpha: 0.07), colors.surface],
         ),
         borderRadius: BorderRadius.circular(17),
-        border: Border.all(color: c.brand.withValues(alpha: 0.13)),
+        border: Border.all(color: colors.brand.withValues(alpha: 0.13)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -4056,10 +4056,10 @@ class _DeliveringToCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.home_rounded, color: c.brand, size: 20),
+            child: Icon(Icons.home_rounded, color: colors.brand, size: 20),
           ),
           SizedBox(width: 2.7.w),
           Expanded(
@@ -4071,21 +4071,21 @@ class _DeliveringToCard extends StatelessWidget {
                     Text(
                       'Service location',
                       style: TextStyle(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: 13.5.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const Spacer(),
-                    Icon(Icons.verified_rounded, color: c.brand, size: 16),
+                    Icon(Icons.verified_rounded, color: colors.brand, size: 16),
                   ],
                 ),
                 SizedBox(height: 0.45.h),
                 Text(
                   address.fullName,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: 13.5.sp,
                     fontWeight: FontWeight.w800,
@@ -4095,7 +4095,7 @@ class _DeliveringToCard extends StatelessWidget {
                 Text(
                   address.phoneNumber,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: 12.8.sp,
                     fontWeight: FontWeight.w500,
@@ -4105,7 +4105,7 @@ class _DeliveringToCard extends StatelessWidget {
                 Text(
                   _formatAddress(address),
                   style: TextStyle(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: 13.5.sp,
                     height: 1.4,
@@ -4139,17 +4139,17 @@ class _PaymentMethodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       padding: EdgeInsets.all(3.5.w),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: c.border.withValues(alpha: 0.75)),
+        border: Border.all(color: colors.border.withValues(alpha: 0.75)),
         boxShadow: [
           BoxShadow(
-            color: c.brand.withValues(alpha: 0.06),
+            color: colors.brand.withValues(alpha: 0.06),
             blurRadius: 24,
             offset: const Offset(0, 9),
           ),
@@ -4168,17 +4168,17 @@ class _PaymentMethodCard extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          c.brand.withValues(alpha: 0.12),
-                          c.brandSoft.withValues(alpha: 0.42),
+                          colors.brand.withValues(alpha: 0.12),
+                          colors.brandSoft.withValues(alpha: 0.42),
                         ],
                       )
                     : null,
-                color: selectedPayment == 0 ? null : c.background,
+                color: selectedPayment == 0 ? null : colors.background,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selectedPayment == 0
-                      ? c.brand.withValues(alpha: 0.55)
-                      : c.border,
+                      ? colors.brand.withValues(alpha: 0.55)
+                      : colors.border,
                   width: selectedPayment == 0 ? 1.3 : 1,
                 ),
               ),
@@ -4189,12 +4189,12 @@ class _PaymentMethodCard extends StatelessWidget {
                     height: 48,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [c.brand, c.brand.withValues(alpha: 0.72)],
+                        colors: [colors.brand, colors.brand.withValues(alpha: 0.72)],
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: c.brand.withValues(alpha: 0.20),
+                          color: colors.brand.withValues(alpha: 0.20),
                           blurRadius: 14,
                           offset: const Offset(0, 5),
                         ),
@@ -4202,7 +4202,7 @@ class _PaymentMethodCard extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.account_balance_wallet_rounded,
-                      color: c.surface,
+                      color: colors.surface,
                       size: 22,
                     ),
                   ),
@@ -4219,7 +4219,7 @@ class _PaymentMethodCard extends StatelessWidget {
                               child: Text(
                                 'Pay with BinGold',
                                 style: TextStyle(
-                                  color: c.textPrimary,
+                                  color: colors.textPrimary,
                                   fontFamily: 'Inter',
                                   fontSize: 13.8.sp,
                                   fontWeight: FontWeight.w800,
@@ -4232,13 +4232,13 @@ class _PaymentMethodCard extends StatelessWidget {
                                 vertical: 0.4.h,
                               ),
                               decoration: BoxDecoration(
-                                color: c.brand.withValues(alpha: 0.10),
+                                color: colors.brand.withValues(alpha: 0.10),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               child: Text(
                                 'BIGOD',
                                 style: TextStyle(
-                                  color: c.brand,
+                                  color: colors.brand,
                                   fontFamily: 'Inter',
                                   fontSize: 13.sp,
                                   fontWeight: FontWeight.w900,
@@ -4253,7 +4253,7 @@ class _PaymentMethodCard extends StatelessWidget {
                         Text(
                           'Pay securely using your BIGOD balance.',
                           style: TextStyle(
-                            color: c.textSecondary,
+                            color: colors.textSecondary,
                             fontFamily: 'Inter',
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w600,
@@ -4271,7 +4271,7 @@ class _PaymentMethodCard extends StatelessWidget {
                               width: 6,
                               height: 6,
                               decoration: BoxDecoration(
-                                color: c.brand,
+                                color: colors.brand,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -4280,7 +4280,7 @@ class _PaymentMethodCard extends StatelessWidget {
                               child: Text(
                                 'Your BIGOD balance is unavailable right now.',
                                 style: TextStyle(
-                                  color: c.textSecondary,
+                                  color: colors.textSecondary,
                                   fontFamily: 'Inter',
                                   fontSize: 12.sp,
                                   height: 1.3,
@@ -4299,7 +4299,7 @@ class _PaymentMethodCard extends StatelessWidget {
                     selectedPayment == 0
                         ? Icons.radio_button_checked_rounded
                         : Icons.radio_button_off_rounded,
-                    color: selectedPayment == 0 ? c.brand : c.textSecondary,
+                    color: selectedPayment == 0 ? colors.brand : colors.textSecondary,
                     size: 22,
                   ),
                 ],
@@ -4312,20 +4312,20 @@ class _PaymentMethodCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(2.7.w),
             decoration: BoxDecoration(
-              color: c.background,
+              color: colors.background,
               borderRadius: BorderRadius.circular(13),
-              border: Border.all(color: c.border.withValues(alpha: 0.65)),
+              border: Border.all(color: colors.border.withValues(alpha: 0.65)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.shield_outlined, color: c.brand, size: 20),
+                Icon(Icons.shield_outlined, color: colors.brand, size: 20),
                 SizedBox(width: 2.w),
                 Expanded(
                   child: Text(
                     'Your final payable amount will be confirmed by the server before charging.',
                     style: TextStyle(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: 13.sp,
                       height: 1.4,
@@ -4347,15 +4347,15 @@ class _PaymentMethodCard extends StatelessWidget {
               gradient: LinearGradient(
                 colors: isProcessing
                     ? [
-                        c.brand.withValues(alpha: 0.65),
-                        c.brand.withValues(alpha: 0.55),
+                        colors.brand.withValues(alpha: 0.65),
+                        colors.brand.withValues(alpha: 0.55),
                       ]
-                    : [c.brand, c.brand.withValues(alpha: 0.82)],
+                    : [colors.brand, colors.brand.withValues(alpha: 0.82)],
               ),
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: c.brand.withValues(alpha: isProcessing ? 0.12 : 0.25),
+                  color: colors.brand.withValues(alpha: isProcessing ? 0.12 : 0.25),
                   blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
@@ -4376,14 +4376,14 @@ class _PaymentMethodCard extends StatelessWidget {
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.2,
-                                valueColor: AlwaysStoppedAnimation(c.surface),
+                                valueColor: AlwaysStoppedAnimation(colors.surface),
                               ),
                             ),
                             SizedBox(width: 2.5.w),
                             Text(
                               'Processing…',
                               style: AppTextStyles.buttonText.copyWith(
-                                color: c.surface,
+                                color: colors.surface,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w800,
                                 fontSize: 14.sp,
@@ -4398,7 +4398,7 @@ class _PaymentMethodCard extends StatelessWidget {
                             Text(
                               'Continue to Pay',
                               style: AppTextStyles.buttonText.copyWith(
-                                color: c.surface,
+                                color: colors.surface,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w800,
                                 fontSize: 14.sp,
@@ -4408,7 +4408,7 @@ class _PaymentMethodCard extends StatelessWidget {
                             SizedBox(width: 2.w),
                             Icon(
                               Icons.arrow_forward_rounded,
-                              color: c.surface,
+                              color: colors.surface,
                               size: 19,
                             ),
                           ],
@@ -4425,14 +4425,14 @@ class _PaymentMethodCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.lock_outline_rounded,
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 size: 13,
               ),
               SizedBox(width: 1.w),
               Text(
                 'Secure checkout',
                 style: TextStyle(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: 13.5.sp,
                   fontWeight: FontWeight.w500,
@@ -4443,7 +4443,7 @@ class _PaymentMethodCard extends StatelessWidget {
                 width: 3,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -4451,7 +4451,7 @@ class _PaymentMethodCard extends StatelessWidget {
               Text(
                 'Encrypted',
                 style: TextStyle(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: 13.5.sp,
                   fontWeight: FontWeight.w500,
@@ -4476,7 +4476,7 @@ class _CheckoutErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Center(
       child: Padding(
@@ -4484,12 +4484,12 @@ class _CheckoutErrorView extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(7.w),
           decoration: BoxDecoration(
-            color: c.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: c.border),
+            border: Border.all(color: colors.border),
             boxShadow: [
               BoxShadow(
-                color: c.brand.withValues(alpha: 0.06),
+                color: colors.brand.withValues(alpha: 0.06),
                 blurRadius: 25,
                 offset: const Offset(0, 10),
               ),
@@ -4502,13 +4502,13 @@ class _CheckoutErrorView extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.cloud_off_rounded,
                   size: 34,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ),
 
@@ -4519,7 +4519,7 @@ class _CheckoutErrorView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.sp,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
                 ),
@@ -4533,7 +4533,7 @@ class _CheckoutErrorView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 11.sp,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   height: 1.45,
                 ),
@@ -4548,8 +4548,8 @@ class _CheckoutErrorView extends StatelessWidget {
                   icon: const Icon(Icons.refresh_rounded),
                   label: const Text('Try Again'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: c.brand,
-                    foregroundColor: c.surface,
+                    backgroundColor: colors.brand,
+                    foregroundColor: colors.surface,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(13),

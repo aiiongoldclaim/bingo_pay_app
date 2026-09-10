@@ -93,17 +93,17 @@ class BookingDetailsLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(m.loadingCardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.loadingCardRadius),
         border: Border.all(
-          color: c.border,
+          color: colors.border,
         ),
       ),
       child: Column(
@@ -160,13 +160,13 @@ class BookingDetailsLoadingBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: c.border.withValues(
+        color: colors.border.withValues(
           alpha: 0.45,
         ),
         borderRadius:

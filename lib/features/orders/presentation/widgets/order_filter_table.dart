@@ -93,16 +93,16 @@ class OrderFilterTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       height: m.tabBarHeight,
       margin: EdgeInsets.symmetric(horizontal: m.pagePadding),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.tabRadius),
-        border: Border.all(color: c.border),
+        border: Border.all(color: colors.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: ListView.separated(
@@ -142,7 +142,7 @@ class _FilterTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -167,7 +167,7 @@ class _FilterTab extends StatelessWidget {
                         fontWeight: selected
                             ? FontWeight.w700
                             : FontWeight.w500,
-                        color: selected ? c.brand : c.textSecondary,
+                        color: selected ? colors.brand : colors.textSecondary,
                       ),
                     ),
                     SizedBox(width: m.pagePadding * 0.35),
@@ -179,7 +179,7 @@ class _FilterTab extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: selected ? c.brand : c.surfaceAlt,
+                        color: selected ? colors.brand : colors.surfaceAlt,
                         borderRadius: BorderRadius.circular(m.tabBadgeSize),
                       ),
                       child: Text(
@@ -188,7 +188,7 @@ class _FilterTab extends StatelessWidget {
                           fontSize: m.tabBadgeFontSize,
                           fontWeight: FontWeight.w700,
                           height: 1,
-                          color: selected ? Colors.white : c.textSecondary,
+                          color: selected ? Colors.white : colors.textSecondary,
                         ),
                       ),
                     ),
@@ -198,7 +198,7 @@ class _FilterTab extends StatelessWidget {
               // CHANGED: width: double.infinity hataya — stretch handle karega
               Container(
                 height: 2.5,
-                color: selected ? c.brand : Colors.transparent,
+                color: selected ? colors.brand : Colors.transparent,
               ),
             ],
           ),

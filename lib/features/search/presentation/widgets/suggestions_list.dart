@@ -116,7 +116,7 @@ class _SuggestionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -126,21 +126,21 @@ class _SuggestionChip extends StatelessWidget {
         height: m.chipHeight,
         padding: EdgeInsets.symmetric(horizontal: m.pagePadding * 0.8),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.chipHeight),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_rounded, size: m.chipIconSize, color: c.brand),
+            Icon(Icons.search_rounded, size: m.chipIconSize, color: colors.brand),
             SizedBox(width: m.pagePadding * 0.45),
             Text(
               label,
               style: TextStyle(
                 fontSize: m.chipFontSize,
                 fontWeight: FontWeight.w500,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ],

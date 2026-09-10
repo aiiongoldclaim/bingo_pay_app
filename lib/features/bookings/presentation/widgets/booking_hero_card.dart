@@ -18,21 +18,21 @@ class BookingHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return Container(
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.heroRadius),
         border: Border.all(
-          color: c.border,
+          color: colors.border,
         ),
-        boxShadow: c.isDark
+        boxShadow: colors.isDark
             ? null
             : [
                 BoxShadow(
-                  color: c.textPrimary.withValues(
+                  color: colors.textPrimary.withValues(
                     alpha: 0.055,
                   ),
                   blurRadius: m.heroShadowBlur,
@@ -47,7 +47,7 @@ class BookingHeroCard extends StatelessWidget {
             Container(
               height: m.heroTopBarHeight,
               width: double.infinity,
-              color: c.brand,
+              color: colors.brand,
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(
@@ -66,7 +66,7 @@ class BookingHeroCard extends StatelessWidget {
                         width: m.heroIconBox,
                         height: m.heroIconBox,
                         decoration: BoxDecoration(
-                          color: c.brandSoft,
+                          color: colors.brandSoft,
                           borderRadius:
                               BorderRadius.circular(m.heroIconRadius),
                         ),
@@ -90,7 +90,7 @@ class BookingHeroCard extends StatelessWidget {
                                   TextOverflow.ellipsis,
                               style: AppTextStyles.titleLarge
                                   .copyWith(
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight:
                                     FontWeight.w800,
@@ -109,7 +109,7 @@ class BookingHeroCard extends StatelessWidget {
                                   TextOverflow.ellipsis,
                               style: AppTextStyles.bodySmall
                                   .copyWith(
-                                color: c.textSecondary,
+                                color: colors.textSecondary,
                                 fontFamily: 'Inter',
                                 fontSize: m.heroSubtitleSize,
                                 fontWeight:
@@ -132,11 +132,11 @@ class BookingHeroCard extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(m.heroMetaPad),
                     decoration: BoxDecoration(
-                      color: c.background,
+                      color: colors.background,
                       borderRadius:
                           BorderRadius.circular(m.heroMetaRadius),
                       border: Border.all(
-                        color: c.border,
+                        color: colors.border,
                       ),
                     ),
                     child: Row(
@@ -153,7 +153,7 @@ class BookingHeroCard extends StatelessWidget {
                         Container(
                           width: 1,
                           height: m.heroDividerHeight,
-                          color: c.border,
+                          color: colors.border,
                         ),
                         Expanded(
                           child: HeroMetaTile(
@@ -192,7 +192,7 @@ class HeroMetaTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return Padding(
@@ -204,7 +204,7 @@ class HeroMetaTile extends StatelessWidget {
           Icon(
             icon,
             size: m.heroMetaIconSize,
-            color: c.brand,
+            color: colors.brand,
           ),
           SizedBox(width: m.heroMetaIconGapW),
           Expanded(
@@ -215,7 +215,7 @@ class HeroMetaTile extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    color: c.textMuted,
+                    color: colors.textMuted,
                     fontFamily: 'Inter',
                     fontSize: m.heroMetaLabelSize,
                     fontWeight: FontWeight.w600,
@@ -227,7 +227,7 @@ class HeroMetaTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: m.heroMetaValueSize,
                     fontWeight: FontWeight.w700,

@@ -15,7 +15,7 @@ class BookingSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return Row(
@@ -23,13 +23,13 @@ class BookingSectionTitle extends StatelessWidget {
         Icon(
           icon,
           size: m.sectionIconSize,
-          color: c.brand,
+          color: colors.brand,
         ),
         SizedBox(width: m.sectionIconGapW),
         Text(
           title,
           style: TextStyle(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontSize: m.sectionTitleTextSize,
             fontWeight: FontWeight.w800,

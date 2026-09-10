@@ -111,7 +111,7 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final hasImage = category.image != null && category.image!.isNotEmpty;
 
@@ -126,7 +126,7 @@ class CategoryCard extends StatelessWidget {
             height: m.categoryCircle,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               shape: BoxShape.circle,
             ),
             child: hasImage
@@ -139,11 +139,11 @@ class CategoryCard extends StatelessWidget {
                       errorBuilder: (_, __, ___) => Icon(
                         category.icon,
                         size: m.categoryIconSize,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     ),
                   )
-                : Icon(category.icon, size: m.categoryIconSize, color: c.brand),
+                : Icon(category.icon, size: m.categoryIconSize, color: colors.brand),
           ),
           SizedBox(height: m.pagePadding * 0.5),
           Flexible(
@@ -156,7 +156,7 @@ class CategoryCard extends StatelessWidget {
                 fontSize: m.categoryNameSize,
                 fontWeight: FontWeight.w500,
                 height: 1.2,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),

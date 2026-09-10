@@ -205,7 +205,7 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final status = OrderStatusStyle.of(context, order.orderStatus);
     final item = order.items.isNotEmpty ? order.items.first : null;
@@ -215,9 +215,9 @@ class OrderCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(m.cardRadius),
       child: Container(
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -438,7 +438,7 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -459,7 +459,7 @@ class _SummaryRow extends StatelessWidget {
                   fontSize: m.productNameSize,
                   fontWeight: FontWeight.w600,
                   height: 1.25,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               SizedBox(height: m.cardGap * 0.3),
@@ -468,7 +468,7 @@ class _SummaryRow extends StatelessWidget {
                   Icon(
                     Icons.account_balance_wallet_outlined,
                     size: m.productMetaSize * 1.25,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                   SizedBox(width: m.cardGap * 0.3),
                   Expanded(
@@ -479,7 +479,7 @@ class _SummaryRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.productMetaSize,
                         height: 1.3,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ),
@@ -505,7 +505,7 @@ class _Thumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
 
@@ -514,7 +514,7 @@ class _Thumb extends StatelessWidget {
       child: Container(
         width: m.thumbSize,
         height: m.thumbSize,
-        color: c.surfaceAlt,
+        color: colors.surfaceAlt,
         child: hasImage
             ? Image.network(
                 imageUrl!,
@@ -522,13 +522,13 @@ class _Thumb extends StatelessWidget {
                 errorBuilder: (_, __, ___) => Icon(
                   Icons.shopping_bag_outlined,
                   size: m.thumbSize * 0.35,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               )
             : Icon(
                 Icons.shopping_bag_outlined,
                 size: m.thumbSize * 0.35,
-                color: c.brand,
+                color: colors.brand,
               ),
       ),
     );
@@ -548,7 +548,7 @@ class _PriceColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final tone = OrderStatusStyle.toneOf(order.orderStatus);
@@ -556,7 +556,7 @@ class _PriceColumn extends StatelessWidget {
         ? 'Delivered on\n${_shortDate(order.deliveredAt!)}'
         : order.displayPaymentStatus;
 
-    final labelColor = order.isPaid ? c.statusSuccess : status.foreground;
+    final labelColor = order.isPaid ? colors.statusSuccess : status.foreground;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -567,7 +567,7 @@ class _PriceColumn extends StatelessWidget {
           style: TextStyle(
             fontSize: m.priceSize,
             fontWeight: FontWeight.w700,
-            color: c.textPrimary,
+            color: colors.textPrimary,
           ),
         ),
         SizedBox(height: m.cardGap * 0.25),
@@ -651,7 +651,7 @@ class _FooterStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -659,7 +659,7 @@ class _FooterStrip extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: m.cardGap),
       decoration: BoxDecoration(
         color: status.background,
-        border: Border(top: BorderSide(color: c.border)),
+        border: Border(top: BorderSide(color: colors.border)),
       ),
       child: Row(
         children: [
@@ -684,9 +684,9 @@ class _FooterStrip extends StatelessWidget {
             child: OutlinedButton(
               onPressed: onCta,
               style: OutlinedButton.styleFrom(
-                foregroundColor: c.brand,
-                backgroundColor: c.surface,
-                side: BorderSide(color: c.brand, width: 1.2),
+                foregroundColor: colors.brand,
+                backgroundColor: colors.surface,
+                side: BorderSide(color: colors.brand, width: 1.2),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 padding: EdgeInsets.symmetric(horizontal: m.cardGap * 0.85),

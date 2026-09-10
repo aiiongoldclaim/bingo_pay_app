@@ -291,6 +291,18 @@ class AppRouter {
 
         GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
 
+        // Not a bottom-nav tab — always reached via context.push() from both
+        // shell and non-shell screens (Cart, Categories, dashboard, etc.).
+        // Kept as a top-level route (like AppRoutes.cart above) instead of
+        // nested inside the ShellRoute, since pushing a shell-scoped route
+        // from a non-shell page causes go_router to mount the shell's
+        // Navigator twice with the same key ("GlobalKey used multiple
+        // times" crash).
+        GoRoute(
+          path: AppRoutes.buyerWishlist,
+          builder: (_, _) => const WishlistScreen(),
+        ),
+
         // GoRoute(
         //   path: AppRoutes.reviewPayment,
         //   builder: (context, state) {
@@ -404,10 +416,6 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.scanner,
               builder: (context, state) => const ScannerScreen(),
-            ),
-            GoRoute(
-              path: AppRoutes.buyerWishlist,
-              builder: (_, _) => const WishlistScreen(),
             ),
 
             GoRoute(

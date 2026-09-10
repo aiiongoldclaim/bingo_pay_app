@@ -24,7 +24,7 @@ class OdItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final hasImage = (item.imageUrl ?? '').isNotEmpty;
 
@@ -44,7 +44,7 @@ class OdItemTile extends StatelessWidget {
             child: Container(
               width: m.itemThumbWidth,
               height: m.itemThumbHeight,
-              color: c.surfaceAlt,
+              color: colors.surfaceAlt,
               child: hasImage
                   ? Image.network(
                       item.imageUrl!,
@@ -52,13 +52,13 @@ class OdItemTile extends StatelessWidget {
                       errorBuilder: (_, __, ___) => Icon(
                         Icons.inventory_2_outlined,
                         size: m.itemThumbWidth * 0.35,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     )
                   : Icon(
                       Icons.inventory_2_outlined,
                       size: m.itemThumbWidth * 0.35,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
             ),
           ),
@@ -79,7 +79,7 @@ class OdItemTile extends StatelessWidget {
                       fontSize: m.itemBrandSize,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.3,
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                 SizedBox(height: m.cardPadding * 0.2),
@@ -90,7 +90,7 @@ class OdItemTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.itemNameSize,
                     height: 1.3,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ),
                 SizedBox(height: m.cardPadding * 0.35),
@@ -101,7 +101,7 @@ class OdItemTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.itemMetaSize,
                     height: 1.3,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ),
                 SizedBox(height: m.cardPadding * 0.35),
@@ -110,7 +110,7 @@ class OdItemTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.itemPriceSize,
                     fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
               ],
@@ -128,7 +128,7 @@ class OdItemTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.itemPriceSize,
                   fontWeight: FontWeight.w700,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
               if (actionLabel != null) ...[
@@ -139,8 +139,8 @@ class OdItemTile extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: onAction,
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: c.brand,
-                        side: BorderSide(color: c.brand, width: 1.2),
+                        foregroundColor: colors.brand,
+                        side: BorderSide(color: colors.brand, width: 1.2),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         padding: EdgeInsets.symmetric(
@@ -168,7 +168,7 @@ class OdItemTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.ctaFontSize,
                         fontWeight: FontWeight.w600,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     ),
                   ),

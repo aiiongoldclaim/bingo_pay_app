@@ -31,20 +31,20 @@ class MembershipBenefitTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final enabled = entitlement.enabled;
 
-    final iconBg = enabled ? c.brandSoft : c.surfaceAlt;
-    final iconColor = enabled ? c.brand : c.textMuted;
-    final titleColor = enabled ? c.textPrimary : c.textSecondary;
+    final iconBg = enabled ? colors.brandSoft : colors.surfaceAlt;
+    final iconColor = enabled ? colors.brand : colors.textMuted;
+    final titleColor = enabled ? colors.textPrimary : colors.textSecondary;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad * 0.72),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: c.border),
+        border: Border.all(color: colors.border),
       ),
       child: Row(
         children: [
@@ -86,7 +86,7 @@ class MembershipBenefitTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.tileValueSize,
                     fontWeight: FontWeight.w500,
-                    color: enabled ? c.textSecondary : c.textMuted,
+                    color: enabled ? colors.textSecondary : colors.textMuted,
                   ),
                 ),
               ],
@@ -96,7 +96,7 @@ class MembershipBenefitTile extends StatelessWidget {
           Icon(
             enabled ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
             size: m.badgeIcon,
-            color: enabled ? c.statusSuccess : c.textMuted,
+            color: enabled ? colors.statusSuccess : colors.textMuted,
           ),
         ],
       ),

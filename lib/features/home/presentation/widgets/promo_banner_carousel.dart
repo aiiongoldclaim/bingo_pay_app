@@ -88,7 +88,7 @@ class _DotsIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final dotHeight = metrics.heroEyebrowSize * 0.32;
 
     return Row(
@@ -102,7 +102,7 @@ class _DotsIndicator extends StatelessWidget {
           width: active ? dotHeight * 6 : dotHeight * 3,
           height: dotHeight,
           decoration: BoxDecoration(
-            color: active ? c.brand : c.brandSoft,
+            color: active ? colors.brand : colors.brandSoft,
             borderRadius: BorderRadius.circular(dotHeight),
           ),
         );

@@ -24,7 +24,7 @@ class OrderDetailBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final btnHeight = m.isTablet ? 54.0 : 52.0;
@@ -33,7 +33,7 @@ class OrderDetailBottomBar extends StatelessWidget {
     Widget primary() => SizedBox(
       height: btnHeight,
       child: Material(
-        color: canCancel ? c.statusWarning : c.brand,
+        color: canCancel ? colors.statusWarning : colors.brand,
         borderRadius: BorderRadius.circular(12),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -45,7 +45,7 @@ class OrderDetailBottomBar extends StatelessWidget {
               height: fontSize + 4,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(c.surface),
+                valueColor: AlwaysStoppedAnimation(colors.surface),
               ),
             )
                 : Row(
@@ -56,13 +56,13 @@ class OrderDetailBottomBar extends StatelessWidget {
                       ? Icons.close_rounded
                       : Icons.headset_mic_outlined,
                   size: fontSize + 4,
-                  color: c.surface,
+                  color: colors.surface,
                 ),
                 SizedBox(width: m.sectionGap * 0.4),
                 Text(
                   canCancel ? 'Cancel Order' : 'Need Help',
                   style: AppTextStyles.buttonText.copyWith(
-                    color: c.surface,
+                    color: colors.surface,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: fontSize,
@@ -86,7 +86,7 @@ class OrderDetailBottomBar extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: c.brand.withValues(alpha: 0.5)),
+              border: Border.all(color: colors.brand.withValues(alpha: 0.5)),
             ),
             alignment: Alignment.center,
             child: Row(
@@ -95,7 +95,7 @@ class OrderDetailBottomBar extends StatelessWidget {
                 Icon(
                   Icons.receipt_long_outlined,
                   size: fontSize + 4,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
                 SizedBox(width: m.sectionGap * 0.4),
                 Flexible(
@@ -104,7 +104,7 @@ class OrderDetailBottomBar extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.buttonText.copyWith(
-                      color: c.brand,
+                      color: colors.brand,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                       fontSize: fontSize,
@@ -126,8 +126,8 @@ class OrderDetailBottomBar extends StatelessWidget {
         m.sectionGap * 0.3,
       ),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border, width: 1)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
       ),
       child: SafeArea(
         top: false,

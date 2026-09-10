@@ -80,8 +80,8 @@ class CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
-    final fg = isHighlighted ? c.brand : c.brand;
+    final colors = context.c;
+    final fg = isHighlighted ? colors.brand : colors.brand;
     final hasImage = category.image != null && category.image!.isNotEmpty;
 
     return InkWell(
@@ -97,7 +97,7 @@ class CategoryItem extends StatelessWidget {
               height: metrics.categoryCircle,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: c.categoryCircleBg,
+                color: colors.categoryCircleBg,
                 shape: BoxShape.circle,
               ),
               child: hasImage
@@ -131,7 +131,7 @@ class CategoryItem extends StatelessWidget {
                 fontSize: metrics.categoryLabelSize,
                 fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w500,
                 height: 1.15,
-                color: isHighlighted ? c.brand : c.textPrimary,
+                color: isHighlighted ? colors.brand : colors.textPrimary,
               ),
             ),
           ],

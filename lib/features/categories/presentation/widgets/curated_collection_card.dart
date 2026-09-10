@@ -87,7 +87,7 @@ class CuratedCollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
 
@@ -99,7 +99,7 @@ class CuratedCollectionCard extends StatelessWidget {
         child: Container(
           width: m.collectionWidth,
           height: m.collectionHeight,
-          color: c.isDark ? c.surfaceAlt : collection.iconBg,
+          color: colors.isDark ? colors.surfaceAlt : collection.iconBg,
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -124,7 +124,7 @@ class CuratedCollectionCard extends StatelessWidget {
                   child: Icon(
                     collection.icon,
                     size: m.collectionHeight * 0.46,
-                    color: c.brand.withValues(alpha: c.isDark ? 0.22 : 0.15),
+                    color: colors.brand.withValues(alpha: colors.isDark ? 0.22 : 0.15),
                   ),
                 ),
 
@@ -141,7 +141,7 @@ class CuratedCollectionCard extends StatelessWidget {
                         fontSize: m.collectionTitleSize,
                         fontWeight: FontWeight.w700,
                         height: 1.2,
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                       ),
                     ),
                     SizedBox(height: m.pagePadding * 0.45),
@@ -154,7 +154,7 @@ class CuratedCollectionCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: m.collectionBodySize,
                           height: 1.35,
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                         ),
                       ),
                     ),
@@ -166,18 +166,18 @@ class CuratedCollectionCard extends StatelessWidget {
                       ),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: c.surface,
+                        color: colors.surface,
                         borderRadius: BorderRadius.circular(
                           m.collectionCtaHeight,
                         ),
-                        border: Border.all(color: c.brand, width: 1.2),
+                        border: Border.all(color: colors.brand, width: 1.2),
                       ),
                       child: Text(
                         ctaLabel,
                         style: TextStyle(
                           fontSize: m.collectionCtaSize,
                           fontWeight: FontWeight.w600,
-                          color: c.brand,
+                          color: colors.brand,
                         ),
                       ),
                     ),

@@ -12,7 +12,7 @@ class OdPriceDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -20,9 +20,9 @@ class OdPriceDetails extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(m.cardPadding),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           children: [
@@ -37,7 +37,7 @@ class OdPriceDetails extends StatelessWidget {
                 metrics: m,
                 label: 'Discount',
                 value: '- ${formatAmount(order.discountAmount)}',
-                highlight: c.statusSuccess,
+                highlight: colors.statusSuccess,
               ),
             ],
             if (order.taxAmount > 0) ...[
@@ -55,10 +55,10 @@ class OdPriceDetails extends StatelessWidget {
               value: order.shippingAmount > 0
                   ? formatAmount(order.shippingAmount)
                   : 'Free',
-              highlight: order.shippingAmount > 0 ? null : c.statusSuccess,
+              highlight: order.shippingAmount > 0 ? null : colors.statusSuccess,
             ),
             SizedBox(height: m.priceRowGap * 1.3),
-            _DashedDivider(color: c.border),
+            _DashedDivider(color: colors.border),
             SizedBox(height: m.priceRowGap * 1.3),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +68,7 @@ class OdPriceDetails extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.priceRowSize * 1.12,
                     fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
                 Text(
@@ -76,7 +76,7 @@ class OdPriceDetails extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.priceTotalSize,
                     fontWeight: FontWeight.w800,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ],
@@ -103,7 +103,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -116,7 +116,7 @@ class _Row extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: m.priceRowSize,
-              color: highlight ?? c.textPrimary,
+              color: highlight ?? colors.textPrimary,
             ),
           ),
         ),
@@ -126,7 +126,7 @@ class _Row extends StatelessWidget {
           style: TextStyle(
             fontSize: m.priceRowSize,
             fontWeight: FontWeight.w600,
-            color: highlight ?? c.textPrimary,
+            color: highlight ?? colors.textPrimary,
           ),
         ),
       ],

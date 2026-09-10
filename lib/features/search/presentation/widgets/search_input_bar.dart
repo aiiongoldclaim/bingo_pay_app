@@ -57,7 +57,7 @@ class SearchInputBarState extends State<SearchInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = widget.metrics;
 
     return Padding(
@@ -77,7 +77,7 @@ class SearchInputBarState extends State<SearchInputBar> {
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: m.backIconSize * 0.8,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -87,16 +87,16 @@ class SearchInputBarState extends State<SearchInputBar> {
               height: m.inputHeight,
               padding: EdgeInsets.symmetric(horizontal: m.pagePadding * 0.75),
               decoration: BoxDecoration(
-                color: c.surface,
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(m.pagePadding * 0.6),
-                border: Border.all(color: c.border),
+                border: Border.all(color: colors.border),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.search_rounded,
                     size: m.inputIconSize,
-                    color: c.textMuted,
+                    color: colors.textMuted,
                   ),
                   SizedBox(width: m.pagePadding * 0.5),
 
@@ -107,10 +107,10 @@ class SearchInputBarState extends State<SearchInputBar> {
                       textInputAction: TextInputAction.search,
                       onChanged: widget.onChanged,
                       onSubmitted: widget.onSubmit,
-                      cursorColor: c.brand,
+                      cursorColor: colors.brand,
                       style: TextStyle(
                         fontSize: m.inputFontSize,
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
 
                       ),
                       decoration: InputDecoration(
@@ -123,7 +123,7 @@ class SearchInputBarState extends State<SearchInputBar> {
                         hintText: widget.hintText,
                         hintStyle: TextStyle(
                           fontSize: m.inputFontSize,
-                          color: c.textMuted,
+                          color: colors.textMuted,
                         ),
                       ),
                     ),
@@ -142,7 +142,7 @@ class SearchInputBarState extends State<SearchInputBar> {
               style: TextStyle(
                 fontSize: m.cancelFontSize,
                 fontWeight: FontWeight.w600,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
           ),

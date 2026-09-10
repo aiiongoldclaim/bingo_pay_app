@@ -29,7 +29,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     if (benefits.isEmpty) return const SizedBox.shrink();
-//     final c = context.c;
+//     final colors = context.c;
 //     final m = metrics;
 //
 //     return Padding(
@@ -40,9 +40,9 @@
 //           vertical: m.pagePadding * 0.8,
 //         ),
 //         decoration: BoxDecoration(
-//           color: c.surface,
+//           color: colors.surface,
 //           borderRadius: BorderRadius.circular(m.categoryTileRadius),
-//           border: Border.all(color: c.border),
+//           border: Border.all(color: colors.border),
 //         ),
 //         child: Row(
 //           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +55,7 @@
 //                 Container(
 //                   width: 1,
 //                   height: m.benefitIconSize * 1.8,
-//                   color: c.border,
+//                   color: colors.border,
 //                 ),
 //             ],
 //           ],
@@ -73,7 +73,7 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 //     final m = metrics;
 //
 //     return Padding(
@@ -82,7 +82,7 @@
 //         mainAxisSize: MainAxisSize.min,
 //         crossAxisAlignment: CrossAxisAlignment.start,
 //         children: [
-//           Icon(data.icon, size: m.benefitIconSize, color: c.brand),
+//           Icon(data.icon, size: m.benefitIconSize, color: colors.brand),
 //           SizedBox(height: m.pagePadding * 0.4),
 //           Text(
 //             data.title,
@@ -92,7 +92,7 @@
 //               fontSize: m.benefitTitleSize,
 //               fontWeight: FontWeight.w700,
 //               height: 1.2,
-//               color: c.textPrimary,
+//               color: colors.textPrimary,
 //             ),
 //           ),
 //           SizedBox(height: m.pagePadding * 0.15),
@@ -103,7 +103,7 @@
 //             style: TextStyle(
 //               fontSize: m.benefitBodySize,
 //               height: 1.3,
-//               color: c.textSecondary,
+//               color: colors.textSecondary,
 //             ),
 //           ),
 //         ],

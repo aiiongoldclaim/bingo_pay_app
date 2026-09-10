@@ -1,47 +1,3 @@
-// import 'package:flutter/material.dart';
-//
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-//
-// class CouponCard extends StatelessWidget {
-//   const CouponCard({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.all(18),
-//       decoration: BoxDecoration(
-//         borderRadius: BorderRadius.circular(16),
-//         border: Border.all(color: ThemeColors.blue, style: BorderStyle.solid),
-//         color: ThemeColors.surface,
-//       ),
-//       child: Row(
-//         children: [
-//           Icon(Icons.local_offer_outlined, color: ThemeColors.blue),
-//
-//           SizedBox(width: 12),
-//
-//           Expanded(
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(
-//                   'FESTIVE10 applied',
-//                   style: AppTextStyles.titleMedium.copyWith(
-//                     color: ThemeColors.blue,
-//                   ),
-//                 ),
-//                 Text('You saved \$2,848', style: AppTextStyles.bodyMedium),
-//               ],
-//             ),
-//           ),
-//
-//           Icon(Icons.check, color: ThemeColors.green),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -54,7 +10,7 @@ class CartCouponCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = CartMetrics.of(context);
 
     return Material(
@@ -65,9 +21,9 @@ class CartCouponCard extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(m.cardPad),
           decoration: BoxDecoration(
-            color: c.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(color: c.border, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           child: Row(
             children: [
@@ -75,14 +31,14 @@ class CartCouponCard extends StatelessWidget {
                 width: m.bannerIconBox * 0.85,
                 height: m.bannerIconBox * 0.85,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.local_offer_outlined,
                   size: m.bannerIconSize * 0.85,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ),
 
@@ -96,7 +52,7 @@ class CartCouponCard extends StatelessWidget {
                     Text(
                       AppStrings.couponsOffers,
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.summaryTitleSize,
@@ -107,7 +63,7 @@ class CartCouponCard extends StatelessWidget {
                     Text(
                       AppStrings.viewAllOffers,
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: m.summaryLabelSize,
                         height: 1.2,
@@ -120,7 +76,7 @@ class CartCouponCard extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 size: m.summaryTitleSize + 8,
-                color: c.textMuted,
+                color: colors.textMuted,
               ),
             ],
           ),
@@ -131,13 +87,13 @@ class CartCouponCard extends StatelessWidget {
 }
 
 Future<void> showCouponSheet(BuildContext context) {
-  final c = context.c;
+  final colors = context.c;
   final m = CartMetrics.of(context);
 
   return showDialog(
     context: context,
     builder: (_) => Dialog(
-      backgroundColor: c.surface,
+      backgroundColor: colors.surface,
       insetPadding: EdgeInsets.symmetric(
         horizontal: m.isTablet ? 80 : 6.0,
         vertical: 24,
@@ -159,14 +115,14 @@ Future<void> showCouponSheet(BuildContext context) {
                   Icon(
                     Icons.local_offer_outlined,
                     size: m.summaryTitleSize + 4,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                   SizedBox(width: m.gapSm),
                   Expanded(
                     child: Text(
                       AppStrings.couponsOffers,
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.summaryTitleSize,
@@ -181,7 +137,7 @@ Future<void> showCouponSheet(BuildContext context) {
                       child: Icon(
                         Icons.close_rounded,
                         size: m.summaryTitleSize + 2,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ),
@@ -189,14 +145,14 @@ Future<void> showCouponSheet(BuildContext context) {
               ),
 
               SizedBox(height: m.gapMd),
-              Divider(height: 1, thickness: 1, color: c.border),
+              Divider(height: 1, thickness: 1, color: colors.border),
               SizedBox(height: m.gapLg),
 
               // Empty state
               Icon(
                 Icons.confirmation_number_outlined,
                 size: m.emptyIllustration * 0.32,
-                color: c.textMuted,
+                color: colors.textMuted,
               ),
 
               SizedBox(height: m.gapMd),
@@ -205,7 +161,7 @@ Future<void> showCouponSheet(BuildContext context) {
                 AppStrings.noCouponsAvailable,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
                   fontSize: m.summaryTitleSize,
@@ -218,7 +174,7 @@ Future<void> showCouponSheet(BuildContext context) {
                 AppStrings.checkBackLaterOffers,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.summaryLabelSize,
                   height: 1.4,
@@ -230,7 +186,7 @@ Future<void> showCouponSheet(BuildContext context) {
               SizedBox(
                 height: m.payHeight * 0.8,
                 child: Material(
-                  color: c.brand,
+                  color: colors.brand,
                   borderRadius: BorderRadius.circular(12),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
@@ -239,7 +195,7 @@ Future<void> showCouponSheet(BuildContext context) {
                       child: Text(
                         AppStrings.close,
                         style: AppTextStyles.buttonText.copyWith(
-                          color: c.surface,
+                          color: colors.surface,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: m.payFontSize * 0.9,

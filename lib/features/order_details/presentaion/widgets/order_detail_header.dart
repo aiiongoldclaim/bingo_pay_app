@@ -22,7 +22,7 @@ class OrderDetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return SizedBox(
@@ -37,7 +37,7 @@ class OrderDetailHeader extends StatelessWidget {
               child: Icon(
                 Icons.arrow_back_rounded,
                 size: m.headerIconSize,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -49,7 +49,7 @@ class OrderDetailHeader extends StatelessWidget {
                   brandName,
                   style: AppTextStyles.brandLogo.copyWith(
                     fontSize: m.logoSize,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ),
@@ -69,7 +69,7 @@ class OrderDetailHeader extends StatelessWidget {
                   Icon(
                     Icons.headset_mic_outlined,
                     size: m.headerIconSize * 0.85,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                   SizedBox(width: m.pagePadding * 0.3),
                   Text(
@@ -77,7 +77,7 @@ class OrderDetailHeader extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.helpFontSize,
                       fontWeight: FontWeight.w600,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ),
                 ],

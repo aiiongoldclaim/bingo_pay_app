@@ -294,13 +294,13 @@ class _HeroCountdownState extends State<HeroCountdown> {
 
         Row(
           children: [
-            _CountdownTile(value: days, label: 'DAY'),
+            Expanded(child: _CountdownTile(value: days, label: 'DAY')),
             SizedBox(width: 1.03.w),
-            _CountdownTile(value: hours, label: 'HRS'),
+            Expanded(child: _CountdownTile(value: hours, label: 'HRS')),
             SizedBox(width: 1.03.w),
-            _CountdownTile(value: minutes, label: 'MIN'),
+            Expanded(child: _CountdownTile(value: minutes, label: 'MIN')),
             SizedBox(width: 1.03.w),
-            _CountdownTile(value: seconds, label: 'SEC'),
+            Expanded(child: _CountdownTile(value: seconds, label: 'SEC')),
           ],
         ),
       ],
@@ -323,27 +323,33 @@ class _CountdownTile extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 0.71.h),
-      width: 10.51.w,
       decoration: BoxDecoration(
         color: colors.brandSoft,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value.toString().padLeft(2, '0'),
-            style: TextStyle(
-              color: colors.textPrimary,
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w800,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value.toString().padLeft(2, '0'),
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
-          Text(
-            label,
-            style: TextStyle(
-              color: colors.textMuted,
-              fontSize: 8.sp,
-              letterSpacing: 0.5,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: colors.textMuted,
+                fontSize: 8.sp,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
         ],

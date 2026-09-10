@@ -148,7 +148,7 @@ class _ProductGalleryState extends State<ProductGallery> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = widget.metrics;
     final images = widget.images;
 
@@ -167,7 +167,7 @@ class _ProductGalleryState extends State<ProductGallery> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(m.heroRadius),
             child: Container(
-              color: c.surfaceAlt,
+              color: colors.surfaceAlt,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -181,7 +181,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                           child: Icon(
                             widget.fallbackIcon,
                             size: m.floatBtnSize * 1.4,
-                            color: c.textMuted,
+                            color: colors.textMuted,
                           ),
                         ),
                       ),
@@ -191,7 +191,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                       child: Icon(
                         widget.fallbackIcon,
                         size: m.floatBtnSize * 1.4,
-                        color: c.textMuted,
+                        color: colors.textMuted,
                       ),
                     ),
 
@@ -205,13 +205,13 @@ class _ProductGalleryState extends State<ProductGallery> {
                           vertical: m.gapXs * 1.4,
                         ),
                         decoration: BoxDecoration(
-                          color: c.brand,
+                          color: colors.brand,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           widget.badge!,
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: c.surface,
+                            color: colors.surface,
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w700,
                             fontSize: m.captionSize,
@@ -244,7 +244,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                     child: Container(
                       width: m.thumbSize,
                       decoration: BoxDecoration(
-                        color: c.brandSoft,
+                        color: colors.brandSoft,
                         borderRadius: BorderRadius.circular(m.thumbRadius),
                       ),
                       alignment: Alignment.center,
@@ -252,7 +252,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                         '+$extra\nMore',
                         textAlign: TextAlign.center,
                         style: AppTextStyles.labelLarge.copyWith(
-                          color: c.brand,
+                          color: colors.brand,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: m.sizeChipSubSize + 2,
@@ -273,10 +273,10 @@ class _ProductGalleryState extends State<ProductGallery> {
                   child: Container(
                     width: m.thumbSize,
                     decoration: BoxDecoration(
-                      color: c.surfaceAlt,
+                      color: colors.surfaceAlt,
                       borderRadius: BorderRadius.circular(m.thumbRadius),
                       border: Border.all(
-                        color: isSelected ? c.brand : c.border,
+                        color: isSelected ? colors.brand : colors.border,
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -287,7 +287,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                       errorBuilder: (_, __, ___) => Icon(
                         widget.fallbackIcon,
                         size: m.thumbSize * 0.34,
-                        color: c.textMuted,
+                        color: colors.textMuted,
                       ),
                     ),
                   ),
@@ -314,7 +314,7 @@ class ProductInfoBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -329,7 +329,7 @@ class ProductInfoBlock extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.brandSize,
@@ -341,7 +341,7 @@ class ProductInfoBlock extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               size: m.brandSize + 6,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ],
         ),
@@ -351,7 +351,7 @@ class ProductInfoBlock extends StatelessWidget {
         Text(
           product.productName,
           style: AppTextStyles.titleLarge.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
             fontSize: m.titleSize,
@@ -366,7 +366,7 @@ class ProductInfoBlock extends StatelessWidget {
           height: m.ratingChipHeight,
           padding: EdgeInsets.symmetric(horizontal: m.gapMd * 0.8),
           decoration: BoxDecoration(
-            color: c.surfaceAlt,
+            color: colors.surfaceAlt,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -375,13 +375,13 @@ class ProductInfoBlock extends StatelessWidget {
               Icon(
                 Icons.star_rounded,
                 size: m.ratingFontSize + 5,
-                color: c.brand,
+                color: colors.brand,
               ),
               SizedBox(width: m.gapXs * 1.2),
               Text(
                 product.rating,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.ratingFontSize,
@@ -392,13 +392,13 @@ class ProductInfoBlock extends StatelessWidget {
                 child: Container(
                   width: 1,
                   height: m.ratingChipHeight * 0.42,
-                  color: c.border,
+                  color: colors.border,
                 ),
               ),
               Text(
                 AppStrings.ratingsCount(product.reviewCount),
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.ratingFontSize,
                 ),
@@ -416,7 +416,7 @@ class ProductInfoBlock extends StatelessWidget {
             Text(
               product.price,
               style: AppTextStyles.titleLarge.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.priceSize,
@@ -430,7 +430,7 @@ class ProductInfoBlock extends StatelessWidget {
                 child: Text(
                   product.oldPrice,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textMuted,
+                    color: colors.textMuted,
                     fontFamily: 'Inter',
                     fontSize: m.strikeSize,
                     decoration: TextDecoration.lineThrough,
@@ -445,7 +445,7 @@ class ProductInfoBlock extends StatelessWidget {
                 child: Text(
                   '${product.discount}% OFF',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: c.brand,
+                    color: colors.brand,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.discountSize,
@@ -461,7 +461,7 @@ class ProductInfoBlock extends StatelessWidget {
         Text(
           AppStrings.inclusiveOfTaxes,
           style: AppTextStyles.bodySmall.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.captionSize,
           ),
@@ -492,7 +492,7 @@ class ProductQuantitySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final canDecrement = quantity > 1;
     final canIncrement = quantity < availableStock;
@@ -509,7 +509,7 @@ class ProductQuantitySelector extends StatelessWidget {
                 Text(
                   AppStrings.quantityLabel,
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.sectionTitleSize,
@@ -519,7 +519,7 @@ class ProductQuantitySelector extends StatelessWidget {
                 Text(
                   AppStrings.availableStockCount(availableStock),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.rowSubSize,
                   ),
@@ -529,7 +529,7 @@ class ProductQuantitySelector extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              border: Border.all(color: c.border),
+              border: Border.all(color: colors.border),
               borderRadius: BorderRadius.circular(m.cardRadius * 0.7),
             ),
             child: Row(
@@ -540,7 +540,7 @@ class ProductQuantitySelector extends StatelessWidget {
                   tooltip: AppStrings.decreaseQuantityTooltip,
                   onPressed: canDecrement ? onDecrement : null,
                   icon: const Icon(Icons.remove_rounded),
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
                 Semantics(
                   label: AppStrings.selectedQuantitySemantics(quantity),
@@ -550,7 +550,7 @@ class ProductQuantitySelector extends StatelessWidget {
                       '$quantity',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.labelLarge.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.sectionTitleSize,
@@ -563,7 +563,7 @@ class ProductQuantitySelector extends StatelessWidget {
                   tooltip: AppStrings.increaseQuantityTooltip,
                   onPressed: canIncrement ? onIncrement : null,
                   icon: const Icon(Icons.add_rounded),
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ],
             ),
@@ -593,7 +593,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 //     final m = metrics;
 //
 //     if (variants.isEmpty) return const SizedBox.shrink();
@@ -608,7 +608,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //               child: Text(
 //                 'Select Size',
 //                 style: AppTextStyles.titleMedium.copyWith(
-//                   color: c.textPrimary,
+//                   color: colors.textPrimary,
 //                   fontFamily: 'Inter',
 //                   fontWeight: FontWeight.w700,
 //                   fontSize: m.sectionTitleSize,
@@ -626,7 +626,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //                     Text(
 //                       'Size Guide',
 //                       style: AppTextStyles.labelMedium.copyWith(
-//                         color: c.brand,
+//                         color: colors.brand,
 //                         fontFamily: 'Inter',
 //                         fontWeight: FontWeight.w600,
 //                         fontSize: m.linkSize,
@@ -636,7 +636,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //                     Icon(
 //                       Icons.straighten_rounded,
 //                       size: m.linkSize + 4,
-//                       color: c.brand,
+//                       color: colors.brand,
 //                     ),
 //                   ],
 //                 ),
@@ -669,7 +669,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //                   : null;
 //
 //               return Material(
-//                 color: c.surface,
+//                 color: colors.surface,
 //                 borderRadius: BorderRadius.circular(10),
 //                 clipBehavior: Clip.antiAlias,
 //                 child: InkWell(
@@ -682,7 +682,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //                     decoration: BoxDecoration(
 //                       borderRadius: BorderRadius.circular(10),
 //                       border: Border.all(
-//                         color: isSelected ? c.brand : c.border,
+//                         color: isSelected ? colors.brand : colors.border,
 //                         width: isSelected ? 1.5 : 1,
 //                       ),
 //                     ),
@@ -695,10 +695,10 @@ class ProductQuantitySelector extends StatelessWidget {
 //                           overflow: TextOverflow.ellipsis,
 //                           style: AppTextStyles.labelLarge.copyWith(
 //                             color: isDisabled
-//                                 ? c.textMuted
+//                                 ? colors.textMuted
 //                                 : isSelected
-//                                 ? c.brand
-//                                 : c.textPrimary,
+//                                 ? colors.brand
+//                                 : colors.textPrimary,
 //                             fontFamily: 'Inter',
 //                             fontWeight: FontWeight.w600,
 //                             fontSize: m.sizeChipFontSize,
@@ -714,7 +714,7 @@ class ProductQuantitySelector extends StatelessWidget {
 //                             maxLines: 1,
 //                             overflow: TextOverflow.ellipsis,
 //                             style: AppTextStyles.bodySmall.copyWith(
-//                               color: c.textSecondary,
+//                               color: colors.textSecondary,
 //                               fontFamily: 'Inter',
 //                               fontSize: m.sizeChipSubSize,
 //                             ),
@@ -782,7 +782,7 @@ class ProductActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
@@ -796,11 +796,11 @@ class ProductActionRow extends StatelessWidget {
               width: m.rowIconBox,
               height: m.rowIconBox,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
-              child: Icon(icon, size: m.rowIconSize, color: c.brand),
+              child: Icon(icon, size: m.rowIconSize, color: colors.brand),
             ),
             SizedBox(width: m.gapMd * 0.8),
             Expanded(
@@ -813,7 +813,7 @@ class ProductActionRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                       fontSize: m.rowTitleSize,
@@ -826,7 +826,7 @@ class ProductActionRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.rowSubSize,
                       height: 1.3,
@@ -838,7 +838,7 @@ class ProductActionRow extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               size: m.rowTitleSize + 10,
-              color: c.textMuted,
+              color: colors.textMuted,
             ),
           ],
         ),
@@ -869,7 +869,7 @@ class ProductOffersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (offers.isEmpty) return const SizedBox.shrink();
@@ -890,13 +890,13 @@ class ProductOffersCard extends StatelessWidget {
               Icon(
                 Icons.local_offer_outlined,
                 size: m.sectionTitleSize + 4,
-                color: c.brand,
+                color: colors.brand,
               ),
               SizedBox(width: m.gapSm * 0.8),
               Text(
                 AppStrings.offersForYou,
                 style: AppTextStyles.titleMedium.copyWith(
-                  color: c.brand,
+                  color: colors.brand,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.sectionTitleSize,
@@ -924,14 +924,14 @@ class ProductOffersCard extends StatelessWidget {
                             width: m.rowIconBox * 0.85,
                             height: m.rowIconBox * 0.85,
                             decoration: BoxDecoration(
-                              color: c.brandSoft,
+                              color: colors.brandSoft,
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
                             child: Icon(
                               Icons.percent_rounded,
                               size: m.rowIconSize * 0.85,
-                              color: c.brand,
+                              color: colors.brand,
                             ),
                           ),
                           SizedBox(width: m.gapMd * 0.8),
@@ -945,7 +945,7 @@ class ProductOffersCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.labelLarge.copyWith(
-                                    color: c.textPrimary,
+                                    color: colors.textPrimary,
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w600,
                                     fontSize: m.rowTitleSize,
@@ -958,7 +958,7 @@ class ProductOffersCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: c.textSecondary,
+                                    color: colors.textSecondary,
                                     fontFamily: 'Inter',
                                     fontSize: m.rowSubSize,
                                     height: 1.3,
@@ -970,14 +970,14 @@ class ProductOffersCard extends StatelessWidget {
                           Icon(
                             Icons.chevron_right_rounded,
                             size: m.rowTitleSize + 10,
-                            color: c.textMuted,
+                            color: colors.textMuted,
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                Divider(height: 1, thickness: 1, color: c.border),
+                Divider(height: 1, thickness: 1, color: colors.border),
               ],
             );
           }),
@@ -996,7 +996,7 @@ class ProductOffersCard extends StatelessWidget {
                     Text(
                       AppStrings.viewAllOffersCount(offers.length),
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: c.brand,
+                        color: colors.brand,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.linkSize,
@@ -1006,7 +1006,7 @@ class ProductOffersCard extends StatelessWidget {
                     Icon(
                       Icons.chevron_right_rounded,
                       size: m.linkSize + 6,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ],
                 ),
@@ -1032,7 +1032,7 @@ class ProductHighlightsBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (highlights.isEmpty) return const SizedBox.shrink();
@@ -1046,7 +1046,7 @@ class ProductHighlightsBlock extends StatelessWidget {
           Text(
             AppStrings.productDetailsTitle,
             style: AppTextStyles.titleMedium.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
               fontSize: m.sectionTitleSize,
@@ -1059,7 +1059,7 @@ class ProductHighlightsBlock extends StatelessWidget {
               child: Text(
                 h,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.rowSubSize,
                   height: 1.55,

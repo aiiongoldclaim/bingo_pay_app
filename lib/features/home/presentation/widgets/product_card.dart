@@ -26,7 +26,7 @@ import 'home_metrics.dart';
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 //     final imageUrl = product.images.isNotEmpty ? product.images.first : '';
 //     final hasOldPrice = product.oldPrice.isNotEmpty;
 //     final hasDiscount = product.discount > 0;
@@ -48,12 +48,12 @@ import 'home_metrics.dart';
 //                   child: Container(
 //                     height: metrics.productImageHeight,
 //                     width: double.infinity,
-//                     color: c.surfaceAlt,
+//                     color: colors.surfaceAlt,
 //                     child: imageUrl.isEmpty
 //                         ? Icon(
 //                             product.icon,
 //                             size: metrics.categoryIconSize,
-//                             color: c.textMuted,
+//                             color: colors.textMuted,
 //                           )
 //                         : Image.network(
 //                             imageUrl,
@@ -61,7 +61,7 @@ import 'home_metrics.dart';
 //                             errorBuilder: (_, __, ___) => Icon(
 //                               product.icon,
 //                               size: metrics.categoryIconSize,
-//                               color: c.textMuted,
+//                               color: colors.textMuted,
 //                             ),
 //                           ),
 //                   ),
@@ -77,7 +77,7 @@ import 'home_metrics.dart';
 //                           ? Icons.favorite_rounded
 //                           : Icons.favorite_border_rounded,
 //                       size: metrics.searchIconSize,
-//                       color: isWishlisted ? c.brand : c.textPrimary,
+//                       color: isWishlisted ? colors.brand : colors.textPrimary,
 //                     ),
 //                   ),
 //                 ),
@@ -95,7 +95,7 @@ import 'home_metrics.dart';
 //                 fontSize: metrics.productBrandSize,
 //                 fontWeight: FontWeight.w700,
 //                 letterSpacing: 0.2,
-//                 color: c.textPrimary,
+//                 color: colors.textPrimary,
 //               ),
 //             ),
 //
@@ -108,7 +108,7 @@ import 'home_metrics.dart';
 //               overflow: TextOverflow.ellipsis,
 //               style: TextStyle(
 //                 fontSize: metrics.productNameSize,
-//                 color: c.textSecondary,
+//                 color: colors.textSecondary,
 //               ),
 //             ),
 //
@@ -124,7 +124,7 @@ import 'home_metrics.dart';
 //                   style: TextStyle(
 //                     fontSize: metrics.productPriceSize,
 //                     fontWeight: FontWeight.w700,
-//                     color: c.textPrimary,
+//                     color: colors.textPrimary,
 //                   ),
 //                 ),
 //                 if (hasOldPrice) ...[
@@ -136,9 +136,9 @@ import 'home_metrics.dart';
 //                       overflow: TextOverflow.ellipsis,
 //                       style: TextStyle(
 //                         fontSize: metrics.productNameSize,
-//                         color: c.textMuted,
+//                         color: colors.textMuted,
 //                         decoration: TextDecoration.lineThrough,
-//                         decorationColor: c.textMuted,
+//                         decorationColor: colors.textMuted,
 //                       ),
 //                     ),
 //                   ),
@@ -161,7 +161,7 @@ import 'home_metrics.dart';
 //                       style: TextStyle(
 //                         fontSize: metrics.productNameSize,
 //                         fontWeight: FontWeight.w600,
-//                         color: c.discount,
+//                         color: colors.discount,
 //                       ),
 //                     ),
 //                   )
@@ -173,7 +173,7 @@ import 'home_metrics.dart';
 //                   child: Container(
 //                     padding: EdgeInsets.all(metrics.pagePadding * 0.35),
 //                     decoration: BoxDecoration(
-//                       color: c.brand,
+//                       color: colors.brand,
 //                       borderRadius: BorderRadius.circular(6),
 //                     ),
 //                     child: Icon(
@@ -222,7 +222,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final imageUrl = product.images.isNotEmpty ? product.images.first : '';
     final hasOldPrice = product.oldPrice.isNotEmpty;
@@ -244,12 +244,12 @@ class ProductCard extends StatelessWidget {
                   child: Container(
                     height: m.productImageHeight,
                     width: double.infinity,
-                    color: c.surfaceAlt,
+                    color: colors.surfaceAlt,
                     child: imageUrl.isEmpty
                         ? Icon(
                             product.icon,
                             size: m.categoryIconSize,
-                            color: c.textMuted,
+                            color: colors.textMuted,
                           )
                         : Image.network(
                             imageUrl,
@@ -257,7 +257,7 @@ class ProductCard extends StatelessWidget {
                             errorBuilder: (_, __, ___) => Icon(
                               product.icon,
                               size: m.categoryIconSize,
-                              color: c.textMuted,
+                              color: colors.textMuted,
                             ),
                           ),
                   ),
@@ -282,7 +282,7 @@ class ProductCard extends StatelessWidget {
                           size: m.searchIconSize,
                           color: isWishlisted
                               ? const Color(0xFFE0533B)
-                              : c.textPrimary,
+                              : colors.textPrimary,
                         ),
                       ),
                     ),
@@ -299,7 +299,7 @@ class ProductCard extends StatelessWidget {
                         vertical: m.pagePadding * 0.25,
                       ),
                       decoration: BoxDecoration(
-                        color: c.textPrimary.withValues(alpha: 0.7),
+                        color: colors.textPrimary.withValues(alpha: 0.7),
                         borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(8),
                         ),
@@ -310,7 +310,7 @@ class ProductCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: m.productNameSize * 0.85,
                           fontWeight: FontWeight.w700,
-                          color: c.surface,
+                          color: colors.surface,
                         ),
                       ),
                     ),
@@ -328,7 +328,7 @@ class ProductCard extends StatelessWidget {
                 fontSize: m.productBrandSize,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
 
@@ -340,7 +340,7 @@ class ProductCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: m.productNameSize,
-                color: c.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
 
@@ -355,7 +355,7 @@ class ProductCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.productPriceSize,
                     fontWeight: FontWeight.w700,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
                 if (hasOldPrice) ...[
@@ -367,9 +367,9 @@ class ProductCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: m.productNameSize,
-                        color: c.textMuted,
+                        color: colors.textMuted,
                         decoration: TextDecoration.lineThrough,
-                        decorationColor: c.textMuted,
+                        decorationColor: colors.textMuted,
                       ),
                     ),
                   ),
@@ -391,7 +391,7 @@ class ProductCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.productNameSize,
                         fontWeight: FontWeight.w600,
-                        color: c.discount,
+                        color: colors.discount,
                       ),
                     ),
                   )
@@ -400,7 +400,7 @@ class ProductCard extends StatelessWidget {
 
                 // ── Add to cart ──
                 Material(
-                  color: isOutOfStock ? c.surfaceAlt : c.brand,
+                  color: isOutOfStock ? colors.surfaceAlt : colors.brand,
                   borderRadius: BorderRadius.circular(6),
                   child: InkWell(
                     onTap: (isOutOfStock || isAddingToCart) ? null : onAddToCart,
@@ -422,7 +422,7 @@ class ProductCard extends StatelessWidget {
                                     ? Icons.remove_shopping_cart_outlined
                                     : Icons.shopping_bag_outlined,
                                 size: m.searchIconSize * 0.85,
-                                color: isOutOfStock ? c.textMuted : Colors.white,
+                                color: isOutOfStock ? colors.textMuted : Colors.white,
                               ),
                       ),
                     ),

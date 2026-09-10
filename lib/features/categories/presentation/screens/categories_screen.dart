@@ -119,7 +119,6 @@ class CategoriesScreen extends StatelessWidget {
 class _CategoriesView extends StatelessWidget {
   const _CategoriesView();
 
-
   @override
   Widget build(BuildContext context) {
     final m = CategoriesMetrics.of(context);
@@ -136,128 +135,70 @@ class _CategoriesView extends StatelessWidget {
               // return Center(child: CircularProgressIndicator(color: c.brand));
             }
 
-            return Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
-                child: CustomScrollView(
-                  slivers: [
-                    // ── Header ────────────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          m.pagePadding,
-                          m.pagePadding * 0.5,
-                          m.pagePadding,
-                          0,
-                        ),
-                        child: BlocBuilder<CartCubit, CartState>(
-                          buildWhen: (a, b) => a.uniqueItems != b.uniqueItems,
-                          builder: (context, cartState) => CatHeader(
-                            metrics: m,
-                            brandName: 'TheVaults',
-                            tagline: 'Style. Curated for You.',
-                            cartCount: cartState.uniqueItems,
-                            onWishlistTap: () =>
-                                context.push(AppRoutes.buyerWishlist),
-                            onCartTap: () => context.push(AppRoutes.cart),
+            return RefreshIndicator(
+              color: colors.brand,
+              backgroundColor: colors.surface,
+              onRefresh: () => context.read<CategoriesCubit>().loadData(),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      // ── Header ────────────────────────────────
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            m.pagePadding,
+                            m.pagePadding * 0.5,
+                            m.pagePadding,
+                            0,
+                          ),
+                          child: BlocBuilder<CartCubit, CartState>(
+                            buildWhen: (a, b) => a.uniqueItems != b.uniqueItems,
+                            builder: (context, cartState) => CatHeader(
+                              metrics: m,
+                              brandName: 'TheVaults',
+                              tagline: 'Style. Curated for You.',
+                              cartCount: cartState.uniqueItems,
+                              onWishlistTap: () =>
+                                  context.push(AppRoutes.buyerWishlist),
+                              onCartTap: () => context.push(AppRoutes.cart),
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: m.pagePadding * 0.9),
-                    ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: m.pagePadding * 0.9),
+                      ),
 
-                    // ── Search ────────────────────────────────
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: m.pagePadding,
+                      // ── Search ────────────────────────────────
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: m.pagePadding,
+                          ),
+                          child: CatSearchField(
+                            metrics: m,
+                            hintText: 'Search for categories, brands & more',
+                            onTap: () => context.push(AppRoutes.search),
+                          ),
                         ),
-                        child:
-                        CatSearchField(
-                          metrics: m,
-                          hintText: 'Search for categories, brands & more',
-                          onTap: () => context.push(AppRoutes.search),
-                        ),
                       ),
-                    ),
 
-                    SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
+                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
-                    // ── Categories ────────────────────────────
-                    // Header + grid always render, even when categories
-                    // comes back empty — CategoriesGrid shows its own
-                    // "No categories available" message in that case
-                    // instead of the section silently vanishing.
-                    SliverToBoxAdapter(
-                      child: CatSectionHeader(
-                        metrics: m,
-                        title: 'Categories',
-                        actionText: '',
-                        onActionTap: () =>
-                            context.push(AppRoutes.allProducts),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: m.pagePadding * 0.9),
-                    ),
-                    SliverToBoxAdapter(
-                      child: CategoriesGrid(
-                        metrics: m,
-                        categories: state.categories,
-                        onCategoryTap: (category) {
-                          if (category.uuid.isEmpty) return;
-                          context.push(
-                            AppRoutes.productListingPath(category.name),
-                            extra: category.uuid,
-                          );
-                        },
-                      ),
-                    ),
-                    SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-
-                    // ── Top Brands ────────────────────────────
-                    SliverToBoxAdapter(
-                      child: CatSectionHeader(
-                        metrics: m,
-                        title: 'Top Brands',
-                        actionText: state.brands.isEmpty ? null : 'View All',
-                        onActionTap: state.brands.isEmpty
-                            ? null
-                            : () => context.push(AppRoutes.allProducts),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: m.pagePadding * 0.9),
-                    ),
-                    SliverToBoxAdapter(
-                      child: BrandsGrid(
-                        metrics: m,
-                        brands: state.brands,
-                        isLoading: state.isBrandsLoading,
-                        error: state.brandsError,
-                        // logoResolver: (b) => b.logoUrl,
-                        onBrandTap: (brand) {
-                          if (brand.uuid.isEmpty) return;
-                          context.push(
-                            AppRoutes.brandListingPath(brand.name),
-                            extra: brand.uuid,
-                          );
-                        },
-                      ),
-                    ),
-
-                    SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-
-                    // ── Curated Collection ────────────────────
-                    if (state.collections.isNotEmpty) ...[
+                      // ── Categories ────────────────────────────
+                      // Header + grid always render, even when categories
+                      // comes back empty — CategoriesGrid shows its own
+                      // "No categories available" message in that case
+                      // instead of the section silently vanishing.
                       SliverToBoxAdapter(
                         child: CatSectionHeader(
                           metrics: m,
-                          title: 'Curated Collection',
-                          actionText: 'View All',
+                          title: 'Categories',
+                          actionText: '',
                           onActionTap: () =>
                               context.push(AppRoutes.allProducts),
                         ),
@@ -266,23 +207,89 @@ class _CategoriesView extends StatelessWidget {
                         child: SizedBox(height: m.pagePadding * 0.9),
                       ),
                       SliverToBoxAdapter(
-                        child: CuratedCollectionsList(
+                        child: CategoriesGrid(
                           metrics: m,
-                          collections: state.collections,
-                          // imageResolver: (col) => col.imageUrl,
-                          onCollectionTap: (col) {},
+                          categories: state.categories,
+                          onCategoryTap: (category) {
+                            if (category.uuid.isEmpty) return;
+                            context.push(
+                              AppRoutes.productListingPath(category.name),
+                              extra: category.uuid,
+                            );
+                          },
                         ),
                       ),
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-                    ],
 
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height:
-                            m.sectionGap + MediaQuery.paddingOf(context).bottom,
+                      // ── Top Brands ────────────────────────────
+                      SliverToBoxAdapter(
+                        child: CatSectionHeader(
+                          metrics: m,
+                          title: 'Top Brands',
+                          actionText: state.brands.isEmpty ? null : 'View All',
+                          onActionTap: state.brands.isEmpty
+                              ? null
+                              : () => context.push(AppRoutes.allProducts),
+                        ),
                       ),
-                    ),
-                  ],
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: m.pagePadding * 0.9),
+                      ),
+                      SliverToBoxAdapter(
+                        child: BrandsGrid(
+                          metrics: m,
+                          brands: state.brands,
+                          isLoading: state.isBrandsLoading,
+                          error: state.brandsError,
+                          // logoResolver: (b) => b.logoUrl,
+                          onBrandTap: (brand) {
+                            if (brand.uuid.isEmpty) return;
+                            context.push(
+                              AppRoutes.brandListingPath(brand.name),
+                              extra: brand.uuid,
+                            );
+                          },
+                        ),
+                      ),
+
+                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
+
+                      // ── Curated Collection ────────────────────
+                      if (state.collections.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: CatSectionHeader(
+                            metrics: m,
+                            title: 'Curated Collection',
+                            actionText: 'View All',
+                            onActionTap: () =>
+                                context.push(AppRoutes.allProducts),
+                          ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: m.pagePadding * 0.9),
+                        ),
+                        SliverToBoxAdapter(
+                          child: CuratedCollectionsList(
+                            metrics: m,
+                            collections: state.collections,
+                            // imageResolver: (col) => col.imageUrl,
+                            onCollectionTap: (col) {},
+                          ),
+                        ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: m.sectionGap),
+                        ),
+                      ],
+
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height:
+                              m.sectionGap +
+                              MediaQuery.paddingOf(context).bottom,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

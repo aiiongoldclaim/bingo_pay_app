@@ -150,15 +150,15 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final bg = isCompleted
-        ? c.statusSuccess
+        ? colors.statusSuccess
         : isCurrent
-        ? c.brand
-        : c.border;
-    final fg = (isCompleted || isCurrent) ? c.surface : c.textMuted;
+        ? colors.brand
+        : colors.border;
+    final fg = (isCompleted || isCurrent) ? colors.surface : colors.textMuted;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -184,7 +184,7 @@ class _Step extends StatelessWidget {
         Text(
           title,
           style: AppTextStyles.labelMedium.copyWith(
-            color: isCurrent || isCompleted ? c.textPrimary : c.textMuted,
+            color: isCurrent || isCompleted ? colors.textPrimary : colors.textMuted,
             fontFamily: 'Inter',
             fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
             fontSize: m.stepLabelSize,
@@ -203,11 +203,11 @@ class _Line extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     return Container(
       margin: EdgeInsets.symmetric(horizontal: metrics.gapSm * 0.7),
       height: 2,
-      color: completed ? c.statusSuccess : c.border,
+      color: completed ? colors.statusSuccess : colors.border,
     );
   }
 }

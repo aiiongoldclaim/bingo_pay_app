@@ -124,6 +124,7 @@ import '../../domain/entities/address_entity.dart';
 import '../cubit/address_cubit.dart';
 import '../cubit/address_state.dart';
 import '../widgets/address_metrics.dart';
+import '../widgets/address_tile.dart';
 import 'add_edit_address_screen.dart';
 
 class AddressListScreen extends StatefulWidget {
@@ -202,10 +203,10 @@ class _AddressListScreenState extends State<AddressListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: BlocBuilder<AddressCubit, AddressState>(
@@ -226,7 +227,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 Expanded(
                   child: state is AddressLoading
                       ? Center(
-                    child: CircularProgressIndicator(color: c.brand),
+                    child: CircularProgressIndicator(color: colors.brand),
                   )
                       : state is AddressError
                       ? _MessageView(
@@ -267,15 +268,13 @@ class _AddressListScreenState extends State<AddressListScreen> {
                             SizedBox(height: m.gapMd),
                         itemBuilder: (context, index) {
                           if (index == addresses.length) {
-                            return _AddNewAddressButton(
-                              metrics: m,
+                            return AddressAddNewButton(
                               onTap: () => _openAddEdit(null),
                             );
                           }
 
                           final address = addresses[index];
                           return AddressTile(
-                            metrics: m,
                             address: address,
                             isSelected: address.id == _selectedId,
                             onSelect: () =>
@@ -313,7 +312,7 @@ class _AddressTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -332,7 +331,7 @@ class _AddressTopBar extends StatelessWidget {
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           Expanded(
@@ -343,7 +342,7 @@ class _AddressTopBar extends StatelessWidget {
                 Text(
                   'Select Delivery Address',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.titleSize,
@@ -355,7 +354,7 @@ class _AddressTopBar extends StatelessWidget {
                   Text(
                     '$count saved address${count == 1 ? '' : 'es'}',
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.subtitleSize,
                       height: 1.2,
@@ -371,292 +370,6 @@ class _AddressTopBar extends StatelessWidget {
   }
 }
 
-// ── Address tile ───────────────────────────────────────────────────────────
-class AddressTile extends StatelessWidget {
-  final AddressMetrics metrics;
-  final AddressEntity address;
-  final bool isSelected;
-  final VoidCallback onSelect;
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
-
-  const AddressTile({
-    super.key,
-    required this.metrics,
-    required this.address,
-    required this.isSelected,
-    required this.onSelect,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
-  String _formatted() {
-    final parts = [
-      address.addressLine1,
-      address.addressLine2 ?? '',
-      address.city,
-      address.state,
-      address.postalCode,
-    ].where((p) => p.trim().isNotEmpty);
-    return parts.join(', ');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-
-    return Material(
-      color: isSelected ? c.brandSoft : c.surface,
-      borderRadius: BorderRadius.circular(m.cardRadius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onSelect,
-        child: Container(
-          padding: EdgeInsets.all(m.cardPad),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(
-              color: isSelected ? c.brand : c.border,
-              width: isSelected ? 1.5 : 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: m.gapXs * 0.6),
-                    child: Icon(
-                      isSelected
-                          ? Icons.radio_button_checked_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                      size: m.radioSize,
-                      color: isSelected ? c.brand : c.textMuted,
-                    ),
-                  ),
-
-                  SizedBox(width: m.cardPad * 0.7),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                address.fullName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.titleMedium.copyWith(
-                                  color: c.textPrimary,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: m.nameSize,
-                                  height: 1.3,
-                                ),
-                              ),
-                            ),
-                            if (address.isDefaultAddress) ...[
-                              SizedBox(width: m.gapSm * 0.8),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: m.gapSm * 0.9,
-                                  vertical: m.gapXs * 0.7,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: c.brand.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  'DEFAULT',
-                                  style: AppTextStyles.labelMedium.copyWith(
-                                    color: c.brand,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: m.tagFontSize,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-
-                        SizedBox(height: m.gapXs),
-
-                        Text(
-                          address.phoneNumber,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: c.textSecondary,
-                            fontFamily: 'Inter',
-                            fontSize: m.phoneSize,
-                            height: 1.35,
-                          ),
-                        ),
-
-                        SizedBox(height: m.gapXs * 0.8),
-
-                        Text(
-                          _formatted(),
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: c.textSecondary,
-                            fontFamily: 'Inter',
-                            fontSize: m.bodySize,
-                            height: 1.45,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: m.gapMd),
-              Divider(height: 1, thickness: 1, color: c.border),
-              SizedBox(height: m.gapSm),
-
-              Row(
-                children: [
-                  _TileAction(
-                    metrics: m,
-                    icon: Icons.edit_outlined,
-                    label: 'Edit',
-                    onTap: onEdit,
-                  ),
-                  SizedBox(width: m.gapSm),
-                  _TileAction(
-                    metrics: m,
-                    icon: Icons.delete_outline_rounded,
-                    label: 'Delete',
-                    isDestructive: true,
-                    onTap: onDelete,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TileAction extends StatelessWidget {
-  final AddressMetrics metrics;
-  final IconData icon;
-  final String label;
-  final bool isDestructive;
-  final VoidCallback onTap;
-
-  const _TileAction({
-    required this.metrics,
-    required this.icon,
-    required this.label,
-    this.isDestructive = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-    final color = isDestructive ? c.statusWarning : c.brand;
-
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(8),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: m.actionHeight,
-          padding: EdgeInsets.symmetric(horizontal: m.gapSm * 1.2),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: c.border, width: 1),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: m.actionIconSize, color: color),
-              SizedBox(width: m.gapXs * 1.2),
-              Text(
-                label,
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: color,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600,
-                  fontSize: m.actionFontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Add new ────────────────────────────────────────────────────────────────
-class _AddNewAddressButton extends StatelessWidget {
-  final AddressMetrics metrics;
-  final VoidCallback onTap;
-
-  const _AddNewAddressButton({required this.metrics, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(m.cardRadius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: m.addBtnHeight,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(
-              color: c.brand.withValues(alpha: 0.45),
-              width: 1.2,
-            ),
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_circle_outline_rounded,
-                size: m.addBtnFontSize + 5,
-                color: c.brand,
-              ),
-              SizedBox(width: m.gapSm * 0.8),
-              Text(
-                'ADD NEW ADDRESS',
-                style: AppTextStyles.buttonText.copyWith(
-                  color: c.brand,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: m.addBtnFontSize,
-                  letterSpacing: 0.4,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ── Deliver bar ────────────────────────────────────────────────────────────
 class _DeliverBar extends StatelessWidget {
@@ -672,7 +385,7 @@ class _DeliverBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -683,8 +396,8 @@ class _DeliverBar extends StatelessWidget {
         m.gapSm * 0.5,
       ),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border, width: 1)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
       ),
       child: SafeArea(
         top: false,
@@ -695,7 +408,7 @@ class _DeliverBar extends StatelessWidget {
               height: m.addBtnHeight,
               width: double.infinity,
               child: Material(
-                color: isEnabled ? c.brand : c.border,
+                color: isEnabled ? colors.brand : colors.border,
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
@@ -704,7 +417,7 @@ class _DeliverBar extends StatelessWidget {
                     child: Text(
                       'DELIVER HERE',
                       style: AppTextStyles.buttonText.copyWith(
-                        color: isEnabled ? c.surface : c.textMuted,
+                        color: isEnabled ? colors.surface : colors.textMuted,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.addBtnFontSize,
@@ -742,7 +455,7 @@ class _MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Center(
@@ -755,14 +468,14 @@ class _MessageView extends StatelessWidget {
               width: m.emptyIllustration,
               height: m.emptyIllustration,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Icon(
                 icon,
                 size: m.emptyIllustration * 0.42,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
 
@@ -772,7 +485,7 @@ class _MessageView extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleLarge.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.emptyTitleSize,
@@ -785,7 +498,7 @@ class _MessageView extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.emptySubSize,
                 height: 1.45,
@@ -798,7 +511,7 @@ class _MessageView extends StatelessWidget {
               width: m.isTablet ? 280 : null,
               height: m.addBtnHeight,
               child: Material(
-                color: c.brand,
+                color: colors.brand,
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
@@ -809,7 +522,7 @@ class _MessageView extends StatelessWidget {
                       child: Text(
                         actionLabel,
                         style: AppTextStyles.buttonText.copyWith(
-                          color: c.surface,
+                          color: colors.surface,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: m.addBtnFontSize,

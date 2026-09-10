@@ -20,13 +20,13 @@ import '../widgets/listing_product_card.dart';
 import '../widgets/listing_results_bar.dart';
 import '../widgets/listing_shimmer.dart';
 
-
 WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
   id: product.uuid!,
   brand: product.brand,
   name: product.name,
-  price:
-  product.price > 0 ? '\$${formatPrice(product.price)}' : AppStrings.notAvailable,
+  price: product.price > 0
+      ? '\$${formatPrice(product.price)}'
+      : AppStrings.notAvailable,
   originalPrice: product.originalPrice != null && product.originalPrice! > 0
       ? '\$${formatPrice(product.originalPrice!)}'
       : null,
@@ -36,8 +36,6 @@ WishlistItem _toWishlistItem(ListingProductModel product) => WishlistItem(
   reviewCount: product.ratingCount ?? 0,
   badge: product.badge,
 );
-
-
 
 class ProductListingScreen extends StatelessWidget {
   final String categoryName;
@@ -65,7 +63,6 @@ class ProductListingScreen extends StatelessWidget {
     );
   }
 }
-
 
 class _ProductListingView extends StatefulWidget {
   final String categoryName;
@@ -136,25 +133,28 @@ class _ProductListingViewState extends State<_ProductListingView> {
   }
 
   Widget _buildBody(
-      BuildContext context,
-      ProductListingState state,
-      ProductListingCubit cubit,
-      ) {
+    BuildContext context,
+    ProductListingState state,
+    ProductListingCubit cubit,
+  ) {
     return switch (state) {
       ProductListingLoading() => const ListingShimmer(),
       ProductListingError(
-          :final message,
-          :final isRateLimited,
-          :final retryAfterSeconds,
+        :final message,
+        :final isRateLimited,
+        :final retryAfterSeconds,
       ) =>
-          _ErrorState(
-            message: message,
-            isRateLimited: isRateLimited,
-            retryAfterSeconds: retryAfterSeconds,
-            onRetry: cubit.retryLoadCategory,
-          ),
-      ProductListingLoaded() =>
-          _LoadedView(state: state, cubit: cubit, scrollController: _scrollController),
+        _ErrorState(
+          message: message,
+          isRateLimited: isRateLimited,
+          retryAfterSeconds: retryAfterSeconds,
+          onRetry: cubit.retryLoadCategory,
+        ),
+      ProductListingLoaded() => _LoadedView(
+        state: state,
+        cubit: cubit,
+        scrollController: _scrollController,
+      ),
       _ => const SizedBox.shrink(),
     };
   }
@@ -178,52 +178,62 @@ class _LoadedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final products = state.filteredProducts;
 
-    return CustomScrollView(
-      controller: scrollController,
-      slivers: [
-        if (state.isStaleData)
-          SliverToBoxAdapter(child: _StaleDataBanner(cachedTimeAgo: state.cachedTimeAgo))
-        else if (state.isCachedData)
-          SliverToBoxAdapter(child: _CachedDataBanner(cachedTimeAgo: state.cachedTimeAgo)),
-
-        SliverToBoxAdapter(
-          child: ListingResultsBar(
-            count: products.length,
-            viewMode: state.viewMode,
-            onToggleView: cubit.toggleViewMode,
-          ),
-        ),
-
-        if (products.isEmpty)
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: _EmptyProductsState(
-              hasActiveFilters: _hasActiveFilters,
-              onClearFilters: cubit.clearFilters,
+    return RefreshIndicator(
+      color: colors.brand,
+      backgroundColor: colors.surface,
+      onRefresh: () => cubit.retryLoadCategory(),
+      child: CustomScrollView(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          if (state.isStaleData)
+            SliverToBoxAdapter(
+              child: _StaleDataBanner(cachedTimeAgo: state.cachedTimeAgo),
+            )
+          else if (state.isCachedData)
+            SliverToBoxAdapter(
+              child: _CachedDataBanner(cachedTimeAgo: state.cachedTimeAgo),
             ),
-          )
-        else if (state.viewMode == ViewMode.grid)
-          _ProductsSliverGrid(products: products)
-        else
-          _ProductsSliverList(products: products),
 
-        // Load-more spinner shown while the next page fetches.
-        if (state.isLoadingMore)
           SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 2.h),
-              child: const Center(child: CircularProgressIndicator()),
+            child: ListingResultsBar(
+              count: products.length,
+              viewMode: state.viewMode,
+              onToggleView: cubit.toggleViewMode,
             ),
           ),
 
-        SliverToBoxAdapter(child: SizedBox(height: 3.h)),
-      ],
+          if (products.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _EmptyProductsState(
+                hasActiveFilters: _hasActiveFilters,
+                onClearFilters: cubit.clearFilters,
+              ),
+            )
+          else if (state.viewMode == ViewMode.grid)
+            _ProductsSliverGrid(products: products)
+          else
+            _ProductsSliverList(products: products),
+
+          // Load-more spinner shown while the next page fetches.
+          if (state.isLoadingMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 2.h),
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+            ),
+
+          SliverToBoxAdapter(child: SizedBox(height: 3.h)),
+        ],
+      ),
     );
   }
 }
-
 
 class _CachedDataBanner extends StatelessWidget {
   final String? cachedTimeAgo;
@@ -289,7 +299,11 @@ class _StaleDataBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, size: 16.sp, color: colors.statusWarning),
+          Icon(
+            Icons.warning_amber_rounded,
+            size: 16.sp,
+            color: colors.statusWarning,
+          ),
           SizedBox(width: 2.w),
           Expanded(
             child: Text(
@@ -325,7 +339,7 @@ class _ProductsSliverGrid extends StatelessWidget {
           childAspectRatio: 0.62,
         ),
         delegate: SliverChildBuilderDelegate(
-              (context, index) => _ListingCard(product: products[index]),
+          (context, index) => _ListingCard(product: products[index]),
           childCount: products.length,
         ),
       ),
@@ -344,7 +358,7 @@ class _ProductsSliverList extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 4.w),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
-              (context, index) => Padding(
+          (context, index) => Padding(
             padding: EdgeInsets.only(bottom: 2.h),
             child: SizedBox(
               height: 18.h,
@@ -519,10 +533,7 @@ class _ErrorStateState extends State<_ErrorState>
 
               SizedBox(height: 3.5.h),
 
-              _RetryButton(
-                canRetry: canRetry,
-                onRetry: widget.onRetry,
-              ),
+              _RetryButton(canRetry: canRetry, onRetry: widget.onRetry),
 
               SizedBox(height: 2.h),
 
@@ -640,11 +651,7 @@ class _MessageCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.hourglass_bottom,
-                    size: 16.sp,
-                    color: accentColor,
-                  ),
+                  Icon(Icons.hourglass_bottom, size: 16.sp, color: accentColor),
                   SizedBox(width: 1.5.w),
                   Text(
                     AppStrings.retryInSeconds(remainingSeconds),
@@ -782,8 +789,10 @@ class _EmptyProductsState extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  padding:
-                  EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.2.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 6.w,
+                    vertical: 1.2.h,
+                  ),
                 ),
                 child: const Text(AppStrings.clearFilters),
               ),

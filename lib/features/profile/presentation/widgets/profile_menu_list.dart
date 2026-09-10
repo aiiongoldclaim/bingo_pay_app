@@ -4,6 +4,35 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'profile_metrics.dart';
 
+class ProfileSectionHeading extends StatelessWidget {
+  const ProfileSectionHeading({super.key, required this.metrics, required this.label});
+
+  final ProfileMetrics metrics;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.c;
+    final m = metrics;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: m.pageHPad),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          label,
+          style: AppTextStyles.titleMedium.copyWith(
+            color: colors.textPrimary,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: m.sectionHeadingSize,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class ProfileMenuList extends StatelessWidget {
   final List<ProfileMenuItem> items;
   final void Function(ProfileMenuItem) onTap;

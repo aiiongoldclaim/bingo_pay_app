@@ -18,7 +18,7 @@
 //       context: context,
 //       barrierDismissible: false,
 //       builder: (dialogContext) {
-//         final c = dialogContext.c;
+//         final colors = dialogContext.c;
 //
 //         return Dialog(
 //           backgroundColor: Theme.of(dialogContext).scaffoldBackgroundColor,
@@ -42,13 +42,13 @@
 //                     width: m.iconCircle * 1.3,
 //                     height: m.iconCircle * 1.3,
 //                     decoration: BoxDecoration(
-//                       color: c.statusSuccessSoft,
+//                       color: colors.statusSuccessSoft,
 //                       shape: BoxShape.circle,
 //                     ),
 //                     child: Icon(
 //                       Icons.check_rounded,
 //                       size: m.iconCircle * 0.62,
-//                       color: c.statusSuccess,
+//                       color: colors.statusSuccess,
 //                     ),
 //                   ),
 //                   SizedBox(height: m.rowGap * 1.2),
@@ -58,7 +58,7 @@
 //                     style: TextStyle(
 //                       fontSize: m.sectionTitleSize * 1.15,
 //                       fontWeight: FontWeight.w700,
-//                       color: c.textPrimary,
+//                       color: colors.textPrimary,
 //                     ),
 //                   ),
 //                   SizedBox(height: m.rowGap * 0.5),
@@ -69,7 +69,7 @@
 //                       fontSize: m.bodySize,
 //                       fontWeight: FontWeight.w400,
 //                       height: 1.45,
-//                       color: c.textSecondary,
+//                       color: colors.textSecondary,
 //                     ),
 //                   ),
 //                   SizedBox(height: m.sectionGap * 0.9),
@@ -79,7 +79,7 @@
 //                     child: ElevatedButton(
 //                       onPressed: () => Navigator.of(dialogContext).pop(),
 //                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: c.brand,
+//                         backgroundColor: colors.brand,
 //                         foregroundColor: ThemeColors.white,
 //                         elevation: 0,
 //                         minimumSize: Size.zero,

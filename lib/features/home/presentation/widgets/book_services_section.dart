@@ -33,7 +33,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     if (services.isEmpty) return const SizedBox.shrink();
-//     final c = context.c;
+//     final colors = context.c;
 //     final m = metrics;
 //
 //     final visible = services.take(maxTiles).toList();
@@ -42,9 +42,9 @@
 //     return Container(
 //       padding: EdgeInsets.all(m.pagePadding),
 //       decoration: BoxDecoration(
-//         color: c.servicesBg,
+//         color: colors.servicesBg,
 //         borderRadius: BorderRadius.circular(m.heroRadius * 0.75),
-//         border: c.isDark ? Border.all(color: c.border) : null,
+//         border: colors.isDark ? Border.all(color: colors.border) : null,
 //       ),
 //       child: LayoutBuilder(
 //         builder: (context, constraints) {
@@ -104,7 +104,7 @@
 //                         fontWeight: FontWeight.w700,
 //                         letterSpacing: 0.3,
 //                         height: 1.2,
-//                         color: c.brand,
+//                         color: colors.brand,
 //                       ),
 //                     ),
 //                     SizedBox(height: m.pagePadding * 0.3),
@@ -115,7 +115,7 @@
 //                       style: TextStyle(
 //                         fontSize: m.serviceLabelSize * 1.1,
 //                         height: 1.3,
-//                         color: c.textSecondary,
+//                         color: colors.textSecondary,
 //                       ),
 //                     ),
 //                     SizedBox(height: m.pagePadding * 0.6),
@@ -124,7 +124,7 @@
 //                       child: ElevatedButton(
 //                         onPressed: onBookNow,
 //                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: c.brand,
+//                           backgroundColor: colors.brand,
 //                           foregroundColor: Colors.white,
 //                           elevation: 0,
 //                           minimumSize: Size.zero,
@@ -199,7 +199,7 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 //     final m = metrics;
 //
 //     return InkWell(
@@ -212,9 +212,9 @@
 //           horizontal: 2,
 //         ),
 //         decoration: BoxDecoration(
-//           color: c.surface,
+//           color: colors.surface,
 //           borderRadius: BorderRadius.circular(8),
-//           border: Border.all(color: c.border),
+//           border: Border.all(color: colors.border),
 //         ),
 //         child: Column(
 //           mainAxisSize: MainAxisSize.min,
@@ -227,7 +227,7 @@
 //                   ? Icon(
 //                       fallbackIcon,
 //                       size: m.serviceIconSize,
-//                       color: c.textPrimary,
+//                       color: colors.textPrimary,
 //                     )
 //                   : ClipRRect(
 //                       borderRadius: BorderRadius.circular(4),
@@ -237,7 +237,7 @@
 //                         errorBuilder: (_, __, ___) => Icon(
 //                           fallbackIcon,
 //                           size: m.serviceIconSize,
-//                           color: c.textPrimary,
+//                           color: colors.textPrimary,
 //                         ),
 //                       ),
 //                     ),
@@ -252,7 +252,7 @@
 //                 fontSize: m.serviceLabelSize,
 //                 fontWeight: FontWeight.w500,
 //                 height: 1.1,
-//                 color: c.textPrimary,
+//                 color: colors.textPrimary,
 //               ),
 //             ),
 //           ],

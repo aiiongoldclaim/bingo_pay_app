@@ -309,14 +309,14 @@ class CustomBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = BottomNavMetrics.of(context);
-    final c = context.c;
+    final colors = context.c;
     final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: c.navBackground,
+        color: colors.navBackground,
         border: Border(
-          top: BorderSide(color: c.border, width: m.topBorderWidth),
+          top: BorderSide(color: colors.border, width: m.topBorderWidth),
         ),
       ),
       child: SafeArea(
@@ -367,9 +367,9 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
-    final color = selected ? c.navSelected : c.navUnselected;
+    final color = selected ? colors.navSelected : colors.navUnselected;
 
     return Expanded(
       child: InkResponse(
@@ -427,16 +427,16 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Container(
       width: metrics.badgeSize,
       height: metrics.badgeSize,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: c.navSelected,
+        color: colors.navSelected,
         shape: BoxShape.circle,
-        border: Border.all(color: c.navBackground, width: 1.5),
+        border: Border.all(color: colors.navBackground, width: 1.5),
       ),
       child: Text(
         count > 99 ? '99+' : '$count',

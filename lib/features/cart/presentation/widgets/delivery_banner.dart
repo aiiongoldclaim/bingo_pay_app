@@ -1,35 +1,3 @@
-// import 'package:flutter/material.dart';
-//
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// class FreeDeliveryBanner extends StatelessWidget {
-//   const FreeDeliveryBanner({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.all(14),
-//       decoration: BoxDecoration(
-//         color: ThemeColors.greenSoft,
-//         borderRadius: BorderRadius.circular(14),
-//       ),
-//       child: Row(
-//         children: [
-//           Icon(Icons.local_shipping_outlined, color: ThemeColors.green),
-//           SizedBox(width: 10),
-//           Expanded(
-//             child: Text(
-//               "You've unlocked free delivery on this order",
-//               style: AppTextStyles.labelLarge.copyWith(
-//                 color: ThemeColors.green,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -42,15 +10,15 @@ class FreeDeliveryBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = CartMetrics.of(context);
 
     return Container(
       padding: EdgeInsets.all(m.bannerPad),
       decoration: BoxDecoration(
-        color: c.brandSoft,
+        color: colors.brandSoft,
         borderRadius: BorderRadius.circular(m.bannerRadius),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -59,14 +27,14 @@ class FreeDeliveryBanner extends StatelessWidget {
             width: m.bannerIconBox,
             height: m.bannerIconBox,
             decoration: BoxDecoration(
-              color: c.surface.withValues(alpha: c.isDark ? 0.08 : 0.7),
+              color: colors.surface.withValues(alpha: colors.isDark ? 0.08 : 0.7),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Icon(
               Icons.local_shipping_outlined,
               size: m.bannerIconSize,
-              color: c.brand,
+              color: colors.brand,
             ),
           ),
 
@@ -82,7 +50,7 @@ class FreeDeliveryBanner extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.bannerTitleSize,
@@ -95,7 +63,7 @@ class FreeDeliveryBanner extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.bannerSubSize,
                     height: 1.25,
@@ -107,8 +75,8 @@ class FreeDeliveryBanner extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: 0.72,
                     minHeight: m.progressHeight,
-                    backgroundColor: c.border,
-                    valueColor: AlwaysStoppedAnimation(c.brand),
+                    backgroundColor: colors.border,
+                    valueColor: AlwaysStoppedAnimation(colors.brand),
                   ),
                 ),
               ],

@@ -17,7 +17,7 @@ class BookingAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
     final address = booking.address;
 
@@ -46,13 +46,13 @@ class BookingAddressCard extends StatelessWidget {
             width: m.addressIconBox,
             height: m.addressIconBox,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               borderRadius:
                   BorderRadius.circular(m.addressIconRadius),
             ),
             child: Icon(
               Icons.location_on_outlined,
-              color: c.brand,
+              color: colors.brand,
               size: m.addressIconSize,
             ),
           ),
@@ -67,7 +67,7 @@ class BookingAddressCard extends StatelessWidget {
                       ? address.fullName
                       : AppStrings.addressFallback,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: m.addressNameSize,
                     fontWeight: FontWeight.w700,
@@ -79,7 +79,7 @@ class BookingAddressCard extends StatelessWidget {
                       ? addressParts.join(', ')
                       : '-',
                   style: TextStyle(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.addressLineSize,
                     height: 1.4,
@@ -90,7 +90,7 @@ class BookingAddressCard extends StatelessWidget {
                   Text(
                     formatBookingPhone(address.phone),
                     style: TextStyle(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.addressPhoneSize,
                     ),

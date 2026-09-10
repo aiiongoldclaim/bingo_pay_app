@@ -28,12 +28,12 @@ class BookingDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return RefreshIndicator(
-      color: c.brand,
-      backgroundColor: c.surface,
+      color: colors.brand,
+      backgroundColor: colors.surface,
       onRefresh: () {
         return context.read<BookingCubit>().fetchBookingDetails(booking.uuid);
       },

@@ -23,7 +23,7 @@ class OdAddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -31,9 +31,9 @@ class OdAddressCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(m.cardPadding),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,13 +43,13 @@ class OdAddressCard extends StatelessWidget {
               height: m.addressIconBadge,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.location_on_outlined,
                 size: m.addressIconSize,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
             SizedBox(width: m.cardPadding * 0.7),
@@ -64,7 +64,7 @@ class OdAddressCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.addressNameSize,
                         fontWeight: FontWeight.w700,
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                       ),
                     ),
                     SizedBox(height: m.cardPadding * 0.3),
@@ -74,7 +74,7 @@ class OdAddressCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.addressBodySize,
                       height: 1.45,
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                     ),
                   ),
                   if ((phone ?? '').isNotEmpty) ...[
@@ -84,7 +84,7 @@ class OdAddressCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.addressBodySize,
                         height: 1.45,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ],
@@ -102,7 +102,7 @@ class OdAddressCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.ctaFontSize,
                       fontWeight: FontWeight.w600,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ),
                 ),

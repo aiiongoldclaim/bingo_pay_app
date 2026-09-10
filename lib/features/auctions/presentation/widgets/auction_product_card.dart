@@ -304,7 +304,7 @@ class AuctionProductCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 14.sp,
+                              fontSize: 15.sp,
                               fontWeight: FontWeight.w700,
                               color: colors.textPrimary,
                             ),
@@ -314,7 +314,7 @@ class AuctionProductCard extends StatelessWidget {
                           '${auction.bidCount} '
                           '${auction.bidCount == 1 ? 'bid' : 'bids'}',
                           style: TextStyle(
-                            fontSize: 10.sp,
+                            fontSize: 11.sp,
                             color: colors.textMuted,
                           ),
                         ),
@@ -328,7 +328,7 @@ class AuctionProductCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 11.sp,
+                          fontSize: 12.sp,
                           color: colors.textSecondary,
                         ),
                       ),
@@ -341,14 +341,14 @@ class AuctionProductCard extends StatelessWidget {
                           ? 'Current Bid'
                           : 'Starting Price',
                       style: TextStyle(
-                        fontSize: 10.sp,
+                        fontSize: 11.sp,
                         color: colors.textSecondary,
                       ),
                     ),
                     Text(
                       '\$$price',
                       style: TextStyle(
-                        fontSize: 17.sp,
+                        fontSize: 18.sp,
                         fontWeight: FontWeight.w800,
                         color: colors.brand,
                       ),
@@ -360,14 +360,14 @@ class AuctionProductCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.schedule_rounded,
-                          size: 12.sp,
+                          size: 13.sp,
                           color: colors.textMuted,
                         ),
                         SizedBox(width: 0.77.w),
                         Text(
                           'Closes in',
                           style: TextStyle(
-                            fontSize: 10.sp,
+                            fontSize: 11.sp,
                             color: colors.textMuted,
                           ),
                         ),
@@ -493,7 +493,7 @@ class _LiveCountdownTextState extends State<_LiveCountdownText> {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 10.sp,
+        fontSize: 11.sp,
         fontWeight: FontWeight.w600,
         color: colors.brand,
       ),

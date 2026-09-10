@@ -63,8 +63,8 @@ class CategoriesGrid extends StatelessWidget {
     // something is missing — shrinking to nothing here would leave the
     // "Categories" header sitting above blank space with no explanation.
     if (categories.isEmpty) {
-      final c = context.c;
-      return _EmptyCategoriesMessage(metrics: metrics, color: c.textSecondary);
+      final colors = context.c;
+      return _EmptyCategoriesMessage(metrics: metrics, color: colors.textSecondary);
     }
 
     final m = metrics;

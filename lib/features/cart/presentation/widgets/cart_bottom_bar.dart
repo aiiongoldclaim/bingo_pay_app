@@ -1,80 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-//
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// import '../../../../core/widgets/app_button.dart';
-// import '../../../payment/presentation/screens/payment_screen.dart';
-// import '../cubit/cart_cubit.dart';
-// import '../cubit/cart_state.dart';
-//
-// class CartBottomBar extends StatelessWidget {
-//   const CartBottomBar({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocBuilder<CartCubit, CartState>(
-//       builder: (context, state) {
-//         final totalStr = '\$${state.totalAmount.toStringAsFixed(0)}';
-//         // final totalStr = '\$${500}';
-//
-//         return Container(
-//           padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-//           decoration: BoxDecoration(
-//             color: Colors.white,
-//             boxShadow: [
-//               BoxShadow(
-//                 color: Colors.black.withValues(alpha: 0.08),
-//                 blurRadius: 16,
-//                 offset: const Offset(0, -3),
-//               ),
-//             ],
-//           ),
-//           child: SafeArea(
-//             top: false,
-//             child: Row(
-//               children: [
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       Text('Payable',
-//                           style: AppTextStyles.bodyMedium
-//                               .copyWith(color: ThemeColors.inkMid)),
-//                       Text(totalStr,
-//                           style: AppTextStyles.headlineMedium
-//                               .copyWith(color: const Color(0xFF1A1D4E))),
-//                     ],
-//                   ),
-//                 ),
-//                 Expanded(
-//                   flex: 2,
-//                   child: AppButton(
-//                     label: 'Checkout',
-//                     onPressed: state.items.isEmpty
-//                         ? null
-//                         : () => Navigator.push(
-//                               context,
-//                               MaterialPageRoute(
-//                                 builder: (_) => PaymentScreen(
-//                                   cartItems: state.items,
-//                                   isCart: true,
-//                                   productName:
-//                                       'Cart (${state.totalItems} items)',
-//                                 ),
-//                               ),
-//                             ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -82,6 +5,7 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../payment/presentation/screens/payment_args.dart';
 
 import '../../domain/entities/cart_item_entity.dart';
@@ -101,7 +25,7 @@ class CartBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = CartMetrics.of(context);
 
     return Container(
@@ -112,8 +36,8 @@ class CartBottomBar extends StatelessWidget {
         m.gapSm * 0.5,
       ),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border, width: 1)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
       ),
       child: SafeArea(
         top: false,
@@ -123,7 +47,7 @@ class CartBottomBar extends StatelessWidget {
   }
 }
 
-/// Portrait bottom bar + landscape right rail — dono me reuse
+
 class CartPayButton extends StatelessWidget {
   final List<CartItemEntity> items;
   final double total;
@@ -138,7 +62,7 @@ class CartPayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = CartMetrics.of(context);
 
     final totalStr = '\$${total.toStringAsFixed(2)}';
@@ -148,41 +72,24 @@ class CartPayButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
+        AppButton(
+          label: AppStrings.proceedToPay(totalStr),
           height: m.payHeight,
-          child: Material(
-            color: isEnabled ? c.brand : c.border,
-            borderRadius: BorderRadius.circular(12),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: isEnabled
-                  ? () => context.push(
-                      AppRoutes.payment,
-                      extra: PaymentArgs(
-                        vendorEmail: null,
-                        productName: 'Cart ($itemCount items)',
-                        productPrice: 0.0,
-                        variantUuid: null,
-                        quantity: 1,
-                        cartItems: items,
-                        isCart: true,
-                      ),
-                    )
-                  : null,
-              child: Center(
-                child: Text(
-                  AppStrings.proceedToPay(totalStr),
-                  style: AppTextStyles.buttonText.copyWith(
-                    color: isEnabled ? c.surface : c.textMuted,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                    fontSize: m.payFontSize,
-                    letterSpacing: 0.4,
+          fontSize: m.payFontSize,
+          onPressed: isEnabled
+              ? () => context.push(
+                  AppRoutes.payment,
+                  extra: PaymentArgs(
+                    vendorEmail: null,
+                    productName: 'Cart ($itemCount items)',
+                    productPrice: 0.0,
+                    variantUuid: null,
+                    quantity: 1,
+                    cartItems: items,
+                    isCart: true,
                   ),
-                ),
-              ),
-            ),
-          ),
+                )
+              : null,
         ),
 
         SizedBox(height: m.gapSm * 0.7),
@@ -193,7 +100,7 @@ class CartPayButton extends StatelessWidget {
             Icon(
               Icons.lock_outline_rounded,
               size: m.payNoteSize + 3,
-              color: c.textMuted,
+              color: colors.textMuted,
             ),
             SizedBox(width: m.gapXs),
             Flexible(
@@ -202,7 +109,7 @@ class CartPayButton extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: c.textMuted,
+                  color: colors.textMuted,
                   fontFamily: 'Inter',
                   fontSize: m.payNoteSize,
                 ),

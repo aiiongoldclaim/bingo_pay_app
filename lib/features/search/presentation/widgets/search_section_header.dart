@@ -20,7 +20,7 @@ class SearchSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -37,7 +37,7 @@ class SearchSectionHeader extends StatelessWidget {
                 fontSize: m.sectionTitleSize,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.6,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -53,7 +53,7 @@ class SearchSectionHeader extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.viewAllSize,
                         fontWeight: FontWeight.w600,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     ),
                     if (showChevron) ...[
@@ -61,7 +61,7 @@ class SearchSectionHeader extends StatelessWidget {
                       Icon(
                         Icons.chevron_right_rounded,
                         size: m.viewAllSize * 1.5,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                     ],
                   ],
