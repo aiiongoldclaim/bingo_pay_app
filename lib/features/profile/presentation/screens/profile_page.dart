@@ -317,59 +317,57 @@ class _ProfileScreenBody extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: colors.background,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const _ProfileTopBar(),
-              Expanded(
-                child: BlocBuilder<ProfileCubit, ProfileState>(
-                  builder: (context, accountState) {
-                    if (accountState is ProfileInitial ||
-                        accountState is ProfileLoading) {
-                      return AppShimmer(
-                        backgroundColor: colors.background,
-                        child: const ProfileShimmerContent(),
-                      );
-                    }
-
-                    if (accountState is ProfileRefreshing) {
-                      return Stack(
-                        children: [
-                          _ProfileLoadedContent(profile: accountState.profile),
-                          Positioned.fill(
-                            child: IgnorePointer(
-                              child: AppShimmer(
-                                backgroundColor: colors.background,
-                                child: const ProfileShimmerContent(),
-                              ),
+        body: Column(
+          children: [
+            const _ProfileTopBar(),
+            Expanded(
+              child: BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, accountState) {
+                  if (accountState is ProfileInitial ||
+                      accountState is ProfileLoading) {
+                    return AppShimmer(
+                      backgroundColor: colors.background,
+                      child: const ProfileShimmerContent(),
+                    );
+                  }
+        
+                  if (accountState is ProfileRefreshing) {
+                    return Stack(
+                      children: [
+                        _ProfileLoadedContent(profile: accountState.profile),
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: AppShimmer(
+                              backgroundColor: colors.background,
+                              child: const ProfileShimmerContent(),
                             ),
                           ),
-                        ],
-                      );
-                    }
-
-                    if (accountState is ProfileError) {
-                      return ProfileErrorView(
-                        message: accountState.message,
-                        onRetry: () {
-                          context.read<ProfileCubit>().loadProfile();
-                          context.read<MembershipCubit>().load();
-                        },
-                      );
-                    }
-
-                    if (accountState is ProfileLoaded) {
-                      return _ProfileLoadedContent(
-                        profile: accountState.profile,
-                      );
-                    }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
+                        ),
+                      ],
+                    );
+                  }
+        
+                  if (accountState is ProfileError) {
+                    return ProfileErrorView(
+                      message: accountState.message,
+                      onRetry: () {
+                        context.read<ProfileCubit>().loadProfile();
+                        context.read<MembershipCubit>().load();
+                      },
+                    );
+                  }
+        
+                  if (accountState is ProfileLoaded) {
+                    return _ProfileLoadedContent(
+                      profile: accountState.profile,
+                    );
+                  }
+        
+                  return const SizedBox.shrink();
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -392,60 +390,64 @@ class _ProfileTopBar extends StatelessWidget {
           end: Alignment.bottomCenter,
         ),
       ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          m.appBarHPad,
-          m.appBarVPad,
-          m.appBarHPad,
-          m.appBarVPad,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Profile',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: colors.textPrimary,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: m.titleSize - 6,
-                      height: 1.1,
+      child: SafeArea(
+        top: true,
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            m.appBarHPad,
+            m.appBarVPad,
+            m.appBarHPad,
+            m.appBarVPad,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Profile',
+                      style: AppTextStyles.headlineMedium.copyWith(
+                        color: colors.textPrimary,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: m.titleSize - 6,
+                        height: 1.1,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: m.gapXs * 0.6),
-                  Text(
-                    'Manage your account and preferences',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: colors.textSecondary,
-                      fontFamily: 'Inter',
-                      fontSize: m.emailSize,
-                      fontWeight: FontWeight.w500,
-                      height: 1.2,
+                    SizedBox(height: m.gapXs * 0.6),
+                    Text(
+                      'Manage your account and preferences',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: colors.textSecondary,
+                        fontFamily: 'Inter',
+                        fontSize: m.emailSize, 
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            SizedBox(width: m.gapSm),
-            _CircleIconButton(
-              icon: Icons.settings,
-              metrics: m,
-              onTap: () => context.push(AppRoutes.buyerSettings),
-            ),
-            SizedBox(width: m.gapSm * 0.7),
-            _CircleIconButton(
-              icon: Icons.notifications_none_outlined,
-              metrics: m,
-              onTap: () => context.push(AppRoutes.buyerNotifications),
-            ),
-          ],
+              SizedBox(width: m.gapSm),
+              _CircleIconButton(
+                icon: Icons.settings,
+                metrics: m,
+                onTap: () => context.push(AppRoutes.buyerSettings),
+              ),
+              SizedBox(width: m.gapSm * 0.7),
+              _CircleIconButton(
+                icon: Icons.notifications_none_outlined,
+                metrics: m,
+                onTap: () => context.push(AppRoutes.buyerNotifications),
+              ),
+            ],
+          ),
         ),
       ),
     );
