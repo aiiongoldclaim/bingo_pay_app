@@ -75,6 +75,7 @@ import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/storage/secure_storage_service.dart';
+import '../../../../core/utils/logger.dart' as log;
 import '../models/user_model.dart';
 
 abstract interface class AuthLocalDataSource {
@@ -141,14 +142,44 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     final hasToken = await _secureStorage.hasAccessToken();
 
     if (!hasToken) {
+      log.AppLogger.log(
+        'AuthLocalDataSource.getUser: no access token in secure storage — '
+        'reporting unauthenticated',
+      );
       return null;
     }
 
-    final json = await _secureStorage.read(key: _userKey);
+    var json = await _secureStorage.read(key: _userKey);
 
     if (json == null || json.isEmpty) {
-      // Token exists but cached user is missing.
-      // Clear stale authentication state.
+      // Not in secure storage — check for a legacy copy written by an
+      // older app version that cached the user in SharedPreferences.
+      // If found, migrate it into secure storage instead of treating a
+      // valid token with no *migrated* cache as a stale session; that
+      // used to wipe out still-good tokens on the first launch after
+      // the storage location changed.
+      final legacyJson = _prefs.getString(_userKey);
+
+      if (legacyJson != null && legacyJson.isNotEmpty) {
+        log.AppLogger.log(
+          'AuthLocalDataSource.getUser: migrating cached_user from legacy '
+          'SharedPreferences into secure storage',
+        );
+        await _secureStorage.write(key: _userKey, value: legacyJson);
+        await _prefs.remove(_userKey);
+        json = legacyJson;
+      }
+    }
+
+    if (json == null || json.isEmpty) {
+      // Token exists but cached user is missing from both the current
+      // and legacy locations. Clear stale authentication state.
+      log.AppLogger.logError(
+        'AuthLocalDataSource.getUser: access token present but cached_user '
+        'missing from secure storage AND legacy SharedPreferences — '
+        'clearing session',
+        null,
+      );
       await _secureStorage.clearAll();
 
       // Also remove legacy plaintext data, if present.
@@ -161,6 +192,11 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       final decoded = jsonDecode(json);
 
       if (decoded is! Map) {
+        log.AppLogger.logError(
+          'AuthLocalDataSource.getUser: cached_user JSON decoded to a '
+          'non-Map (${decoded.runtimeType}) — dropping cache',
+          null,
+        );
         await _secureStorage.delete(key: _userKey);
 
         return null;
@@ -169,13 +205,24 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       final userMap = Map<String, dynamic>.from(decoded);
 
       return UserModel.fromJson(userMap);
-    } on FormatException {
+    } on FormatException catch (e, st) {
       // Cached JSON is corrupted.
+      log.AppLogger.logError(
+        'AuthLocalDataSource.getUser: cached_user JSON is corrupted',
+        e,
+        st,
+      );
       await _secureStorage.delete(key: _userKey);
 
       return null;
-    } on TypeError {
+    } on TypeError catch (e, st) {
       // Cached JSON structure does not match UserModel.
+      log.AppLogger.logError(
+        'AuthLocalDataSource.getUser: cached_user JSON does not match '
+        'UserModel shape',
+        e,
+        st,
+      );
       await _secureStorage.delete(key: _userKey);
 
       return null;
