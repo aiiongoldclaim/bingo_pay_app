@@ -182,9 +182,6 @@ import 'package:sizer/sizer.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
-/// Redesigned Auctions-screen list item: a full-width horizontal row card
-/// (thumbnail left, details right, LIVE badge + live countdown + chevron)
-/// matching the new mockup.
 class AuctionProductCard extends StatelessWidget {
   final AuctionEntity auction;
   final VoidCallback onTap;
@@ -277,7 +274,7 @@ class AuctionProductCard extends StatelessWidget {
                               'LIVE',
                               style: TextStyle(
                                 color: colors.textPrimary,
-                                fontSize: 8.sp,
+                                fontSize: 10.sp,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.3,
                               ),
@@ -314,8 +311,9 @@ class AuctionProductCard extends StatelessWidget {
                           '${auction.bidCount} '
                           '${auction.bidCount == 1 ? 'bid' : 'bids'}',
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: 13.sp,
                             color: colors.textMuted,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -341,8 +339,9 @@ class AuctionProductCard extends StatelessWidget {
                           ? 'Current Bid'
                           : 'Starting Price',
                       style: TextStyle(
-                        fontSize: 11.sp,
+                        fontSize: 13.sp,
                         color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
@@ -358,17 +357,12 @@ class AuctionProductCard extends StatelessWidget {
 
                     Row(
                       children: [
-                        Icon(
-                          Icons.schedule_rounded,
-                          size: 13.sp,
-                          color: colors.textMuted,
-                        ),
-                        SizedBox(width: 0.77.w),
                         Text(
                           'Closes in',
                           style: TextStyle(
-                            fontSize: 11.sp,
+                            fontSize: 13.sp,
                             color: colors.textMuted,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(width: 0.77.w),
@@ -493,8 +487,8 @@ class _LiveCountdownTextState extends State<_LiveCountdownText> {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 11.sp,
-        fontWeight: FontWeight.w600,
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w700,
         color: colors.brand,
       ),
     );

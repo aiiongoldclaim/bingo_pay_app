@@ -138,9 +138,6 @@ import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dar
 import 'auction_section.dart';
 import 'hero_auction_card.dart';
 
-/// Redesigned Auctions-screen content: hero card, then the PLACE A BID /
-/// VIEW MY BIDS buttons (moved out of the hero's info pane so they span
-/// the full width), then the Live/Ending Soon/Upcoming sections.
 class AuctionContent extends StatelessWidget {
   final List<AuctionEntity> liveAuctions;
   final List<AuctionEntity> endingSoonAuctions;
@@ -213,7 +210,7 @@ class AuctionContent extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 2.05.w),
-                            Icon(Icons.arrow_forward_rounded, color: colors.onBrand, size: 17.sp),
+                            Icon(Icons.arrow_forward_ios_rounded, color: colors.onBrand, size: 17.sp),
                           ],
                         ),
                       ),
@@ -249,13 +246,13 @@ class AuctionContent extends StatelessWidget {
                         Text(
                           'VIEW MY BIDS',
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
+                            letterSpacing: 1.2,
                           ),
                         ),
                         SizedBox(width: 2.05.w),
-                        Icon(Icons.arrow_forward_rounded, size: 15.sp),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 15.sp),
                       ],
                     ),
                   ),

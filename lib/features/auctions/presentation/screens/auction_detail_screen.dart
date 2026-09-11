@@ -2779,10 +2779,7 @@ import '../widgets/auction_detail_shimmer.dart';
 class AuctionDetailScreen extends StatefulWidget {
   final String auctionId;
 
-  const AuctionDetailScreen({
-    super.key,
-    required this.auctionId,
-  });
+  const AuctionDetailScreen({super.key, required this.auctionId});
 
   @override
   State<AuctionDetailScreen> createState() => _AuctionDetailScreenState();
@@ -2796,9 +2793,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      context.read<AuctionCubit>().getAuctionDetail(
-            widget.auctionId,
-          );
+      context.read<AuctionCubit>().getAuctionDetail(widget.auctionId);
     });
   }
 
@@ -2808,10 +2803,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: const CustomAppBar(
-        title: 'Auction Details',
-        centerTitle: true,
-      ),
+      appBar: const CustomAppBar(title: 'Auction Details', centerTitle: true),
       body: SafeArea(
         top: false,
         child: BlocBuilder<AuctionCubit, AuctionState>(
@@ -2825,16 +2817,14 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> {
                 message: state.message,
                 onRetry: () {
                   context.read<AuctionCubit>().getAuctionDetail(
-                        widget.auctionId,
-                      );
+                    widget.auctionId,
+                  );
                 },
               );
             }
 
             if (state is AuctionDetailLoaded) {
-              return _AuctionDetailContent(
-                auction: state.auction,
-              );
+              return _AuctionDetailContent(auction: state.auction);
             }
 
             return const AuctionDetailShimmer();
@@ -2845,88 +2835,11 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// INTERIM — a custom header (back, serif title, wishlist heart / share
-// commented out) used in place of an app bar, kept for reference. Per
-// follow-up request, this screen now uses the shared CustomAppBar instead
-// (see AuctionDetailScreen.build() above).
-// ─────────────────────────────────────────────────────────────────────────
-//
-// class _DetailHeader extends StatelessWidget {
-//   const _DetailHeader({
-//     required this.auctionUuid,
-//     required this.onShare,
-//   });
-//
-//   final String auctionUuid;
-//   final VoidCallback onShare;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final colors = context.colors;
-//
-//     return Padding(
-//       padding: EdgeInsets.fromLTRB(2.56.w, 1.42.h, 2.56.w, 0.71.h),
-//       child: Row(
-//         children: [
-//           _HeaderIconButton(
-//             icon: Icons.arrow_back_ios_new_rounded,
-//             onTap: () => Navigator.of(context).maybePop(),
-//           ),
-//           Expanded(
-//             child: Text(
-//               'Auction Details',
-//               textAlign: TextAlign.center,
-//               style: TextStyle(
-//                 fontFamily: AppTextStyles.fontDisplay,
-//                 fontSize: 20.sp,
-//                 fontWeight: FontWeight.w600,
-//                 color: colors.textPrimary,
-//               ),
-//             ),
-//           ),
-//           // HeroWishlistButton(auctionUuid: auctionUuid),
-//           // SizedBox(width: 1.79.w),
-//           // _HeaderIconButton(
-//           //   icon: Icons.ios_share_rounded,
-//           //   onTap: onShare,
-//           // ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-// class _HeaderIconButton extends StatelessWidget {
-//   const _HeaderIconButton({
-//     required this.icon,
-//     required this.onTap,
-//   });
-//
-//   final IconData icon;
-//   final VoidCallback onTap;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final colors = context.colors;
-//
-//     return GestureDetector(
-//       onTap: onTap,
-//       child: Icon(
-//         icon,
-//         size: 17.sp,
-//         color: colors.textPrimary,
-//       ),
-//     );
-//   }
-// }
 
 class _AuctionDetailContent extends StatelessWidget {
   final AuctionDetailEntity auction;
 
-  const _AuctionDetailContent({
-    required this.auction,
-  });
+  const _AuctionDetailContent({required this.auction});
 
   @override
   Widget build(BuildContext context) {
@@ -2936,49 +2849,31 @@ class _AuctionDetailContent extends StatelessWidget {
       color: colors.brand,
       backgroundColor: colors.surface,
       onRefresh: () async {
-        await context.read<AuctionCubit>().getAuctionDetail(
-              auction.uuid,
-            );
+        await context.read<AuctionCubit>().getAuctionDetail(auction.uuid);
       },
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(
-          4.1.w,
-          0.95.h,
-          4.1.w,
-          5.92.h,
-        ),
+        padding: EdgeInsets.fromLTRB(4.1.w, 0.95.h, 4.1.w, 5.92.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            _HeroSection(
-              auction: auction,
-            ),
+            _HeroSection(auction: auction),
 
             SizedBox(height: 2.84.h),
 
-            _BidPanel(
-              auction: auction,
-            ),
+            _BidPanel(auction: auction),
 
             SizedBox(height: 3.32.h),
 
-            _ModernBidActivitySection(
-              auction: auction,
-            ),
+            _ModernBidActivitySection(auction: auction),
 
             SizedBox(height: 3.32.h),
 
-            _ModernAuctionDetailsSection(
-              auction: auction,
-            ),
+            _ModernAuctionDetailsSection(auction: auction),
 
             SizedBox(height: 3.32.h),
 
-            _ModernAboutSection(
-              auction: auction,
-            ),
+            _ModernAboutSection(auction: auction),
 
             SizedBox(height: 2.84.h),
 
@@ -2990,13 +2885,10 @@ class _AuctionDetailContent extends StatelessWidget {
   }
 }
 
-
 class _HeroSection extends StatefulWidget {
   final AuctionDetailEntity auction;
 
-  const _HeroSection({
-    required this.auction,
-  });
+  const _HeroSection({required this.auction});
 
   @override
   State<_HeroSection> createState() => _HeroSectionState();
@@ -3051,12 +2943,8 @@ class _HeroSectionState extends State<_HeroSection> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: _buildImagePane(colors, images, isLive),
-                ),
-                Expanded(
-                  child: _buildInfoPane(colors, auction, category),
-                ),
+                Expanded(child: _buildImagePane(colors, images, isLive)),
+                Expanded(child: _buildInfoPane(colors, auction, category)),
               ],
             ),
           ),
@@ -3113,93 +3001,97 @@ class _HeroSectionState extends State<_HeroSection> {
     List<String> images,
     bool isLive,
   ) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        images.isEmpty
-            ? _imagePlaceholder(colors)
-            : PageView.builder(
-                controller: _pageController,
-                itemCount: images.length,
-                onPageChanged: (index) {
-                  setState(() => _currentIndex = index);
-                },
-                itemBuilder: (context, index) {
-                  return Image.network(
-                    images[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _imagePlaceholder(colors),
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
 
-                      return Center(
-                        child: CircularProgressIndicator(color: colors.brand),
-                      );
-                    },
-                  );
-                },
-              ),
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          images.isEmpty
+              ? _imagePlaceholder(colors)
+              : PageView.builder(
+                  controller: _pageController,
+                  itemCount: images.length,
+                  onPageChanged: (index) {
+                    setState(() => _currentIndex = index);
+                  },
+                  itemBuilder: (context, index) {
+                    return Image.network(
+                      images[index],
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _imagePlaceholder(colors),
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
 
-        if (isLive)
-          Positioned(
-            top: 1.42.h,
-            left: 2.56.w,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 2.05.w,
-                vertical: 0.71.h,
-              ),
-              decoration: BoxDecoration(
-                color: colors.brand,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.local_fire_department_rounded,
-                    size: 11.sp,
-                    color: colors.onBrand,
-                  ),
-                  SizedBox(width: 1.03.w),
-                  Text(
-                    'LIVE AUCTION',
-                    style: TextStyle(
+                        return Center(
+                          child: CircularProgressIndicator(color: colors.brand),
+                        );
+                      },
+                    );
+                  },
+                ),
+
+          if (isLive)
+            Positioned(
+              top: 1.42.h,
+              left: 2.56.w,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 2.05.w,
+                  vertical: 0.71.h,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.brand,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.local_fire_department_rounded,
+                      size: 11.sp,
                       color: colors.onBrand,
-                      fontSize: 8.5.sp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.4,
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-        if (images.length > 1)
-          Positioned(
-            top: 1.42.h,
-            right: 2.56.w,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 1.79.w,
-                vertical: 0.47.h,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                '${_currentIndex + 1}/${images.length}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w700,
+                    SizedBox(width: 1.03.w),
+                    Text(
+                      'LIVE AUCTION',
+                      style: TextStyle(
+                        color: colors.onBrand,
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-      ],
+
+          if (images.length > 1)
+            Positioned(
+              top: 1.42.h,
+              right: 2.56.w,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 1.79.w,
+                  vertical: 0.47.h,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_currentIndex + 1}/${images.length}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -3216,14 +3108,14 @@ class _HeroSectionState extends State<_HeroSection> {
       padding: EdgeInsets.all(3.85.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (category.isNotEmpty)
             Text(
               category.toUpperCase(),
               style: TextStyle(
                 color: colors.textSecondary,
-                fontSize: 10.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.1,
               ),
@@ -3232,7 +3124,7 @@ class _HeroSectionState extends State<_HeroSection> {
           SizedBox(height: 0.71.h),
 
           Text(
-            auction.title,
+            auction.title.toUpperCase(),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -3249,10 +3141,7 @@ class _HeroSectionState extends State<_HeroSection> {
               itemName,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: colors.textSecondary,
-                fontSize: 12.sp,
-              ),
+              style: TextStyle(color: colors.textSecondary, fontSize: 14.sp),
             ),
           ],
 
@@ -3305,11 +3194,7 @@ class _HeroSectionState extends State<_HeroSection> {
     return Container(
       color: colors.surfaceAlt,
       child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          size: 32.sp,
-          color: colors.textMuted,
-        ),
+        child: Icon(Icons.image_outlined, size: 32.sp, color: colors.textMuted),
       ),
     );
   }
@@ -3318,19 +3203,14 @@ class _HeroSectionState extends State<_HeroSection> {
 class _InfoChip extends StatelessWidget {
   final String text;
 
-  const _InfoChip({
-    required this.text,
-  });
+  const _InfoChip({required this.text});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 2.31.w,
-        vertical: 0.6.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 2.31.w, vertical: 0.6.h),
       decoration: BoxDecoration(
         color: colors.brandSoft,
         borderRadius: BorderRadius.circular(8),
@@ -3339,7 +3219,7 @@ class _InfoChip extends StatelessWidget {
         text,
         style: TextStyle(
           color: colors.brand,
-          fontSize: 10.sp,
+          fontSize: 13.sp,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -3347,16 +3227,11 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-/// White "Current Bid" panel: current bid + countdown tiles, a branded
-/// bid-amount box, PLACE A BID gradient button and a VIEW MY BIDS button.
-/// The bid-placing logic (validation, cubit calls, snackbars) is unchanged
-/// from the original _BidPanel — only the visuals are redesigned.
+
 class _BidPanel extends StatefulWidget {
   final AuctionDetailEntity auction;
 
-  const _BidPanel({
-    required this.auction,
-  });
+  const _BidPanel({required this.auction});
 
   @override
   State<_BidPanel> createState() => _BidPanelState();
@@ -3373,9 +3248,7 @@ class _BidPanelState extends State<_BidPanel> {
   void initState() {
     super.initState();
 
-    _bidController = TextEditingController(
-      text: widget.auction.minimumNextBid,
-    );
+    _bidController = TextEditingController(text: widget.auction.minimumNextBid);
   }
 
   @override
@@ -3411,8 +3284,7 @@ class _BidPanelState extends State<_BidPanel> {
           return false;
         }
 
-        final previousState =
-            previous is AuctionDetailLoaded ? previous : null;
+        final previousState = previous is AuctionDetailLoaded ? previous : null;
 
         return previousState?.placedBid != current.placedBid ||
             previousState?.placeBidError != current.placeBidError;
@@ -3424,7 +3296,9 @@ class _BidPanelState extends State<_BidPanel> {
 
         final error = state.placeBidError;
 
-        if (error != null && error.isNotEmpty && error != _lastHandledBidError) {
+        if (error != null &&
+            error.isNotEmpty &&
+            error != _lastHandledBidError) {
           _lastHandledBidError = error;
 
           ScaffoldMessenger.of(context)
@@ -3447,9 +3321,7 @@ class _BidPanelState extends State<_BidPanel> {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              const SnackBar(
-                content: Text('Bid placed successfully'),
-              ),
+              const SnackBar(content: Text('Bid placed successfully')),
             );
 
           if (placedBid.minimumNextBid.trim().isNotEmpty) {
@@ -3469,8 +3341,9 @@ class _BidPanelState extends State<_BidPanel> {
       builder: (context, state) {
         final colors = context.colors;
 
-        final isPlacingBid =
-            state is AuctionDetailLoaded ? state.isPlacingBid : false;
+        final isPlacingBid = state is AuctionDetailLoaded
+            ? state.isPlacingBid
+            : false;
 
         final canBid = isLive && isEligible;
 
@@ -3507,16 +3380,16 @@ class _BidPanelState extends State<_BidPanel> {
                         'Current Bid',
                         style: TextStyle(
                           color: colors.textSecondary,
-                          fontSize: 11.sp,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 0.47.h),
+                      SizedBox(height: 0.1.h),
                       Text(
                         '${auction.currency} $currentBid',
                         style: TextStyle(
                           color: colors.brand,
-                          fontSize: 25.sp,
+                          fontSize: 23.sp,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -3526,7 +3399,7 @@ class _BidPanelState extends State<_BidPanel> {
                         '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
                         style: TextStyle(
                           color: colors.textMuted,
-                          fontSize: 11.sp,
+                          fontSize: 13.sp,
                         ),
                       ),
                     ],
@@ -3545,7 +3418,7 @@ class _BidPanelState extends State<_BidPanel> {
                         children: [
                           Icon(
                             Icons.schedule_rounded,
-                            size: 12.sp,
+                            size: 14.sp,
                             color: colors.textSecondary,
                           ),
                           SizedBox(width: 1.03.w),
@@ -3553,7 +3426,7 @@ class _BidPanelState extends State<_BidPanel> {
                             'Auction closes in',
                             style: TextStyle(
                               color: colors.textSecondary,
-                              fontSize: 10.5.sp,
+                              fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -3618,7 +3491,7 @@ class _BidPanelState extends State<_BidPanel> {
                             'Next valid bid',
                             style: TextStyle(
                               color: colors.textSecondary,
-                              fontSize: 10.5.sp,
+                              fontSize: 13.sp,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -3635,14 +3508,14 @@ class _BidPanelState extends State<_BidPanel> {
                         ],
                       ),
                     ),
-                    SizedBox(width: 2.05.w),
+                    SizedBox(width: 2.w),
                     Text(
                       'Minimum bid is\n'
                       '${auction.currency} ${auction.minimumNextBid}',
                       textAlign: TextAlign.right,
                       style: TextStyle(
                         color: colors.textSecondary,
-                        fontSize: 10.sp,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         height: 1.3,
                       ),
@@ -3656,10 +3529,7 @@ class _BidPanelState extends State<_BidPanel> {
                 Text(
                   'Bid must be at least '
                   '${auction.currency} ${auction.minimumNextBid}',
-                  style: TextStyle(
-                    color: colors.error,
-                    fontSize: 10.sp,
-                  ),
+                  style: TextStyle(color: colors.error, fontSize: 10.sp),
                 ),
               ],
 
@@ -3789,10 +3659,7 @@ class _BidPanelState extends State<_BidPanel> {
     await cubit.getAuctionDetail(auction.uuid);
   }
 
-  void _placeBid(
-    BuildContext context,
-    AuctionDetailEntity auction,
-  ) {
+  void _placeBid(BuildContext context, AuctionDetailEntity auction) {
     final amount = _bidController.text.trim();
 
     if (amount.isEmpty) {
@@ -3827,19 +3694,16 @@ class _BidPanelState extends State<_BidPanel> {
     }
 
     context.read<AuctionCubit>().placeBid(
-          auctionId: auction.uuid,
-          amount: amount,
-        );
+      auctionId: auction.uuid,
+      amount: amount,
+    );
   }
 
   void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: context.colors.error,
-        ),
+        SnackBar(content: Text(message), backgroundColor: context.colors.error),
       );
   }
 }
@@ -3890,8 +3754,10 @@ class _BidAmountFieldState extends State<_BidAmountField> {
   }
 
   double _toNumber(String value) {
-    final cleaned =
-        value.replaceAll(',', '').replaceAll(widget.currency, '').trim();
+    final cleaned = value
+        .replaceAll(',', '')
+        .replaceAll(widget.currency, '')
+        .trim();
 
     return double.tryParse(cleaned) ?? 0;
   }
@@ -3900,8 +3766,7 @@ class _BidAmountFieldState extends State<_BidAmountField> {
     final minimum = _toNumber(widget.minimumValue);
     final entered = _toNumber(widget.controller.text);
 
-    final hasError =
-        widget.controller.text.trim().isEmpty || entered < minimum;
+    final hasError = widget.controller.text.trim().isEmpty || entered < minimum;
 
     if (_hasError != hasError && mounted) {
       setState(() => _hasError = hasError);
@@ -3948,15 +3813,10 @@ class _BidAmountFieldState extends State<_BidAmountField> {
   }
 }
 
-/// Boxed DAY / HRS / MIN / SEC countdown tiles for the Current Bid panel.
-/// Tiles are content-sized (no fixed .w width) so they never overflow the
-/// narrower "closes in" column when placed beside the Current Bid column.
 class _DetailCountdown extends StatefulWidget {
   final int secondsRemaining;
 
-  const _DetailCountdown({
-    required this.secondsRemaining,
-  });
+  const _DetailCountdown({required this.secondsRemaining});
 
   @override
   State<_DetailCountdown> createState() => _DetailCountdownState();
@@ -4034,10 +3894,7 @@ class _CountdownBox extends StatelessWidget {
   final int value;
   final String label;
 
-  const _CountdownBox({
-    required this.value,
-    required this.label,
-  });
+  const _CountdownBox({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -4058,7 +3915,7 @@ class _CountdownBox extends StatelessWidget {
               value.toString().padLeft(2, '0'),
               style: TextStyle(
                 color: colors.textPrimary,
-                fontSize: 13.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -4069,8 +3926,9 @@ class _CountdownBox extends StatelessWidget {
               label,
               style: TextStyle(
                 color: colors.textMuted,
-                fontSize: 6.5.sp,
+                fontSize: 10.sp,
                 letterSpacing: 0.4,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
@@ -4083,9 +3941,7 @@ class _CountdownBox extends StatelessWidget {
 class _ModernAboutSection extends StatelessWidget {
   final AuctionDetailEntity auction;
 
-  const _ModernAboutSection({
-    required this.auction,
-  });
+  const _ModernAboutSection({required this.auction});
 
   @override
   Widget build(BuildContext context) {
@@ -4109,7 +3965,11 @@ class _ModernAboutSection extends StatelessWidget {
           padding: EdgeInsets.all(4.62.w),
           decoration: BoxDecoration(
             color: colors.surface,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: colors.border,
+              width: 1,
+            ),
             boxShadow: colors.isDark
                 ? null
                 : [
@@ -4128,7 +3988,7 @@ class _ModernAboutSection extends StatelessWidget {
                   itemName,
                   style: TextStyle(
                     color: colors.textPrimary,
-                    fontSize: 16.sp,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.w700,
                     height: 1.35,
                   ),
@@ -4159,10 +4019,7 @@ class _ModernAboutSection extends StatelessWidget {
                       text: auction.listingLevel,
                     ),
                   if (auction.type.isNotEmpty)
-                    _ModernChip(
-                      icon: Icons.sell_outlined,
-                      text: auction.type,
-                    ),
+                    _ModernChip(icon: Icons.sell_outlined, text: auction.type),
                   _ModernChip(
                     icon: Icons.visibility_outlined,
                     text: '${auction.viewCount} views',
@@ -4180,9 +4037,7 @@ class _ModernAboutSection extends StatelessWidget {
 class _ModernBidActivitySection extends StatelessWidget {
   final AuctionDetailEntity auction;
 
-  const _ModernBidActivitySection({
-    required this.auction,
-  });
+  const _ModernBidActivitySection({required this.auction});
 
   @override
   Widget build(BuildContext context) {
@@ -4288,8 +4143,17 @@ class _ModernBidItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(4.1.w, 1.54.h, 4.1.w, 1.54.h),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 3.5.w,
+        vertical: 2.2.h,
+      ),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(
+        color: colors.brandSoft,
+        width: 1,
+      ),),
       child: Row(
         children: [
           Container(
@@ -4340,11 +4204,12 @@ class _ModernBidItem extends StatelessWidget {
                           color: colors.brandSoft,
                           borderRadius: BorderRadius.circular(6),
                         ),
+
                         child: Text(
                           'LEADING',
                           style: TextStyle(
                             color: colors.brand,
-                            fontSize: 10.sp,
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w800,
                             letterSpacing: .4,
                           ),
@@ -4358,10 +4223,7 @@ class _ModernBidItem extends StatelessWidget {
 
                 Text(
                   _date(),
-                  style: TextStyle(
-                    color: colors.textMuted,
-                    fontSize: 11.5.sp,
-                  ),
+                  style: TextStyle(color: colors.textMuted, fontSize: 12.5.sp),
                 ),
               ],
             ),
@@ -4387,7 +4249,7 @@ class _ModernBidItem extends StatelessWidget {
                 isLeading ? 'CURRENT' : 'BID',
                 style: TextStyle(
                   color: colors.textMuted,
-                  fontSize: 10.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.w800,
                   letterSpacing: .8,
                 ),
@@ -4441,9 +4303,7 @@ class _ModernBidItem extends StatelessWidget {
 class _ModernAuctionDetailsSection extends StatelessWidget {
   final AuctionDetailEntity auction;
 
-  const _ModernAuctionDetailsSection({
-    required this.auction,
-  });
+  const _ModernAuctionDetailsSection({required this.auction});
 
   @override
   Widget build(BuildContext context) {
@@ -4576,9 +4436,7 @@ class _AuctionDetailItem {
 class _AuctionDetailTile extends StatelessWidget {
   final _AuctionDetailItem item;
 
-  const _AuctionDetailTile({
-    required this.item,
-  });
+  const _AuctionDetailTile({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -4599,11 +4457,7 @@ class _AuctionDetailTile extends StatelessWidget {
               color: colors.brandSoft,
               borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(
-              item.icon,
-              size: 15.sp,
-              color: colors.brand,
-            ),
+            child: Icon(item.icon, size: 17.sp, color: colors.brand),
           ),
 
           SizedBox(width: 2.05.w),
@@ -4619,7 +4473,7 @@ class _AuctionDetailTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colors.textMuted,
-                    fontSize: 12.5.sp,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -4632,7 +4486,7 @@ class _AuctionDetailTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colors.textPrimary,
-                    fontSize: 11.5.sp,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -4662,67 +4516,84 @@ class _ModernSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Row(
-      children: [
-        Container(
-          width: 8.72.w,
-          height: 8.72.w,
-          decoration: BoxDecoration(
-            color: colors.brandSoft,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            icon,
-            size: 17.sp,
-            color: colors.brand,
-          ),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 3.5.w,
+        vertical: 2.2.h,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colors.border,
+          width: 1,
         ),
-
-        SizedBox(width: 2.56.w),
-
-        Text(
-          title,
-          style: TextStyle(
-            color: colors.textPrimary,
-            fontSize: 17.sp,
-            fontWeight: FontWeight.w800,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
+      ),
 
-        const Spacer(),
+      child: Row(
+        children: [
+          Container(
+            width: 8.72.w,
+            height: 8.72.w,
+            decoration: BoxDecoration(
+              color: colors.brandSoft,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 17.sp, color: colors.brand),
+          ),
 
-        if (trailing != null)
+          SizedBox(width: 2.56.w),
+
           Text(
-            trailing!,
+            title,
             style: TextStyle(
-              color: colors.textSecondary,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+              color: colors.textPrimary,
+              fontSize: 17.sp,
+              fontWeight: FontWeight.w800,
             ),
           ),
 
-        if (showViewAll) ...[
-          SizedBox(width: 1.79.w),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'View all',
-                style: TextStyle(
-                  color: colors.brand,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w700,
+          const Spacer(),
+
+          if (trailing != null)
+            Text(
+              trailing!,
+              style: TextStyle(
+                color: colors.textSecondary,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+
+          if (showViewAll) ...[
+            SizedBox(width: 1.79.w),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'View all',
+                  style: TextStyle(
+                    color: colors.brand,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colors.brand,
-                size: 16.sp,
-              ),
-            ],
-          ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: colors.brand,
+                  size: 16.sp,
+                ),
+              ],
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -4731,10 +4602,7 @@ class _ModernChip extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _ModernChip({
-    required this.icon,
-    required this.text,
-  });
+  const _ModernChip({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -4749,11 +4617,7 @@ class _ModernChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 13.sp,
-            color: colors.textSecondary,
-          ),
+          Icon(icon, size: 13.sp, color: colors.textSecondary),
 
           SizedBox(width: 1.28.w),
 
@@ -4761,7 +4625,7 @@ class _ModernChip extends StatelessWidget {
             text,
             style: TextStyle(
               color: colors.textSecondary,
-              fontSize: 11.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -4814,10 +4678,7 @@ class _ModernErrorCard extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _ModernErrorCard({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ModernErrorCard({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -4891,9 +4752,7 @@ class _ModernErrorCard extends StatelessWidget {
 class _ModernEmptyBidCard extends StatelessWidget {
   final int bidCount;
 
-  const _ModernEmptyBidCard({
-    required this.bidCount,
-  });
+  const _ModernEmptyBidCard({required this.bidCount});
 
   @override
   Widget build(BuildContext context) {
@@ -4915,10 +4774,7 @@ class _ModernEmptyBidCard extends StatelessWidget {
               color: colors.surfaceAlt,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.gavel_outlined,
-              color: colors.textSecondary,
-            ),
+            child: Icon(Icons.gavel_outlined, color: colors.textSecondary),
           ),
 
           SizedBox(height: 1.42.h),
@@ -5017,10 +4873,7 @@ class _ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _ErrorView({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorView({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -5062,10 +4915,7 @@ class _ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: colors.textSecondary,
-                height: 1.4,
-              ),
+              style: TextStyle(color: colors.textSecondary, height: 1.4),
             ),
 
             SizedBox(height: 2.37.h),
@@ -5083,9 +4933,7 @@ class _ErrorView extends StatelessWidget {
               ),
               child: const Text(
                 'Retry',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
             ),
           ],

@@ -1387,18 +1387,12 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuctionCubit>().getMyBids(
-            take: 20,
-            skip: 0,
-          );
+      context.read<AuctionCubit>().getMyBids(take: 20, skip: 0);
     });
   }
 
   Future<void> _refresh() async {
-    await context.read<AuctionCubit>().getMyBids(
-          take: 20,
-          skip: 0,
-        );
+    await context.read<AuctionCubit>().getMyBids(take: 20, skip: 0);
   }
 
   @override
@@ -1407,10 +1401,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: const CustomAppBar(
-        title: 'My Bids',
-        centerTitle: true,
-      ),
+      appBar: const CustomAppBar(title: 'My Bids', centerTitle: true),
       body: SafeArea(
         top: false,
         child: BlocBuilder<AuctionCubit, AuctionState>(
@@ -1449,10 +1440,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
       children: [
         Text(
           'Every auction you have bid on, and where you stand in each.',
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: colors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 13.5.sp, color: colors.textSecondary),
         ),
 
         SizedBox(height: 2.13.h),
@@ -1564,7 +1552,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
                 child: Text(
                   '$filter ($count)',
                   style: TextStyle(
-                    fontSize: 12.5.sp,
+                    fontSize: 13.5.sp,
                     fontWeight: FontWeight.w700,
                     color: selected ? colors.onBrand : colors.textSecondary,
                   ),
@@ -1577,9 +1565,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  List<MyBidItemEntity> _filterItems(
-    List<MyBidItemEntity> items,
-  ) {
+  List<MyBidItemEntity> _filterItems(List<MyBidItemEntity> items) {
     switch (_selectedFilter) {
       case 'Active':
         return items.where(_isActive).toList();
@@ -1616,8 +1602,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
   bool _isWon(MyBidItemEntity item) {
     final myStatus = item.myStatus.trim().toLowerCase();
     final auctionStatus = item.status.trim().toLowerCase();
-    final allotmentStatus =
-        item.allotment?.status.trim().toLowerCase() ?? '';
+    final allotmentStatus = item.allotment?.status.trim().toLowerCase() ?? '';
 
     // Explicit winning statuses
     final hasWonStatus =
@@ -1646,9 +1631,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         auctionStatus.contains('ended') ||
         auctionStatus.contains('completed');
 
-    return hasWonStatus ||
-        hasWonAllotment ||
-        (hasAllotment && auctionEnded);
+    return hasWonStatus || hasWonAllotment || (hasAllotment && auctionEnded);
   }
 
   bool _isActive(MyBidItemEntity item) {
@@ -1678,23 +1661,16 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         Text(
           'Select a row for the full bidding history, who won, and any payment owed.',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 11.sp,
-            color: colors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 12.5.sp, color: colors.textSecondary),
         ),
       ],
     );
   }
 
   void _payNow(MyBidItemEntity item) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Payment for ${item.title}',
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Payment for ${item.title}')));
   }
 
   void _showDetails(MyBidItemEntity item) {
@@ -1703,9 +1679,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) {
-        return _BidDetailsSheet(
-          bid: item,
-        );
+        return _BidDetailsSheet(bid: item);
       },
     );
   }
@@ -1714,24 +1688,15 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     final colors = context.colors;
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 5.w,
-        vertical: 6.9.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 6.9.h),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colors.border,
-        ),
+        border: Border.all(color: colors.border),
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.gavel_outlined,
-            size: 44.sp,
-            color: colors.textMuted,
-          ),
+          Icon(Icons.gavel_outlined, size: 44.sp, color: colors.textMuted),
           SizedBox(height: 1.75.h),
           Text(
             _selectedFilter == 'All'
@@ -1739,7 +1704,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
                 : 'No $_selectedFilter bids',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 17.sp,
+              fontSize: 18.sp,
               fontWeight: FontWeight.w700,
               color: colors.textPrimary,
             ),
@@ -1748,10 +1713,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
           Text(
             'Your bids will appear here.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: colors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 13.sp, color: colors.textSecondary),
           ),
         ],
       ),
@@ -1769,20 +1731,14 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 24),
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.25,
-          ),
-          Icon(
-            Icons.error_outline_rounded,
-            size: 55.sp,
-            color: colors.error,
-          ),
+          SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+          Icon(Icons.error_outline_rounded, size: 55.sp, color: colors.error),
           SizedBox(height: 2.25.h),
           Text(
             'Something went wrong',
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 19.sp,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               color: colors.textPrimary,
             ),
@@ -1792,7 +1748,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
             message,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: 14.sp,
               height: 1.5,
               color: colors.textSecondary,
             ),
@@ -1805,20 +1761,14 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
                 backgroundColor: colors.brand,
                 foregroundColor: colors.onBrand,
                 elevation: 0,
-                padding: EdgeInsets.symmetric(
-                  horizontal: 7.w,
-                  vertical: 1.6.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 1.6.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
                 'Try Again',
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -1827,7 +1777,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 }
-
 
 class _SummaryCard extends StatelessWidget {
   final IconData icon;
@@ -1873,7 +1822,7 @@ class _SummaryCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 12.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w600,
               color: colors.textSecondary,
             ),
@@ -1882,7 +1831,7 @@ class _SummaryCard extends StatelessWidget {
           Text(
             value.toString(),
             style: TextStyle(
-              fontSize: 23.sp,
+              fontSize: 24.sp,
               fontWeight: FontWeight.w800,
               color: colors.textPrimary,
             ),
@@ -1915,7 +1864,8 @@ class _Standing {
     final isPayment =
         normalized.contains('payment') || normalized.contains('due');
 
-    final isLost = normalized.contains('lost') ||
+    final isLost =
+        normalized.contains('lost') ||
         normalized.contains('outbid') ||
         normalized.contains('lose');
 
@@ -1978,9 +1928,7 @@ class _Standing {
 class _StandingBadge extends StatelessWidget {
   final String status;
 
-  const _StandingBadge({
-    required this.status,
-  });
+  const _StandingBadge({required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -2007,7 +1955,6 @@ class _StandingBadge extends StatelessWidget {
   }
 }
 
-
 class _MyBidCard extends StatelessWidget {
   final MyBidItemEntity bid;
   final VoidCallback? onPayNow;
@@ -2028,12 +1975,15 @@ class _MyBidCard extends StatelessWidget {
     final current = bid.finalBid ?? bid.currentBid;
     final isLive = bid.status.toUpperCase() == 'LIVE';
 
-    final imageUrl =
-        bid.images != null && bid.images!.isNotEmpty ? bid.images!.first : null;
+    final imageUrl = bid.images != null && bid.images!.isNotEmpty
+        ? bid.images!.first
+        : null;
 
     final tag = [
-      if (bid.vendor?.shopName.trim().isNotEmpty == true) bid.vendor!.shopName.trim(),
-      if (bid.category?.name.trim().isNotEmpty == true) bid.category!.name.trim(),
+      if (bid.vendor?.shopName.trim().isNotEmpty == true)
+        bid.vendor!.shopName.trim(),
+      if (bid.category?.name.trim().isNotEmpty == true)
+        bid.category!.name.trim(),
     ].join('  |  ');
 
     return Material(
@@ -2070,7 +2020,8 @@ class _MyBidCard extends StatelessWidget {
                           ? Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _imagePlaceholder(colors),
+                              errorBuilder: (_, __, ___) =>
+                                  _imagePlaceholder(colors),
                             )
                           : _imagePlaceholder(colors),
 
@@ -2110,7 +2061,7 @@ class _MyBidCard extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontSize: 16.sp,
+                                      fontSize: 17.sp,
                                       fontWeight: FontWeight.w700,
                                       color: colors.textPrimary,
                                     ),
@@ -2121,7 +2072,7 @@ class _MyBidCard extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontSize: 11.sp,
+                                      fontSize: 12.5.sp,
                                       color: colors.textMuted,
                                     ),
                                   ),
@@ -2149,7 +2100,7 @@ class _MyBidCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    fontSize: 12.sp,
+                                    fontSize: 13.sp,
                                     color: colors.textSecondary,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -2203,16 +2154,18 @@ class _MyBidCard extends StatelessWidget {
                                   ),
                                   SizedBox(width: 1.03.w),
                                   Expanded(
-                                    child: isLive && bid.secondsRemaining != null
+                                    child:
+                                        isLive && bid.secondsRemaining != null
                                         ? _EndsInText(
-                                            secondsRemaining: bid.secondsRemaining!,
+                                            secondsRemaining:
+                                                bid.secondsRemaining!,
                                           )
                                         : Text(
                                             'Ended on ${_formatEndedOn(bid.endAt)}',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              fontSize: 11.5.sp,
+                                              fontSize: 13.sp,
                                               color: colors.textSecondary,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -2243,11 +2196,7 @@ class _MyBidCard extends StatelessWidget {
     return Container(
       color: colors.surfaceAlt,
       child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          size: 22.sp,
-          color: colors.textMuted,
-        ),
+        child: Icon(Icons.image_outlined, size: 22.sp, color: colors.textMuted),
       ),
     );
   }
@@ -2269,8 +2218,18 @@ class _MyBidCard extends StatelessWidget {
       final date = DateTime.parse(value).toLocal();
 
       const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
 
       final hour24 = date.hour;
@@ -2287,15 +2246,11 @@ class _MyBidCard extends StatelessWidget {
   }
 }
 
-
 class _ImageStatusBadge extends StatelessWidget {
   final bool isLive;
   final String status;
 
-  const _ImageStatusBadge({
-    required this.isLive,
-    required this.status,
-  });
+  const _ImageStatusBadge({required this.isLive, required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -2399,7 +2354,8 @@ class _EndsInTextState extends State<_EndsInText> {
     final minutes = duration.inMinutes % 60;
     final seconds = duration.inSeconds % 60;
 
-    final text = 'Ends in ${days}d : '
+    final text =
+        'Ends in ${days}d : '
         '${hours.toString().padLeft(2, '0')}h : '
         '${minutes.toString().padLeft(2, '0')}m : '
         '${seconds.toString().padLeft(2, '0')}s';
@@ -2409,7 +2365,7 @@ class _EndsInTextState extends State<_EndsInText> {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontSize: 11.5.sp,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w600,
         color: colors.brand,
       ),
@@ -2421,10 +2377,7 @@ class _InfoColumn extends StatelessWidget {
   final String title;
   final String value;
 
-  const _InfoColumn({
-    required this.title,
-    required this.value,
-  });
+  const _InfoColumn({required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -2437,10 +2390,7 @@ class _InfoColumn extends StatelessWidget {
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 11.sp,
-            color: colors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 12.5.sp, color: colors.textSecondary),
         ),
         SizedBox(height: 0.36.h),
         Text(
@@ -2448,7 +2398,7 @@ class _InfoColumn extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 15.5.sp,
             fontWeight: FontWeight.w700,
             color: colors.textPrimary,
           ),
@@ -2461,9 +2411,7 @@ class _InfoColumn extends StatelessWidget {
 class _PayButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const _PayButton({
-    required this.onPressed,
-  });
+  const _PayButton({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -2489,12 +2437,16 @@ class _PayButton extends StatelessWidget {
                   'Pay now',
                   style: TextStyle(
                     color: colors.onBrand,
-                    fontSize: 12.5.sp,
+                    fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 SizedBox(width: 1.03.w),
-                Icon(Icons.arrow_forward_rounded, size: 13.sp, color: colors.onBrand),
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 13.sp,
+                  color: colors.onBrand,
+                ),
               ],
             ),
           ),
@@ -2507,9 +2459,7 @@ class _PayButton extends StatelessWidget {
 class _DetailsButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const _DetailsButton({
-    required this.onPressed,
-  });
+  const _DetailsButton({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -2521,19 +2471,14 @@ class _DetailsButton extends StatelessWidget {
         foregroundColor: colors.brand,
         side: BorderSide(color: colors.brand, width: 1.2),
         padding: EdgeInsets.symmetric(horizontal: 3.6.w, vertical: 1.07.h),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'View details',
-            style: TextStyle(
-              fontSize: 12.5.sp,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w700),
           ),
           SizedBox(width: 1.03.w),
           Icon(Icons.arrow_forward_rounded, size: 13.sp),
@@ -2546,9 +2491,7 @@ class _DetailsButton extends StatelessWidget {
 class _BidDetailsSheet extends StatelessWidget {
   final MyBidItemEntity bid;
 
-  const _BidDetailsSheet({
-    required this.bid,
-  });
+  const _BidDetailsSheet({required this.bid});
 
   @override
   Widget build(BuildContext context) {
@@ -2559,9 +2502,7 @@ class _BidDetailsSheet extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(5.w, 1.75.h, 5.w, 3.75.h),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(22),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
       ),
       child: SafeArea(
         child: SingleChildScrollView(
@@ -2584,7 +2525,7 @@ class _BidDetailsSheet extends StatelessWidget {
               Text(
                 bid.title,
                 style: TextStyle(
-                  fontSize: 20.sp,
+                  fontSize: 21.sp,
                   fontWeight: FontWeight.w800,
                   color: colors.textPrimary,
                 ),
@@ -2594,27 +2535,25 @@ class _BidDetailsSheet extends StatelessWidget {
 
               Text(
                 bid.number,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: colors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 13.sp, color: colors.textSecondary),
               ),
 
               SizedBox(height: 2.75.h),
 
-              _DetailItem(
-                title: 'Standing',
-                value: bid.myStatus,
-              ),
+              _DetailItem(title: 'Standing', value: bid.myStatus),
 
               _DetailItem(
                 title: 'Your highest bid',
-                value: bid.myHighestBid == null ? '-' : '$currency${bid.myHighestBid}',
+                value: bid.myHighestBid == null
+                    ? '-'
+                    : '$currency${bid.myHighestBid}',
               ),
 
               _DetailItem(
                 title: 'Current bid',
-                value: bid.currentBid == null ? '-' : '$currency${bid.currentBid}',
+                value: bid.currentBid == null
+                    ? '-'
+                    : '$currency${bid.currentBid}',
               ),
 
               _DetailItem(
@@ -2642,27 +2581,15 @@ class _BidDetailsSheet extends StatelessWidget {
                 value: bid.bidCount.toString(),
               ),
 
-              _DetailItem(
-                title: 'Start',
-                value: _formatDate(bid.startAt),
-              ),
+              _DetailItem(title: 'Start', value: _formatDate(bid.startAt)),
 
-              _DetailItem(
-                title: 'End',
-                value: _formatDate(bid.endAt),
-              ),
+              _DetailItem(title: 'End', value: _formatDate(bid.endAt)),
 
               if (bid.vendor != null)
-                _DetailItem(
-                  title: 'Vendor',
-                  value: bid.vendor!.shopName,
-                ),
+                _DetailItem(title: 'Vendor', value: bid.vendor!.shopName),
 
               if (bid.category != null)
-                _DetailItem(
-                  title: 'Category',
-                  value: bid.category!.name,
-                ),
+                _DetailItem(title: 'Category', value: bid.category!.name),
 
               if (bid.allotment != null) ...[
                 SizedBox(height: 1.h),
@@ -2670,7 +2597,7 @@ class _BidDetailsSheet extends StatelessWidget {
                 Text(
                   'Allotment',
                   style: TextStyle(
-                    fontSize: 16.sp,
+                    fontSize: 17.sp,
                     fontWeight: FontWeight.w800,
                     color: colors.textPrimary,
                   ),
@@ -2678,10 +2605,7 @@ class _BidDetailsSheet extends StatelessWidget {
 
                 SizedBox(height: 1.25.h),
 
-                _DetailItem(
-                  title: 'Status',
-                  value: bid.allotment!.status,
-                ),
+                _DetailItem(title: 'Status', value: bid.allotment!.status),
 
                 _DetailItem(
                   title: 'Amount',
@@ -2728,10 +2652,7 @@ class _DetailItem extends StatelessWidget {
   final String title;
   final String value;
 
-  const _DetailItem({
-    required this.title,
-    required this.value,
-  });
+  const _DetailItem({required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -2745,10 +2666,7 @@ class _DetailItem extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 13.sp,
-                color: colors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 14.5.sp, color: colors.textSecondary),
             ),
           ),
           SizedBox(width: 3.8.w),
@@ -2757,7 +2675,7 @@ class _DetailItem extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 14.5.sp,
                 fontWeight: FontWeight.w700,
                 color: colors.textPrimary,
               ),

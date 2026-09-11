@@ -3,9 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../cubit/services_cubit.dart';
 import '../cubit/services_state.dart';
+import '../widgets/all_services_shimmer.dart';
 import '../widgets/service_card.dart';
 
 class AllServicesScreen extends StatefulWidget {
@@ -44,17 +48,17 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return BlocProvider<ServicesCubit>.value(
       value: _servicesCubit,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colors.background,
         appBar: const CustomAppBar(title: 'All Services'),
         body: BlocBuilder<ServicesCubit, ServicesState>(
           builder: (context, state) {
             if (state.status == ServicesStatus.loading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const AllServicesShimmer();
             }
 
             if (state.status == ServicesStatus.error) {
@@ -65,12 +69,15 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
                     Icon(
                       Icons.error_outline,
                       size: 15.w,
-                      color: Colors.grey,
+                      color: colors.textMuted,
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       'Failed to load services',
-                      style: TextStyle(fontSize: 16.sp),
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: colors.textPrimary,
+                      ),
                     ),
                     SizedBox(height: 1.h),
                     Text(
@@ -78,15 +85,16 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.grey,
+                        color: colors.textSecondary,
                       ),
                     ),
                     SizedBox(height: 2.h),
-                    ElevatedButton(
+                   AppButton(
                       onPressed: () {
                         _servicesCubit.loadAllServices();
                       },
-                      child: const Text('Retry'),
+                       label: 'Retry',
+
                     ),
                   ],
                 ),
@@ -97,7 +105,7 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
               return Center(
                 child: Text(
                   'No services available',
-                  style: TextStyle(fontSize: 16.sp),
+                  style: TextStyle(fontSize: 16.sp, color: colors.textPrimary),
                 ),
               );
             }
@@ -111,13 +119,12 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
                 mainAxisSpacing: 2.h,
                 childAspectRatio: 0.78,
               ),
-              itemCount: state.services.length +
-                  (state.hasMorePages ? 1 : 0),
+              itemCount: state.services.length + (state.hasMorePages ? 1 : 0),
               itemBuilder: (context, index) {
                 // Loading indicator at the end
                 if (index >= state.services.length) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Center(
+                    child: CircularProgressIndicator(color: colors.brand),
                   );
                 }
 
@@ -127,7 +134,7 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
                   service: service,
                   onTap: () {
                     context.push(
-                      '/service-detail/${service.uuid}',
+                      AppRoutes.serviceDetailPath(service.uuid),
                       extra: service,
                     );
                   },

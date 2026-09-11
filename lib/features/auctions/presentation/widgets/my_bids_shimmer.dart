@@ -4,8 +4,7 @@ import 'package:sizer/sizer.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/core/widgets/app_shimmer.dart';
 
-/// Loading skeleton for the My Bids screen — mirrors the subtitle, the
-/// four summary cards, the filter chips, and a few bid cards.
+
 class MyBidsShimmer extends StatelessWidget {
   const MyBidsShimmer({super.key});
 

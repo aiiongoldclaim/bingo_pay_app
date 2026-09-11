@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
@@ -18,7 +19,6 @@ import '../cubit/dashboard_state.dart';
 import '../widgets/home_banner_data.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_shimmer.dart';
-
 
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../services/presentation/cubit/services_state.dart';
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late ScrollController _scrollController;
   bool _introStarted = false;
 
-   int _selectedTabIndex = 0;
+  int _selectedTabIndex = 0;
 
   final Set<String> _addingIds = {};
 
@@ -73,22 +73,19 @@ class _HomeScreenState extends State<HomeScreen> {
         if (hasShownIntro) {
           return;
         }
-        Future.delayed(
-          const Duration(milliseconds: 500),
-          () {
-            if (!mounted) {
-              return;
-            }
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (!mounted) {
+            return;
+          }
 
-            try {
-              controller.start(context);
-              prefs.setBool('hasShownHomeIntro', true);
-            } catch (e) {
-              debugPrint('Intro start error: $e');
-              _introStarted = false;
-            }
-          },
-        );
+          try {
+            controller.start(context);
+            prefs.setBool('hasShownHomeIntro', true);
+          } catch (e) {
+            debugPrint('Intro start error: $e');
+            _introStarted = false;
+          }
+        });
       });
     });
   }
@@ -100,244 +97,258 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return BlocProvider(
       create: (_) => getIt<ServicesCubit>()..loadServices(),
-  child: Scaffold(
-      backgroundColor: colors.background,
-      body: SafeArea(
-        bottom: false,
 
-        child: BlocBuilder<HomeCubit, HomeState>(
-          builder: (context, state) {
-            if (state.status == HomeStatus.loading) {
-              return const HomeShimmer();
-            }
+      child: Scaffold(
+        backgroundColor: colors.background,
+        body: SafeArea(
+          bottom: false,
 
-            if (state.status == HomeStatus.error) {
-              return _HomeErrorState(
-                metrics: m,
-                message: state.errorMessage,
-              );
-            }
+          child: BlocBuilder<HomeCubit, HomeState>(
+            builder: (context, state) {
+              if (state.status == HomeStatus.loading) {
+                return const HomeShimmer();
+              }
 
-            _startIntroIfReady(state);
+              if (state.status == HomeStatus.error) {
+                return _HomeErrorState(metrics: m, message: state.errorMessage);
+              }
 
-            return RefreshIndicator(
-              color: colors.brand,
-              backgroundColor: colors.surface,
-              onRefresh: () async {
-                context.read<HomeCubit>().loadHome();
-              },
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      // ── Header ──────────────────────────────
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: m.pagePadding,
-                          ),
-                          child: _buildStep1(
-                            BlocBuilder<CartCubit, CartState>(
-                              buildWhen: (a, b) => a.totalItems != b.totalItems,
-                              builder: (context, cartState) => HomeHeader(
-                                metrics: m,
-                                brandName: AppStrings.appBrandName,
-                                cartCount: cartState.totalItems,
-                                onMenuTap: () {
-                                  context.push(AppRoutes.auctionScreen);
-                                },
-                                onWishlistTap: () =>
-                                    context.push(AppRoutes.buyerWishlist),
-                                onCartTap: () => context.push(AppRoutes.cart),
+              _startIntroIfReady(state);
+
+              return RefreshIndicator(
+                color: colors.brand,
+                backgroundColor: colors.surface,
+                onRefresh: () async {
+                  context.read<HomeCubit>().loadHome();
+                },
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        // ── Header ──────────────────────────────
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: m.pagePadding,
+                            ),
+                            child: _buildStep1(
+                              BlocBuilder<CartCubit, CartState>(
+                                buildWhen: (a, b) =>
+                                    a.totalItems != b.totalItems,
+                                builder: (context, cartState) => HomeHeader(
+                                  metrics: m,
+                                  brandName: AppStrings.appBrandName,
+                                  cartCount: cartState.totalItems,
+                                  onMenuTap: () {
+                                    context.push(AppRoutes.auctionScreen);
+                                  },
+                                  onWishlistTap: () =>
+                                      context.push(AppRoutes.buyerWishlist),
+                                  onCartTap: () => context.push(AppRoutes.cart),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
 
-                      SliverToBoxAdapter(
-                        child: SizedBox(height: m.pagePadding * 0.6),
-                      ),
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: m.pagePadding * 0.6),
+                        ),
 
-                      // ── Search + wallet ─────────────────────
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: m.pagePadding,
-                          ),
-                          child: _buildStep3(
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: HomeSearchField(
-                                    metrics: m,
-                                    hintText: AppStrings.searchHint,
-                                    onTap: () => context.push(AppRoutes.search),
+                        // ── Search + wallet ─────────────────────
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: m.pagePadding,
+                            ),
+                            child: _buildStep3(
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: HomeSearchField(
+                                      metrics: m,
+                                      hintText: AppStrings.searchHint,
+                                      onTap: () =>
+                                          context.push(AppRoutes.search),
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: m.pagePadding * 0.5),
-                                HomeWalletChip(
-                                  metrics: m,
-                                  balanceLabel: state.compactBigoldBalance,
-                                  onTap: () => context.push(AppRoutes.wallet),
-                                ),
-                              ],
+                                  SizedBox(width: m.pagePadding * 0.5),
+                                  HomeWalletChip(
+                                    metrics: m,
+                                    balanceLabel: state.compactBigoldBalance,
+                                    onTap: () => context.push(AppRoutes.wallet),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
 
-                      SliverToBoxAdapter(
-                        child: SizedBox(height: m.pagePadding * 0.6),
-                      ),
-
-                      // ── Category tabs ───────────────────────
-                      if (state.categories.isNotEmpty)
                         SliverToBoxAdapter(
-                          child: HomeCategoryTabs(
-                            metrics: m,
-                            labels: [
-                              AppStrings.allTab,
-                              ...state.categories.map((e) => e.name),
-                            ],
-                            selectedIndex: _selectedTabIndex,
-                            onSelected: (i) {
-                              if (i == 0) {
-                                setState(() => _selectedTabIndex = 0);
-                                return;
-                              }
-
-                              final category = state.categories[i - 1];
-
-                              context.push(
-                                AppRoutes.productListingPath(category.name),
-                                extra: category.uuid,
-                              );
-                            },
-                          ),
+                          child: SizedBox(height: m.pagePadding * 0.6),
                         ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
+                        // ── Category tabs ───────────────────────
+                        if (state.categories.isNotEmpty)
+                          SliverToBoxAdapter(
+                            child: HomeCategoryTabs(
+                              metrics: m,
+                              labels: [
+                                AppStrings.allTab,
+                                ...state.categories.map((e) => e.name),
+                              ],
+                              selectedIndex: _selectedTabIndex,
+                              onSelected: (i) {
+                                if (i == 0) {
+                                  setState(() => _selectedTabIndex = 0);
+                                  return;
+                                }
 
-                      // ── Hero banner ─────────────────────────
-                      SliverToBoxAdapter(
-                        child: _buildStep2(
-                          PromoBannerCarousel(
-                            metrics: m,
-                            banners: HomeBanners.defaults,
-                            onBannerTap: (banner) {},
-                          ),
-                        ),
-                      ),
+                                final category = state.categories[i - 1];
 
-                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
-                          child: _buildStep4(
-                            BlocBuilder<ServicesCubit, ServicesState>(
-                              buildWhen: (previous, current) =>
-                              previous.services != current.services,
-                              builder: (context, servicesState) {
-                                return BookServicesSection(
-                                  metrics: m,
-                                  title: AppStrings.bookService,
-                                  subtitle: AppStrings.bookServiceSubtitle,
-                                  buttonText: AppStrings.bookNow,
-                                  services: servicesState.services,
-                                  onViewAll: () => context.push(AppRoutes.services),
-                                  onServiceTap: (service) {
-                                    if (service.uuid.isEmpty) return;
-                                    context.push(AppRoutes.serviceDetailPath(service.uuid));
-                                  },
+                                context.push(
+                                  AppRoutes.productListingPath(category.name),
+                                  extra: category.uuid,
                                 );
                               },
                             ),
                           ),
-                        ),
-                      ),
 
-                      SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-
-                      // ── Flash Deals / Recommended / Empty ────
-                      if (state.flashDeals.isEmpty && state.recommended.isEmpty)
                         SliverToBoxAdapter(
-                          child: _EmptyProductsState(metrics: m),
-                        )
-                      else ...[
-                        if (state.flashDeals.isNotEmpty) ...[
-                          SliverToBoxAdapter(
-                            child: _buildStep5(
-                              ProductRail(
-                                metrics: m,
-                                title: AppStrings.todaysDeals,
-                                actionText: AppStrings.viewAll,
-                                products: state.flashDeals,
-                                onActionTap: () =>
-                                    context.push(AppRoutes.allProducts),
-                                onProductTap: (p) {
-                                  if (p.uuid == null) return;
-                                  context.push(
-                                    AppRoutes.productDetails,
-                                    extra: p.uuid,
-                                  );
-                                },
-                                onWishlistTap: _toggleWishlist,
-                                onAddToCart: _addToCart,
-                                addingIds: _addingIds,
-                              ),
-                            ),
-                          ),
-                          SliverToBoxAdapter(
-                            child: SizedBox(height: m.sectionGap),
-                          ),
-                        ],
-                        if (state.recommended.isNotEmpty) ...[
-                          SliverToBoxAdapter(
-                            child: _buildStep6(
-                              ProductRail(
-                                metrics: m,
-                                title: AppStrings.recommendedForYou,
-                                actionText: AppStrings.viewAll,
-                                products: state.recommended,
-                                onActionTap: () =>
-                                    context.push(AppRoutes.allProducts),
-                                onProductTap: (p) {
-                                  if (p.uuid == null) return;
-                                  context.push(
-                                    AppRoutes.productDetails,
-                                    extra: p.uuid,
-                                  );
-                                },
-                                onWishlistTap: _toggleWishlist,
-                                onAddToCart: _addToCart,
-                                addingIds: _addingIds,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                      SliverToBoxAdapter(
-                        child: SizedBox(
-                          height:
-                              m.sectionGap +
-                              MediaQuery.paddingOf(context).bottom,
+                          child: SizedBox(height: m.sectionGap),
                         ),
-                      ),
-                    ],
+
+                        // ── Hero banner ─────────────────────────
+                        SliverToBoxAdapter(
+                          child: _buildStep2(
+                            PromoBannerCarousel(
+                              metrics: m,
+                              banners: HomeBanners.defaults,
+                              onBannerTap: (banner) {},
+                            ),
+                          ),
+                        ),
+
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: m.sectionGap),
+                        ),
+
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: m.pagePadding,
+                            ),
+                            child: _buildStep4(
+                              BlocBuilder<ServicesCubit, ServicesState>(
+                                buildWhen: (previous, current) =>
+                                    previous.services != current.services,
+                                builder: (context, servicesState) {
+                                  return BookServicesSection(
+                                    metrics: m,
+                                    title: AppStrings.bookService,
+                                    subtitle: AppStrings.bookServiceSubtitle,
+                                    buttonText: AppStrings.bookNow,
+                                    services: servicesState.services,
+                                    onViewAll: () =>
+                                        context.push(AppRoutes.services),
+                                    onServiceTap: (service) {
+                                      if (service.uuid.isEmpty) return;
+                                      context.push(
+                                        AppRoutes.serviceDetailPath(
+                                          service.uuid,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: m.sectionGap),
+                        ),
+
+                        // ── Flash Deals / Recommended / Empty ────
+                        if (state.flashDeals.isEmpty &&
+                            state.recommended.isEmpty)
+                          SliverToBoxAdapter(
+                            child: _EmptyProductsState(metrics: m),
+                          )
+                        else ...[
+                          if (state.flashDeals.isNotEmpty) ...[
+                            SliverToBoxAdapter(
+                              child: _buildStep5(
+                                ProductRail(
+                                  metrics: m,
+                                  title: AppStrings.todaysDeals,
+                                  actionText: AppStrings.viewAll,
+                                  products: state.flashDeals,
+                                  onActionTap: () =>
+                                      context.push(AppRoutes.allProducts),
+                                  onProductTap: (p) {
+                                    if (p.uuid == null) return;
+                                    context.push(
+                                      AppRoutes.productDetails,
+                                      extra: p.uuid,
+                                    );
+                                  },
+                                  onWishlistTap: _toggleWishlist,
+                                  onAddToCart: _addToCart,
+                                  addingIds: _addingIds,
+                                ),
+                              ),
+                            ),
+                            SliverToBoxAdapter(
+                              child: SizedBox(height: m.sectionGap),
+                            ),
+                          ],
+                          if (state.recommended.isNotEmpty) ...[
+                            SliverToBoxAdapter(
+                              child: _buildStep6(
+                                ProductRail(
+                                  metrics: m,
+                                  title: AppStrings.recommendedForYou,
+                                  actionText: AppStrings.viewAll,
+                                  products: state.recommended,
+                                  onActionTap: () =>
+                                      context.push(AppRoutes.allProducts),
+                                  onProductTap: (p) {
+                                    if (p.uuid == null) return;
+                                    context.push(
+                                      AppRoutes.productDetails,
+                                      extra: p.uuid,
+                                    );
+                                  },
+                                  onWishlistTap: _toggleWishlist,
+                                  onAddToCart: _addToCart,
+                                  addingIds: _addingIds,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                        SliverToBoxAdapter(
+                          child: SizedBox(
+                            height:
+                                m.sectionGap +
+                                MediaQuery.paddingOf(context).bottom,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
-    ),
-);
+    );
   }
 
   // ─────────── Intro steps: ALL UNCHANGED ───────────
@@ -345,9 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return IntroStepTarget(
       step: 1,
       controller: controller,
-      cardContents: const TextSpan(
-        text: AppStrings.introStep1,
-      ),
+      cardContents: const TextSpan(text: AppStrings.introStep1),
       child: child,
     );
   }
@@ -356,9 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return IntroStepTarget(
       step: 2,
       controller: controller,
-      cardContents: const TextSpan(
-        text: AppStrings.introStep2,
-      ),
+      cardContents: const TextSpan(text: AppStrings.introStep2),
       child: child,
     );
   }
@@ -367,9 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return IntroStepTarget(
       step: 3,
       controller: controller,
-      cardContents: const TextSpan(
-        text: AppStrings.introStep3,
-      ),
+      cardContents: const TextSpan(text: AppStrings.introStep3),
       highlightDecoration: const IntroHighlightDecoration(
         cursor: SystemMouseCursors.click,
         radius: BorderRadius.all(Radius.circular(12)),
@@ -383,9 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return IntroStepTarget(
       step: 4,
       controller: controller,
-      cardContents: const TextSpan(
-        text: AppStrings.introStep4,
-      ),
+      cardContents: const TextSpan(text: AppStrings.introStep4),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 4),
       child: child,
     );
@@ -395,9 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return IntroStepTarget(
       step: 5,
       controller: controller,
-      cardContents: const TextSpan(
-        text: AppStrings.introStep5,
-      ),
+      cardContents: const TextSpan(text: AppStrings.introStep5),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 5),
       child: child,
     );
@@ -407,9 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return IntroStepTarget(
       step: 6,
       controller: controller,
-      cardContents: const TextSpan(
-        text: AppStrings.introStep6,
-      ),
+      cardContents: const TextSpan(text: AppStrings.introStep6),
       onStepWillActivate: (fromStep) => _scrollToTarget(step: 6),
       child: child,
     );
@@ -471,10 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
     if (!wasWishlisted) {
-      AppSnackbar.showSuccess(
-        context,
-        AppStrings.wishlistAdded,
-      );
+      AppSnackbar.showSuccess(context, AppStrings.wishlistAdded);
     }
   }
 
@@ -588,7 +584,6 @@ class _EmptyProductsState extends StatelessWidget {
   }
 }
 
-
 class _HomeErrorState extends StatelessWidget {
   const _HomeErrorState({required this.metrics, this.message});
   final HomeMetrics metrics;
@@ -638,27 +633,10 @@ class _HomeErrorState extends StatelessWidget {
               ),
             ),
             SizedBox(height: metrics.sectionGap),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => context.read<HomeCubit>().loadHome(),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(AppStrings.retry),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.brand,
-                  foregroundColor: colors.onBrand,
-                  padding: EdgeInsets.symmetric(
-                    vertical: metrics.pagePadding * 0.85,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  textStyle: TextStyle(
-                    fontSize: metrics.heroBodySize,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            AppButton(
+              label: AppStrings.retry,
+              onPressed: () => context.read<HomeCubit>().loadHome(),
+              prefixIcon: Icons.refresh_rounded,
             ),
           ],
         ),

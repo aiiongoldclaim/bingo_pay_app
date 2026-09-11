@@ -97,9 +97,7 @@ import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart'
 
 import 'hero_information.dart';
 
-/// Redesigned hero card: image pane (LIVE badge, page dots and a "bids
-/// placed" pill overlaid) always side-by-side with the info pane, matching
-/// the new Auctions screen mockup.
+
 class HeroAuctionCard extends StatelessWidget {
   final AuctionEntity auction;
   final VoidCallback onTap;
@@ -137,12 +135,8 @@ class HeroAuctionCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: _HeroImagePane(auction: auction),
-              ),
-              Expanded(
-                child: HeroInformation(auction: auction),
-              ),
+              Expanded(child: _HeroImagePane(auction: auction)),
+              Expanded(child: HeroInformation(auction: auction)),
             ],
           ),
         ),
@@ -177,137 +171,140 @@ class _HeroImagePaneState extends State<_HeroImagePane> {
     final images = auction.images ?? const <String>[];
     final isLive = auction.status.toUpperCase() == 'LIVE';
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        images.isEmpty
-            ? _placeholder(colors)
-            : PageView.builder(
-                controller: _pageController,
-                itemCount: images.length,
-                onPageChanged: (index) {
-                  setState(() => _currentIndex = index);
-                },
-                itemBuilder: (context, index) {
-                  return Image.network(
-                    images[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => _placeholder(colors),
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(color: colors.brand),
-                      );
-                    },
-                  );
-                },
-              ),
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          images.isEmpty
+              ? _placeholder(colors)
+              : PageView.builder(
+                  controller: _pageController,
+                  itemCount: images.length,
+                  onPageChanged: (index) {
+                    setState(() => _currentIndex = index);
+                  },
+                  itemBuilder: (context, index) {
+                    return Image.network(
+                      images[index],
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _placeholder(colors),
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(color: colors.brand),
+                        );
+                      },
+                    );
+                  },
+                ),
 
-        if (isLive)
-          Positioned(
-            top: 1.42.h,
-            left: 2.56.w,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 2.05.w,
-                vertical: 0.71.h,
-              ),
-              decoration: BoxDecoration(
-                color: colors.brand,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.local_fire_department_rounded,
-                    size: 12.sp,
-                    color: colors.onBrand,
-                  ),
-                  SizedBox(width: 1.03.w),
-                  Text(
-                    'LIVE AUCTION',
-                    style: TextStyle(
+          if (isLive)
+            Positioned(
+              top: 1.42.h,
+              left: 2.56.w,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 2.05.w,
+                  vertical: 0.71.h,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.brand,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.local_fire_department_rounded,
+                      size: 12.sp,
                       color: colors.onBrand,
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.4,
                     ),
-                  ),
-                ],
+                    SizedBox(width: 1.03.w),
+                    Text(
+                      'LIVE AUCTION',
+                      style: TextStyle(
+                        color: colors.onBrand,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-        if (auction.bidCount > 0)
-          Positioned(
-            left: 2.56.w,
-            bottom: 1.42.h,
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 2.05.w,
-                vertical: 0.59.h,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.45),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.groups_rounded, size: 12.sp, color: Colors.white),
-                  SizedBox(width: 1.03.w),
-                  Text(
-                    '${auction.bidCount} '
-                    '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
-                    style: TextStyle(
+          if (auction.bidCount > 0)
+            Positioned(
+              left: 2.56.w,
+              bottom: 1.42.h,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 2.05.w,
+                  vertical: 0.59.h,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.groups_rounded,
+                      size: 12.sp,
                       color: Colors.white,
-                      fontSize: 9.sp,
-                      fontWeight: FontWeight.w600,
                     ),
-                  ),
-                ],
+                    SizedBox(width: 1.03.w),
+                    Text(
+                      '${auction.bidCount} '
+                      '${auction.bidCount == 1 ? 'bid' : 'bids'} placed',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-        if (images.length > 1)
-          Positioned(
-            bottom: 1.42.h,
-            right: 0,
-            left: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(images.length, (index) {
-                final selected = index == _currentIndex;
+          if (images.length > 1)
+            Positioned(
+              bottom: 1.42.h,
+              right: 0,
+              left: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(images.length, (index) {
+                  final selected = index == _currentIndex;
 
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: EdgeInsets.symmetric(horizontal: 0.51.w),
-                  height: 1.03.w,
-                  width: selected ? 3.08.w : 1.03.w,
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                );
-              }),
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: EdgeInsets.symmetric(horizontal: 0.51.w),
+                    height: 1.03.w,
+                    width: selected ? 3.08.w : 1.03.w,
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  );
+                }),
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _placeholder(AppThemeColors colors) {
     return Container(
       color: colors.surfaceAlt,
-      child: Icon(
-        Icons.image_outlined,
-        size: 40.sp,
-        color: colors.textMuted,
-      ),
+      child: Icon(Icons.image_outlined, size: 40.sp, color: colors.textMuted),
     );
   }
 }

@@ -19,9 +19,7 @@ class ServicesSection extends StatelessWidget {
         if (state.status == ServicesStatus.loading) {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 2.h),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -30,10 +28,7 @@ class ServicesSection extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
             child: Text(
               'Failed to load services',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.red,
-              ),
+              style: TextStyle(fontSize: 14.sp, color: ThemeColors.red),
             ),
           );
         }
@@ -88,7 +83,7 @@ class ServicesSection extends StatelessWidget {
                       service: service,
                       onTap: () {
                         context.push(
-                          '/service-detail/${service.uuid}',
+                          AppRoutes.serviceDetailPath(service.uuid),
                           extra: service,
                         );
                       },

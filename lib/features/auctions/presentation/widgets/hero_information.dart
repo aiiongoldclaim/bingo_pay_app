@@ -194,10 +194,6 @@ import '../../../../core/theme/app_theme_colors.dart';
 import 'hero_countdown.dart';
 import 'hero_wishlist_button.dart';
 
-/// Redesigned hero info pane: category label, wishlist heart, title,
-/// current bid and the boxed countdown — matches the new Auctions screen
-/// mockup. The PLACE A BID / VIEW MY BIDS buttons now live below the whole
-/// hero card (see auction_content.dart), not inside this pane.
 class HeroInformation extends StatelessWidget {
   final AuctionEntity auction;
 
@@ -228,7 +224,7 @@ class HeroInformation extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: colors.textMuted,
-                      fontSize: 11.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.2,
                     ),
@@ -240,7 +236,7 @@ class HeroInformation extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 0.71.h),
+          SizedBox(height: 0.1.h),
 
           Text(
             auction.title,
@@ -255,13 +251,13 @@ class HeroInformation extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 1.42.h),
+          SizedBox(height: 1.h),
 
           Text(
             'Current Bid',
             style: TextStyle(
               color: colors.textSecondary,
-              fontSize: 11.sp,
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -275,7 +271,7 @@ class HeroInformation extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 1.66.h),
+          SizedBox(height: .5.h),
 
           HeroCountdown(
             secondsRemaining: auction.secondsRemaining ?? 0,

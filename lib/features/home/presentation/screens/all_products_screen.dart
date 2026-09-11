@@ -105,7 +105,6 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
         _isLoadingMore = false;
       });
     } catch (_) {
-      // Leave existing products as-is; the user can keep scrolling to retry.
       if (!mounted) return;
       setState(() => _isLoadingMore = false);
     }

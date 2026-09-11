@@ -1,23 +1,35 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../cubit/services_cubit.dart';
 import '../cubit/services_state.dart';
-import '../screens/service_checkout_screen.dart';
+
+class BookingSelection {
+  final String slotUuid;
+  final String bookingDate;
+  final String bookingTime;
+
+  const BookingSelection({
+    required this.slotUuid,
+    required this.bookingDate,
+    required this.bookingTime,
+  });
+}
 
 class AvailabilitySection extends StatefulWidget {
   final String serviceUuid;
   final String offeringUuid;
+  final ValueChanged<BookingSelection?> onSelectionChanged;
 
   const AvailabilitySection({
     super.key,
     required this.serviceUuid,
     required this.offeringUuid,
+    required this.onSelectionChanged,
   });
 
   @override
@@ -30,10 +42,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
   String? selectedSlotUuid;
   String? selectedTime;
   String? selectedDisplayTime;
-
-  // ===========================================================================
-  // SELECTED BOOKING DATE
-  // ===========================================================================
 
   String _getSelectedBookingDate(dynamic availability) {
     if (selectedDateIndex < 0 ||
@@ -52,37 +60,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     }
   }
 
-  // ===========================================================================
-  // SELECTED BOOKING TIME
-  // ===========================================================================
-
-  String _getSelectedBookingTime(dynamic availability) {
-    if (selectedSlotUuid == null) {
-      return '';
-    }
-
-    if (selectedDateIndex < 0 ||
-        selectedDateIndex >= availability.days.length) {
-      return '';
-    }
-
-    final selectedDay = availability.days[selectedDateIndex];
-
-    for (final slot in selectedDay.slots) {
-      if (slot.uuid != selectedSlotUuid) {
-        continue;
-      }
-
-      return _getSlotDisplayTime(slot);
-    }
-
-    return selectedTime ?? selectedDisplayTime ?? '';
-  }
-
-  // ===========================================================================
-  // SLOT START TIME
-  // ===========================================================================
-
   DateTime? _getSlotStartTime(dynamic slot) {
     try {
       if (slot.startsAt == null || slot.startsAt.toString().trim().isEmpty) {
@@ -96,10 +73,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     }
   }
 
-  // ===========================================================================
-  // SLOT END TIME
-  // ===========================================================================
-
   DateTime? _getSlotEndTime(dynamic slot) {
     try {
       if (slot.endsAt == null || slot.endsAt.toString().trim().isEmpty) {
@@ -112,13 +85,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
       return null;
     }
   }
-
-  // ===========================================================================
-  // SLOT DISPLAY TIME
-  //
-  // Always prefer startsAt + endsAt so the UI represents the actual
-  // appointment interval returned by the API.
-  // ===========================================================================
 
   String _getSlotDisplayTime(dynamic slot) {
     final start = _getSlotStartTime(slot);
@@ -147,18 +113,12 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     return 'N/A';
   }
 
-  // ===========================================================================
-  // BUILD
-  // ===========================================================================
-
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return BlocBuilder<AvailabilityCubit, AvailabilityState>(
       builder: (context, state) {
-        // =====================================================================
-        // LOADING
-        // =====================================================================
-
         if (state.status == AvailabilityStatus.loading ||
             state.status == AvailabilityStatus.initial) {
           return Center(
@@ -169,31 +129,27 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
           );
         }
 
-        // =====================================================================
-        // ERROR
-        // =====================================================================
-
         if (state.status == AvailabilityStatus.error) {
           return Container(
             margin: EdgeInsets.symmetric(vertical: 2.h),
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.08),
+              color: colors.error.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.red.withValues(alpha: 0.3),
+                color: colors.error.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
             child: Column(
               children: [
-                Icon(Icons.error_outline, color: Colors.red, size: 8.w),
+                Icon(Icons.error_outline, color: colors.error, size: 8.w),
                 SizedBox(height: 1.h),
                 Text(
                   'Failed to load availability',
                   style: TextStyle(
                     fontSize: 14.sp,
-                    color: Colors.red,
+                    color: colors.error,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -211,7 +167,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                     label: const Text('Retry'),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 1.2.h),
-                      backgroundColor: Colors.red,
+                      backgroundColor: colors.error,
+                      foregroundColor: colors.onError,
                     ),
                   ),
                 ),
@@ -220,32 +177,32 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
           );
         }
 
-        // =====================================================================
-        // EMPTY
-        // =====================================================================
-
         if (state.availability == null || state.availability!.days.isEmpty) {
           return Container(
             margin: EdgeInsets.symmetric(vertical: 2.h),
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.08),
+              color: colors.statusWarning.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.orange.withValues(alpha: 0.3),
+                color: colors.statusWarning.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
             child: Row(
               children: [
-                Icon(Icons.info_outline, color: Colors.orange, size: 6.w),
+                Icon(
+                  Icons.info_outline,
+                  color: colors.statusWarning,
+                  size: 6.w,
+                ),
                 SizedBox(width: 2.w),
                 Expanded(
                   child: Text(
                     'No availability for this service',
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Colors.orange,
+                      color: colors.statusWarning,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -265,9 +222,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // =================================================================
-            // HEADER
-            // =================================================================
             Row(
               children: [
                 Container(
@@ -275,15 +229,15 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        ThemeColors.blue.withValues(alpha: 0.2),
-                        ThemeColors.blue.withValues(alpha: 0.1),
+                        colors.brand.withValues(alpha: 0.2),
+                        colors.brand.withValues(alpha: 0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     Icons.calendar_month_rounded,
-                    color: ThemeColors.blue,
+                    color: colors.brand,
                     size: 6.w,
                   ),
                 ),
@@ -297,14 +251,14 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w800,
-                          color: ThemeColors.black,
+                          color: colors.textPrimary,
                         ),
                       ),
                       Text(
                         'Choose your preferred appointment slot',
                         style: TextStyle(
                           fontSize: 13.5.sp,
-                          color: Colors.grey.shade600,
+                          color: colors.textSecondary,
                         ),
                       ),
                     ],
@@ -315,9 +269,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             SizedBox(height: 2.5.h),
 
-            // =================================================================
-            // DATE SELECTOR
-            // =================================================================
             SizedBox(
               height: 10.h,
               child: ListView.builder(
@@ -353,6 +304,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                           selectedTime = null;
                           selectedDisplayTime = null;
                         });
+
+                        widget.onSelectionChanged(null);
                       },
                       child: Container(
                         width: 19.w,
@@ -363,25 +316,25 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    ThemeColors.blue,
-                                    ThemeColors.blue.withValues(alpha: 0.8),
+                                    colors.brand,
+                                    colors.brand.withValues(alpha: 0.8),
                                   ],
                                 )
                               : LinearGradient(
-                                  colors: [Colors.white, Colors.grey.shade50],
+                                  colors: [colors.surface, colors.surfaceAlt],
                                 ),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isSelected
                                 ? Colors.transparent
-                                : Colors.grey.shade200,
+                                : colors.border,
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
                               color: isSelected
-                                  ? ThemeColors.blue.withValues(alpha: 0.4)
-                                  : Colors.grey.withValues(alpha: 0.1),
+                                  ? colors.brand.withValues(alpha: 0.4)
+                                  : colors.textPrimary.withValues(alpha: 0.1),
                               blurRadius: isSelected ? 12 : 6,
                               offset: Offset(0, isSelected ? 6 : 2),
                               spreadRadius: isSelected ? 2 : 0,
@@ -397,8 +350,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                 fontSize: 14.5.sp,
                                 fontWeight: FontWeight.w600,
                                 color: isSelected
-                                    ? Colors.white
-                                    : Colors.grey.shade600,
+                                    ? colors.onBrand
+                                    : colors.textSecondary,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -410,8 +363,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Colors.white.withValues(alpha: 0.2)
-                                    : ThemeColors.blue.withValues(alpha: 0.08),
+                                    ? colors.onBrand.withValues(alpha: 0.2)
+                                    : colors.brand.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -421,8 +374,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w800,
                                   color: isSelected
-                                      ? Colors.white
-                                      : ThemeColors.blue,
+                                      ? colors.onBrand
+                                      : colors.brand,
                                   height: 1.1,
                                 ),
                               ),
@@ -449,20 +402,18 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: ThemeColors.black,
+                  color: colors.textPrimary,
                 ),
               ),
               SizedBox(height: 1.5.h),
               _buildTimeSlotsByPeriod(
                 availability.days[selectedDateIndex].slots,
+                _getSelectedBookingDate(availability),
               ),
             ],
 
             SizedBox(height: 2.h),
 
-            // =================================================================
-            // SELECTED APPOINTMENT
-            // =================================================================
             if (selectedDateIndex < availability.days.length)
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 2.h),
@@ -471,13 +422,13 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      ThemeColors.blue.withValues(alpha: 0.08),
-                      ThemeColors.blue.withValues(alpha: 0.03),
+                      colors.brand.withValues(alpha: 0.08),
+                      colors.brand.withValues(alpha: 0.03),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: ThemeColors.blue.withValues(alpha: 0.2),
+                    color: colors.brand.withValues(alpha: 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -489,30 +440,26 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade600,
+                        color: colors.textSecondary,
                         letterSpacing: 0.5,
                       ),
                     ),
                     SizedBox(height: 1.3.h),
                     Row(
                       children: [
-                        // -----------------------------------------------------
-                        // DATE
-                        // -----------------------------------------------------
+
                         Expanded(
                           child: Row(
                             children: [
                               Container(
                                 padding: EdgeInsets.all(2.w),
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.blue.withValues(
-                                    alpha: 0.1,
-                                  ),
+                                  color: colors.brand.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   Icons.calendar_today_rounded,
-                                  color: ThemeColors.blue,
+                                  color: colors.brand,
                                   size: 4.5.w,
                                 ),
                               ),
@@ -525,7 +472,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                       'Date',
                                       style: TextStyle(
                                         fontSize: 14.sp,
-                                        color: Colors.grey.shade600,
+                                        color: colors.textSecondary,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -538,7 +485,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                       style: TextStyle(
                                         fontSize: 13.5.sp,
                                         fontWeight: FontWeight.w800,
-                                        color: ThemeColors.black,
+                                        color: colors.textPrimary,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -552,23 +499,18 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
                         SizedBox(width: 2.w),
 
-                        // -----------------------------------------------------
-                        // TIME
-                        // -----------------------------------------------------
                         Expanded(
                           child: Row(
                             children: [
                               Container(
                                 padding: EdgeInsets.all(2.w),
                                 decoration: BoxDecoration(
-                                  color: ThemeColors.blue.withValues(
-                                    alpha: 0.1,
-                                  ),
+                                  color: colors.brand.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   Icons.access_time_rounded,
-                                  color: ThemeColors.blue,
+                                  color: colors.brand,
                                   size: 4.5.w,
                                 ),
                               ),
@@ -581,7 +523,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                       'Time',
                                       style: TextStyle(
                                         fontSize: 14.sp,
-                                        color: Colors.grey.shade600,
+                                        color: colors.textSecondary,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -591,8 +533,8 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                                         fontSize: 12.5.sp,
                                         fontWeight: FontWeight.w800,
                                         color: selectedDisplayTime != null
-                                            ? ThemeColors.blue
-                                            : Colors.grey.shade400,
+                                            ? colors.brand
+                                            : colors.textMuted,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -609,124 +551,15 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 ),
               ),
 
-            SizedBox(height: 3.h),
-
-            // =================================================================
-            // BOOK NOW
-            // =================================================================
-            SizedBox(
-              width: double.infinity,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: selectedSlotUuid != null
-                      ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            ThemeColors.blue,
-                            ThemeColors.blue.withValues(alpha: 0.85),
-                          ],
-                        )
-                      : LinearGradient(
-                          colors: [Colors.grey.shade300, Colors.grey.shade400],
-                        ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: selectedSlotUuid != null
-                      ? [
-                          BoxShadow(
-                            color: ThemeColors.blue.withValues(alpha: 0.4),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : [],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: selectedSlotUuid != null
-                        ? () {
-                            final bookingDate = _getSelectedBookingDate(
-                              availability,
-                            );
-
-                            final bookingTime = _getSelectedBookingTime(
-                              availability,
-                            );
-
-                            debugPrint(
-                              '========== BOOKING ==========\n'
-                              'Service UUID: ${widget.serviceUuid}\n'
-                              'Offering UUID: ${widget.offeringUuid}\n'
-                              'Date: $bookingDate\n'
-                              'Time: $bookingTime\n'
-                              'Slot UUID: $selectedSlotUuid\n'
-                              '=============================',
-                            );
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ServiceCheckoutScreen(
-                                  serviceUuid: widget.serviceUuid,
-                                  offeringUuid: widget.offeringUuid,
-                                  bookingDate: bookingDate,
-                                  bookingTime: bookingTime,
-                                  slotUuid: selectedSlotUuid,
-                                  participants: 1,
-                                ),
-                              ),
-                            );
-                          }
-                        : null,
-                    borderRadius: BorderRadius.circular(14),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 2.2.h),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (selectedSlotUuid != null)
-                            Icon(
-                              Icons.check_circle_rounded,
-                              color: Colors.white,
-                              size: 5.w,
-                            ),
-                          if (selectedSlotUuid != null) SizedBox(width: 1.5.w),
-                          Text(
-                            selectedSlotUuid != null
-                                ? 'Book Now'
-                                : 'Select a Time Slot',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 3.h),
+            SizedBox(height: 1.h),
           ],
         );
       },
     );
   }
 
-  // ===========================================================================
-  // GROUP TIME SLOTS
-  //
-  // IMPORTANT:
-  // The grouping uses the SAME local time that is displayed to the user.
-  // ===========================================================================
 
-  Widget _buildTimeSlotsByPeriod(List<dynamic> slots) {
+  Widget _buildTimeSlotsByPeriod(List<dynamic> slots, String bookingDateLabel) {
     final earlyMorning = <dynamic>[];
     final morning = <dynamic>[];
     final afternoon = <dynamic>[];
@@ -763,40 +596,61 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
             '🌙 Early Morning',
             '12:00 AM - 6:00 AM',
             earlyMorning,
+            bookingDateLabel,
           ),
           SizedBox(height: 2.h),
         ],
 
         if (morning.isNotEmpty) ...[
-          _buildPeriodSection('🌅 Morning', '6:00 AM - 12:00 PM', morning),
+          _buildPeriodSection(
+            '🌅 Morning',
+            '6:00 AM - 12:00 PM',
+            morning,
+            bookingDateLabel,
+          ),
           SizedBox(height: 2.h),
         ],
 
         if (afternoon.isNotEmpty) ...[
-          _buildPeriodSection('☀️ Afternoon', '12:00 PM - 5:00 PM', afternoon),
+          _buildPeriodSection(
+            '☀️ Afternoon',
+            '12:00 PM - 5:00 PM',
+            afternoon,
+            bookingDateLabel,
+          ),
           SizedBox(height: 2.h),
         ],
 
         if (evening.isNotEmpty) ...[
-          _buildPeriodSection('🌆 Evening', '5:00 PM - 9:00 PM', evening),
+          _buildPeriodSection(
+            '🌆 Evening',
+            '5:00 PM - 9:00 PM',
+            evening,
+            bookingDateLabel,
+          ),
           SizedBox(height: 2.h),
         ],
 
         if (night.isNotEmpty)
-          _buildPeriodSection('🌃 Night', '9:00 PM - 12:00 AM', night),
+          _buildPeriodSection(
+            '🌃 Night',
+            '9:00 PM - 12:00 AM',
+            night,
+            bookingDateLabel,
+          ),
       ],
     );
   }
 
-  // ===========================================================================
-  // PERIOD SECTION
-  // ===========================================================================
 
   Widget _buildPeriodSection(
     String title,
     String timeRange,
     List<dynamic> slots,
+    String bookingDateLabel,
   ) {
+    final colors = context.colors;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -804,10 +658,10 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
           padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.3.h),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.grey.shade50, Colors.grey.shade100],
+              colors: [colors.surfaceAlt, colors.surface],
             ),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -817,7 +671,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 style: TextStyle(
                   fontSize: 15.sp,
                   fontWeight: FontWeight.w800,
-                  color: ThemeColors.black,
+                  color: colors.textPrimary,
                 ),
               ),
               SizedBox(height: 0.5.h),
@@ -825,7 +679,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 timeRange,
                 style: TextStyle(
                   fontSize: 13.5.sp,
-                  color: Colors.grey.shade600,
+                  color: colors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -851,10 +705,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
 
             final isSelected = slot.uuid == selectedSlotUuid;
 
-            // ===============================================================
-            // ACTUAL INTERVAL
-            // ===============================================================
-
             final displayTime = _getSlotDisplayTime(slot);
 
             return GestureDetector(
@@ -863,12 +713,19 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                       setState(() {
                         selectedSlotUuid = slot.uuid;
 
-                        // Store the COMPLETE interval,
-                        // not only the start time.
+
                         selectedTime = displayTime;
 
                         selectedDisplayTime = displayTime;
                       });
+
+                      widget.onSelectionChanged(
+                        BookingSelection(
+                          slotUuid: slot.uuid,
+                          bookingDate: bookingDateLabel,
+                          bookingTime: displayTime,
+                        ),
+                      );
 
                       debugPrint(
                         'Selected slot:\n'
@@ -886,33 +743,33 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            ThemeColors.blue,
-                            ThemeColors.blue.withValues(alpha: 0.85),
+                            colors.brand,
+                            colors.brand.withValues(alpha: 0.85),
                           ],
                         )
                       : slot.isAvailable
                       ? LinearGradient(
-                          colors: [Colors.white, Colors.grey.shade50],
+                          colors: [colors.surface, colors.surfaceAlt],
                         )
                       : LinearGradient(
-                          colors: [Colors.grey.shade100, Colors.grey.shade50],
+                          colors: [colors.surfaceAlt, colors.surface],
                         ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? Colors.transparent
                         : slot.isAvailable
-                        ? ThemeColors.blue.withValues(alpha: 0.2)
-                        : Colors.grey.shade300,
+                        ? colors.brand.withValues(alpha: 0.2)
+                        : colors.border,
                     width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: isSelected
-                          ? ThemeColors.blue.withValues(alpha: 0.4)
+                          ? colors.brand.withValues(alpha: 0.4)
                           : slot.isAvailable
-                          ? ThemeColors.blue.withValues(alpha: 0.08)
-                          : Colors.grey.withValues(alpha: 0.05),
+                          ? colors.brand.withValues(alpha: 0.08)
+                          : colors.textPrimary.withValues(alpha: 0.05),
                       blurRadius: isSelected ? 10 : 4,
                       offset: Offset(0, isSelected ? 4 : 1),
                       spreadRadius: isSelected ? 1 : 0,
@@ -922,9 +779,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // =========================================================
-                    // COMPLETE TIME INTERVAL
-                    // =========================================================
+
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 1.w),
                       child: Text(
@@ -936,10 +791,10 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                           fontSize: 13.5.sp,
                           fontWeight: FontWeight.w800,
                           color: isSelected
-                              ? Colors.white
+                              ? colors.onBrand
                               : slot.isAvailable
-                              ? ThemeColors.blue
-                              : Colors.grey.shade400,
+                              ? colors.brand
+                              : colors.textMuted,
                         ),
                       ),
                     ),
@@ -954,15 +809,15 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Colors.white.withValues(alpha: 0.25)
-                              : ThemeColors.blue.withValues(alpha: 0.15),
+                              ? colors.onBrand.withValues(alpha: 0.25)
+                              : colors.brand.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           '${slot.remaining} available',
                           style: TextStyle(
                             fontSize: 12.5.sp,
-                            color: isSelected ? Colors.white : ThemeColors.blue,
+                            color: isSelected ? colors.onBrand : colors.brand,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.3,
                           ),
@@ -973,7 +828,7 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
                         'Fully Booked',
                         style: TextStyle(
                           fontSize: 10.sp,
-                          color: Colors.grey.shade500,
+                          color: colors.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -987,10 +842,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
     );
   }
 
-  // ===========================================================================
-  // DATE DISPLAY
-  // ===========================================================================
-
   String _formatDateDisplay(String dateString) {
     try {
       final dateTime = DateTime.parse(dateString);
@@ -1000,10 +851,6 @@ class _AvailabilitySectionState extends State<AvailabilitySection> {
       return dateString;
     }
   }
-
-  // ===========================================================================
-  // BOOKING CONFIRMATION
-  // ===========================================================================
 
   void _showBookingConfirmation() {
     ScaffoldMessenger.of(context).showSnackBar(

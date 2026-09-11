@@ -64,6 +64,7 @@ class AppButton extends StatelessWidget {
               shadowColor: Colors.transparent,
               surfaceTintColor: Colors.transparent,
               elevation: 0,
+              padding: EdgeInsets.symmetric(horizontal: metrics.hPad),
               shape: shape,
             ),
             child: Center(
@@ -106,11 +107,7 @@ class AppButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (prefixIcon != null) ...[
-          Icon(
-            prefixIcon,
-            size: metrics.iconSize,
-            color: effectiveIconColor,
-          ),
+          Icon(prefixIcon, size: metrics.iconSize, color: effectiveIconColor),
           SizedBox(width: metrics.iconGap),
         ],
         Flexible(
@@ -128,19 +125,15 @@ class AppButton extends StatelessWidget {
         ),
         if (suffixIcon != null) ...[
           SizedBox(width: metrics.iconGap),
-          Icon(
-            suffixIcon,
-            size: metrics.iconSize,
-            color: effectiveIconColor,
-          ),
+          Icon(suffixIcon, size: metrics.iconSize, color: effectiveIconColor),
         ],
       ],
     );
 
     switch (variant) {
-    // ============================================================
-    // PRIMARY
-    // ============================================================
+      // ============================================================
+      // PRIMARY
+      // ============================================================
       case AppButtonVariant.primary:
         return SizedBox(
           width: double.infinity,
@@ -153,12 +146,12 @@ class AppButton extends StatelessWidget {
               boxShadow: isDisabled
                   ? null
                   : [
-                BoxShadow(
-                  color: colors.brand.withValues(alpha: 0.28),
-                  blurRadius: metrics.shadowBlur,
-                  offset: Offset(0, metrics.shadowOffset),
-                ),
-              ],
+                      BoxShadow(
+                        color: colors.brand.withValues(alpha: 0.28),
+                        blurRadius: metrics.shadowBlur,
+                        offset: Offset(0, metrics.shadowOffset),
+                      ),
+                    ],
             ),
             child: ElevatedButton(
               onPressed: onPressed,
@@ -176,9 +169,9 @@ class AppButton extends StatelessWidget {
           ),
         );
 
-    // ============================================================
-    // SECONDARY
-    // ============================================================
+      // ============================================================
+      // SECONDARY
+      // ============================================================
       case AppButtonVariant.secondary:
         return SizedBox(
           width: double.infinity,
@@ -204,9 +197,9 @@ class AppButton extends StatelessWidget {
           ),
         );
 
-    // ============================================================
-    // OUTLINED
-    // ============================================================
+      // ============================================================
+      // OUTLINED
+      // ============================================================
       case AppButtonVariant.outlined:
         return SizedBox(
           width: double.infinity,

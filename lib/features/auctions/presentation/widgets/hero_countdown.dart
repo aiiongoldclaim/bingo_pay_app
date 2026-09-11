@@ -196,9 +196,6 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 
-/// Redesigned hero countdown: DAY / HRS / MIN / SEC rendered as four boxed
-/// tiles (matching the new Auctions screen hero mockup) instead of the
-/// original colon-separated text row.
 class HeroCountdown extends StatefulWidget {
   final int secondsRemaining;
 
@@ -285,7 +282,7 @@ class _HeroCountdownState extends State<HeroCountdown> {
           'Closes in',
           style: TextStyle(
             color: colors.textSecondary,
-            fontSize: 11.sp,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -347,8 +344,9 @@ class _CountdownTile extends StatelessWidget {
               label,
               style: TextStyle(
                 color: colors.textMuted,
-                fontSize: 8.sp,
+                fontSize: 11.sp,
                 letterSpacing: 0.5,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),

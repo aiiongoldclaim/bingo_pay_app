@@ -112,10 +112,6 @@ import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
 import 'auction_product_card.dart';
-
-/// Redesigned Auctions-screen section: a vertical list of full-width row
-/// cards, matching the new mockup, replacing the old horizontally-scrolling
-/// row of fixed-width cards.
 class AuctionSection extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -156,32 +152,18 @@ class AuctionSection extends StatelessWidget {
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w600,
                         color: colors.textPrimary,
+                        letterSpacing: 0.3,
                       ),
                     ),
                     SizedBox(height: 0.24.h),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: 14.sp,
                         color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.3,
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'View all',
-                      style: TextStyle(
-                        color: colors.brand,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12.sp,
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: colors.brand,
-                      size: 16.sp,
                     ),
                   ],
                 ),

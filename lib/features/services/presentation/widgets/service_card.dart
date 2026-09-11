@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../domain/entities/service_entity.dart';
 
 class ServiceCard extends StatelessWidget {
   final ServiceEntity service;
   final VoidCallback? onTap;
 
-  const ServiceCard({
-    super.key,
-    required this.service,
-    this.onTap,
-  });
+  const ServiceCard({super.key, required this.service, this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 42.w,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: colors.textPrimary.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -46,14 +44,20 @@ class ServiceCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 13.h,
-                        color: Colors.grey.shade300,
-                        child: const Icon(Icons.image_not_supported),
+                        color: colors.surfaceAlt,
+                        child: Icon(
+                          Icons.image_not_supported,
+                          color: colors.textMuted,
+                        ),
                       ),
                     )
                   : Container(
                       height: 13.h,
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.image_not_supported),
+                      color: colors.surfaceAlt,
+                      child: Icon(
+                        Icons.image_not_supported,
+                        color: colors.textMuted,
+                      ),
                     ),
             ),
 
@@ -71,7 +75,7 @@ class ServiceCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15.sp,
                       fontWeight: FontWeight.w600,
-                      color: ThemeColors.black,
+                      color: colors.textPrimary,
                     ),
                   ),
 
@@ -85,7 +89,7 @@ class ServiceCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600,
+                      color: colors.textSecondary,
                     ),
                   ),
 
@@ -98,7 +102,7 @@ class ServiceCard extends StatelessWidget {
                         Icon(
                           Icons.star_rounded,
                           size: 14.sp,
-                          color: Colors.amber,
+                          color: colors.brand,
                         ),
                         SizedBox(width: 0.5.w),
                         Text(
@@ -106,6 +110,7 @@ class ServiceCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12.sp,
                             fontWeight: FontWeight.w500,
+                            color: colors.textPrimary,
                           ),
                         ),
                         SizedBox(width: 0.5.w),
@@ -113,21 +118,12 @@ class ServiceCard extends StatelessWidget {
                           '(${service.totalReviews})',
                           style: TextStyle(
                             fontSize: 12.sp,
-                            color: Colors.grey.shade600,
+                            color: colors.textSecondary,
                           ),
                         ),
                       ],
                     ),
-                  // else
-                  //   Text(
-                  //     'No reviews yet',
-                  //     style: TextStyle(
-                  //       fontSize: 14.sp,
-                  //       color: Colors.grey.shade500,
-                  //     ),
-                  //   ),
 
-                  // SizedBox(height: 0.8.h),
 
                   // Price
                   Row(
@@ -138,7 +134,7 @@ class ServiceCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
-                          color: ThemeColors.blue,
+                          color: colors.brand,
                         ),
                       ),
                       Container(
@@ -147,7 +143,7 @@ class ServiceCard extends StatelessWidget {
                           vertical: 0.4.h,
                         ),
                         decoration: BoxDecoration(
-                          color: ThemeColors.blue.withValues(alpha: 0.1),
+                          color: colors.brandSoft,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -155,7 +151,7 @@ class ServiceCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w500,
-                            color: ThemeColors.blue,
+                            color: colors.brand,
                           ),
                         ),
                       ),
