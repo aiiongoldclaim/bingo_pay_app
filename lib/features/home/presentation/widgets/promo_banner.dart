@@ -131,7 +131,7 @@ class PromoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return GestureDetector(
       onTap: onTap,
@@ -144,12 +144,12 @@ class PromoBanner extends StatelessWidget {
           width: double.infinity,
           height: double.infinity,
           errorBuilder: (_, __, ___) => Container(
-            color: c.surfaceAlt,
+            color: colors.surfaceAlt,
             alignment: Alignment.center,
             child: Icon(
               Icons.image_outlined,
               size: metrics.categoryIconSize,
-              color: c.textMuted,
+              color: colors.textMuted,
             ),
           ),
         ),

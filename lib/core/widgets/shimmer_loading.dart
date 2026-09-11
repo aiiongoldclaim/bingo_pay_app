@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme_colors.dart';
 
 class ShimmerLoading extends StatefulWidget {
   const ShimmerLoading({super.key, required this.child});
@@ -25,6 +26,18 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final baseColor = colors.surfaceAlt;
+
+    // Dark mode: nudge the highlight toward white just a little, so the
+    // sweep stays a dark gray tone instead of flashing bright. Light mode:
+    // nudge further, for the usual light-gray sweep.
+    final highlightColor = Color.lerp(
+      baseColor,
+      Colors.white,
+      colors.isDark ? 0.08 : 0.9,
+    )!;
+
     return AnimatedBuilder(
       animation: _controller,
       child: widget.child,
@@ -34,11 +47,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
           shaderCallback: (bounds) {
             final dx = _controller.value * 2 - 1;
             return LinearGradient(
-              colors: const [
-                Color(0xFFE4E6EB),
-                Color(0xFFF6F7F9),
-                Color(0xFFE4E6EB),
-              ],
+              colors: [baseColor, highlightColor, baseColor],
               stops: const [0.35, 0.5, 0.65],
               begin: Alignment(dx - 1, 0),
               end: Alignment(dx + 1, 0),
@@ -71,7 +80,7 @@ class ShimmerBox extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFE4E6EB),
+        color: context.colors.surfaceAlt,
         borderRadius: borderRadius,
       ),
     );

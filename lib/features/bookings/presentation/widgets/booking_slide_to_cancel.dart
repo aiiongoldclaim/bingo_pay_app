@@ -104,7 +104,7 @@ class _BookingSlideToCancelState
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
     final handleSize = m.slideHandleSize;
     final horizontalPadding = m.slideHPad;
@@ -127,17 +127,17 @@ class _BookingSlideToCancelState
           height: m.slideHeight,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: c.surface,
+            color: colors.surface,
             borderRadius:
                 BorderRadius.circular(m.slideRadius),
             border: Border.all(
-              color: c.border,
+              color: colors.border,
             ),
-            boxShadow: c.isDark
+            boxShadow: colors.isDark
                 ? null
                 : [
                     BoxShadow(
-                      color: c.textPrimary.withValues(
+                      color: colors.textPrimary.withValues(
                         alpha: 0.045,
                       ),
                       blurRadius: m.slideShadowBlur,
@@ -157,7 +157,7 @@ class _BookingSlideToCancelState
                       horizontalPadding,
                     ),
                     decoration: BoxDecoration(
-                      color: c.background,
+                      color: colors.background,
                       borderRadius:
                           BorderRadius.circular(m.slideInnerRadius),
                     ),
@@ -172,7 +172,7 @@ class _BookingSlideToCancelState
                     child: Text(
                       AppStrings.slideToCancel,
                       style: TextStyle(
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                         fontFamily: 'Inter',
                         fontSize: m.slideTextSize,
                         fontWeight:
@@ -196,15 +196,15 @@ class _BookingSlideToCancelState
                             MainAxisSize.min,
                         children: [
                           BookingSlideChevron(
-                            color: c.textMuted,
+                            color: colors.textMuted,
                             opacity: 0.25,
                           ),
                           BookingSlideChevron(
-                            color: c.textMuted,
+                            color: colors.textMuted,
                             opacity: 0.45,
                           ),
                           BookingSlideChevron(
-                            color: c.brand,
+                            color: colors.brand,
                             opacity: 0.75,
                           ),
                         ],
@@ -269,11 +269,11 @@ class _BookingSlideToCancelState
                       height: handleSize,
                       decoration:
                           BoxDecoration(
-                        color: c.brand,
+                        color: colors.brand,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: c.brand.withValues(
+                            color: colors.brand.withValues(
                               alpha: 0.22,
                             ),
                             blurRadius: m.slideHandleShadowBlur,
@@ -293,7 +293,7 @@ class _BookingSlideToCancelState
                                 key: const ValueKey(
                                   'completed',
                                 ),
-                                color: c.surface,
+                                color: colors.surface,
                                 size: m.slideCheckIconSize,
                               )
                             : Icon(
@@ -302,7 +302,7 @@ class _BookingSlideToCancelState
                                 key: const ValueKey(
                                   'arrow',
                                 ),
-                                color: c.surface,
+                                color: colors.surface,
                                 size: m.slideArrowIconSize,
                               ),
                       ),
@@ -320,7 +320,7 @@ class _BookingSlideToCancelState
                             m.slideRadius,
                           ),
                           border: Border.all(
-                            color: c.brand.withValues(
+                            color: colors.brand.withValues(
                               alpha: 0.35,
                             ),
                             width: 1.5,

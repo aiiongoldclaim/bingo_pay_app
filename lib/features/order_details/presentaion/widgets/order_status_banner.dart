@@ -26,14 +26,14 @@ class OdStatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final style = OrderStatusStyle.of(context, status);
     final isCancelled =
         OrderStatusStyle.toneOf(status) == OrderStatusTone.cancelled;
 
     final tint = isCancelled
-        ? (c.isDark ? c.surfaceAlt : const Color(0xFFFDEDEA))
+        ? (colors.isDark ? colors.surfaceAlt : const Color(0xFFFDEDEA))
         : style.background;
 
     return Padding(
@@ -44,7 +44,7 @@ class OdStatusBanner extends StatelessWidget {
           color: tint,
           borderRadius: BorderRadius.circular(m.cardRadius),
           border: Border.all(
-            color: style.foreground.withValues(alpha: c.isDark ? 0.4 : 0.25),
+            color: style.foreground.withValues(alpha: colors.isDark ? 0.4 : 0.25),
           ),
         ),
         child: Row(
@@ -84,7 +84,7 @@ class OdStatusBanner extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.bannerBodySize,
                       height: 1.35,
-                      color: c.textPrimary,
+                      color: colors.textPrimary,
                     ),
                   ),
                   if (timestamp != null && timestamp!.isNotEmpty) ...[
@@ -94,7 +94,7 @@ class OdStatusBanner extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.bannerBodySize,
                         height: 1.35,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ],
@@ -108,9 +108,9 @@ class OdStatusBanner extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onAction,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: c.brand,
-                    backgroundColor: c.surface,
-                    side: BorderSide(color: c.brand, width: 1.2),
+                    foregroundColor: colors.brand,
+                    backgroundColor: colors.surface,
+                    side: BorderSide(color: colors.brand, width: 1.2),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     padding: EdgeInsets.symmetric(

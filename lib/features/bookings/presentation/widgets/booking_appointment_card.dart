@@ -18,7 +18,7 @@ class BookingAppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     final start = parseApiDate(
@@ -49,7 +49,7 @@ class BookingAppointmentCard extends StatelessWidget {
                 width: m.apptBoxW,
                 height: m.apptBoxH,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   borderRadius:
                       BorderRadius.circular(m.apptBoxRadius),
                 ),
@@ -62,7 +62,7 @@ class BookingAppointmentCard extends StatelessWidget {
                           .format(startDate)
                           .toUpperCase(),
                       style: TextStyle(
-                        color: c.brand,
+                        color: colors.brand,
                         fontFamily: 'Inter',
                         fontSize: m.apptMonthSize,
                         fontWeight: FontWeight.w800,
@@ -73,7 +73,7 @@ class BookingAppointmentCard extends StatelessWidget {
                     Text(
                       DateFormat('dd').format(startDate),
                       style: TextStyle(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontSize: m.apptDaySize,
                         height: 1,
@@ -94,7 +94,7 @@ class BookingAppointmentCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontSize: m.apptDateTextSize,
                         fontWeight: FontWeight.w700,
@@ -106,14 +106,14 @@ class BookingAppointmentCard extends StatelessWidget {
                         Icon(
                           Icons.schedule_rounded,
                           size: m.apptTimeIconSize,
-                          color: c.brand,
+                          color: colors.brand,
                         ),
                         SizedBox(width: m.apptTimeIconGapW),
                         Expanded(
                           child: Text(
                             timeText,
                             style: TextStyle(
-                              color: c.textSecondary,
+                              color: colors.textSecondary,
                               fontFamily: 'Inter',
                               fontSize: m.apptTimeTextSize,
                               fontWeight:
@@ -131,7 +131,7 @@ class BookingAppointmentCard extends StatelessWidget {
           SizedBox(height: m.apptDividerGapH),
           Container(
             height: 1,
-            color: c.border,
+            color: colors.border,
           ),
           SizedBox(height: m.apptInfoGapH),
           Row(
@@ -139,14 +139,14 @@ class BookingAppointmentCard extends StatelessWidget {
               Icon(
                 Icons.info_outline_rounded,
                 size: m.apptInfoIconSize,
-                color: c.textMuted,
+                color: colors.textMuted,
               ),
               SizedBox(width: m.apptInfoIconGapW),
               Expanded(
                 child: Text(
                   _appointmentMessage(booking),
                   style: TextStyle(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.apptInfoTextSize,
                   ),

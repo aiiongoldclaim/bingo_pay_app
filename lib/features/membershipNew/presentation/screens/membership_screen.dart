@@ -571,7 +571,7 @@
 //       String value, {
 //         bool copyable = false,
 //       }) {
-//     final c = context.c;
+//     final colors = context.c;
 //
 //     return Row(
 //       children: [
@@ -581,7 +581,7 @@
 //             style: TextStyle(
 //               fontSize: m.labelSize,
 //               fontWeight: FontWeight.w500,
-//               color: c.textSecondary,
+//               color: colors.textSecondary,
 //             ),
 //           ),
 //         ),
@@ -617,8 +617,8 @@
 //                 fontSize: m.labelSize,
 //                 fontWeight: FontWeight.w700,
 //                 color: copyable
-//                     ? c.brand
-//                     : c.textPrimary,
+//                     ? colors.brand
+//                     : colors.textPrimary,
 //               ),
 //             ),
 //           ),
@@ -1361,7 +1361,7 @@ class _PendingViewState extends State<_PendingView> {
       String value, {
         bool copyable = false,
       }) {
-    final c = context.c;
+    final colors = context.c;
 
     return Row(
       children: [
@@ -1371,7 +1371,7 @@ class _PendingViewState extends State<_PendingView> {
             style: TextStyle(
               fontSize: m.labelSize,
               fontWeight: FontWeight.w500,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ),
@@ -1407,8 +1407,8 @@ class _PendingViewState extends State<_PendingView> {
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w700,
                 color: copyable
-                    ? c.brand
-                    : c.textPrimary,
+                    ? colors.brand
+                    : colors.textPrimary,
               ),
             ),
           ),

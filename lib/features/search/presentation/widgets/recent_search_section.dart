@@ -133,7 +133,7 @@ class RecentSearchesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (recents.isEmpty) return const SizedBox.shrink();
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -153,7 +153,7 @@ class RecentSearchesSection extends StatelessWidget {
             query: query,
             onTap: () => onTap(query),
             onRemove: onRemove == null ? null : () => onRemove!(query),
-            borderColor: c.border,
+            borderColor: colors.border,
           ),
         ),
       ],
@@ -178,7 +178,7 @@ class _RecentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -196,13 +196,13 @@ class _RecentRow extends StatelessWidget {
               height: m.recentIconBadge,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.access_time_rounded,
                 size: m.recentIconSize,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
             SizedBox(width: m.pagePadding * 0.8),
@@ -213,7 +213,7 @@ class _RecentRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: m.recentFontSize,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
             ),
@@ -226,7 +226,7 @@ class _RecentRow extends StatelessWidget {
                   child: Icon(
                     Icons.close_rounded,
                     size: m.recentIconSize * 1.1,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ),
               ),

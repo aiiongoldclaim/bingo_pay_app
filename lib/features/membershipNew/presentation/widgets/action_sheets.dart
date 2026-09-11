@@ -63,9 +63,9 @@
 //         borderRadius: BorderRadius.vertical(top: Radius.circular(m.radiusLg)),
 //       ),
 //       builder: (sheetContext) {
-//         final c = sheetContext.c;
-//         final accent = danger ? c.statusWarning : c.statusSuccess;
-//         final accentSoft = danger ? c.statusWarningSoft : c.statusSuccessSoft;
+//         final colors = sheetContext.c;
+//         final accent = danger ? colors.statusWarning : colors.statusSuccess;
+//         final accentSoft = danger ? colors.statusWarningSoft : colors.statusSuccessSoft;
 //
 //         return SafeArea(
 //           top: false,
@@ -88,7 +88,7 @@
 //                         width: m.iconBox,
 //                         height: m.progressHeight * 0.6,
 //                         decoration: BoxDecoration(
-//                           color: c.border,
+//                           color: colors.border,
 //                           borderRadius: BorderRadius.circular(99),
 //                         ),
 //                       ),
@@ -116,7 +116,7 @@
 //                       style: TextStyle(
 //                         fontSize: m.sectionTitleSize,
 //                         fontWeight: FontWeight.w700,
-//                         color: c.textPrimary,
+//                         color: colors.textPrimary,
 //                       ),
 //                     ),
 //                     SizedBox(height: m.rowGap * 0.5),
@@ -127,7 +127,7 @@
 //                         fontSize: m.labelSize,
 //                         fontWeight: FontWeight.w400,
 //                         height: 1.45,
-//                         color: c.textSecondary,
+//                         color: colors.textSecondary,
 //                       ),
 //                     ),
 //                     SizedBox(height: m.sectionGap * 0.8),
@@ -136,7 +136,7 @@
 //                       child: ElevatedButton(
 //                         onPressed: () => Navigator.of(sheetContext).pop(true),
 //                         style: ElevatedButton.styleFrom(
-//                           backgroundColor: danger ? accent : c.brand,
+//                           backgroundColor: danger ? accent : colors.brand,
 //                           foregroundColor: ThemeColors.white,
 //                           elevation: 0,
 //                           minimumSize: Size.zero,
@@ -159,7 +159,7 @@
 //                       child: TextButton(
 //                         onPressed: () => Navigator.of(sheetContext).pop(false),
 //                         style: TextButton.styleFrom(
-//                           foregroundColor: c.textSecondary,
+//                           foregroundColor: colors.textSecondary,
 //                           minimumSize: Size.zero,
 //                           shape: RoundedRectangleBorder(
 //                             borderRadius: BorderRadius.circular(m.radiusMd),

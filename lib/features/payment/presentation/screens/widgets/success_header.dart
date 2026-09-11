@@ -327,7 +327,7 @@ class SuccessHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = PaymentSuccessMetrics.of(context);
 
     return Column(
@@ -339,8 +339,8 @@ class SuccessHeader extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               // outer glow rings
-              _Ring(size: m.badgeSize * 1.85, color: c.brand.withValues(alpha: 0.06)),
-              _Ring(size: m.badgeSize * 1.45, color: c.brand.withValues(alpha: 0.10)),
+              _Ring(size: m.badgeSize * 1.85, color: colors.brand.withValues(alpha: 0.06)),
+              _Ring(size: m.badgeSize * 1.45, color: colors.brand.withValues(alpha: 0.10)),
 
               _Confetti(metrics: m),
 
@@ -349,11 +349,11 @@ class SuccessHeader extends StatelessWidget {
                 width: m.badgeSize,
                 height: m.badgeSize,
                 decoration: BoxDecoration(
-                  color: c.surface,
+                  color: colors.surface,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: c.brand.withValues(alpha: c.isDark ? 0.30 : 0.16),
+                      color: colors.brand.withValues(alpha: colors.isDark ? 0.30 : 0.16),
                       blurRadius: 28,
                       offset: const Offset(0, 10),
                     ),
@@ -363,7 +363,7 @@ class SuccessHeader extends StatelessWidget {
                 child: Icon(
                   Icons.check_rounded,
                   size: m.checkSize,
-                  color: c.statusSuccess,
+                  color: colors.statusSuccess,
                 ),
               ),
             ],
@@ -374,7 +374,7 @@ class SuccessHeader extends StatelessWidget {
           'Payment Successful!',
           textAlign: TextAlign.center,
           style: AppTextStyles.titleLarge.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w800,
             fontSize: m.titleSize,
@@ -388,7 +388,7 @@ class SuccessHeader extends StatelessWidget {
           'Thank you! Your payment has been received.',
           textAlign: TextAlign.center,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.subtitleSize,
             height: 1.4,
@@ -430,7 +430,7 @@ class _Confetti extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final field = m.heroField;
 
@@ -447,10 +447,10 @@ class _Confetti extends StatelessWidget {
     ];
 
     final palette = <Color>[
-      c.brand,
-      c.statusSuccess,
-      c.brand.withValues(alpha: 0.55),
-      c.statusWarning,
+      colors.brand,
+      colors.statusSuccess,
+      colors.brand.withValues(alpha: 0.55),
+      colors.statusWarning,
     ];
 
     return SizedBox(
@@ -488,14 +488,14 @@ class _Confetti extends StatelessWidget {
   }
 
   Widget _sparkle(BuildContext context, double dx, double dy, double size) {
-    final c = context.c;
+    final colors = context.c;
     final field = metrics.heroField;
     return Transform.translate(
       offset: Offset(field * dx, field * dy),
       child: Icon(
         Icons.auto_awesome,
         size: size,
-        color: c.surface.withValues(alpha: c.isDark ? 0.35 : 0.95),
+        color: colors.surface.withValues(alpha: colors.isDark ? 0.35 : 0.95),
       ),
     );
   }
@@ -509,7 +509,7 @@ class _OrderChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -518,20 +518,20 @@ class _OrderChip extends StatelessWidget {
         vertical: m.gapSm * 0.9,
       ),
       decoration: BoxDecoration(
-        color: c.surface.withValues(alpha: c.isDark ? 0.10 : 0.75),
+        color: colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.75),
         borderRadius: BorderRadius.circular(m.chipRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.receipt_long_outlined, size: m.chipIconSize, color: c.brand),
+          Icon(Icons.receipt_long_outlined, size: m.chipIconSize, color: colors.brand),
           SizedBox(width: m.gapSm * 0.8),
           Flexible(
             child: RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.chipTextSize,
                   height: 1.3,
@@ -541,7 +541,7 @@ class _OrderChip extends StatelessWidget {
                   TextSpan(
                     text: '#$orderId',
                     style: TextStyle(
-                      color: c.brand,
+                      color: colors.brand,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

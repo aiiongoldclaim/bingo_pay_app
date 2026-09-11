@@ -21,7 +21,7 @@ class BookingChangeTimeSlots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
     final state = availabilityState;
 
@@ -29,9 +29,9 @@ class BookingChangeTimeSlots extends StatelessWidget {
       return Container(
         padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           children: [
@@ -44,7 +44,7 @@ class BookingChangeTimeSlots extends StatelessWidget {
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation(
-                      c.brand,
+                      colors.brand,
                     ),
                   ),
                 ),
@@ -54,7 +54,7 @@ class BookingChangeTimeSlots extends StatelessWidget {
             Text(
               AppStrings.loadingAvailableSlots,
               style: TextStyle(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.slotsMsgSize,
               ),
@@ -68,22 +68,22 @@ class BookingChangeTimeSlots extends StatelessWidget {
       return Container(
         padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           children: [
             Icon(
               Icons.error_outline_rounded,
-              color: c.brand,
+              color: colors.brand,
               size: m.slotsErrorIconSize,
             ),
             SizedBox(height: m.slotsMsgGapH),
             Text(
               AppStrings.failedToLoadAvailability,
               style: TextStyle(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.slotsMsgSize,
               ),
@@ -98,14 +98,14 @@ class BookingChangeTimeSlots extends StatelessWidget {
       return Container(
         padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Text(
           AppStrings.noAvailableSlots,
           style: TextStyle(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.slotsMsgSize,
           ),
@@ -115,9 +115,9 @@ class BookingChangeTimeSlots extends StatelessWidget {
 
     return Container(
           decoration: BoxDecoration(
-            color: c.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(color: c.border),
+            border: Border.all(color: colors.border),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class BookingChangeTimeSlots extends StatelessWidget {
                 child: Text(
                   AppStrings.pickANewTime,
                   style: TextStyle(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: m.slotsHeaderTitleSize,
                     fontWeight: FontWeight.w700,
@@ -184,7 +184,7 @@ class BookingDaySlots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     try {
@@ -202,7 +202,7 @@ class BookingDaySlots extends StatelessWidget {
               ),
               child: Container(
                 height: 1,
-                color: c.border,
+                color: colors.border,
               ),
             ),
           Padding(
@@ -215,7 +215,7 @@ class BookingDaySlots extends StatelessWidget {
             child: Text(
               dateStr,
               style: TextStyle(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.dayLabelSize,
                 fontWeight: FontWeight.w600,
@@ -266,7 +266,7 @@ class BookingTimeSlotButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     final isAvailable = slot.remaining != null &&
@@ -295,28 +295,28 @@ class BookingTimeSlotButton extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               color: isAvailable
-                  ? c.brand.withValues(
+                  ? colors.brand.withValues(
                     alpha: 0.08,
                   )
-                  : c.border.withValues(
+                  : colors.border.withValues(
                     alpha: 0.3,
                   ),
               borderRadius:
                   BorderRadius.circular(m.slotRadius),
               border: Border.all(
                 color: isAvailable
-                    ? c.brand.withValues(
+                    ? colors.brand.withValues(
                       alpha: 0.4,
                     )
-                    : c.border,
+                    : colors.border,
               ),
             ),
             child: Text(
               timeStr,
               style: TextStyle(
                 color: isAvailable
-                    ? c.brand
-                    : c.textMuted,
+                    ? colors.brand
+                    : colors.textMuted,
                 fontFamily: 'Inter',
                 fontSize: m.slotTextSize,
                 fontWeight: FontWeight.w600,

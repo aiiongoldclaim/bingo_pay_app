@@ -20,15 +20,15 @@ class ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: padding ?? EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: c.border, width: 1),
+        border: Border.all(color: colors.border, width: 1),
       ),
       child: child,
     );
@@ -54,7 +54,7 @@ class ReviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -67,13 +67,13 @@ class ReviewRow extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: isTotal
                 ? AppTextStyles.titleMedium.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
               fontSize: m.totalLabelSize,
             )
                 : AppTextStyles.bodyMedium.copyWith(
-              color: c.textSecondary,
+              color: colors.textSecondary,
               fontFamily: 'Inter',
               fontSize: m.rowLabelSize,
             ),
@@ -85,13 +85,13 @@ class ReviewRow extends StatelessWidget {
           textAlign: TextAlign.right,
           style: isTotal
               ? AppTextStyles.titleLarge.copyWith(
-            color: c.brand,
+            color: colors.brand,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w800,
             fontSize: m.totalValueSize,
           )
               : AppTextStyles.bodyMedium.copyWith(
-            color: valueColor ?? c.textPrimary,
+            color: valueColor ?? colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
             fontSize: m.rowValueSize,
@@ -119,13 +119,13 @@ class ReviewInfoStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad * 0.85),
       decoration: BoxDecoration(
-        color: c.brandSoft,
+        color: colors.brandSoft,
         borderRadius: BorderRadius.circular(m.cardRadius),
       ),
       child: Row(
@@ -134,11 +134,11 @@ class ReviewInfoStrip extends StatelessWidget {
             width: m.stripIconBox,
             height: m.stripIconBox,
             decoration: BoxDecoration(
-              color: c.surface.withValues(alpha: c.isDark ? 0.10 : 0.7),
+              color: colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.7),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
-            child: Icon(icon, size: m.stripIconSize, color: c.brand),
+            child: Icon(icon, size: m.stripIconSize, color: colors.brand),
           ),
           SizedBox(width: m.cardPad * 0.7),
           Expanded(
@@ -151,7 +151,7 @@ class ReviewInfoStrip extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: c.brand,
+                    color: colors.brand,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.stripTitleSize,
@@ -165,7 +165,7 @@ class ReviewInfoStrip extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.stripSubSize,
                     height: 1.35,
@@ -195,19 +195,19 @@ class ReviewSectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
       children: [
         if (icon != null) ...[
-          Icon(icon, size: m.sectionLabelSize + 4, color: c.brand),
+          Icon(icon, size: m.sectionLabelSize + 4, color: colors.brand),
           SizedBox(width: m.gapXs * 1.4),
         ],
         Text(
           label.toUpperCase(),
           style: AppTextStyles.labelMedium.copyWith(
-            color: c.brand,
+            color: colors.brand,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
             fontSize: m.sectionLabelSize,
@@ -241,7 +241,7 @@ class ReviewOffersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (offers.isEmpty) return const SizedBox.shrink();
@@ -279,14 +279,14 @@ class ReviewOffersCard extends StatelessWidget {
                             width: m.offerIconBox,
                             height: m.offerIconBox,
                             decoration: BoxDecoration(
-                              color: c.brandSoft,
+                              color: colors.brandSoft,
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
                             child: Icon(
                               Icons.percent_rounded,
                               size: m.offerIconSize,
-                              color: c.brand,
+                              color: colors.brand,
                             ),
                           ),
                           SizedBox(width: m.cardPad * 0.7),
@@ -300,7 +300,7 @@ class ReviewOffersCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.labelLarge.copyWith(
-                                    color: c.textPrimary,
+                                    color: colors.textPrimary,
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w600,
                                     fontSize: m.offerTitleSize,
@@ -313,7 +313,7 @@ class ReviewOffersCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: c.textSecondary,
+                                    color: colors.textSecondary,
                                     fontFamily: 'Inter',
                                     fontSize: m.offerSubSize,
                                     height: 1.3,
@@ -325,7 +325,7 @@ class ReviewOffersCard extends StatelessWidget {
                           Icon(
                             Icons.chevron_right_rounded,
                             size: m.offerTitleSize + 10,
-                            color: c.textMuted,
+                            color: colors.textMuted,
                           ),
                         ],
                       ),
@@ -333,7 +333,7 @@ class ReviewOffersCard extends StatelessWidget {
                   ),
                 ),
                 if (!isLast)
-                  Divider(height: 1, thickness: 1, color: c.border),
+                  Divider(height: 1, thickness: 1, color: colors.border),
               ],
             );
           }),
@@ -352,7 +352,7 @@ class ReviewOffersCard extends StatelessWidget {
                     Text(
                       'View All Offers (${offers.length})',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: c.brand,
+                        color: colors.brand,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.linkSize,
@@ -362,7 +362,7 @@ class ReviewOffersCard extends StatelessWidget {
                     Icon(
                       Icons.chevron_right_rounded,
                       size: m.linkSize + 6,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ],
                 ),
@@ -400,7 +400,7 @@ class ReviewField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return TextField(
@@ -410,24 +410,24 @@ class ReviewField extends StatelessWidget {
       textCapitalization: textCapitalization,
       onChanged: onChanged,
       style: AppTextStyles.bodyMedium.copyWith(
-        color: c.textPrimary,
+        color: colors.textPrimary,
         fontFamily: 'Inter',
         fontSize: m.fieldTextSize,
       ),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: AppTextStyles.bodyMedium.copyWith(
-          color: c.textMuted,
+          color: colors.textMuted,
           fontFamily: 'Inter',
           fontSize: m.fieldTextSize,
         ),
         counterStyle: AppTextStyles.bodySmall.copyWith(
-          color: c.textMuted,
+          color: colors.textMuted,
           fontFamily: 'Inter',
           fontSize: m.offerSubSize,
         ),
         filled: true,
-        fillColor: c.surface,
+        fillColor: colors.surface,
         isDense: true,
         suffixIcon: suffix,
         contentPadding: EdgeInsets.symmetric(
@@ -436,15 +436,15 @@ class ReviewField extends StatelessWidget {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(m.fieldRadius),
-          borderSide: BorderSide(color: c.border),
+          borderSide: BorderSide(color: colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(m.fieldRadius),
-          borderSide: BorderSide(color: c.border),
+          borderSide: BorderSide(color: colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(m.fieldRadius),
-          borderSide: BorderSide(color: c.brand, width: 1.5),
+          borderSide: BorderSide(color: colors.brand, width: 1.5),
         ),
       ),
     );

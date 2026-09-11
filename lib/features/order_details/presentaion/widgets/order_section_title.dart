@@ -42,16 +42,16 @@ class OdCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       width: double.infinity,
       padding: padded ? EdgeInsets.all(m.cardPadding) : EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: color ?? c.surface,
+        color: color ?? colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: borderColor ?? c.border),
+        border: Border.all(color: borderColor ?? colors.border),
       ),
       child: child,
     );

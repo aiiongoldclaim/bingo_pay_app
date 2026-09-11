@@ -136,7 +136,7 @@ class BrandsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (isLoading) {
@@ -151,7 +151,7 @@ class BrandsGrid extends StatelessWidget {
             width: m.brandTileWidth,
             height: m.brandTileHeight,
             decoration: BoxDecoration(
-              color: c.surfaceAlt,
+              color: colors.surfaceAlt,
               borderRadius: BorderRadius.circular(m.brandRadius),
             ),
           ),
@@ -164,7 +164,7 @@ class BrandsGrid extends StatelessWidget {
         metrics: m,
         icon: Icons.error_outline_rounded,
         text: 'Failed to load brands',
-        color: c.textSecondary,
+        color: colors.textSecondary,
       );
     }
 
@@ -173,7 +173,7 @@ class BrandsGrid extends StatelessWidget {
         metrics: m,
         icon: Icons.storefront_outlined,
         text: 'No brands available',
-        color: c.textSecondary,
+        color: colors.textSecondary,
       );
     }
 

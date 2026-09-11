@@ -356,11 +356,11 @@ class WishlistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
-      color: c.surface,
+      color: colors.surface,
       borderRadius: BorderRadius.circular(m.cardRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -369,7 +369,7 @@ class WishlistCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(color: c.border, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +387,7 @@ class WishlistCard extends StatelessWidget {
                             m.cardRadius * 0.75,
                           ),
                           child: Container(
-                            color: c.surfaceAlt,
+                            color: colors.surfaceAlt,
                             child:
                             item.imageUrl != null &&
                                 item.imageUrl!.isNotEmpty
@@ -420,13 +420,13 @@ class WishlistCard extends StatelessWidget {
                             width: m.heartBox,
                             height: m.heartBox,
                             decoration: BoxDecoration(
-                              color: c.surface,
+                              color: colors.surface,
                               shape: BoxShape.circle,
-                              boxShadow: c.isDark
+                              boxShadow: colors.isDark
                                   ? null
                                   : [
                                 BoxShadow(
-                                  color: c.textPrimary.withValues(
+                                  color: colors.textPrimary.withValues(
                                     alpha: 0.10,
                                   ),
                                   blurRadius: 8,
@@ -451,7 +451,7 @@ class WishlistCard extends StatelessWidget {
                               m.cardRadius * 0.75,
                             ),
                             child: Container(
-                              color: c.textPrimary.withValues(alpha: 0.45),
+                              color: colors.textPrimary.withValues(alpha: 0.45),
                               alignment: Alignment.center,
                               child: Container(
                                 padding: EdgeInsets.symmetric(
@@ -459,13 +459,13 @@ class WishlistCard extends StatelessWidget {
                                   vertical: m.gapXs * 1.4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: c.surface,
+                                  color: colors.surface,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
                                   AppStrings.outOfStock,
                                   style: AppTextStyles.labelMedium.copyWith(
-                                    color: c.textPrimary,
+                                    color: colors.textPrimary,
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w700,
                                     fontSize: m.sizeChipSize,
@@ -497,7 +497,7 @@ class WishlistCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                           fontFamily: 'Inter',
                           fontSize: m.brandSize,
                           height: 1.2,
@@ -511,7 +511,7 @@ class WishlistCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.labelLarge.copyWith(
-                          color: c.textPrimary,
+                          color: colors.textPrimary,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w500,
                           fontSize: m.nameSize,
@@ -530,7 +530,7 @@ class WishlistCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.titleMedium.copyWith(
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
                                 fontSize: m.priceSize,
@@ -543,7 +543,7 @@ class WishlistCard extends StatelessWidget {
                             Text(
                               AppStrings.discountOff(item.discountPercent!),
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: c.statusSuccess,
+                                color: colors.statusSuccess,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w600,
                                 fontSize: m.sizeChipSize,
@@ -559,7 +559,7 @@ class WishlistCard extends StatelessWidget {
                         Text(
                           item.originalPrice!,
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: c.textMuted,
+                            color: colors.textMuted,
                             fontFamily: 'Inter',
                             fontSize: m.sizeChipSize,
                             decoration: TextDecoration.lineThrough,
@@ -578,7 +578,7 @@ class WishlistCard extends StatelessWidget {
                             child: SizedBox(
                               height: m.actionHeight,
                               child: Material(
-                                color: c.brandSoft,
+                                color: colors.brandSoft,
                                 borderRadius: BorderRadius.circular(10),
                                 clipBehavior: Clip.antiAlias,
                                 child:  InkWell(
@@ -595,7 +595,7 @@ class WishlistCard extends StatelessWidget {
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor:
-                                            AlwaysStoppedAnimation(c.brand),
+                                            AlwaysStoppedAnimation(colors.brand),
                                           ),
                                         )
                                       else
@@ -603,8 +603,8 @@ class WishlistCard extends StatelessWidget {
                                           Icons.shopping_bag_outlined,
                                           size: m.actionIconSize,
                                           color: item.inStock
-                                              ? c.brand
-                                              : c.textMuted,
+                                              ? colors.brand
+                                              : colors.textMuted,
                                         ),
                                       SizedBox(width: m.gapXs * 1.2),
                                       Flexible(
@@ -619,8 +619,8 @@ class WishlistCard extends StatelessWidget {
                                           style: AppTextStyles.labelMedium
                                               .copyWith(
                                             color: item.inStock
-                                                ? c.brand
-                                                : c.textMuted,
+                                                ? colors.brand
+                                                : colors.textMuted,
                                             fontFamily: 'Inter',
                                             fontWeight: FontWeight.w600,
                                             fontSize: m.actionFontSize,
@@ -649,7 +649,7 @@ class WishlistCard extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: c.border,
+                                      color: colors.border,
                                       width: 1,
                                     ),
                                   ),
@@ -657,7 +657,7 @@ class WishlistCard extends StatelessWidget {
                                   child: Icon(
                                     Icons.more_horiz_rounded,
                                     size: m.actionIconSize + 2,
-                                    color: c.textSecondary,
+                                    color: colors.textSecondary,
                                   ),
                                 ),
                               ),
@@ -683,12 +683,12 @@ class _PlaceholderIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     return Center(
       child: Icon(
         Icons.inventory_2_outlined,
         size: metrics.heartBox * 1.2,
-        color: c.textMuted,
+        color: colors.textMuted,
       ),
     );
   }
@@ -701,7 +701,7 @@ class _Badge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -710,13 +710,13 @@ class _Badge extends StatelessWidget {
         vertical: m.gapXs * 0.8,
       ),
       decoration: BoxDecoration(
-        color: c.brand,
+        color: colors.brand,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         label,
         style: AppTextStyles.labelMedium.copyWith(
-          color: c.surface,
+          color: colors.surface,
           fontFamily: 'Inter',
           fontWeight: FontWeight.w700,
           fontSize: m.sizeChipSize - 1,

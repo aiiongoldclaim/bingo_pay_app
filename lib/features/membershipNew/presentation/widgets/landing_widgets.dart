@@ -23,7 +23,7 @@ class MembershipSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -34,7 +34,7 @@ class MembershipSectionHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: m.sectionTitleSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
         ),
@@ -55,14 +55,14 @@ class MembershipSectionHeader extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.labelSize,
                       fontWeight: FontWeight.w600,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ),
                   SizedBox(width: m.cardPad * 0.15),
                   Icon(
                     Icons.chevron_right_rounded,
                     size: m.smallIcon,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ],
               ),
@@ -94,14 +94,14 @@ class MembershipBenefitsStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (items.isEmpty) return const SizedBox.shrink();
 
     Widget cell(MembershipEntitlement e) =>
         _BenefitStripCell(entitlement: e, metrics: m);
-    Widget vDivider() => Container(width: 1, color: c.border);
+    Widget vDivider() => Container(width: 1, color: colors.border);
 
     Widget content;
 
@@ -126,7 +126,7 @@ class MembershipBenefitsStrip extends StatelessWidget {
           ),
         );
         if (i + 2 < items.length) {
-          rows.add(Divider(height: 1, color: c.border));
+          rows.add(Divider(height: 1, color: colors.border));
         }
       }
       content = Column(children: rows);
@@ -149,7 +149,7 @@ class MembershipBenefitsStrip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: m.cardPad * 0.4),
       decoration: BoxDecoration(
-        color: c.surfaceAlt,
+        color: colors.surfaceAlt,
         borderRadius: BorderRadius.circular(m.radiusMd),
       ),
       child: content,
@@ -165,7 +165,7 @@ class _BenefitStripCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -187,7 +187,7 @@ class _BenefitStripCell extends StatelessWidget {
             style: TextStyle(
               fontSize: m.labelSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: m.rowGap * 0.25),
@@ -198,7 +198,7 @@ class _BenefitStripCell extends StatelessWidget {
               fontSize: m.captionSize,
               fontWeight: FontWeight.w400,
               height: 1.4,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ],
@@ -229,7 +229,7 @@ class MembershipIconCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final box = size ?? m.iconCircle;
 
@@ -237,13 +237,13 @@ class MembershipIconCircle extends StatelessWidget {
       width: box,
       height: box,
       decoration: BoxDecoration(
-        color: background ?? c.brandSoft,
+        color: background ?? colors.brandSoft,
         shape: BoxShape.circle,
       ),
       child: Icon(
         icon,
         size: size != null ? size! * 0.46 : m.circleIconSize,
-        color: foreground ?? c.brand,
+        color: foreground ?? colors.brand,
       ),
     );
   }
@@ -283,7 +283,7 @@ class MembershipPlanRowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -292,10 +292,10 @@ class MembershipPlanRowCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(m.cardPad),
         decoration: BoxDecoration(
-          color: selected ? c.brandSoft.withValues(alpha: 0.35) : c.surface,
+          color: selected ? colors.brandSoft.withValues(alpha: 0.35) : colors.surface,
           borderRadius: BorderRadius.circular(m.radiusMd),
           border: Border.all(
-            color: selected ? c.brand : c.border,
+            color: selected ? colors.brand : colors.border,
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -318,7 +318,7 @@ class MembershipPlanRowCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: m.sectionTitleSize,
                             fontWeight: FontWeight.w700,
-                            color: c.textPrimary,
+                            color: colors.textPrimary,
                           ),
                         ),
                       ),
@@ -327,8 +327,8 @@ class MembershipPlanRowCard extends StatelessWidget {
                         MembershipTag(
                           label: badge!,
                           metrics: m,
-                          background: c.brandSoft,
-                          foreground: c.brand,
+                          background: colors.brandSoft,
+                          foreground: colors.brand,
                         ),
                       ],
                     ],
@@ -343,7 +343,7 @@ class MembershipPlanRowCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: m.priceSize,
                           fontWeight: FontWeight.w700,
-                          color: c.textPrimary,
+                          color: colors.textPrimary,
                         ),
                       ),
                       SizedBox(width: m.cardPad * 0.2),
@@ -355,7 +355,7 @@ class MembershipPlanRowCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: m.labelSize,
                             fontWeight: FontWeight.w500,
-                            color: c.textSecondary,
+                            color: colors.textSecondary,
                           ),
                         ),
                       ),
@@ -368,7 +368,7 @@ class MembershipPlanRowCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.captionSize,
                         fontWeight: FontWeight.w500,
-                        color: c.textSecondary,
+                        color: colors.textSecondary,
                       ),
                     ),
                   ],
@@ -383,7 +383,7 @@ class MembershipPlanRowCard extends StatelessWidget {
                   MembershipTag(
                     label: trailingTag!,
                     metrics: m,
-                    background: trailingTagBackground ?? c.brand,
+                    background: trailingTagBackground ?? colors.brand,
                     foreground: trailingTagColor ?? ThemeColors.white,
                   ),
                   SizedBox(height: m.rowGap * 0.6),
@@ -393,7 +393,7 @@ class MembershipPlanRowCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.sectionTitleSize,
                     fontWeight: FontWeight.w700,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ],
@@ -451,7 +451,7 @@ class MembershipInfoStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -460,9 +460,9 @@ class MembershipInfoStrip extends StatelessWidget {
         vertical: m.cardPad * 0.8,
       ),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: c.border),
+        border: Border.all(color: colors.border),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -491,7 +491,7 @@ class MembershipInfoStrip extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: m.captionSize,
                                 fontWeight: FontWeight.w700,
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                               ),
                             ),
                             SizedBox(height: m.rowGap * 0.2),
@@ -501,7 +501,7 @@ class MembershipInfoStrip extends StatelessWidget {
                                 fontSize: m.captionSize * 0.94,
                                 fontWeight: FontWeight.w400,
                                 height: 1.35,
-                                color: c.textSecondary,
+                                color: colors.textSecondary,
                               ),
                             ),
                           ],
@@ -511,7 +511,7 @@ class MembershipInfoStrip extends StatelessWidget {
                   ),
                 ),
               ),
-              if (i != items.length - 1) Container(width: 1, color: c.border),
+              if (i != items.length - 1) Container(width: 1, color: colors.border),
             ],
           ],
         ),
@@ -540,7 +540,7 @@ class MembershipFooterLinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -558,7 +558,7 @@ class MembershipFooterLinkRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.labelSize,
                   fontWeight: FontWeight.w400,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ),
@@ -568,14 +568,14 @@ class MembershipFooterLinkRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w700,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
             const Spacer(),
             Icon(
               Icons.chevron_right_rounded,
               size: m.smallIcon,
-              color: c.brand,
+              color: colors.brand,
             ),
           ],
         ),
@@ -638,7 +638,7 @@ class MembershipRadio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -647,7 +647,7 @@ class MembershipRadio extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? c.brand : c.border,
+          color: selected ? colors.brand : colors.border,
           width: selected ? 2 : 1.4,
         ),
       ),
@@ -657,7 +657,7 @@ class MembershipRadio extends StatelessWidget {
           width: m.radioSize * 0.5,
           height: m.radioSize * 0.5,
           decoration: BoxDecoration(
-            color: c.brand,
+            color: colors.brand,
             shape: BoxShape.circle,
           ),
         ),

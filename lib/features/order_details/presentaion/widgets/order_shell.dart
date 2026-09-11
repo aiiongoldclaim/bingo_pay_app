@@ -1,8 +1,4 @@
-import 'package:bingo_pay/core/router/app_router.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'order_details_metrics.dart';
@@ -24,7 +20,7 @@ class OdHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -42,7 +38,7 @@ class OdHeader extends StatelessWidget {
               child: Icon(
                 Icons.arrow_back_ios_rounded,
                 size: m.headerIconSize,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -54,7 +50,7 @@ class OdHeader extends StatelessWidget {
                   brandName,
                   style: AppTextStyles.brandLogo.copyWith(
                     fontSize: m.logoSize,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ),
@@ -70,7 +66,7 @@ class OdHeader extends StatelessWidget {
                   Icon(
                     Icons.headset_mic_outlined,
                     size: m.headerIconSize * 0.82,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                   SizedBox(width: m.pagePadding * 0.3),
                   Text(
@@ -78,7 +74,7 @@ class OdHeader extends StatelessWidget {
                     style: TextStyle(
                       fontSize: m.helpFontSize,
                       fontWeight: FontWeight.w600,
-                      color: c.brand,
+                      color: colors.brand,
                     ),
                   ),
                 ],
@@ -110,7 +106,7 @@ class OdTitleBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -124,7 +120,7 @@ class OdTitleBlock extends StatelessWidget {
               fontSize: m.screenTitleSize,
               fontWeight: FontWeight.w700,
               height: 1.2,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(height: m.pagePadding * 0.4),
@@ -138,7 +134,7 @@ class OdTitleBlock extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.orderIdSize,
                     fontWeight: FontWeight.w600,
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                   ),
                 ),
               ),
@@ -150,7 +146,7 @@ class OdTitleBlock extends StatelessWidget {
                   child: Icon(
                     Icons.copy_rounded,
                     size: m.orderIdSize * 1.15,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ],
@@ -162,7 +158,7 @@ class OdTitleBlock extends StatelessWidget {
             style: TextStyle(
               fontSize: m.placedAtSize,
               height: 1.3,
-              color: c.textSecondary,
+              color: colors.textSecondary,
             ),
           ),
         ],
@@ -179,7 +175,7 @@ class OdSectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
       child: Text(
@@ -188,7 +184,7 @@ class OdSectionLabel extends StatelessWidget {
           fontSize: metrics.sectionLabelSize,
           fontWeight: FontWeight.w700,
           height: 1.2,
-          color: c.textPrimary,
+          color: colors.textPrimary,
         ),
       ),
     );
@@ -214,7 +210,7 @@ class OdCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -223,9 +219,9 @@ class OdCard extends StatelessWidget {
         width: double.infinity,
         padding: padded ? EdgeInsets.all(m.cardPadding) : EdgeInsets.zero,
         decoration: BoxDecoration(
-          color: background ?? c.surface,
+          color: background ?? colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: borderColor ?? c.border),
+          border: Border.all(color: borderColor ?? colors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: child,

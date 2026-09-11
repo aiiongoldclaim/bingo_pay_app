@@ -1,108 +1,17 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:sizer/sizer.dart';
-//
-// import '../../../../core/router/app_routes.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// import '../cubit/wishlist_cubit.dart';
-// import '../cubit/wishlist_state.dart';
-// import '../widgets/wishlist_card.dart';
-//
-// class WishlistScreen extends StatelessWidget {
-//   const WishlistScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: ThemeColors.background,
-//       appBar: AppBar(
-//         backgroundColor: ThemeColors.background,
-//         elevation: 0,
-//         scrolledUnderElevation: 0,
-//         title: const Text('Wishlist'),
-//       ),
-//       body: BlocBuilder<WishlistCubit, WishlistState>(
-//         builder: (context, state) {
-//           if (state.items.isEmpty) {
-//             return const _EmptyWishlist();
-//           }
-//
-//           return GridView.builder(
-//             padding: EdgeInsets.all(4.w),
-//             itemCount: state.items.length,
-//             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-//               crossAxisCount: 2,
-//               childAspectRatio: 0.56,
-//               crossAxisSpacing: 3.w,
-//               mainAxisSpacing: 2.h,
-//             ),
-//             itemBuilder: (context, index) {
-//               final item = state.items[index];
-//               return WishlistCard(
-//                 item: item,
-//                 onTap: () => context.push(
-//                   AppRoutes.productDetails,
-//                   extra: item.id,
-//                 ),
-//                 onRemove: () => context.read<WishlistCubit>().remove(item.id),
-//               );
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-//
-// class _EmptyWishlist extends StatelessWidget {
-//   const _EmptyWishlist();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Padding(
-//         padding: EdgeInsets.symmetric(horizontal: 10.w),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             Icon(
-//               Icons.favorite_border_rounded,
-//               size: 48.sp,
-//               color: ThemeColors.inkDim,
-//             ),
-//             SizedBox(height: 2.h),
-//             Text(
-//               'Your wishlist is empty',
-//               style: AppTextStyles.titleMedium.copyWith(
-//                 color: ThemeColors.inkMid,
-//               ),
-//             ),
-//             SizedBox(height: 1.h),
-//             Text(
-//               'Tap the heart icon on any product to save it here.',
-//               textAlign: TextAlign.center,
-//               style: AppTextStyles.bodyMedium,
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../product_details/data/models/product_details_model.dart';
 import '../../data/models/wishlist_model.dart';
@@ -112,7 +21,6 @@ import '../cubit/wishlist_state.dart';
 import '../widgets/promo_banner.dart';
 import '../widgets/wishlist_card.dart';
 import '../widgets/wishlist_metrics.dart';
-import '../widgets/wishlist_variant.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -126,6 +34,14 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
   void _openProduct(BuildContext context, WishlistItem item) {
     context.push(AppRoutes.productDetails, extra: item.id);
+  }
+
+  Future<void> _refresh(BuildContext context) async {
+    final authState = context.read<AuthBloc>().state;
+
+    if (authState is AuthAuthenticated) {
+      await context.read<WishlistCubit>().loadForUser(authState.user.id);
+    }
   }
 
   Future<void> _moveToBag(BuildContext context, WishlistItem item) async {
@@ -162,10 +78,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             .where((v) => v.availableStock > 0 && v.uuid.isNotEmpty)
             .toList();
         if (inStockVariants.length > 1) {
-          AppSnackbar.showError(
-            context,
-            AppStrings.multipleOptionsInStock,
-          );
+          AppSnackbar.showError(context, AppStrings.multipleOptionsInStock);
           _openProduct(context, item);
           return;
         }
@@ -179,15 +92,14 @@ class _WishlistScreenState extends State<WishlistScreen> {
       if (!mounted) return;
 
       if (variantUuid == null || variantUuid.isEmpty) {
-        AppSnackbar.showError(
-          context,
-          AppStrings.productCurrentlyUnavailable,
-        );
+        AppSnackbar.showError(context, AppStrings.productCurrentlyUnavailable);
         return;
       }
 
-      final result =
-          await cartCubit.addItem(variantUuid: variantUuid, quantity: 1);
+      final result = await cartCubit.addItem(
+        variantUuid: variantUuid,
+        quantity: 1,
+      );
       if (!mounted) return;
 
       if (!result.success) {
@@ -208,30 +120,36 @@ class _WishlistScreenState extends State<WishlistScreen> {
   }
 
   Future<void> _confirmClearAll(BuildContext context) async {
-    final c = context.c;
+    final colors = context.c;
     final cubit = context.read<WishlistCubit>();
     final items = List<WishlistItem>.from(cubit.state.items);
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: c.surface,
+        backgroundColor: colors.surface,
         title: Text(
           AppStrings.clearWishlistTitle,
-          style: AppTextStyles.titleMedium.copyWith(color: c.textPrimary),
+          style: AppTextStyles.titleMedium.copyWith(color: colors.textPrimary),
         ),
         content: Text(
           AppStrings.clearWishlistContent,
-          style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(color: colors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(AppStrings.cancel, style: TextStyle(color: c.textSecondary)),
+            child: Text(
+              AppStrings.cancel,
+              style: TextStyle(color: colors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(AppStrings.clear, style: TextStyle(color: c.statusWarning)),
+            child: Text(
+              AppStrings.clear,
+              style: TextStyle(color: colors.statusWarning),
+            ),
           ),
         ],
       ),
@@ -271,7 +189,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
             ),
             SizedBox(height: m.gapMd),
             ListTile(
-              leading: Icon(Icons.open_in_new_rounded, color: colors.textSecondary),
+              leading: Icon(
+                Icons.open_in_new_rounded,
+                color: colors.textSecondary,
+              ),
               title: Text(
                 AppStrings.viewProduct,
                 style: AppTextStyles.labelLarge.copyWith(
@@ -326,82 +247,90 @@ class _WishlistScreenState extends State<WishlistScreen> {
             onAction1: () => context.push(AppRoutes.search),
             actionIcon2: items.isEmpty ? null : Icons.delete_outline_rounded,
             onAction2: items.isEmpty ? null : () => _confirmClearAll(context),
+            actionIconGap: 4,
           ),
           body: SafeArea(
             bottom: false,
             child: items.isEmpty
                 ? WishlistEmptyView(metrics: metrics)
-                : Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: metrics.maxContentWidth,
-                ),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverPadding(
-                      padding: EdgeInsets.fromLTRB(
-                        metrics.pageHPad,
-                        metrics.gapMd,
-                        metrics.pageHPad,
-                        metrics.gapMd,
-                      ),
-                      sliver: SliverGrid(
-                        gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: metrics.crossAxisCount,
-                          childAspectRatio: metrics.cardAspectRatio,
-                          crossAxisSpacing: metrics.gridSpacing,
-                          mainAxisSpacing: metrics.gridSpacing,
+                : RefreshIndicator(
+                    color: colors.brand,
+                    backgroundColor: colors.surface,
+                    onRefresh: () => _refresh(context),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: metrics.maxContentWidth,
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                            final item = items[index];
-                            return WishlistCard(
-                              item: item,
-                              metrics: metrics,
-                              isPending: _pendingIds.contains(item.id),
-                              onTap: () => _openProduct(context, item),
-                              onRemove: () => context
-                                  .read<WishlistCubit>()
-                                  .remove(item.id),
-                              onMoveToBag: () => _moveToBag(context, item),
-                              onMore: () => _showItemSheet(context, item),
-                            );
-                          },
-                          childCount: items.length,
-                        ),
-                      ),
-                    ),
+                        child: CustomScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          slivers: [
+                            SliverPadding(
+                              padding: EdgeInsets.fromLTRB(
+                                metrics.pageHPad,
+                                metrics.gapMd,
+                                metrics.pageHPad,
+                                metrics.gapMd,
+                              ),
+                              sliver: SliverGrid(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: metrics.crossAxisCount,
+                                      childAspectRatio: metrics.cardAspectRatio,
+                                      crossAxisSpacing: metrics.gridSpacing,
+                                      mainAxisSpacing: metrics.gridSpacing,
+                                    ),
+                                delegate: SliverChildBuilderDelegate((
+                                  context,
+                                  index,
+                                ) {
+                                  final item = items[index];
+                                  return WishlistCard(
+                                    item: item,
+                                    metrics: metrics,
+                                    isPending: _pendingIds.contains(item.id),
+                                    onTap: () => _openProduct(context, item),
+                                    onRemove: () => context
+                                        .read<WishlistCubit>()
+                                        .remove(item.id),
+                                    onMoveToBag: () =>
+                                        _moveToBag(context, item),
+                                    onMore: () => _showItemSheet(context, item),
+                                  );
+                                }, childCount: items.length),
+                              ),
+                            ),
 
-                    SliverPadding(
-                      padding: EdgeInsets.fromLTRB(
-                        metrics.pageHPad,
-                        0,
-                        metrics.pageHPad,
-                        metrics.gapLg,
-                      ),
-                      sliver: SliverToBoxAdapter(
-                        child: AppPromoBanner(
-                          title: AppStrings.promoWishlistTitle,
-                          subtitle: AppStrings.promoWishlistSubtitle,
-                          buttonLabel: AppStrings.exploreNow,
-                          imagePath: AppImages.wishlistImg,
-                          fallbackIcon: Icons.shopping_bag_rounded,
-                          onPressed: () => context.go(AppRoutes.home),
-                          padding: metrics.promoPad,
-                          radius: metrics.promoRadius,
-                          titleSize: metrics.promoTitleSize,
-                          subtitleSize: metrics.promoSubSize,
-                          buttonHeight: metrics.promoBtnHeight,
-                          buttonFontSize: metrics.promoBtnFontSize,
-                          artSize: metrics.promoArtSize,
+                            SliverPadding(
+                              padding: EdgeInsets.fromLTRB(
+                                metrics.pageHPad,
+                                0,
+                                metrics.pageHPad,
+                                metrics.gapLg,
+                              ),
+                              sliver: SliverToBoxAdapter(
+                                child: AppPromoBanner(
+                                  title: AppStrings.promoWishlistTitle,
+                                  subtitle: AppStrings.promoWishlistSubtitle,
+                                  buttonLabel: AppStrings.exploreNow,
+                                  imagePath: AppImages.wishlistImg,
+                                  fallbackIcon: Icons.shopping_bag_rounded,
+                                  onPressed: () => context.go(AppRoutes.home),
+                                  padding: metrics.promoPad,
+                                  radius: metrics.promoRadius,
+                                  titleSize: metrics.promoTitleSize,
+                                  subtitleSize: metrics.promoSubSize,
+                                  buttonHeight: metrics.promoBtnHeight,
+                                  buttonFontSize: metrics.promoBtnFontSize,
+                                  artSize: metrics.promoArtSize,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
           ),
         );
       },
@@ -425,15 +354,6 @@ class WishlistEmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // SizedBox(
-            //   width: metrics.emptyIllustration,
-            //   height: metrics.emptyIllustration,
-            //   child: Lottie.asset(
-            //     'assets/animations/empty_wishlist.json',
-            //     fit: BoxFit.contain,
-            //     repeat: true,
-            //   ),
-            // ),
             Container(
               width: metrics.emptyIllustration,
               height: metrics.emptyIllustration,
@@ -479,31 +399,11 @@ class WishlistEmptyView extends StatelessWidget {
 
             SizedBox(
               width: metrics.isTablet ? 260 : null,
-              height: metrics.promoBtnHeight,
-              child: Material(
-                color: colors.brand,
-                borderRadius: BorderRadius.circular(12),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: () => context.go(AppRoutes.home),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: metrics.promoPad,
-                    ),
-                    child: Center(
-                      child: Text(
-                        AppStrings.exploreNowUppercase,
-                        style: AppTextStyles.buttonText.copyWith(
-                          color: colors.onBrand,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w700,
-                          fontSize: metrics.promoBtnFontSize,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              child: AppButton(
+                label: AppStrings.exploreNowUppercase,
+                height: metrics.promoBtnHeight,
+                fontSize: metrics.promoBtnFontSize,
+                onPressed: () => context.go(AppRoutes.home),
               ),
             ),
           ],

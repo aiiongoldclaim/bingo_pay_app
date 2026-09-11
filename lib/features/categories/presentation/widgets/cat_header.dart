@@ -24,7 +24,7 @@ class CatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -41,7 +41,7 @@ class CatHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.brandLogo.copyWith(
                   fontSize: m.logoSize,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ),
               SizedBox(height: m.pagePadding * 0.15),
@@ -52,7 +52,7 @@ class CatHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: m.taglineSize,
                   height: 1.2,
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                 ),
               ),
             ],
@@ -61,16 +61,16 @@ class CatHeader extends StatelessWidget {
         _HeaderIcon(
           icon: Icons.favorite_border_rounded,
           size: m.headerIconSize,
-          color: c.textPrimary,
+          color: colors.textPrimary,
           onTap: onWishlistTap,
         ),
         SizedBox(width: m.pagePadding),
         _HeaderIcon(
           icon: Icons.shopping_bag_outlined,
           size: m.headerIconSize,
-          color: c.textPrimary,
+          color: colors.textPrimary,
           badgeCount: cartCount,
-          badgeColor: c.brand,
+          badgeColor: colors.brand,
           onTap: onCartTap,
         ),
       ],

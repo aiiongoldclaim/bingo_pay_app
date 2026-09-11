@@ -260,16 +260,16 @@ class InvoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = PaymentSuccessMetrics.of(context);
 
     return Container(
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
         boxShadow: [
           BoxShadow(
-            color: c.brand.withValues(alpha: c.isDark ? 0.24 : 0.10),
+            color: colors.brand.withValues(alpha: colors.isDark ? 0.24 : 0.10),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -342,7 +342,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -351,7 +351,7 @@ class _Header extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [c.brand, c.brand.withValues(alpha: 0.86)],
+          colors: [colors.brand, colors.brand.withValues(alpha: 0.86)],
         ),
       ),
       child: Column(
@@ -364,14 +364,14 @@ class _Header extends StatelessWidget {
                 width: m.merchantAvatar,
                 height: m.merchantAvatar,
                 decoration: BoxDecoration(
-                  color: c.surface.withValues(alpha: 0.18),
+                  color: colors.surface.withValues(alpha: 0.18),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.storefront_outlined,
                   size: m.merchantIconSize,
-                  color: c.surface,
+                  color: colors.surface,
                 ),
               ),
 
@@ -385,7 +385,7 @@ class _Header extends StatelessWidget {
                     Text(
                       'Bingold Pay',
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: c.surface,
+                        color: colors.surface,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w800,
                         fontSize: m.merchantNameSize,
@@ -398,7 +398,7 @@ class _Header extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: c.surface,
+                        color: colors.surface,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.invoiceNoSize,
@@ -418,7 +418,7 @@ class _Header extends StatelessWidget {
               Text(
                 'Tax Invoice',
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: c.surface.withValues(alpha: 0.82),
+                  color: colors.surface.withValues(alpha: 0.82),
                   fontFamily: 'Inter',
                   fontSize: m.metaSize,
                 ),
@@ -427,13 +427,13 @@ class _Header extends StatelessWidget {
               Icon(
                 Icons.calendar_today_outlined,
                 size: m.metaSize + 3,
-                color: c.surface.withValues(alpha: 0.82),
+                color: colors.surface.withValues(alpha: 0.82),
               ),
               SizedBox(width: m.gapXs * 1.2),
               Text(
                 date,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: c.surface.withValues(alpha: 0.92),
+                  color: colors.surface.withValues(alpha: 0.92),
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
                   fontSize: m.metaSize,
@@ -466,7 +466,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -476,11 +476,11 @@ class _InfoRow extends StatelessWidget {
           width: m.rowIconBox,
           height: m.rowIconBox,
           decoration: BoxDecoration(
-            color: c.brandSoft,
+            color: colors.brandSoft,
             borderRadius: BorderRadius.circular(m.rowIconRadius),
           ),
           alignment: Alignment.center,
-          child: Icon(icon, size: m.rowIconSize, color: c.brand),
+          child: Icon(icon, size: m.rowIconSize, color: colors.brand),
         ),
 
         SizedBox(width: m.bodyPad * 0.7),
@@ -494,7 +494,7 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   label!,
                   style: AppTextStyles.labelSmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.rowLabelSize,
@@ -508,7 +508,7 @@ class _InfoRow extends StatelessWidget {
               Text(
                 title,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.rowTitleSize,
@@ -521,7 +521,7 @@ class _InfoRow extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.rowSubSize,
                     height: 1.4,
@@ -539,7 +539,7 @@ class _InfoRow extends StatelessWidget {
             child: Text(
               trailing!,
               style: AppTextStyles.titleMedium.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w800,
                 fontSize: m.rowAmountSize,
@@ -560,7 +560,7 @@ class _PaidRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -569,14 +569,14 @@ class _PaidRow extends StatelessWidget {
           width: m.rowIconBox,
           height: m.rowIconBox,
           decoration: BoxDecoration(
-            color: c.brandSoft,
+            color: colors.brandSoft,
             borderRadius: BorderRadius.circular(m.rowIconRadius),
           ),
           alignment: Alignment.center,
           child: Icon(
             Icons.account_balance_wallet_outlined,
             size: m.rowIconSize,
-            color: c.brand,
+            color: colors.brand,
           ),
         ),
 
@@ -586,7 +586,7 @@ class _PaidRow extends StatelessWidget {
           child: Text(
             'Amount Paid',
             style: AppTextStyles.labelLarge.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
               fontSize: m.rowTitleSize,
@@ -597,7 +597,7 @@ class _PaidRow extends StatelessWidget {
         Text(
           amount,
           style: AppTextStyles.titleLarge.copyWith(
-            color: c.statusSuccess,
+            color: colors.statusSuccess,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w800,
             fontSize: m.paidAmountSize,
@@ -615,10 +615,10 @@ class _Sep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: metrics.bodyPad * 0.75),
-      child: Divider(height: 1, thickness: 1, color: c.border),
+      child: Divider(height: 1, thickness: 1, color: colors.border),
     );
   }
 }

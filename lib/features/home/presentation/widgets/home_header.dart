@@ -101,7 +101,7 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return SizedBox(
       height: metrics.headerHeight,
@@ -110,7 +110,7 @@ class HomeHeader extends StatelessWidget {
           _HeaderIcon(
             icon: Icons.menu_rounded,
             size: metrics.headerIconSize,
-            color: c.textPrimary,
+            color: colors.textPrimary,
             onTap: onMenuTap,
           ),
           Expanded(
@@ -121,7 +121,7 @@ class HomeHeader extends StatelessWidget {
                   brandName,
                   style: AppTextStyles.brandLogo.copyWith(
                     fontSize: metrics.logoSize,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ),
@@ -130,16 +130,16 @@ class HomeHeader extends StatelessWidget {
           _HeaderIcon(
             icon: Icons.favorite_border_rounded,
             size: metrics.headerIconSize,
-            color: c.textPrimary,
+            color: colors.textPrimary,
             onTap: onWishlistTap,
           ),
           SizedBox(width: metrics.pagePadding * 0.9),
           _HeaderIcon(
             icon: Icons.shopping_bag_outlined,
             size: metrics.headerIconSize,
-            color: c.textPrimary,
+            color: colors.textPrimary,
             badgeCount: cartCount,
-            badgeColor: c.brand,
+            badgeColor: colors.brand,
             onTap: onCartTap,
           ),
         ],

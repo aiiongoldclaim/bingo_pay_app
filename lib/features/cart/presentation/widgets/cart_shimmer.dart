@@ -5,9 +5,6 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import 'cart_metrics.dart';
 
-/// Loading placeholder for the Cart screen, shown while loadCart() is in
-/// flight — mirrors the loaded layout (title block, delivery banner, item
-/// rows, price summary) instead of a bare spinner.
 class CartShimmer extends StatelessWidget {
   const CartShimmer({super.key, required this.metrics});
 

@@ -41,31 +41,31 @@ class OrderStatusStyle {
   }
 
   static OrderStatusStyle of(BuildContext context, String rawStatus) {
-    final c = context.c;
+    final colors = context.c;
     switch (toneOf(rawStatus)) {
       case OrderStatusTone.delivered:
         return OrderStatusStyle(
-          foreground: c.statusSuccess,
-          background: c.statusSuccessSoft,
+          foreground: colors.statusSuccess,
+          background: colors.statusSuccessSoft,
           icon: Icons.check_circle_outline_rounded,
         );
       case OrderStatusTone.pending:
         return OrderStatusStyle(
-          foreground: c.statusWarning,
-          background: c.statusWarningSoft,
+          foreground: colors.statusWarning,
+          background: colors.statusWarningSoft,
           icon: Icons.access_time_rounded,
         );
       case OrderStatusTone.cancelled:
         return OrderStatusStyle(
           foreground: const Color(0xFFE0533B),
-          background: c.surfaceAlt,
+          background: colors.surfaceAlt,
           icon: Icons.cancel_outlined,
         );
       case OrderStatusTone.shipping:
       case OrderStatusTone.processing:
         return OrderStatusStyle(
-          foreground: c.statusInfo,
-          background: c.brandSoft,
+          foreground: colors.statusInfo,
+          background: colors.brandSoft,
           icon: Icons.local_shipping_outlined,
         );
     }

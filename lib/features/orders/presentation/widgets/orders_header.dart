@@ -22,7 +22,7 @@ class OrdersHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -43,7 +43,7 @@ class OrdersHeader extends StatelessWidget {
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: m.headerIconSize * 0.8,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -59,7 +59,7 @@ class OrdersHeader extends StatelessWidget {
                   style: AppTextStyles.brandLogo.copyWith(
                     fontSize: m.titleSize,
                     fontWeight: FontWeight.w700,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
                 SizedBox(height: m.pagePadding * 0.15),
@@ -70,7 +70,7 @@ class OrdersHeader extends StatelessWidget {
                   style: TextStyle(
                     fontSize: m.subtitleSize,
                     height: 1.2,
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                   ),
                 ),
               ],
@@ -84,7 +84,7 @@ class OrdersHeader extends StatelessWidget {
               child: Icon(
                 Icons.search_rounded,
                 size: m.headerIconSize,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),

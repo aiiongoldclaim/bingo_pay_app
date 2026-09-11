@@ -32,18 +32,18 @@ class MembershipDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(
           m.radiusLg,
         ),
         border: Border.all(
-          color: c.border,
+          color: colors.border,
         ),
       ),
       child: Column(
@@ -55,7 +55,7 @@ class MembershipDetailsCard extends StatelessWidget {
             style: TextStyle(
               fontSize: m.sectionTitleSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(
@@ -69,7 +69,7 @@ class MembershipDetailsCard extends StatelessWidget {
             if (i != items.length - 1)
               Divider(
                 height: 1,
-                color: c.border,
+                color: colors.border,
               ),
           ],
         ],
@@ -102,7 +102,7 @@ class MembershipDetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -115,7 +115,7 @@ class MembershipDetailRow extends StatelessWidget {
             width: m.iconCircle * 0.6,
             height: m.iconCircle * 0.6,
             decoration: BoxDecoration(
-              color: c.brandSoft,
+              color: colors.brandSoft,
               borderRadius: BorderRadius.circular(
                 m.radiusSm,
               ),
@@ -123,7 +123,7 @@ class MembershipDetailRow extends StatelessWidget {
             child: Icon(
               item.icon,
               size: m.iconSize * 0.7,
-              color: c.brand,
+              color: colors.brand,
             ),
           ),
           SizedBox(
@@ -135,7 +135,7 @@ class MembershipDetailRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w500,
-                color: c.textPrimary,
+                color: colors.textPrimary,
               ),
             ),
           ),
@@ -148,7 +148,7 @@ class MembershipDetailRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: m.labelSize,
                 fontWeight: FontWeight.w600,
-                color: c.textSecondary,
+                color: colors.textSecondary,
               ),
             ),
           ),

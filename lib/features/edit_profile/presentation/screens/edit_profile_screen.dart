@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/widgets/app_bottom_sheets.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../cubit/edit_profile_cubit.dart';
 import '../cubit/edit_profile_state.dart';
@@ -24,6 +24,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   bool _seeded = false;
+  bool _editingName = false;
+  bool _editingPhone = false;
 
   @override
   void initState() {
@@ -39,113 +41,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _pickPhoto() {
-    final cubit = context.read<EditProfileCubit>();
-
-    showAppSheet<void>(
-      context: context,
-      builder: (sheetContext) {
-        final c = sheetContext.c;
-        final m = EditProfileMetrics.of(sheetContext);
-
-        Widget tile(IconData icon, String label, VoidCallback onTap) =>
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  onTap();
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: m.gapSm * 1.1),
-                  child: Row(
-                    children: [
-                      Icon(icon, size: m.fieldIconSize, color: c.brand),
-                      SizedBox(width: m.cardPad * 0.7),
-                      Text(
-                        label,
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: c.textPrimary,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w500,
-                          fontSize: m.fieldTextSize,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-
-        return AppSheetShell(
-          title: 'Change Photo',
-          scrollable: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              tile(
-                Icons.photo_camera_outlined,
-                'Take Photo',
-                    () => cubit.pickImage(fromCamera: true),
-              ),
-              Divider(height: 1, thickness: 1, color: c.border),
-              tile(
-                Icons.photo_library_outlined,
-                'Choose from Gallery',
-                    () => cubit.pickImage(),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    context.read<EditProfileCubit>().pickImage();
   }
 
-  /// Inline edit ke liye bottom sheet — image jaisa pencil tap
-  Future<void> _editField({
-    required String title,
-    required String label,
-    required String hint,
-    required TextEditingController controller,
-    TextInputType? keyboardType,
-    TextCapitalization textCapitalization = TextCapitalization.none,
-    List<TextInputFormatter>? inputFormatters,
-  }) async {
-    final temp = TextEditingController(text: controller.text);
-
-    await showAppSheet<void>(
-      context: context,
-      builder: (sheetContext) {
-        final m = EditProfileMetrics.of(sheetContext);
-
-        return AppSheetShell(
-          title: title,
-          footer: AppSheetButton(
-            label: 'DONE',
-            onTap: () {
-              setState(() => controller.text = temp.text.trim());
-              Navigator.pop(sheetContext);
-            },
-          ),
-          child: _SheetField(
-            metrics: m,
-            label: label,
-            hint: hint,
-            controller: temp,
-            keyboardType: keyboardType,
-            textCapitalization: textCapitalization,
-            inputFormatters: inputFormatters,
-          ),
-        );
-      },
-    );
-
-    temp.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return BlocConsumer<EditProfileCubit, EditProfileState>(
       listenWhen: (prev, curr) =>
@@ -189,16 +91,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               metrics: m,
               icon: Icons.person_outline_rounded,
               label: 'FULL NAME',
-              value: _nameCtrl.text,
+              controller: _nameCtrl,
               placeholder: 'Add your name',
               error: state.nameError,
-              onEdit: () => _editField(
-                title: 'Full Name',
-                label: 'Full Name',
-                hint: 'Enter your full name',
-                controller: _nameCtrl,
-                textCapitalization: TextCapitalization.words,
-              ),
+              isEditing: _editingName,
+              onToggleEdit: () => setState(() => _editingName = !_editingName),
+              textCapitalization: TextCapitalization.words,
             ),
 
             SizedBox(height: m.gapMd),
@@ -207,20 +105,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               metrics: m,
               icon: Icons.phone_outlined,
               label: 'PHONE NUMBER',
-              value: _phoneCtrl.text,
+              controller: _phoneCtrl,
               placeholder: 'Add your phone number',
               error: state.phoneError,
-              onEdit: () => _editField(
-                title: 'Phone Number',
-                label: 'Phone Number',
-                hint: 'Enter your phone number',
-                controller: _phoneCtrl,
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+\- ]')),
-                  LengthLimitingTextInputFormatter(18),
-                ],
-              ),
+              isEditing: _editingPhone,
+              onToggleEdit: () =>
+                  setState(() => _editingPhone = !_editingPhone),
+              keyboardType: TextInputType.phone,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9+\- ]')),
+                LengthLimitingTextInputFormatter(18),
+              ],
             ),
           ],
         );
@@ -235,7 +130,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
 
         return Scaffold(
-          backgroundColor: c.background,
+          backgroundColor: colors.background,
           body: SafeArea(
             bottom: false,
             child: Column(
@@ -323,56 +218,70 @@ class _EditTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: m.gapSm),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => context.canPop()
-                ? context.pop()
-                : context.go(AppRoutes.profile),
-            splashRadius: m.backIconSize * 1.2,
-            icon: Icon(
-              Icons.arrow_back_ios_rounded,
-              size: m.backIconSize,
-              color: c.brand,
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.background,
+        border: Border(bottom: BorderSide(color: colors.border, width: 1)),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          m.pageHPad * 0.5,
+          m.pageVPad,
+          m.pageHPad,
+          m.pageVPad,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () => context.canPop()
+                  ? context.pop()
+                  : context.go(AppRoutes.profile),
+              splashRadius: m.backIconSize * 1.2,
+              icon: Icon(
+                Icons.arrow_back_ios_rounded,
+                size: m.backIconSize,
+                color: colors.textPrimary,
+              ),
             ),
-          ),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Edit Profile',
-                  style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                    fontSize: m.titleSize,
-                    height: 1.2,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Edit Profile',
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      color: colors.textPrimary,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      fontSize: m.titleSize,
+                      letterSpacing: -0.3,
+                      height: 1.1,
+                    ),
                   ),
-                ),
-                SizedBox(height: m.gapXs * 0.6),
-                Text(
-                  'Manage your personal information',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textSecondary,
-                    fontFamily: 'Inter',
-                    fontSize: m.avatarHintSize,
-                    height: 1.2,
+                  SizedBox(height: m.gapXs * 0.6),
+                  Text(
+                    'Manage your personal information',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: colors.textSecondary,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      fontSize: m.avatarHintSize,
+                      height: 1.2,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -392,7 +301,7 @@ class _AvatarBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final profile = state.profile;
     final picked = state.pickedImage;
@@ -438,10 +347,10 @@ class _AvatarBlock extends StatelessWidget {
                 width: m.avatarSize,
                 height: m.avatarSize,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: c.brand.withValues(alpha: 0.25),
+                    color: colors.brand.withValues(alpha: 0.25),
                     width: 2,
                   ),
                 ),
@@ -452,9 +361,9 @@ class _AvatarBlock extends StatelessWidget {
                 right: 0,
                 bottom: m.avatarSize * 0.06,
                 child: Material(
-                  color: c.brand,
+                  color: colors.brand,
                   shape: CircleBorder(
-                    side: BorderSide(color: c.background, width: 3),
+                    side: BorderSide(color: colors.background, width: 3),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
@@ -465,7 +374,7 @@ class _AvatarBlock extends StatelessWidget {
                       child: Icon(
                         Icons.photo_camera_rounded,
                         size: m.cameraIconSize,
-                        color: c.surface,
+                        color: colors.surface,
                       ),
                     ),
                   ),
@@ -485,7 +394,7 @@ class _AvatarBlock extends StatelessWidget {
             child: Text(
               'Change Profile Photo',
               style: AppTextStyles.titleMedium.copyWith(
-                color: c.brand,
+                color: colors.brand,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.avatarNameSize,
@@ -499,7 +408,7 @@ class _AvatarBlock extends StatelessWidget {
         Text(
           'Max size 2MB',
           style: AppTextStyles.bodySmall.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.avatarHintSize,
           ),
@@ -517,21 +426,21 @@ class _Initials extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final initials = profile?.initials;
 
     if (initials == null || initials == '?' || initials.toString().isEmpty) {
       return Icon(
         Icons.person_rounded,
         size: metrics.avatarSize * 0.5,
-        color: c.brand,
+        color: colors.brand,
       );
     }
 
     return Text(
       initials,
       style: AppTextStyles.titleLarge.copyWith(
-        color: c.brand,
+        color: colors.brand,
         fontFamily: 'Inter',
         fontWeight: FontWeight.w700,
         fontSize: metrics.avatarInitialSize,
@@ -549,13 +458,13 @@ class _EmailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.brandSoft,
+        color: colors.brandSoft,
         borderRadius: BorderRadius.circular(m.cardRadius),
       ),
       child: Column(
@@ -569,14 +478,14 @@ class _EmailCard extends StatelessWidget {
                 width: m.fieldHeight * 0.85,
                 height: m.fieldHeight * 0.85,
                 decoration: BoxDecoration(
-                  color: c.surface.withValues(alpha: c.isDark ? 0.10 : 0.7),
+                  color: colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.7),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.mail_outline_rounded,
                   size: m.fieldIconSize,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ),
 
@@ -590,7 +499,7 @@ class _EmailCard extends StatelessWidget {
                     Text(
                       'EMAIL ADDRESS',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: c.brand,
+                        color: colors.brand,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
                         fontSize: m.fieldLabelSize,
@@ -603,7 +512,7 @@ class _EmailCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.titleMedium.copyWith(
-                        color: c.textPrimary,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: m.fieldTextSize,
@@ -622,13 +531,13 @@ class _EmailCard extends StatelessWidget {
                   vertical: m.gapXs * 1.4,
                 ),
                 decoration: BoxDecoration(
-                  color: c.surface.withValues(alpha: c.isDark ? 0.10 : 0.8),
+                  color: colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.8),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   'Not editable',
                   style: AppTextStyles.labelMedium.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w600,
                     fontSize: m.errorSize,
@@ -645,14 +554,14 @@ class _EmailCard extends StatelessWidget {
               Icon(
                 Icons.lock_outline_rounded,
                 size: m.errorSize + 4,
-                color: c.textMuted,
+                color: colors.textMuted,
               ),
               SizedBox(width: m.gapSm * 0.8),
               Expanded(
                 child: Text(
                   'Your email address cannot be changed',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.errorSize,
                   ),
@@ -666,109 +575,146 @@ class _EmailCard extends StatelessWidget {
   }
 }
 
-// ── Editable info tile ─────────────────────────────────────────────────────
+// ── Editable info tile — edits inline, no sheet/screen navigation ──────────
 class _InfoTile extends StatelessWidget {
   final EditProfileMetrics metrics;
   final IconData icon;
   final String label;
-  final String value;
+  final TextEditingController controller;
   final String placeholder;
   final String? error;
-  final VoidCallback onEdit;
+  final bool isEditing;
+  final VoidCallback onToggleEdit;
+  final TextInputType? keyboardType;
+  final TextCapitalization textCapitalization;
+  final List<TextInputFormatter>? inputFormatters;
 
   const _InfoTile({
     required this.metrics,
     required this.icon,
     required this.label,
-    required this.value,
+    required this.controller,
     required this.placeholder,
     required this.error,
-    required this.onEdit,
+    required this.isEditing,
+    required this.onToggleEdit,
+    this.keyboardType,
+    this.textCapitalization = TextCapitalization.none,
+    this.inputFormatters,
   });
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final hasError = error != null;
-    final isEmpty = value.trim().isEmpty;
+    final isEmpty = controller.text.trim().isEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(m.cardRadius),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onEdit,
-            child: Container(
-              padding: EdgeInsets.all(m.cardPad * 0.85),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(m.cardRadius),
-                border: Border.all(
-                  color: hasError ? c.statusWarning : c.border,
-                  width: hasError ? 1.5 : 1,
+        Container(
+          padding: EdgeInsets.all(m.cardPad * 0.85),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(m.cardRadius),
+            border: Border.all(
+              color: hasError
+                  ? colors.statusWarning
+                  : (isEditing ? colors.brand : colors.border),
+              width: hasError || isEditing ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: m.fieldHeight * 0.85,
+                height: m.fieldHeight * 0.85,
+                decoration: BoxDecoration(
+                  color: colors.brandSoft,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(icon, size: m.fieldIconSize, color: colors.brand),
+              ),
+
+              SizedBox(width: m.cardPad * 0.7),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: colors.brand,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: m.fieldLabelSize,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    SizedBox(height: m.gapXs),
+                    isEditing
+                        ? TextField(
+                            controller: controller,
+                            autofocus: true,
+                            keyboardType: keyboardType,
+                            textCapitalization: textCapitalization,
+                            inputFormatters: inputFormatters,
+                            onSubmitted: (_) => onToggleEdit(),
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: colors.textPrimary,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
+                              fontSize: m.fieldTextSize,
+                              height: 1.3,
+                            ),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              hintText: placeholder,
+                              hintStyle: AppTextStyles.titleMedium.copyWith(
+                                color: colors.textMuted,
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                fontSize: m.fieldTextSize,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            isEmpty ? placeholder : controller.text,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.titleMedium.copyWith(
+                              color: isEmpty ? colors.textMuted : colors.textPrimary,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
+                              fontSize: m.fieldTextSize,
+                              height: 1.3,
+                            ),
+                          ),
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: m.fieldHeight * 0.85,
-                    height: m.fieldHeight * 0.85,
-                    decoration: BoxDecoration(
-                      color: c.brandSoft,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(icon, size: m.fieldIconSize, color: c.brand),
-                  ),
 
-                  SizedBox(width: m.cardPad * 0.7),
+              SizedBox(width: m.gapSm),
 
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          label,
-                          style: AppTextStyles.labelMedium.copyWith(
-                            color: c.brand,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: m.fieldLabelSize,
-                            letterSpacing: 0.6,
-                          ),
-                        ),
-                        SizedBox(height: m.gapXs),
-                        Text(
-                          isEmpty ? placeholder : value,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: isEmpty ? c.textMuted : c.textPrimary,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                            fontSize: m.fieldTextSize,
-                            height: 1.3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(width: m.gapSm),
-
-                  Icon(
-                    Icons.edit_outlined,
-                    size: m.fieldIconSize,
-                    color: c.brand,
-                  ),
-                ],
+              IconButton(
+                onPressed: onToggleEdit,
+                splashRadius: m.fieldIconSize,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(
+                  isEditing ? Icons.check_rounded : Icons.edit_outlined,
+                  size: m.fieldIconSize,
+                  color: colors.brand,
+                ),
               ),
-            ),
+            ],
           ),
         ),
 
@@ -781,14 +727,14 @@ class _InfoTile extends StatelessWidget {
                 Icon(
                   Icons.info_outline_rounded,
                   size: m.errorSize + 2,
-                  color: c.statusWarning,
+                  color: colors.statusWarning,
                 ),
                 SizedBox(width: m.gapXs),
                 Flexible(
                   child: Text(
                     error!,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: c.statusWarning,
+                      color: colors.statusWarning,
                       fontFamily: 'Inter',
                       fontSize: m.errorSize,
                     ),
@@ -798,91 +744,6 @@ class _InfoTile extends StatelessWidget {
             ),
           ),
         ],
-      ],
-    );
-  }
-}
-
-// ── Sheet field ────────────────────────────────────────────────────────────
-class _SheetField extends StatelessWidget {
-  final EditProfileMetrics metrics;
-  final String label;
-  final String hint;
-  final TextEditingController controller;
-  final TextInputType? keyboardType;
-  final TextCapitalization textCapitalization;
-  final List<TextInputFormatter>? inputFormatters;
-
-  const _SheetField({
-    required this.metrics,
-    required this.label,
-    required this.hint,
-    required this.controller,
-    this.keyboardType,
-    this.textCapitalization = TextCapitalization.none,
-    this.inputFormatters,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.c;
-    final m = metrics;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: c.textSecondary,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w500,
-            fontSize: m.fieldLabelSize,
-          ),
-        ),
-
-        SizedBox(height: m.gapXs * 1.4),
-
-        TextField(
-          controller: controller,
-          autofocus: true,
-          keyboardType: keyboardType,
-          textCapitalization: textCapitalization,
-          inputFormatters: inputFormatters,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: c.textPrimary,
-            fontFamily: 'Inter',
-            fontSize: m.fieldTextSize,
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: c.textMuted,
-              fontFamily: 'Inter',
-              fontSize: m.fieldTextSize,
-            ),
-            filled: true,
-            fillColor: c.surfaceAlt,
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: m.cardPad * 0.7,
-              vertical: m.gapMd,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.border),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.border),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: c.brand, width: 1.5),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -902,7 +763,7 @@ class _SaveBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -913,56 +774,21 @@ class _SaveBar extends StatelessWidget {
         m.gapSm * 0.5,
       ),
       decoration: BoxDecoration(
-        color: c.background,
-        border: Border(top: BorderSide(color: c.border, width: 1)),
+        color: colors.background,
+        border: Border(top: BorderSide(color: colors.border, width: 1)),
       ),
       child: SafeArea(
         top: false,
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-            child: SizedBox(
+            child: AppButton(
+              label: 'Save Changes',
+              prefixIcon: Icons.save_outlined,
+              isLoading: isSaving,
+              onPressed: isSaving ? null : onSave,
               height: m.btnHeight,
-              width: double.infinity,
-              child: Material(
-                color: c.brand,
-                borderRadius: BorderRadius.circular(12),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: isSaving ? null : onSave,
-                  child: Center(
-                    child: isSaving
-                        ? SizedBox(
-                      width: m.btnFontSize + 4,
-                      height: m.btnFontSize + 4,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(c.surface),
-                      ),
-                    )
-                        : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.save_outlined,
-                          size: m.btnFontSize + 5,
-                          color: c.surface,
-                        ),
-                        SizedBox(width: m.gapSm),
-                        Text(
-                          'Save Changes',
-                          style: AppTextStyles.buttonText.copyWith(
-                            color: c.surface,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: m.btnFontSize,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              fontSize: m.btnFontSize,
             ),
           ),
         ),

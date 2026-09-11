@@ -101,6 +101,12 @@ class _BookingCardState extends State<BookingCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ServiceThumb(booking: widget.booking),
+                    // Image.network(
+                    //   "https://img.magnific.com/free-photo/closeup-shot-beautiful-butterfly-with-interesting-textures-orange-petaled-flower_181624-7640.jpg?semt=ais_hybrid&w=740&q=80",
+                    //  height: 10.9.h,
+                    //   width: 18.97.w,
+                    //   fit: BoxFit.cover,
+                    //  ),
 
                     SizedBox(width: 3.33.w),
 

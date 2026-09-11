@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 
 import '../../data/models/member_ship_model.dart';
-import '../screens/membership_screen.dart';
 import 'membership_metrices.dart';
 
 class MembershipBenefitsCard extends StatelessWidget {
@@ -22,7 +21,7 @@ class MembershipBenefitsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     if (entitlements.isEmpty) {
@@ -41,12 +40,12 @@ class MembershipBenefitsCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(
           m.radiusLg,
         ),
         border: Border.all(
-          color: c.border,
+          color: colors.border,
         ),
       ),
       child: Column(
@@ -58,7 +57,7 @@ class MembershipBenefitsCard extends StatelessWidget {
             style: TextStyle(
               fontSize: m.sectionTitleSize,
               fontWeight: FontWeight.w700,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           SizedBox(
@@ -111,7 +110,7 @@ class MembershipBenefitTile
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final enabled = entitlement.enabled;
 
@@ -122,13 +121,13 @@ class MembershipBenefitTile
       ),
       decoration: BoxDecoration(
         color: enabled
-            ? c.surfaceAlt
-            : c.surface,
+            ? colors.surfaceAlt
+            : colors.surface,
         borderRadius: BorderRadius.circular(
           m.radiusMd,
         ),
         border: Border.all(
-          color: c.border,
+          color: colors.border,
         ),
       ),
       child: Column(
@@ -138,16 +137,16 @@ class MembershipBenefitTile
             height: m.iconCircle * 0.78,
             decoration: BoxDecoration(
               color: enabled
-                  ? c.brandSoft
-                  : c.surfaceAlt,
+                  ? colors.brandSoft
+                  : colors.surfaceAlt,
               shape: BoxShape.circle,
             ),
             child: Icon(
               _icon(entitlement.key),
               size: m.iconSize * 0.9,
               color: enabled
-                  ? c.brand
-                  : c.textMuted,
+                  ? colors.brand
+                  : colors.textMuted,
             ),
           ),
           SizedBox(
@@ -162,8 +161,8 @@ class MembershipBenefitTile
               fontSize: m.captionSize * 1.05,
               fontWeight: FontWeight.w700,
               color: enabled
-                  ? c.textPrimary
-                  : c.textSecondary,
+                  ? colors.textPrimary
+                  : colors.textSecondary,
             ),
           ),
         ],

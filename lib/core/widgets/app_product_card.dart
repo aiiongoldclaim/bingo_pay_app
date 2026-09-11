@@ -44,7 +44,7 @@ class AppProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.shortestSide >= 540;
     final isLandscape = size.width > size.height;
@@ -64,7 +64,7 @@ class AppProductCard extends StatelessWidget {
     final gapSm = isTablet ? 8.0 : 0.9.h;
 
     return Material(
-      color: c.surface,
+      color: colors.surface,
       borderRadius: BorderRadius.circular(radius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -72,7 +72,7 @@ class AppProductCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: c.border, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +88,7 @@ class AppProductCard extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(radius * 0.75),
                           child: Container(
-                            color: c.surfaceAlt,
+                            color: colors.surfaceAlt,
                             child: imageUrl.isNotEmpty
                                 ? Image.network(
                               imageUrl,
@@ -97,7 +97,7 @@ class AppProductCard extends StatelessWidget {
                                 child: Icon(
                                   Icons.shopping_bag_outlined,
                                   size: heartBox * 1.1,
-                                  color: c.textMuted,
+                                  color: colors.textMuted,
                                 ),
                               ),
                             )
@@ -105,7 +105,7 @@ class AppProductCard extends StatelessWidget {
                               child: Icon(
                                 Icons.shopping_bag_outlined,
                                 size: heartBox * 1.1,
-                                color: c.textMuted,
+                                color: colors.textMuted,
                               ),
                             ),
                           ),
@@ -122,13 +122,13 @@ class AppProductCard extends StatelessWidget {
                               vertical: gapXs * 0.8,
                             ),
                             decoration: BoxDecoration(
-                              color: c.brand,
+                              color: colors.brand,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               badge!,
                               style: AppTextStyles.labelMedium.copyWith(
-                                color: c.surface,
+                                color: colors.surface,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
                                 fontSize: metaSize - 1,
@@ -149,13 +149,13 @@ class AppProductCard extends StatelessWidget {
                               width: heartBox,
                               height: heartBox,
                               decoration: BoxDecoration(
-                                color: c.surface,
+                                color: colors.surface,
                                 shape: BoxShape.circle,
-                                boxShadow: c.isDark
+                                boxShadow: colors.isDark
                                     ? null
                                     : [
                                   BoxShadow(
-                                    color: c.textPrimary.withValues(
+                                    color: colors.textPrimary.withValues(
                                       alpha: 0.10,
                                     ),
                                     blurRadius: 8,
@@ -169,7 +169,7 @@ class AppProductCard extends StatelessWidget {
                                     ? Icons.favorite
                                     : Icons.favorite_border_rounded,
                                 size: heartIcon,
-                                 color: isFavourite ? ThemeColors.red : c.textSecondary,
+                                 color: isFavourite ? ThemeColors.red : colors.textSecondary,
                                 // color: ThemeColors.red,
                               ),
                             ),
@@ -192,7 +192,7 @@ class AppProductCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.bodySmall.copyWith(
-                          color: c.textSecondary,
+                          color: colors.textSecondary,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
                           fontSize: brandSize,
@@ -208,7 +208,7 @@ class AppProductCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.labelLarge.copyWith(
-                          color: c.textPrimary,
+                          color: colors.textPrimary,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w500,
                           fontSize: nameSize,
@@ -226,7 +226,7 @@ class AppProductCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.titleMedium.copyWith(
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
                                 fontSize: priceSize,
@@ -239,7 +239,7 @@ class AppProductCard extends StatelessWidget {
                             Text(
                               oldPrice!,
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: c.textMuted,
+                                color: colors.textMuted,
                                 fontFamily: 'Inter',
                                 fontSize: metaSize,
                                 decoration: TextDecoration.lineThrough,
@@ -254,7 +254,7 @@ class AppProductCard extends StatelessWidget {
                         Text(
                           '$discountPercent% OFF',
                           style: AppTextStyles.bodySmall.copyWith(
-                            color: c.brand,
+                            color: colors.brand,
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w700,
                             fontSize: metaSize,
@@ -269,13 +269,13 @@ class AppProductCard extends StatelessWidget {
                             Icon(
                               Icons.star_rounded,
                               size: metaSize + 3,
-                              color: c.brand,
+                              color: colors.brand,
                             ),
                             SizedBox(width: gapXs * 0.6),
                             Text(
                               rating!,
                               style: AppTextStyles.bodySmall.copyWith(
-                                color: c.textSecondary,
+                                color: colors.textSecondary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w600,
                                 fontSize: metaSize,
@@ -294,7 +294,7 @@ class AppProductCard extends StatelessWidget {
                       //     height: btnHeight,
                       //     width: double.infinity,
                       //     child: Material(
-                      //       color: isInCart ? c.brand : c.brandSoft,
+                      //       color: isInCart ? colors.brand : colors.brandSoft,
                       //       borderRadius: BorderRadius.circular(10),
                       //       clipBehavior: Clip.antiAlias,
                       //       child: InkWell(
@@ -307,7 +307,7 @@ class AppProductCard extends StatelessWidget {
                       //             child: CircularProgressIndicator(
                       //               strokeWidth: 2,
                       //               valueColor: AlwaysStoppedAnimation(
-                      //                 isInCart ? c.surface : c.brand,
+                      //                 isInCart ? colors.surface : colors.brand,
                       //               ),
                       //             ),
                       //           )
@@ -319,8 +319,8 @@ class AppProductCard extends StatelessWidget {
                       //                 Icons.shopping_bag_outlined,
                       //                 size: btnIcon,
                       //                 color: isInCart
-                      //                     ? c.surface
-                      //                     : c.brand,
+                      //                     ? colors.surface
+                      //                     : colors.brand,
                       //               ),
                       //               SizedBox(width: gapXs * 1.2),
                       //               Flexible(
@@ -333,8 +333,8 @@ class AppProductCard extends StatelessWidget {
                       //                   style: AppTextStyles.labelMedium
                       //                       .copyWith(
                       //                     color: isInCart
-                      //                         ? c.surface
-                      //                         : c.brand,
+                      //                         ? colors.surface
+                      //                         : colors.brand,
                       //                     fontFamily: 'Inter',
                       //                     fontWeight: FontWeight.w600,
                       //                     fontSize: btnFont,
@@ -353,10 +353,10 @@ class AppProductCard extends StatelessWidget {
                           width: double.infinity,
                           child: Material(
                             color: isOutOfStock
-                                ? c.surfaceAlt
+                                ? colors.surfaceAlt
                                 : isInCart
-                                ? c.brand
-                                : c.brandSoft,
+                                ? colors.brand
+                                : colors.brandSoft,
                             borderRadius: BorderRadius.circular(10),
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
@@ -369,7 +369,7 @@ class AppProductCard extends StatelessWidget {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation(
-                                      isInCart ? c.surface : c.brand,
+                                      isInCart ? colors.surface : colors.brand,
                                     ),
                                   ),
                                 )
@@ -382,10 +382,10 @@ class AppProductCard extends StatelessWidget {
                                           : Icons.shopping_bag_outlined,
                                       size: btnIcon,
                                       color: isOutOfStock
-                                          ? c.textMuted
+                                          ? colors.textMuted
                                           : isInCart
-                                          ? c.surface
-                                          : c.brand,
+                                          ? colors.surface
+                                          : colors.brand,
                                     ),
                                     SizedBox(width: gapXs * 1.2),
                                     Flexible(
@@ -399,10 +399,10 @@ class AppProductCard extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                         style: AppTextStyles.labelMedium.copyWith(
                                           color: isOutOfStock
-                                              ? c.textMuted
+                                              ? colors.textMuted
                                               : isInCart
-                                              ? c.surface
-                                              : c.brand,
+                                              ? colors.surface
+                                              : colors.brand,
                                           fontFamily: 'Inter',
                                           fontWeight: FontWeight.w600,
                                           fontSize: btnFont,

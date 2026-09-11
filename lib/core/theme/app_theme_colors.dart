@@ -63,6 +63,9 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color onAuctionAccent;
   final Color auctionAccentInk;
 
+  /// Auctions list screen — purple-on-brand background wash
+  final LinearGradient auctionListBackground;
+
   // ── Overlays ─────────────────────────────────────────────
   /// Dialog / bottom sheet barrier
   final Color scrim;
@@ -118,6 +121,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.auctionAccent,
     required this.onAuctionAccent,
     required this.auctionAccentInk,
+    required this.auctionListBackground,
     required this.scrim,
     required this.dialogShadow,
     required this.onboardingBackground,
@@ -178,6 +182,14 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     auctionAccent: ThemeColors.auctionGold,
     onAuctionAccent: ThemeColors.black,
     auctionAccentInk: ThemeColors.accentInk,
+    auctionListBackground: LinearGradient(
+      colors: [
+        ThemeColors.veryLightLavender,
+        ThemeColors.background,
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
 
     scrim: Color(0xA6000000),
     dialogShadow: Color(0x334C1E76),
@@ -253,6 +265,19 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     auctionAccent: ThemeColors.auctionGold,
     onAuctionAccent: ThemeColors.black,
     auctionAccentInk: ThemeColors.goldLight,
+    // Dark mode: starts from the same color as CustomAppBar's background
+    // (ThemeColors.darkBackground) so there's no visible seam under the
+    // app bar, then fades into a subtle purple wash further down.
+    auctionListBackground: LinearGradient(
+      colors: [
+        ThemeColors.darkBackground,
+        ThemeColors.darkPurpleSoft,
+        ThemeColors.darkBackground,
+      ],
+      stops: [0.0, 0.35, 1.0],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    ),
 
     scrim: Color(0xA6000000),
     dialogShadow: Color(0x8C000000),
@@ -311,6 +336,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? auctionAccent,
     Color? onAuctionAccent,
     Color? auctionAccentInk,
+    LinearGradient? auctionListBackground,
     Color? scrim,
     Color? dialogShadow,
     LinearGradient? onboardingBackground,
@@ -363,6 +389,7 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       auctionAccent: auctionAccent ?? this.auctionAccent,
       onAuctionAccent: onAuctionAccent ?? this.onAuctionAccent,
       auctionAccentInk: auctionAccentInk ?? this.auctionAccentInk,
+      auctionListBackground: auctionListBackground ?? this.auctionListBackground,
       scrim: scrim ?? this.scrim,
       dialogShadow: dialogShadow ?? this.dialogShadow,
       onboardingBackground: onboardingBackground ?? this.onboardingBackground,
@@ -437,6 +464,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       Color.lerp(onAuctionAccent, other.onAuctionAccent, t)!,
       auctionAccentInk:
       Color.lerp(auctionAccentInk, other.auctionAccentInk, t)!,
+      auctionListBackground: LinearGradient.lerp(
+        auctionListBackground,
+        other.auctionListBackground,
+        t,
+      )!,
       scrim: Color.lerp(scrim, other.scrim, t)!,
       dialogShadow: Color.lerp(dialogShadow, other.dialogShadow, t)!,
       onboardingBackground: LinearGradient.lerp(

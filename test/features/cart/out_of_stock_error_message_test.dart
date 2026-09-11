@@ -3,7 +3,7 @@ import 'package:bingo_pay/core/error/error_handler.dart';
 import 'package:bingo_pay/core/error/failures.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+
 
 class _RecordingHandler extends ErrorInterceptorHandler {
   DioException? rejected;

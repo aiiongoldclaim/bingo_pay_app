@@ -69,7 +69,7 @@ class _MembershipActionBar
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     final busy = state.isActionInProgress;
 
@@ -93,10 +93,10 @@ class _MembershipActionBar
         m.rowGap,
       ),
       decoration: BoxDecoration(
-        color: c.background,
+        color: colors.background,
         border: Border(
           top: BorderSide(
-            color: c.border,
+            color: colors.border,
           ),
         ),
       ),
@@ -120,10 +120,10 @@ class _MembershipActionBar
               style: OutlinedButton.styleFrom(
                 foregroundColor: actionColor,
                 disabledForegroundColor:
-                c.textMuted,
+                colors.textMuted,
                 side: BorderSide(
                   color: busy
-                      ? c.border
+                      ? colors.border
                       : actionColor,
                 ),
                 minimumSize: Size.zero,
@@ -302,17 +302,17 @@ class MembershipActionHelper {
       BuildContext context,
       MembershipAction action,
       ) {
-    final c = context.c;
+    final colors = context.c;
 
     switch (action) {
       case MembershipAction.cancel:
-        return c.statusWarning;
+        return colors.statusWarning;
 
       case MembershipAction.resume:
-        return c.brand;
+        return colors.brand;
 
       case MembershipAction.renew:
-        return c.statusSuccess;
+        return colors.statusSuccess;
     }
   }
 
@@ -340,7 +340,7 @@ class MembershipActionHelper {
         ),
       ),
       builder: (sheetContext) {
-        final c = sheetContext.c;
+        final colors = sheetContext.c;
 
         return SafeArea(
           top: false,
@@ -362,11 +362,11 @@ class MembershipActionHelper {
                 _ActionIcon(
                   metrics: m,
                   background:
-                  c.statusWarningSoft,
+                  colors.statusWarningSoft,
                   icon:
                   Icons.cancel_outlined,
                   color:
-                  c.statusWarning,
+                  colors.statusWarning,
                 ),
                 SizedBox(
                   height: m.rowGap,
@@ -399,7 +399,7 @@ class MembershipActionHelper {
                     style:
                     ElevatedButton.styleFrom(
                       backgroundColor:
-                      c.statusWarning,
+                      colors.statusWarning,
                       foregroundColor:
                       ThemeColors.white,
                       elevation: 0,
@@ -475,7 +475,7 @@ class MembershipActionHelper {
         ),
       ),
       builder: (sheetContext) {
-        final c = sheetContext.c;
+        final colors = sheetContext.c;
 
         return SafeArea(
           top: false,
@@ -496,10 +496,10 @@ class MembershipActionHelper {
                 ),
                 _ActionIcon(
                   metrics: m,
-                  background: c.brandSoft,
+                  background: colors.brandSoft,
                   icon:
                   Icons.play_circle_outline,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
                 SizedBox(
                   height: m.rowGap,
@@ -531,7 +531,7 @@ class MembershipActionHelper {
                         ).pop(true),
                     style:
                     ElevatedButton.styleFrom(
-                      backgroundColor: c.brand,
+                      backgroundColor: colors.brand,
                       foregroundColor:
                       ThemeColors.white,
                       elevation: 0,
@@ -592,14 +592,14 @@ class _SheetHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       width: m.iconBox,
       height: m.progressHeight * 0.6,
       decoration: BoxDecoration(
-        color: c.border,
+        color: colors.border,
         borderRadius:
         BorderRadius.circular(99),
       ),
@@ -651,7 +651,7 @@ class _SheetTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Text(
@@ -660,7 +660,7 @@ class _SheetTitle extends StatelessWidget {
       style: TextStyle(
         fontSize: m.sectionTitleSize,
         fontWeight: FontWeight.w700,
-        color: c.textPrimary,
+        color: colors.textPrimary,
       ),
     );
   }
@@ -677,7 +677,7 @@ class _SheetDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Text(
@@ -686,7 +686,7 @@ class _SheetDescription extends StatelessWidget {
       style: TextStyle(
         fontSize: m.labelSize,
         height: 1.45,
-        color: c.textSecondary,
+        color: colors.textSecondary,
       ),
     );
   }

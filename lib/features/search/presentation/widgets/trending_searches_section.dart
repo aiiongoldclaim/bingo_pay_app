@@ -62,7 +62,7 @@ class _TrendingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return InkWell(
@@ -78,14 +78,14 @@ class _TrendingTile extends StatelessWidget {
               child: Container(
                 width: m.trendingTileWidth,
                 height: m.trendingImageHeight,
-                color: c.surfaceAlt,
+                color: colors.surfaceAlt,
                 child: Image.asset(
                   data.imageAsset,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Icon(
                     Icons.image_outlined,
                     size: m.inputIconSize,
-                    color: c.textMuted,
+                    color: colors.textMuted,
                   ),
                 ),
               ),
@@ -101,7 +101,7 @@ class _TrendingTile extends StatelessWidget {
                   fontSize: m.trendingLabelSize,
                   fontWeight: FontWeight.w500,
                   height: 1.2,
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                 ),
               ),
             ),

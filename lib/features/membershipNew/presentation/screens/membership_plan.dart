@@ -363,18 +363,18 @@ class _BottomBar extends StatelessWidget {
                   Flexible(
                     child: Text(
                       plan == null
-                          ? 'Continue'
-                          : 'Continue with ${plan.name}',
+                          ? 'CONTINUE'
+                          : 'CONTINUE WITH ${plan.name}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
+                        fontFamily: "Inter",
                         fontSize: m.sectionTitleSize,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                  SizedBox(width: m.cardPad * 0.45),
-                  Icon(Icons.chevron_right_rounded, size: m.smallIcon),
+
                 ],
               ),
             ),

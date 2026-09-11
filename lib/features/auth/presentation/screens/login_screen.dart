@@ -22,7 +22,7 @@ import '../bloc/auth_state.dart';
 import '../../data/services/login_form_manager.dart';
 import '../widgets/auth_metrics.dart';
 import '../widgets/auth_tablet_layout.dart';
-import '../widgets/auth_terms_text.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -249,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
           /// OR DIVIDER
           Row(
             children: [
-              Expanded(child: Divider(color: ThemeColors.mediumPurple)),
+              Expanded(child: Divider(color: colors.border)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
                 child: Text(

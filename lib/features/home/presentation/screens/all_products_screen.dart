@@ -17,7 +17,6 @@ import '../../data/repositories/all_products_repo.dart';
 import '../widgets/products_grid_shimmer.dart';
 import '../widgets/products_metrics.dart';
 
-
 class AllProductsScreen extends StatefulWidget {
   const AllProductsScreen({super.key});
 
@@ -26,7 +25,6 @@ class AllProductsScreen extends StatefulWidget {
 }
 
 class _AllProductsScreenState extends State<AllProductsScreen> {
-
   static const int _pageSize = 20;
 
   final List<ProductModel> _products = [];
@@ -37,7 +35,6 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
   bool _isLoadingMore = false;
   bool _hasError = false;
   bool _hasMore = true;
-
 
   final Set<String> _addingIds = {};
 
@@ -69,8 +66,10 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       _hasError = false;
     });
     try {
-      final products = await getIt<ProductRepository>()
-          .getAllProducts(page: 1, limit: _pageSize);
+      final products = await getIt<ProductRepository>().getAllProducts(
+        page: 1,
+        limit: _pageSize,
+      );
       if (!mounted) return;
       setState(() {
         _products
@@ -94,8 +93,10 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
     setState(() => _isLoadingMore = true);
     try {
       final nextPage = _currentPage + 1;
-      final products = await getIt<ProductRepository>()
-          .getAllProducts(page: nextPage, limit: _pageSize);
+      final products = await getIt<ProductRepository>().getAllProducts(
+        page: nextPage,
+        limit: _pageSize,
+      );
       if (!mounted) return;
       setState(() {
         _products.addAll(products);
@@ -110,11 +111,9 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
     }
   }
 
-
   void _retry() {
     _loadInitial();
   }
-
 
   Future<void> _addToCart(ProductModel product) async {
     final uuid = product.uuid;
@@ -129,15 +128,14 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       if (!mounted) return;
 
       if (variantUuid == null || variantUuid.isEmpty) {
-        AppSnackbar.showError(
-          context,
-          AppStrings.productCurrentlyUnavailable,
-        );
+        AppSnackbar.showError(context, AppStrings.productCurrentlyUnavailable);
         return;
       }
 
-      final result =
-          await cartCubit.addItem(variantUuid: variantUuid, quantity: 1);
+      final result = await cartCubit.addItem(
+        variantUuid: variantUuid,
+        quantity: 1,
+      );
       if (!mounted) return;
 
       if (!result.success) {
@@ -181,10 +179,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
     );
 
     if (isAdded && buildContext.mounted) {
-      AppSnackbar.showSuccess(
-        buildContext,
-        AppStrings.wishlistAdded,
-      );
+      AppSnackbar.showSuccess(buildContext, AppStrings.wishlistAdded);
     }
   }
 
@@ -207,47 +202,54 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
             Expanded(
               child: _isLoading
                   ? Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-                  child: ProductsGridShimmer(metrics: m),
-                ),
-              )
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: m.maxContentWidth,
+                        ),
+                        child: ProductsGridShimmer(metrics: m),
+                      ),
+                    )
                   : _hasError && _products.isEmpty
                   ? _MessageView(
-                metrics: m,
-                icon: Icons.wifi_off_rounded,
-                title: AppStrings.failedToLoadProducts,
-                subtitle: AppStrings.checkConnectionRetryLater,
-                actionLabel: AppStrings.retryUppercase,
-                onAction: _retry,
-              )
+                      metrics: m,
+                      icon: Icons.wifi_off_rounded,
+                      title: AppStrings.failedToLoadProducts,
+                      subtitle: AppStrings.checkConnectionRetryLater,
+                      actionLabel: AppStrings.retryUppercase,
+                      onAction: _retry,
+                    )
                   : _products.isEmpty
                   ? _MessageView(
-                metrics: m,
-                icon: Icons.inventory_2_outlined,
-                title: AppStrings.noProductsAvailable,
-                subtitle: AppStrings.newProductsComingSoon,
-                actionLabel: AppStrings.refreshUppercase,
-                onAction: _retry,
-              )
-                  : Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: m.maxContentWidth,
-                  ),
-                  child: _ProductsGrid(
-                    metrics: m,
-                    products: _products,
-                    addingIds: _addingIds,
-                    scrollController: _scrollController,
-                    hasMore: _hasMore,
-                    isLoadingMore: _isLoadingMore,
-                    onAddToCart: _addToCart,
-                    onGoToCart: () => context.push(AppRoutes.cart),
-                    onToggleWishlist: _toggleWishlist,
-                  ),
-                ),
-              ),
+                      metrics: m,
+                      icon: Icons.inventory_2_outlined,
+                      title: AppStrings.noProductsAvailable,
+                      subtitle: AppStrings.newProductsComingSoon,
+                      actionLabel: AppStrings.refreshUppercase,
+                      onAction: _retry,
+                    )
+                  : RefreshIndicator(
+                      color: colors.brand,
+                      backgroundColor: colors.surface,
+                      onRefresh: _loadInitial,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: m.maxContentWidth,
+                          ),
+                          child: _ProductsGrid(
+                            metrics: m,
+                            products: _products,
+                            addingIds: _addingIds,
+                            scrollController: _scrollController,
+                            hasMore: _hasMore,
+                            isLoadingMore: _isLoadingMore,
+                            onAddToCart: _addToCart,
+                            onGoToCart: () => context.push(AppRoutes.cart),
+                            onToggleWishlist: _toggleWishlist,
+                          ),
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -291,12 +293,8 @@ class _ProductsGrid extends StatelessWidget {
 
     return GridView.builder(
       controller: scrollController,
-      padding: EdgeInsets.fromLTRB(
-        m.pageHPad,
-        m.gapMd,
-        m.pageHPad,
-        m.gapLg,
-      ),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(m.pageHPad, m.gapMd, m.pageHPad, m.gapLg),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: m.crossAxisCount,
         crossAxisSpacing: m.gridSpacing,
@@ -351,7 +349,7 @@ class _ProductsTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -365,14 +363,13 @@ class _ProductsTopBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: () => context.canPop()
-                ? context.pop()
-                : context.go(AppRoutes.home),
+            onPressed: () =>
+                context.canPop() ? context.pop() : context.go(AppRoutes.home),
             splashRadius: m.backIconSize * 1.2,
             icon: Icon(
               Icons.arrow_back_ios_rounded,
               size: m.backIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
 
@@ -384,7 +381,7 @@ class _ProductsTopBar extends StatelessWidget {
                 Text(
                   AppStrings.allProducts,
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.titleSize,
@@ -396,7 +393,7 @@ class _ProductsTopBar extends StatelessWidget {
                   Text(
                     AppStrings.productCount(count!),
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.subtitleSize,
                       height: 1.2,
@@ -413,7 +410,7 @@ class _ProductsTopBar extends StatelessWidget {
             icon: Icon(
               Icons.search_rounded,
               size: m.topIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           IconButton(
@@ -422,7 +419,7 @@ class _ProductsTopBar extends StatelessWidget {
             icon: Icon(
               Icons.favorite_border_rounded,
               size: m.topIconSize,
-              color: c.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
         ],
@@ -451,7 +448,7 @@ class _MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Center(
@@ -464,14 +461,14 @@ class _MessageView extends StatelessWidget {
               width: m.emptyIllustration,
               height: m.emptyIllustration,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Icon(
                 icon,
                 size: m.emptyIllustration * 0.42,
-                color: c.brand,
+                color: colors.brand,
               ),
             ),
 
@@ -481,7 +478,7 @@ class _MessageView extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleLarge.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.emptyTitleSize,
@@ -494,7 +491,7 @@ class _MessageView extends StatelessWidget {
               subtitle,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.emptySubSize,
                 height: 1.45,
@@ -507,7 +504,7 @@ class _MessageView extends StatelessWidget {
               width: m.isTablet ? 240 : null,
               height: m.btnHeight,
               child: Material(
-                color: c.brand,
+                color: colors.brand,
                 borderRadius: BorderRadius.circular(12),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
@@ -518,7 +515,7 @@ class _MessageView extends StatelessWidget {
                       child: Text(
                         actionLabel,
                         style: AppTextStyles.buttonText.copyWith(
-                          color: c.surface,
+                          color: colors.surface,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w700,
                           fontSize: m.btnFontSize,

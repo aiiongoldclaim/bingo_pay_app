@@ -4,9 +4,7 @@ import 'package:sizer/sizer.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_theme_colors.dart';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// METRICS
-// ═══════════════════════════════════════════════════════════════════════════
+
 
 class SheetMetrics {
   final bool isTablet;
@@ -203,9 +201,7 @@ class SheetMetrics {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// MODELS
-// ═══════════════════════════════════════════════════════════════════════════
+
 
 /// Actions Sheet ka ek row
 class SheetAction {
@@ -222,7 +218,7 @@ class SheetAction {
   });
 }
 
-/// Sort / Payment jaise single-select options
+
 class SheetOption<T> {
   final T value;
   final String label;
@@ -258,9 +254,6 @@ class SheetBullet {
   const SheetBullet({required this.label, required this.icon});
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SHELL — sab sheets isi ke andar render hote hain
-// ═══════════════════════════════════════════════════════════════════════════
 
 class AppSheetShell extends StatelessWidget {
   final String? title;
@@ -278,7 +271,7 @@ class AppSheetShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
 
     final content = Column(
@@ -291,7 +284,7 @@ class AppSheetShell extends StatelessWidget {
             width: m.handleWidth,
             height: m.handleHeight,
             decoration: BoxDecoration(
-              color: c.border,
+              color: colors.border,
               borderRadius: BorderRadius.circular(m.handleHeight),
             ),
           ),
@@ -303,7 +296,7 @@ class AppSheetShell extends StatelessWidget {
             child: Text(
               title!,
               style: AppTextStyles.titleMedium.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.titleSize,
@@ -350,20 +343,19 @@ class AppSheetShell extends StatelessWidget {
   }
 }
 
-/// Har sheet isi helper se open hota hai
 Future<T?> showAppSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool isDismissible = true,
   bool enableDrag = true,
 }) {
-  final c = context.c;
+  final colors = context.c;
   final m = SheetMetrics.of(context);
 
   return showModalBottomSheet<T>(
     context: context,
-    backgroundColor: c.surface,
-    barrierColor: c.textPrimary.withValues(alpha: 0.45),
+    backgroundColor: colors.surface,
+    barrierColor: colors.textPrimary.withValues(alpha: 0.45),
     isScrollControlled: true,
     isDismissible: isDismissible,
     enableDrag: enableDrag,
@@ -379,9 +371,7 @@ Future<T?> showAppSheet<T>({
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SHARED PIECES
-// ═══════════════════════════════════════════════════════════════════════════
+
 
 class AppSheetButton extends StatelessWidget {
   final String label;
@@ -399,7 +389,7 @@ class AppSheetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
     final enabled = onTap != null && !isLoading;
 
@@ -407,8 +397,8 @@ class AppSheetButton extends StatelessWidget {
       height: m.btnHeight,
       child: Material(
         color: isPrimary
-            ? (enabled ? c.brand : c.border)
-            : c.brandSoft,
+            ? (enabled ? colors.brand : colors.border)
+            : colors.brandSoft,
         borderRadius: BorderRadius.circular(m.btnRadius),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -418,7 +408,7 @@ class AppSheetButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(m.btnRadius),
               border: isPrimary
                   ? null
-                  : Border.all(color: c.brand.withValues(alpha: 0.4)),
+                  : Border.all(color: colors.brand.withValues(alpha: 0.4)),
             ),
             alignment: Alignment.center,
             child: isLoading
@@ -428,7 +418,7 @@ class AppSheetButton extends StatelessWidget {
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation(
-                  isPrimary ? c.surface : c.brand,
+                  isPrimary ? colors.surface : colors.brand,
                 ),
               ),
             )
@@ -436,8 +426,8 @@ class AppSheetButton extends StatelessWidget {
               label,
               style: AppTextStyles.buttonText.copyWith(
                 color: isPrimary
-                    ? (enabled ? c.surface : c.textMuted)
-                    : c.brand,
+                    ? (enabled ? colors.surface : colors.textMuted)
+                    : colors.brand,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.btnFontSize,
@@ -458,7 +448,7 @@ class _Radio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -467,7 +457,7 @@ class _Radio extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: selected ? c.brand : c.border,
+          color: selected ? colors.brand : colors.border,
           width: selected ? m.radioSize * 0.16 : 1.5,
         ),
       ),
@@ -477,7 +467,7 @@ class _Radio extends StatelessWidget {
           width: m.radioSize * 0.36,
           height: m.radioSize * 0.36,
           decoration: BoxDecoration(
-            color: c.brand,
+            color: colors.brand,
             shape: BoxShape.circle,
           ),
         ),
@@ -500,7 +490,7 @@ Future<void> showAppActionsSheet({
   return showAppSheet<void>(
     context: context,
     builder: (sheetContext) {
-      final c = sheetContext.c;
+      final colors = sheetContext.c;
       final m = SheetMetrics.of(sheetContext);
 
       final normal = actions.where((a) => !a.isDestructive).toList();
@@ -522,14 +512,14 @@ Future<void> showAppActionsSheet({
                 Icon(
                   a.icon,
                   size: m.rowIconSize,
-                  color: a.isDestructive ? c.statusWarning : c.textSecondary,
+                  color: a.isDestructive ? colors.statusWarning : colors.textSecondary,
                 ),
                 SizedBox(width: m.rowIconGap),
                 Expanded(
                   child: Text(
                     a.label,
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: a.isDestructive ? c.statusWarning : c.textPrimary,
+                      color: a.isDestructive ? colors.statusWarning : colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w500,
                       fontSize: m.labelSize,
@@ -555,7 +545,7 @@ Future<void> showAppActionsSheet({
           children: [
             ...normal.map(row),
             if (destructive.isNotEmpty) ...[
-              Divider(height: m.gapMd * 2, thickness: 1, color: c.border),
+              Divider(height: m.gapMd * 2, thickness: 1, color: colors.border),
               ...destructive.map(row),
             ],
           ],
@@ -613,7 +603,7 @@ class _SelectSheetBodyState<T> extends State<_SelectSheetBody<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
 
     return AppSheetShell(
@@ -648,7 +638,7 @@ class _SelectSheetBodyState<T> extends State<_SelectSheetBody<T>> {
                           Icon(
                             opt.icon,
                             size: m.rowIconSize,
-                            color: c.textSecondary,
+                            color: colors.textSecondary,
                           ),
                           SizedBox(width: m.rowIconGap),
                         ] else ...[
@@ -663,7 +653,7 @@ class _SelectSheetBodyState<T> extends State<_SelectSheetBody<T>> {
                               Text(
                                 opt.label,
                                 style: AppTextStyles.labelLarge.copyWith(
-                                  color: c.textPrimary,
+                                  color: colors.textPrimary,
                                   fontFamily: 'Inter',
                                   fontWeight: opt.subtitle == null
                                       ? FontWeight.w500
@@ -677,7 +667,7 @@ class _SelectSheetBodyState<T> extends State<_SelectSheetBody<T>> {
                                 Text(
                                   opt.subtitle!,
                                   style: AppTextStyles.bodySmall.copyWith(
-                                    color: c.textSecondary,
+                                    color: colors.textSecondary,
                                     fontFamily: 'Inter',
                                     fontSize: m.captionSize,
                                     height: 1.3,
@@ -697,7 +687,7 @@ class _SelectSheetBodyState<T> extends State<_SelectSheetBody<T>> {
                 ),
               ),
               if (widget.showDividers && !isLast)
-                Divider(height: 1, thickness: 1, color: c.border),
+                Divider(height: 1, thickness: 1, color: colors.border),
             ],
           );
         }),
@@ -720,7 +710,7 @@ Future<void> showAppFilterSheet({
   return showAppSheet<void>(
     context: context,
     builder: (sheetContext) {
-      final c = sheetContext.c;
+      final colors = sheetContext.c;
       final m = SheetMetrics.of(sheetContext);
 
       return AppSheetShell(
@@ -774,7 +764,7 @@ Future<void> showAppFilterSheet({
                             child: Text(
                               row.label,
                               style: AppTextStyles.labelLarge.copyWith(
-                                color: c.textPrimary,
+                                color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w500,
                                 fontSize: m.labelSize,
@@ -784,7 +774,7 @@ Future<void> showAppFilterSheet({
                           Text(
                             row.value,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: c.textSecondary,
+                              color: colors.textSecondary,
                               fontFamily: 'Inter',
                               fontSize: m.bodySize,
                             ),
@@ -793,7 +783,7 @@ Future<void> showAppFilterSheet({
                           Icon(
                             Icons.chevron_right_rounded,
                             size: m.rowIconSize,
-                            color: c.textMuted,
+                            color: colors.textMuted,
                           ),
                         ],
                       ),
@@ -801,7 +791,7 @@ Future<void> showAppFilterSheet({
                   ),
                 ),
                 if (!isLast)
-                  Divider(height: 1, thickness: 1, color: c.border),
+                  Divider(height: 1, thickness: 1, color: colors.border),
               ],
             );
           }),
@@ -871,7 +861,7 @@ class _ChipSheetBodyState extends State<_ChipSheetBody> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
 
     return AppSheetShell(
@@ -894,7 +884,7 @@ class _ChipSheetBodyState extends State<_ChipSheetBody> {
               final isDisabled = widget.disabled.contains(chip);
 
               return Material(
-                color: isSelected ? c.brand : c.surface,
+                color: isSelected ? colors.brand : colors.surface,
                 borderRadius: BorderRadius.circular(10),
                 clipBehavior: Clip.antiAlias,
                 child: InkWell(
@@ -907,7 +897,7 @@ class _ChipSheetBodyState extends State<_ChipSheetBody> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isSelected ? c.brand : c.border,
+                        color: isSelected ? colors.brand : colors.border,
                         width: 1,
                       ),
                     ),
@@ -916,10 +906,10 @@ class _ChipSheetBodyState extends State<_ChipSheetBody> {
                       chip,
                       style: AppTextStyles.labelLarge.copyWith(
                         color: isDisabled
-                            ? c.textMuted
+                            ? colors.textMuted
                             : isSelected
-                            ? c.surface
-                            : c.textPrimary,
+                            ? colors.surface
+                            : colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: m.labelSize,
@@ -948,13 +938,13 @@ class _ChipSheetBodyState extends State<_ChipSheetBody> {
                       Icon(
                         widget.linkIcon ?? Icons.straighten_rounded,
                         size: m.labelSize + 4,
-                        color: c.brand,
+                        color: colors.brand,
                       ),
                       SizedBox(width: m.gapXs * 1.4),
                       Text(
                         widget.linkLabel!,
                         style: AppTextStyles.labelMedium.copyWith(
-                          color: c.brand,
+                          color: colors.brand,
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
                           fontSize: m.labelSize,
@@ -1016,7 +1006,7 @@ class _ColorSheetBodyState extends State<_ColorSheetBody> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
 
     return AppSheetShell(
@@ -1041,7 +1031,7 @@ class _ColorSheetBodyState extends State<_ColorSheetBody> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? c.brand : Colors.transparent,
+                  color: isSelected ? colors.brand : Colors.transparent,
                   width: 2,
                 ),
               ),
@@ -1052,7 +1042,7 @@ class _ColorSheetBodyState extends State<_ColorSheetBody> {
                 decoration: BoxDecoration(
                   color: widget.colors[i],
                   shape: BoxShape.circle,
-                  border: Border.all(color: c.border, width: 1),
+                  border: Border.all(color: colors.border, width: 1),
                 ),
               ),
             ),
@@ -1111,11 +1101,11 @@ class _QuantitySheetBodyState extends State<_QuantitySheetBody> {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
 
     Widget btn(IconData icon, VoidCallback? onTap) => Material(
-      color: c.brandSoft,
+      color: colors.brandSoft,
       borderRadius: BorderRadius.circular(m.btnRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -1126,7 +1116,7 @@ class _QuantitySheetBodyState extends State<_QuantitySheetBody> {
           child: Icon(
             icon,
             size: m.qtyIconSize,
-            color: onTap == null ? c.textMuted : c.brand,
+            color: onTap == null ? colors.textMuted : colors.brand,
           ),
         ),
       ),
@@ -1155,7 +1145,7 @@ class _QuantitySheetBodyState extends State<_QuantitySheetBody> {
                   '$_qty',
                   textAlign: TextAlign.center,
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.qtyValueSize,
@@ -1175,7 +1165,7 @@ class _QuantitySheetBodyState extends State<_QuantitySheetBody> {
           Text(
             'Max available: ${widget.max}',
             style: AppTextStyles.bodySmall.copyWith(
-              color: c.textSecondary,
+              color: colors.textSecondary,
               fontFamily: 'Inter',
               fontSize: m.captionSize,
             ),
@@ -1208,7 +1198,7 @@ class AppSheetField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = SheetMetrics.of(context);
 
     return Column(
@@ -1218,7 +1208,7 @@ class AppSheetField extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.bodySmall.copyWith(
-            color: c.textSecondary,
+            color: colors.textSecondary,
             fontFamily: 'Inter',
             fontSize: m.captionSize,
           ),
@@ -1237,33 +1227,33 @@ class AppSheetField extends StatelessWidget {
                   controller: controller,
                   keyboardType: keyboardType,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: m.bodySize,
                   ),
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textMuted,
+                      color: colors.textMuted,
                       fontFamily: 'Inter',
                       fontSize: m.bodySize,
                     ),
                     filled: true,
-                    fillColor: c.surface,
+                    fillColor: colors.surface,
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: m.gapMd * 0.9,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(m.fieldRadius),
-                      borderSide: BorderSide(color: c.border),
+                      borderSide: BorderSide(color: colors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(m.fieldRadius),
-                      borderSide: BorderSide(color: c.border),
+                      borderSide: BorderSide(color: colors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(m.fieldRadius),
-                      borderSide: BorderSide(color: c.brand, width: 1.5),
+                      borderSide: BorderSide(color: colors.brand, width: 1.5),
                     ),
                   ),
                 ),
@@ -1328,7 +1318,7 @@ Future<void> showAppInfoSheet({
   return showAppSheet<void>(
     context: context,
     builder: (sheetContext) {
-      final c = sheetContext.c;
+      final colors = sheetContext.c;
       final m = SheetMetrics.of(sheetContext);
 
       return AppSheetShell(
@@ -1348,14 +1338,14 @@ Future<void> showAppInfoSheet({
                 width: m.infoArtSize,
                 height: m.infoArtSize,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   icon,
                   size: m.infoArtSize * 0.44,
-                  color: c.brand,
+                  color: colors.brand,
                 ),
               ),
             ),
@@ -1366,7 +1356,7 @@ Future<void> showAppInfoSheet({
               title,
               textAlign: TextAlign.center,
               style: AppTextStyles.titleMedium.copyWith(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
                 fontSize: m.titleSize + 1,
@@ -1379,7 +1369,7 @@ Future<void> showAppInfoSheet({
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.bodySize,
                 height: 1.5,
@@ -1393,13 +1383,13 @@ Future<void> showAppInfoSheet({
                   padding: EdgeInsets.only(bottom: m.gapMd * 0.8),
                   child: Row(
                     children: [
-                      Icon(b.icon, size: m.rowIconSize, color: c.brand),
+                      Icon(b.icon, size: m.rowIconSize, color: colors.brand),
                       SizedBox(width: m.rowIconGap * 0.8),
                       Expanded(
                         child: Text(
                           b.label,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: c.textSecondary,
+                            color: colors.textSecondary,
                             fontFamily: 'Inter',
                             fontSize: m.bodySize,
                           ),
@@ -1429,15 +1419,16 @@ Future<bool> showAppConfirmDialog({
   String cancelLabel = 'Cancel',
   bool isDestructive = false,
   IconData? icon,
+  Color? confirmColor,
 }) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (dialogContext) {
-      final c = dialogContext.c;
+      final colors = dialogContext.c;
       final m = SheetMetrics.of(dialogContext);
 
       return Dialog(
-        backgroundColor: c.surface,
+        backgroundColor: colors.surface,
         insetPadding: EdgeInsets.symmetric(horizontal: m.hPad, vertical: 24),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(m.radius * 0.8),
@@ -1457,15 +1448,15 @@ Future<bool> showAppConfirmDialog({
                       height: m.infoArtSize * 0.7,
                       decoration: BoxDecoration(
                         color: isDestructive
-                            ? c.statusWarningSoft
-                            : c.brandSoft,
+                            ? colors.statusWarningSoft
+                            : colors.brandSoft,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: Icon(
                         icon,
                         size: m.infoArtSize * 0.32,
-                        color: isDestructive ? c.statusWarning : c.brand,
+                        color: isDestructive ? colors.statusWarning : colors.brand,
                       ),
                     ),
                   ),
@@ -1476,7 +1467,7 @@ Future<bool> showAppConfirmDialog({
                   title,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.titleSize,
@@ -1489,7 +1480,7 @@ Future<bool> showAppConfirmDialog({
                   message,
                   textAlign: TextAlign.center,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.bodySize,
                     height: 1.5,
@@ -1512,7 +1503,8 @@ Future<bool> showAppConfirmDialog({
                       child: SizedBox(
                         height: m.btnHeight,
                         child: Material(
-                          color: isDestructive ? c.statusWarning : c.brand,
+                          color: confirmColor ??
+                              (isDestructive ? colors.statusWarning : colors.brand),
                           borderRadius: BorderRadius.circular(m.btnRadius),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(
@@ -1521,7 +1513,7 @@ Future<bool> showAppConfirmDialog({
                               child: Text(
                                 confirmLabel,
                                 style: AppTextStyles.buttonText.copyWith(
-                                  color: c.surface,
+                                  color: colors.surface,
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w700,
                                   fontSize: m.btnFontSize,

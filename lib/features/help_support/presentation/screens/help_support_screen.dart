@@ -56,10 +56,10 @@ class HelpSupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Scaffold(
-      backgroundColor: c.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         bottom: false,
         child: Builder(
@@ -123,44 +123,70 @@ class _HelpTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        m.pageHPad * 0.4,
-        m.pageVPad * 0.4,
-        m.pageHPad * 0.6,
-        m.pageVPad * 0.4,
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.background,
+        border: Border(bottom: BorderSide(color: colors.border, width: 1)),
       ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () =>
-            context.canPop() ? context.pop() : context.go(AppRoutes.profile),
-            splashRadius: m.backIconSize * 1.2,
-            icon: Icon(
-              Icons.arrow_back_ios_rounded,
-              size: m.backIconSize,
-              color: c.textPrimary,
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                'Help & Support',
-                style: AppTextStyles.titleLarge.copyWith(
-                  color: c.textPrimary,
-                  fontFamily: 'CormorantGaramond',
-                  fontWeight: FontWeight.bold,
-                  fontSize: m.titleSize,
-                  height: 1.2,
-                ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          m.pageHPad * 0.5,
+          m.pageVPad,
+          m.pageHPad,
+          m.pageVPad,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () => context.canPop()
+                  ? context.pop()
+                  : context.go(AppRoutes.profile),
+              splashRadius: m.backIconSize * 1.2,
+              icon: Icon(
+                Icons.arrow_back_ios_rounded,
+                size: m.backIconSize,
+                color: colors.textPrimary,
               ),
             ),
-          ),
 
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Help & Support',
+                    style: AppTextStyles.headlineMedium.copyWith(
+                      color: colors.textPrimary,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      fontSize: m.titleSize,
+                      letterSpacing: -0.3,
+                      height: 1.1,
+                    ),
+                  ),
+                  SizedBox(height: m.gapXs * 0.6),
+                  Text(
+                    'Get answers or reach our support team',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: colors.textSecondary,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      fontSize: m.tileSubSize,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -279,7 +305,7 @@ class _SectionHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Row(
@@ -288,7 +314,7 @@ class _SectionHeading extends StatelessWidget {
           child: Text(
             title,
             style: AppTextStyles.titleMedium.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'CormorantGaramond',
               fontWeight: FontWeight.w700,
               fontSize: m.sectionTitleSize,
@@ -310,7 +336,7 @@ class _SectionHeading extends StatelessWidget {
                   Text(
                     'View All',
                     style: AppTextStyles.labelMedium.copyWith(
-                      color: c.brand,
+                      color: colors.brand,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                       fontSize: m.linkSize,
@@ -320,7 +346,7 @@ class _SectionHeading extends StatelessWidget {
                   Icon(
                     Icons.chevron_right_rounded,
                     size: m.linkSize + 6,
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ],
               ),
@@ -340,13 +366,13 @@ class _HeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.heroPad),
       decoration: BoxDecoration(
-        color: c.brandSoft,
+        color: colors.brandSoft,
         borderRadius: BorderRadius.circular(m.heroRadius),
       ),
       child: Row(
@@ -360,7 +386,7 @@ class _HeroCard extends StatelessWidget {
                 Text(
                   'Need Help?\nWe\u2019re here for you!',
                   style: AppTextStyles.titleLarge.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.heroTitleSize,
@@ -373,7 +399,7 @@ class _HeroCard extends StatelessWidget {
                 Text(
                   'Find quick solutions to common issues or connect with our support team.',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.heroBodySize,
                     height: 1.5,
@@ -387,7 +413,7 @@ class _HeroCard extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Material(
-                      color: c.brand,
+                      color: colors.brand,
                       borderRadius: BorderRadius.circular(10),
                       clipBehavior: Clip.antiAlias,
                       child: InkWell(
@@ -401,7 +427,7 @@ class _HeroCard extends StatelessWidget {
                           child: Text(
                             'Contact Support',
                             style: AppTextStyles.buttonText.copyWith(
-                              color: c.surface,
+                              color: colors.surface,
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w700,
                               fontSize: m.heroBtnFontSize,
@@ -433,7 +459,7 @@ class _HeadsetArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return SizedBox(
@@ -446,7 +472,7 @@ class _HeadsetArt extends StatelessWidget {
             width: m.heroArtSize * 0.78,
             height: m.heroArtSize * 0.78,
             decoration: BoxDecoration(
-              color: c.surface.withValues(alpha: c.isDark ? 0.10 : 0.75),
+              color: colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.75),
               shape: BoxShape.circle,
             ),
           ),
@@ -464,7 +490,7 @@ class _HeadsetArt extends StatelessWidget {
             child: Icon(
               Icons.auto_awesome,
               size: m.heroArtSize * 0.13,
-              color: c.brand.withValues(alpha: 0.55),
+              color: colors.brand.withValues(alpha: 0.55),
             ),
           ),
           Positioned(
@@ -473,7 +499,7 @@ class _HeadsetArt extends StatelessWidget {
             child: Icon(
               Icons.auto_awesome,
               size: m.heroArtSize * 0.10,
-              color: c.brand.withValues(alpha: 0.40),
+              color: colors.brand.withValues(alpha: 0.40),
             ),
           ),
         ],
@@ -549,11 +575,11 @@ class _SupportTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Material(
-      color: c.surface,
+      color: colors.surface,
       borderRadius: BorderRadius.circular(m.tileRadius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -565,7 +591,7 @@ class _SupportTile extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(m.tileRadius),
-            border: Border.all(color: c.border, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -574,11 +600,11 @@ class _SupportTile extends StatelessWidget {
                 width: m.tileIconBox,
                 height: m.tileIconBox,
                 decoration: BoxDecoration(
-                  color: c.brandSoft,
+                  color: colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(icon, size: m.tileIconSize, color: c.brand),
+                child: Icon(icon, size: m.tileIconSize, color: colors.brand),
               ),
 
               SizedBox(height: m.gapMd),
@@ -587,7 +613,7 @@ class _SupportTile extends StatelessWidget {
                 title,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.labelLarge.copyWith(
-                  color: c.textPrimary,
+                  color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
                   fontSize: m.tileTitleSize,
@@ -601,7 +627,7 @@ class _SupportTile extends StatelessWidget {
                 subtitle,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: c.textSecondary,
+                  color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.tileSubSize,
                   height: 1.35,
@@ -624,7 +650,7 @@ class _FaqSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Column(
@@ -636,9 +662,9 @@ class _FaqSection extends StatelessWidget {
 
         Container(
           decoration: BoxDecoration(
-            color: c.surface,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(m.faqRadius),
-            border: Border.all(color: c.border, width: 1),
+            border: Border.all(color: colors.border, width: 1),
           ),
           clipBehavior: Clip.antiAlias,
           child: Column(
@@ -653,7 +679,7 @@ class _FaqSection extends StatelessWidget {
                       thickness: 1,
                       indent: m.faqHPad,
                       endIndent: m.faqHPad,
-                      color: c.border,
+                      color: colors.border,
                     ),
                 ],
               );
@@ -680,7 +706,7 @@ class _FaqTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Theme(
@@ -701,14 +727,14 @@ class _FaqTile extends StatelessWidget {
           m.gapMd,
         ),
         expandedAlignment: Alignment.topLeft,
-        iconColor: c.brand,
-        collapsedIconColor: c.textSecondary,
+        iconColor: colors.brand,
+        collapsedIconColor: colors.textSecondary,
         backgroundColor: Colors.transparent,
         collapsedBackgroundColor: Colors.transparent,
         title: Text(
           faq.question,
           style: AppTextStyles.labelLarge.copyWith(
-            color: c.textPrimary,
+            color: colors.textPrimary,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w500,
             fontSize: m.faqQuestionSize,
@@ -720,7 +746,7 @@ class _FaqTile extends StatelessWidget {
           Text(
             faq.answer,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: c.textSecondary,
+              color: colors.textSecondary,
               fontFamily: 'Inter',
               fontSize: m.faqAnswerSize,
               height: 1.5,
@@ -740,13 +766,13 @@ class _FooterNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
       padding: EdgeInsets.all(m.footerPad),
       decoration: BoxDecoration(
-        color: c.brandSoft,
+        color: colors.brandSoft,
         borderRadius: BorderRadius.circular(m.footerRadius),
       ),
       child: Row(
@@ -756,14 +782,14 @@ class _FooterNote extends StatelessWidget {
             width: m.footerIconBox,
             height: m.footerIconBox,
             decoration: BoxDecoration(
-              color: c.surface.withValues(alpha: c.isDark ? 0.10 : 0.7),
+              color: colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.7),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Icon(
               Icons.verified_user_outlined,
               size: m.footerIconSize,
-              color: c.brand,
+              color: colors.brand,
             ),
           ),
 
@@ -777,7 +803,7 @@ class _FooterNote extends StatelessWidget {
                 Text(
                   'Your Satisfaction is Important',
                   style: AppTextStyles.labelLarge.copyWith(
-                    color: c.brand,
+                    color: colors.brand,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.footerTitleSize,
@@ -790,7 +816,7 @@ class _FooterNote extends StatelessWidget {
                 Text(
                   'We are committed to providing the best experience.',
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: c.textSecondary,
+                    color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.footerBodySize,
                     height: 1.45,
@@ -802,7 +828,7 @@ class _FooterNote extends StatelessWidget {
                 RichText(
                   text: TextSpan(
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.footerBodySize,
                       height: 1.45,
@@ -812,7 +838,7 @@ class _FooterNote extends StatelessWidget {
                       TextSpan(
                         text: 'TheVaults.',
                         style: TextStyle(
-                          color: c.brand,
+                          color: colors.brand,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

@@ -16,7 +16,7 @@ class BookingDetailsErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return Center(
@@ -29,12 +29,12 @@ class BookingDetailsErrorView extends StatelessWidget {
               width: m.errorIconBox,
               height: m.errorIconBox,
               decoration: BoxDecoration(
-                color: c.brandSoft,
+                color: colors.brandSoft,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.error_outline_rounded,
-                color: c.brand,
+                color: colors.brand,
                 size: m.errorIconSize,
               ),
             ),
@@ -43,7 +43,7 @@ class BookingDetailsErrorView extends StatelessWidget {
               AppStrings.unableToLoadBooking,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: c.textPrimary,
+                color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontSize: m.errorTitleSize,
                 fontWeight: FontWeight.w800,
@@ -54,7 +54,7 @@ class BookingDetailsErrorView extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.errorBodySize,
                 height: 1.4,
@@ -66,8 +66,8 @@ class BookingDetailsErrorView extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onRetry,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: c.brand,
-                  foregroundColor: c.surface,
+                  backgroundColor: colors.brand,
+                  foregroundColor: colors.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(m.errorBtnRadius),

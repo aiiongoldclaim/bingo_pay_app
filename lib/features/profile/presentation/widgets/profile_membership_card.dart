@@ -14,7 +14,7 @@ class ProfileMembershipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -33,7 +33,7 @@ class ProfileMembershipCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: c.textPrimary.withValues(alpha: 0.08),
+                    color: colors.textPrimary.withValues(alpha: 0.08),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -49,11 +49,11 @@ class ProfileMembershipCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
-                        color: c.brandSoft,
+                        color: colors.brandSoft,
                         alignment: Alignment.center,
                         child: Icon(
                           Icons.card_membership_outlined,
-                          color: c.brand,
+                          color: colors.brand,
                           size: 42,
                         ),
                       );

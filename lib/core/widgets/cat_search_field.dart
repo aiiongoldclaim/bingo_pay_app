@@ -19,7 +19,7 @@ class CatSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return GestureDetector(
@@ -29,16 +29,16 @@ class CatSearchField extends StatelessWidget {
         height: m.searchHeight,
         padding: EdgeInsets.symmetric(horizontal: m.pagePadding * 0.85),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.searchRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Row(
           children: [
             Icon(
               Icons.search_rounded,
               size: m.searchIconSize,
-              color: c.textMuted,
+              color: colors.textMuted,
             ),
             SizedBox(width: m.pagePadding * 0.7),
             Expanded(
@@ -48,7 +48,7 @@ class CatSearchField extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: m.searchFontSize,
-                  color: c.textMuted,
+                  color: colors.textMuted,
                 ),
               ),
             ),

@@ -73,18 +73,18 @@ class _BookingCancelDialogState
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = BookingDetailsMetrics.of(context);
 
     return AlertDialog(
-      backgroundColor: c.surface,
+      backgroundColor: colors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(m.dialogRadius),
       ),
       title: Text(
         AppStrings.cancelBookingQuestion,
         style: TextStyle(
-          color: c.textPrimary,
+          color: colors.textPrimary,
           fontFamily: 'Inter',
           fontWeight: FontWeight.w800,
         ),
@@ -98,7 +98,7 @@ class _BookingCancelDialogState
             Text(
               AppStrings.cancellationReasonPrompt,
               style: TextStyle(
-                color: c.textSecondary,
+                color: colors.textSecondary,
                 fontFamily: 'Inter',
                 fontSize: m.dialogBodySize,
               ),
@@ -113,12 +113,12 @@ class _BookingCancelDialogState
                 hintText: AppStrings.cancellationReasonHint,
                 errorText: _errorText,
                 filled: true,
-                fillColor: c.background,
+                fillColor: colors.background,
                 border: OutlineInputBorder(
                   borderRadius:
                       BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
-                    color: c.border,
+                    color: colors.border,
                   ),
                 ),
                 enabledBorder:
@@ -126,7 +126,7 @@ class _BookingCancelDialogState
                   borderRadius:
                       BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
-                    color: c.border,
+                    color: colors.border,
                   ),
                 ),
                 focusedBorder:
@@ -134,7 +134,7 @@ class _BookingCancelDialogState
                   borderRadius:
                       BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
                 errorBorder:
@@ -142,7 +142,7 @@ class _BookingCancelDialogState
                   borderRadius:
                       BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
                 focusedErrorBorder:
@@ -150,7 +150,7 @@ class _BookingCancelDialogState
                   borderRadius:
                       BorderRadius.circular(m.cancelFieldRadius),
                   borderSide: BorderSide(
-                    color: c.brand,
+                    color: colors.brand,
                   ),
                 ),
               ),
@@ -164,7 +164,7 @@ class _BookingCancelDialogState
           child: Text(
             AppStrings.keepBooking,
             style: TextStyle(
-              color: c.textSecondary,
+              color: colors.textSecondary,
               fontFamily: 'Inter',
             ),
           ),
@@ -172,7 +172,7 @@ class _BookingCancelDialogState
         FilledButton(
           onPressed: _submit,
           style: FilledButton.styleFrom(
-            backgroundColor: c.brand,
+            backgroundColor: colors.brand,
           ),
           child: const Text(
             AppStrings.cancelBookingCta,

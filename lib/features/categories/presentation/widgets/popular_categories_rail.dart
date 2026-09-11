@@ -51,7 +51,7 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
+//     final colors = context.c;
 //     final m = metrics;
 //     final hasImage = category.image != null && category.image!.isNotEmpty;
 //
@@ -61,9 +61,9 @@
 //       child: Container(
 //         width: m.popularTileWidth,
 //         decoration: BoxDecoration(
-//           color: c.surface,
+//           color: colors.surface,
 //           borderRadius: BorderRadius.circular(m.categoryTileRadius),
-//           border: Border.all(color: c.border),
+//           border: Border.all(color: colors.border),
 //         ),
 //         clipBehavior: Clip.antiAlias,
 //         child: Column(
@@ -77,22 +77,22 @@
 //                       category.image!,
 //                       fit: BoxFit.cover,
 //                       errorBuilder: (_, __, ___) => Container(
-//                         color: c.surfaceAlt,
+//                         color: colors.surfaceAlt,
 //                         alignment: Alignment.center,
 //                         child: Icon(
 //                           category.icon,
 //                           size: m.categoryIconSize,
-//                           color: c.brand,
+//                           color: colors.brand,
 //                         ),
 //                       ),
 //                     )
 //                   : Container(
-//                       color: c.surfaceAlt,
+//                       color: colors.surfaceAlt,
 //                       alignment: Alignment.center,
 //                       child: Icon(
 //                         category.icon,
 //                         size: m.categoryIconSize,
-//                         color: c.brand,
+//                         color: colors.brand,
 //                       ),
 //                     ),
 //             ),
@@ -109,7 +109,7 @@
 //                   fontSize: m.popularNameSize,
 //                   fontWeight: FontWeight.w600,
 //                   height: 1.2,
-//                   color: c.textPrimary,
+//                   color: colors.textPrimary,
 //                 ),
 //               ),
 //             ),

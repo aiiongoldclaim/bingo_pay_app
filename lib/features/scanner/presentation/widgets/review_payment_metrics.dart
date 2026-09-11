@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+/// UI-only payment method selection (cubit abhi method accept nahi karta)
+enum ScanPayMethod { bigod, cod }
+
 class ReviewPaymentMetrics {
   final bool isTablet;
   final bool isLandscape;

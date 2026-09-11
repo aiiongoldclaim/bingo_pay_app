@@ -36,6 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       cancelLabel: 'Cancel',
       isDestructive: true,
       icon: Icons.logout_rounded,
+      confirmColor: context.c.error,
     );
 
     if (!confirmed) return;

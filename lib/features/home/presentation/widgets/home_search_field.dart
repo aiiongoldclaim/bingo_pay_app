@@ -17,7 +17,7 @@ class HomeSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
 
     return GestureDetector(
       onTap: onTap,
@@ -26,16 +26,16 @@ class HomeSearchField extends StatelessWidget {
         height: metrics.searchHeight,
         padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding * 0.85),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(metrics.searchRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         child: Row(
           children: [
             Icon(
               Icons.search_rounded,
               size: metrics.searchIconSize,
-              color: c.textMuted,
+              color: colors.textMuted,
             ),
             SizedBox(width: metrics.pagePadding * 0.7),
             Expanded(
@@ -45,7 +45,7 @@ class HomeSearchField extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: metrics.searchFontSize,
-                  color: c.textMuted,
+                  color: colors.textMuted,
                 ),
               ),
             ),

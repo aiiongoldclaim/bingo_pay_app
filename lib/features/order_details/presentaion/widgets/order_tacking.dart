@@ -166,7 +166,7 @@ class OdTrackingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
     if (steps.isEmpty) return const SizedBox.shrink();
 
@@ -175,9 +175,9 @@ class OdTrackingCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(m.cardPadding),
         decoration: BoxDecoration(
-          color: c.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(m.cardRadius),
-          border: Border.all(color: c.border),
+          border: Border.all(color: colors.border),
         ),
         clipBehavior: Clip.antiAlias,
         child: Stack(
@@ -189,7 +189,7 @@ class OdTrackingCard extends StatelessWidget {
               child: SizedBox(
                 width: m.illustrationWidth,
                 child: Opacity(
-                  opacity: c.isDark ? 0.65 : 1,
+                  opacity: colors.isDark ? 0.65 : 1,
                   child: Image.asset(
                     illustrationAsset,
                     fit: BoxFit.contain,
@@ -241,7 +241,7 @@ class _TimelineRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     final errorColor = const Color(0xFFE0533B);
@@ -251,15 +251,15 @@ class _TimelineRow extends StatelessWidget {
     final Color dotColor = step.isError
         ? errorColor
         : done
-        ? c.brand
+        ? colors.brand
         : current
-        ? c.brand
-        : c.border;
+        ? colors.brand
+        : colors.border;
 
     // Rail ka rang next step ki state se — pending tak pahunchte hi grey
     final railColor = (nextStep?.stepStatus == TrackingStatus.pending)
-        ? c.border
-        : c.brand;
+        ? colors.border
+        : colors.brand;
 
     return IntrinsicHeight(
       child: Row(
@@ -297,8 +297,8 @@ class _TimelineRow extends StatelessWidget {
                       color: step.isError
                           ? errorColor
                           : (done || current)
-                          ? c.textPrimary
-                          : c.textSecondary,
+                          ? colors.textPrimary
+                          : colors.textSecondary,
                     ),
                   ),
                   SizedBox(height: m.cardPadding * 0.15),
@@ -311,8 +311,8 @@ class _TimelineRow extends StatelessWidget {
                       color: step.isError
                           ? errorColor
                           : current
-                          ? c.brand
-                          : c.textSecondary,
+                          ? colors.brand
+                          : colors.textSecondary,
                     ),
                   ),
                 ],
@@ -342,7 +342,7 @@ class _Dot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -350,7 +350,7 @@ class _Dot extends StatelessWidget {
       height: m.dotSize,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: filled ? color : c.surface,
+        color: filled ? color : colors.surface,
         shape: BoxShape.circle,
         border: Border.all(color: color, width: filled ? 0 : 2),
       ),

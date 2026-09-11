@@ -10,6 +10,7 @@ class AppButton extends StatelessWidget {
   final bool isLoading;
   final AppButtonVariant variant;
   final IconData? prefixIcon;
+  final IconData? suffixIcon;
   final Color? textColor;
   final Color? iconColor;
 
@@ -24,6 +25,7 @@ class AppButton extends StatelessWidget {
     this.isLoading = false,
     this.variant = AppButtonVariant.primary,
     this.prefixIcon,
+    this.suffixIcon,
     this.textColor,
     this.iconColor,
     this.height,
@@ -124,6 +126,14 @@ class AppButton extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        if (suffixIcon != null) ...[
+          SizedBox(width: metrics.iconGap),
+          Icon(
+            suffixIcon,
+            size: metrics.iconSize,
+            color: effectiveIconColor,
+          ),
+        ],
       ],
     );
 

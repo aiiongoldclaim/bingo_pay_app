@@ -1,125 +1,3 @@
-// import 'package:flutter/material.dart';
-//
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-//
-// class PriceDetailsCard extends StatelessWidget {
-//   final double subtotal;
-//   final int itemCount;
-//
-//   const PriceDetailsCard({
-//     super.key,
-//     required this.subtotal,
-//     required this.itemCount,
-//   });
-//
-//   String _fmt(double v) {
-//     final s = v.truncate().toString();
-//     final buf = StringBuffer();
-//     for (int i = 0; i < s.length; i++) {
-//       final fromEnd = s.length - i;
-//       buf.write(s[i]);
-//       final rem = fromEnd - 1;
-//       if (rem == 3 || (rem > 3 && (rem - 3) % 2 == 0)) buf.write(',');
-//     }
-//     return buf.toString();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(20),
-//         boxShadow: [
-//           BoxShadow(
-//             color: const Color(0xFF1A1D4E).withValues(alpha: 0.08),
-//             blurRadius: 20,
-//             offset: const Offset(0, 4),
-//           ),
-//         ],
-//       ),
-//       child: Column(
-//         children: [
-//           // Header
-//           Container(
-//             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-//             decoration: const BoxDecoration(
-//               gradient: LinearGradient(
-//                 colors: [Color(0xFF1A1D4E), Color(0xFF2B2FA8)],
-//                 begin: Alignment.centerLeft,
-//                 end: Alignment.centerRight,
-//               ),
-//               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-//             ),
-//             child: Row(
-//               children: [
-//                 const Icon(Icons.receipt_long_outlined,
-//                     color: Colors.white, size: 18),
-//                 const SizedBox(width: 8),
-//                 Text(
-//                   'Price Details',
-//                   style: AppTextStyles.titleMedium
-//                       .copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-//                 ),
-//               ],
-//             ),
-//           ),
-//
-//           // Rows
-//           Padding(
-//             padding: const EdgeInsets.fromLTRB(18, 16, 18, 4),
-//             child: Column(
-//               children: [
-//                 _row(
-//                   'Subtotal ($itemCount item${itemCount == 1 ? '' : 's'})',
-//                   '\$${_fmt(subtotal)}',
-//                 ),
-//                 _row('Delivery', '\$0', color: ThemeColors.green),
-//                 Divider(
-//                     height: 24,
-//                     color: ThemeColors.inkDim.withValues(alpha: 0.15)),
-//                 _row('Total payable', '\$${_fmt(subtotal)}', bold: true),
-//                 const SizedBox(height: 4),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Widget _row(String title, String value, {Color? color, bool bold = false}) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 12),
-//       child: Row(
-//         children: [
-//           Expanded(
-//             child: Text(
-//               title,
-//               style: bold
-//                   ? AppTextStyles.titleMedium
-//                   : AppTextStyles.bodyMedium
-//                       .copyWith(color: ThemeColors.inkMid),
-//             ),
-//           ),
-//           Text(
-//             value,
-//             style: bold
-//                 ? AppTextStyles.titleLarge.copyWith(
-//                     color: const Color(0xFF1A1D4E),
-//                     fontWeight: FontWeight.w800,
-//                   )
-//                 : AppTextStyles.bodyMedium.copyWith(
-//                     color: color ?? ThemeColors.ink,
-//                     fontWeight: FontWeight.w600,
-//                   ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -151,20 +29,20 @@ class PriceDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = CartMetrics.of(context);
 
     return Container(
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
-        color: c.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
-        border: Border.all(color: c.border, width: 1),
-        boxShadow: c.isDark
+        border: Border.all(color: colors.border, width: 1),
+        boxShadow: colors.isDark
             ? null
             : [
                 BoxShadow(
-                  color: c.textPrimary.withValues(alpha: 0.04),
+                  color: colors.textPrimary.withValues(alpha: 0.04),
                   blurRadius: 14,
                   offset: const Offset(0, 3),
                 ),
@@ -176,7 +54,7 @@ class PriceDetailsCard extends StatelessWidget {
           Text(
             AppStrings.orderSummary,
             style: AppTextStyles.titleMedium.copyWith(
-              color: c.textPrimary,
+              color: colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
               fontSize: m.summaryTitleSize,
@@ -193,14 +71,14 @@ class PriceDetailsCard extends StatelessWidget {
           _Row(
             label: AppStrings.shippingFee,
             value: AppStrings.free,
-            valueColor: c.statusSuccess,
+            valueColor: colors.statusSuccess,
             metrics: m,
             trailingInfo: true,
           ),
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapSm * 0.6),
-            child: Divider(height: 1, thickness: 1, color: c.border),
+            child: Divider(height: 1, thickness: 1, color: colors.border),
           ),
 
           Row(
@@ -210,7 +88,7 @@ class PriceDetailsCard extends StatelessWidget {
                 child: Text(
                   AppStrings.totalAmount,
                   style: AppTextStyles.titleMedium.copyWith(
-                    color: c.textPrimary,
+                    color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
                     fontSize: m.totalLabelSize,
@@ -221,7 +99,7 @@ class PriceDetailsCard extends StatelessWidget {
                 '\$${_fmt(subtotal)}',
                 textAlign: TextAlign.right,
                 style: AppTextStyles.titleLarge.copyWith(
-                  color: c.brand,
+                  color: colors.brand,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
                   fontSize: m.totalValueSize,
@@ -252,7 +130,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Padding(
@@ -260,7 +138,7 @@ class _Row extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Label left me — poori bachi hui jagah leta hai
+
           Expanded(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -271,7 +149,7 @@ class _Row extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: c.textSecondary,
+                      color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.summaryLabelSize,
                     ),
@@ -282,7 +160,7 @@ class _Row extends StatelessWidget {
                   Icon(
                     Icons.info_outline_rounded,
                     size: m.summaryLabelSize + 2,
-                    color: c.textMuted,
+                    color: colors.textMuted,
                   ),
                 ],
               ],
@@ -291,12 +169,11 @@ class _Row extends StatelessWidget {
 
           SizedBox(width: m.gapSm),
 
-          // Value hamesha right edge par
           Text(
             value,
             textAlign: TextAlign.right,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: valueColor ?? c.textPrimary,
+              color: valueColor ?? colors.textPrimary,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w600,
               fontSize: m.summaryValueSize,

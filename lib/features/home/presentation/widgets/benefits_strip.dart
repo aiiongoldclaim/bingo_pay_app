@@ -22,7 +22,7 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     if (benefits.isEmpty) return const SizedBox.shrink();
-//     final c = context.c;
+//     final colors = context.c;
 //
 //     final children = <Widget>[];
 //     for (var i = 0; i < benefits.length; i++) {
@@ -36,7 +36,7 @@
 //           Container(
 //             width: 1,
 //             height: metrics.benefitIconSize * 1.5,
-//             color: c.isDark ? c.border : Colors.white.withValues(alpha: 0.28),
+//             color: colors.isDark ? colors.border : Colors.white.withValues(alpha: 0.28),
 //           ),
 //         );
 //       }
@@ -45,9 +45,9 @@
 //     return Container(
 //       padding: EdgeInsets.symmetric(vertical: metrics.pagePadding * 0.9),
 //       decoration: BoxDecoration(
-//         gradient: c.benefitsStrip,
+//         gradient: colors.benefitsStrip,
 //         borderRadius: BorderRadius.circular(metrics.heroRadius * 0.6),
-//         border: c.isDark ? Border.all(color: c.border) : null,
+//         border: colors.isDark ? Border.all(color: colors.border) : null,
 //       ),
 //       child: Row(children: children),
 //     );
@@ -62,9 +62,9 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final c = context.c;
-//     final iconColor = c.isDark ? c.brand : Colors.white;
-//     final textColor = c.isDark ? c.textPrimary : Colors.white;
+//     final colors = context.c;
+//     final iconColor = colors.isDark ? colors.brand : Colors.white;
+//     final textColor = colors.isDark ? colors.textPrimary : Colors.white;
 //
 //     return Row(
 //       mainAxisAlignment: MainAxisAlignment.center,

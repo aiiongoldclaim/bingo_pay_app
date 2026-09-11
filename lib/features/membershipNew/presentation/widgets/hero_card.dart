@@ -39,7 +39,7 @@ class MembershipHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     const onHero = ThemeColors.white;
@@ -55,15 +55,15 @@ class MembershipHeroCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        gradient: c.isDark
+        gradient: colors.isDark
             ? ThemeColors.heroBannerDark
             : ThemeColors.primaryGradient1,
         borderRadius: BorderRadius.circular(
           m.radiusLg,
         ),
-        border: c.isDark
+        border: colors.isDark
             ? Border.all(
-          color: c.border,
+          color: colors.border,
         )
             : null,
       ),
@@ -194,7 +194,7 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.c;
+    final colors = context.c;
     final m = metrics;
 
     return Container(
@@ -204,8 +204,8 @@ class _StatusBadge extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: isActive
-            ? c.statusSuccess
-            : c.statusWarning,
+            ? colors.statusSuccess
+            : colors.statusWarning,
         borderRadius:
         BorderRadius.circular(99),
       ),
