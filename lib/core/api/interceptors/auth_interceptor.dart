@@ -7,6 +7,7 @@ import '../../storage/secure_storage_service.dart';
 import '../request_queue_manager.dart';
 import '../../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../../features/auth/presentation/bloc/auth_event.dart';
+import '../../utils/logger.dart' as log;
 
 class AuthInterceptor extends Interceptor {
   final SecureStorageService _storage;
@@ -42,14 +43,25 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
-    // If already refreshing, wait for refresh to complete then retry
-    if (_queueManager.isRefreshing) {
+    // Atomically decide, with no `await` in between the check and the
+    // claim, whether this request must perform the refresh (pending ==
+    // null) or should await another request's in-flight refresh instead
+    // (pending != null). This closes the race where two 401s arriving
+    // together (e.g. the cart and wishlist calls fired together right
+    // after login) could otherwise both see "not refreshing" and both
+    // call /refresh with the same — single-use, rotating — refresh token,
+    // with the loser's failure force-logging-out the session the winner
+    // had just successfully refreshed.
+    final pending = _queueManager.claimOrWait();
+
+    if (pending != null) {
       try {
-        await _waitForRefresh();
-        // Get the newly saved token and retry the request
-        final newToken = await _storage.getAccessToken();
-        if (newToken != null) {
-          final response = await _retryRequest(err.requestOptions, newToken);
+        final outcome = await pending.timeout(const Duration(seconds: 30));
+        if (outcome.isSuccess) {
+          final response = await _retryRequest(
+            err.requestOptions,
+            outcome.accessToken!,
+          );
           handler.resolve(response);
         } else {
           await _forceLogout();
@@ -62,17 +74,16 @@ class AuthInterceptor extends Interceptor {
       return;
     }
 
+    // We are the leader — perform the refresh ourselves.
     final refreshToken = await _storage.getRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {
+      _queueManager.failRefresh(Exception('No refresh token'));
       await _forceLogout();
       handler.next(err);
       return;
     }
 
     try {
-      // Mark that we're starting refresh (blocks other 401s)
-      _queueManager.startRefresh();
-
       final tokens = await _refreshTokens(err.requestOptions, refreshToken);
       if (tokens == null) {
         _queueManager.failRefresh(Exception('Failed to refresh tokens'));
@@ -86,8 +97,8 @@ class AuthInterceptor extends Interceptor {
         await _storage.saveRefreshToken(tokens.refreshToken!);
       }
 
-      // Signal that refresh is complete
-      _queueManager.completeRefresh();
+      // Hand the new access token to anyone who was waiting on us.
+      _queueManager.completeRefresh(tokens.accessToken);
 
       final response = await _retryRequest(
         err.requestOptions,
@@ -101,23 +112,17 @@ class AuthInterceptor extends Interceptor {
     }
   }
 
-  Future<void> _waitForRefresh() async {
-    final startTime = DateTime.now();
-    const maxWait = Duration(seconds: 30);
-
-    while (_queueManager.isRefreshing) {
-      if (DateTime.now().difference(startTime) > maxWait) {
-        throw Exception('Token refresh timeout');
-      }
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-  }
-
   // Refresh failed (or there was no refresh token to try) — the session is
   // dead, so drop stored tokens and flip the router's auth state. RouteGuard
   // picks this up on the next redirect evaluation and sends the user to
   // AppRoutes.login from wherever they currently are.
   Future<void> _forceLogout() async {
+    log.AppLogger.logError(
+      'AuthInterceptor: forcing logout (401 with no valid refresh token, '
+      'or refresh call failed) — clearing tokens',
+      null,
+      StackTrace.current,
+    );
     await _storage.clearAll();
     _queueManager.clear();
     getIt<AppRouter>().updateAuthState(const RouteAuthState.unauthenticated());

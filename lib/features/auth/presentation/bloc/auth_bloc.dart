@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/storage/secure_storage_service.dart';
+import '../../../../core/utils/logger.dart';
 import '../../domain/entities/kyc_entity.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/check_auth_status_usecase.dart';
@@ -183,10 +184,19 @@ on<KycStatusPolled>(
       );
       result.fold(
         (failure) {
+          AppLogger.logError(
+            'AuthBloc._onCheckAuthStatus: checkAuthStatus returned a '
+            'failure — emitting AuthUnauthenticated',
+            failure,
+          );
           if (!emit.isDone) emit(const AuthUnauthenticated());
         },
         (user) {
           if (user == null) {
+            AppLogger.log(
+              'AuthBloc._onCheckAuthStatus: no stored user — emitting '
+              'AuthUnauthenticated',
+            );
             if (!emit.isDone) emit(const AuthUnauthenticated());
             return;
           }
@@ -197,7 +207,13 @@ on<KycStatusPolled>(
           if (!emit.isDone) emit(AuthAuthenticated(user));
         },
       );
-    } catch (e) {
+    } catch (e, st) {
+      AppLogger.logError(
+        'AuthBloc._onCheckAuthStatus: threw (possibly the 5s timeout) — '
+        'emitting AuthUnauthenticated',
+        e,
+        st,
+      );
       if (!emit.isDone) emit(const AuthUnauthenticated());
     }
   }
