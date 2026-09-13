@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -21,17 +19,14 @@ class ImagePickerHelper {
     if (!context.mounted) return null;
 
     // Camera always needs an explicit permission check on all platforms.
-    // Gallery on iOS uses PHPickerViewController (iOS 14+) which handles its own
-    // access without requiring a prior permission request — checking Permission.photos
-    // here would incorrectly return permanentlyDenied and open Settings instead of
-    // showing the picker. On Android, explicit storage permission is still required.
+    // Gallery picking never does: on iOS, PHPickerViewController (iOS 14+) and,
+    // on Android, the system Photo Picker / document picker both grant access to
+    // only the user-selected file without any app-level storage/media permission —
+    // checking Permission.photos here would incorrectly return permanentlyDenied
+    // and open Settings instead of showing the picker.
     if (source == ImageSource.camera) {
       // ignore: use_build_context_synchronously
       final status = await PermissionHelper.request(context, Permission.camera);
-      if (!status.isGranted && !status.isLimited) return null;
-    } else if (Platform.isAndroid) {
-      // ignore: use_build_context_synchronously
-      final status = await PermissionHelper.request(context, Permission.photos);
       if (!status.isGranted && !status.isLimited) return null;
     }
 
