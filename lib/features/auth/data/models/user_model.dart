@@ -42,7 +42,7 @@ class UserModel extends UserEntity {
             (json['kycStatus'] as String? ?? 'NONE').toLowerCase(),
         emailVerified: json['isEmailVerified'] as bool? ?? false,
         phoneVerified: json['isPhoneVerified'] as bool? ?? false,
-        passwordSet: json['isPasswordSet'] as bool? ?? false,
+        passwordSet: json['isPasswordSet'] as bool? ?? true,
       );
 
   UserModel copyWith({

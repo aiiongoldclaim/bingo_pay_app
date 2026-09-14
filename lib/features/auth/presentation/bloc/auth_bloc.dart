@@ -200,10 +200,6 @@ on<KycStatusPolled>(
             if (!emit.isDone) emit(const AuthUnauthenticated());
             return;
           }
-          if (!user.passwordSet) {
-            if (!emit.isDone) emit(SsoSetPasswordRequired(user.email));
-            return;
-          }
           if (!emit.isDone) emit(AuthAuthenticated(user));
         },
       );
