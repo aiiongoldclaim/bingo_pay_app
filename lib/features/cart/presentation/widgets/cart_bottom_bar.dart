@@ -112,6 +112,7 @@ class CartPayButton extends StatelessWidget {
                   color: colors.textMuted,
                   fontFamily: 'Inter',
                   fontSize: m.payNoteSize,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

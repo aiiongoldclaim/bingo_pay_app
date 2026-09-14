@@ -392,6 +392,7 @@ class WishlistEmptyView extends StatelessWidget {
                 fontFamily: 'Inter',
                 fontSize: metrics.emptySubSize,
                 height: 1.45,
+                fontWeight: FontWeight.w500,
               ),
             ),
 

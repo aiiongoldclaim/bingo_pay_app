@@ -126,6 +126,7 @@ class _TransactionsTopBar extends StatelessWidget {
                       color: colors.textSecondary,
                       fontFamily: 'Inter',
                       fontSize: m.subtitleSize,
+                      fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
                   ),

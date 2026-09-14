@@ -156,7 +156,7 @@ class WishlistMetrics {
     promoArtSize: 30.w,
     emptyIllustration: 34.w,
     emptyTitleSize: 17.sp,
-    emptySubSize: 13.sp,
+    emptySubSize: 13.5.sp,
     gapXs: 0.5.h,
     gapSm: 1.h,
     gapMd: 1.8.h,
