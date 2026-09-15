@@ -31,7 +31,7 @@ class MetaBlock extends StatelessWidget {
           style: TextStyle(
             color: colors.textMuted,
             fontFamily: 'Inter',
-            fontSize: 10.sp,
+            fontSize: 14.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
           ),
@@ -52,7 +52,7 @@ class MetaBlock extends StatelessWidget {
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: 12.5.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -76,7 +76,7 @@ class MetaBlock extends StatelessWidget {
                     style: TextStyle(
                       color: colors.statusSuccess,
                       fontFamily: 'Inter',
-                      fontSize: 9.sp,
+                      fontSize: 13.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

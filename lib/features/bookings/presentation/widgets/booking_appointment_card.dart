@@ -149,6 +149,7 @@ class BookingAppointmentCard extends StatelessWidget {
                     color: colors.textSecondary,
                     fontFamily: 'Inter',
                     fontSize: m.apptInfoTextSize,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),

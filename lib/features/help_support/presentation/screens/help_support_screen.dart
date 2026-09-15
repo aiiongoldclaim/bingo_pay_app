@@ -715,44 +715,54 @@ class _FaqTile extends StatelessWidget {
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
       ),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.symmetric(
-          horizontal: m.faqHPad,
-          vertical: m.faqVPad,
-        ),
-        childrenPadding: EdgeInsets.fromLTRB(
-          m.faqHPad,
-          0,
-          m.faqHPad,
-          m.gapMd,
-        ),
-        expandedAlignment: Alignment.topLeft,
-        iconColor: colors.brand,
-        collapsedIconColor: colors.textSecondary,
-        backgroundColor: Colors.transparent,
-        collapsedBackgroundColor: Colors.transparent,
-        title: Text(
-          faq.question,
-          style: AppTextStyles.labelLarge.copyWith(
-            color: colors.textPrimary,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w500,
-            fontSize: m.faqQuestionSize,
-            height: 1.35,
-          ),
-        ),
-        trailing: Icon(Icons.keyboard_arrow_down_rounded, size: m.faqIconSize),
-        children: [
-          Text(
-            faq.answer,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: colors.textSecondary,
-              fontFamily: 'Inter',
-              fontSize: m.faqAnswerSize,
-              height: 1.5,
+      child: Material(
+  color: Colors.transparent,
+  child: Theme(
+    data: Theme.of(context).copyWith(
+      dividerColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+    ),
+          child: ExpansionTile(
+            tilePadding: EdgeInsets.symmetric(
+              horizontal: m.faqHPad,
+              vertical: m.faqVPad,
             ),
+            childrenPadding: EdgeInsets.fromLTRB(
+              m.faqHPad,
+              0,
+              m.faqHPad,
+              m.gapMd,
+            ),
+            expandedAlignment: Alignment.topLeft,
+            iconColor: colors.brand,
+            collapsedIconColor: colors.textSecondary,
+            backgroundColor: Colors.transparent,
+            collapsedBackgroundColor: Colors.transparent,
+            title: Text(
+              faq.question,
+              style: AppTextStyles.labelLarge.copyWith(
+                color: colors.textPrimary,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w500,
+                fontSize: m.faqQuestionSize,
+                height: 1.35,
+              ),
+            ),
+            trailing: Icon(Icons.keyboard_arrow_down_rounded, size: m.faqIconSize),
+            children: [
+              Text(
+                faq.answer,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: colors.textSecondary,
+                  fontFamily: 'Inter',
+                  fontSize: m.faqAnswerSize,
+                  height: 1.5,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

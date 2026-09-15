@@ -56,7 +56,7 @@ class BookingsLoadedView extends StatelessWidget {
             )
           else
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(4.1.w, 0.71.h, 4.1.w, 4.74.h),
+              padding: EdgeInsets.fromLTRB(4.1.w, 1.71.h, 4.1.w, 4.74.h),
               sliver: SliverList.separated(
                 itemCount: visible.length,
                 separatorBuilder: (_, __) {

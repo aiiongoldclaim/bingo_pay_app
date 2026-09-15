@@ -145,7 +145,7 @@ class _BookingCardState extends State<BookingCard> {
                                   SizedBox(width: 0.77.w),
                                   Icon(
                                     Icons.arrow_forward_ios_rounded,
-                                    size: 14.sp,
+                                    size: 15.sp,
                                     color: colors.textMuted,
                                   ),
                                 ],
@@ -164,7 +164,7 @@ class _BookingCardState extends State<BookingCard> {
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: colors.textSecondary,
                                 fontFamily: 'Inter',
-                                fontSize: 12.5.sp,
+                                fontSize: 14.5.sp,
                               ),
                             ),
                           ],

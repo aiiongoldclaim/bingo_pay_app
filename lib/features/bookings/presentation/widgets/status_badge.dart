@@ -26,7 +26,7 @@ class StatusBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12.sp, color: color),
+          Icon(icon, size: 15.sp, color: color),
           SizedBox(width: 1.28.w),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 23.59.w),
@@ -38,7 +38,7 @@ class StatusBadge extends StatelessWidget {
                 color: color,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700,
-                fontSize: 10.5.sp,
+                fontSize: 13.5.sp,
               ),
             ),
           ),

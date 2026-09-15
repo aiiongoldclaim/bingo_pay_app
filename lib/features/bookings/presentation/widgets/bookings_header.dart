@@ -57,7 +57,7 @@ class BookingsHeader extends StatelessWidget {
                     style: TextStyle(
                       color: colors.textSecondary,
                       fontFamily: 'Inter',
-                      fontSize: 11.5.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
