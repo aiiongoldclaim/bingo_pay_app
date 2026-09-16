@@ -402,7 +402,7 @@ class VariantCard extends StatelessWidget {
 
               // ── Price ─────────────────────────────────────
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                // crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Flexible(
                     child: Text(
@@ -426,7 +426,7 @@ class VariantCard extends StatelessWidget {
                       style: AppTextStyles.bodySmall.copyWith(
                         color: colors.textMuted,
                         fontFamily: 'Inter',
-                        fontSize: metrics.rowSubSize,
+                        fontSize: metrics.rowSubSize * 1.2,
                         decoration: TextDecoration.lineThrough,
                         decorationColor: colors.textMuted,
                       ),

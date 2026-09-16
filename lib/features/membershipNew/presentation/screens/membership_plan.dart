@@ -141,8 +141,8 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
                 Text(
                   'Select the perfect membership for you',
                   style: TextStyle(
-                    fontSize: m.captionSize * 1.5,
-                    fontWeight: FontWeight.w400,
+                    fontSize: m.captionSize * 1.2,
+                    fontWeight: FontWeight.w600,
                     color: colors.textSecondary,
                   ),
                 ),

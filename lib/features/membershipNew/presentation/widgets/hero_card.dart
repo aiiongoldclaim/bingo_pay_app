@@ -118,7 +118,7 @@ class MembershipHeroCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: m.rowGap * 0.35,
+                  height: m.rowGap * 0.85,
                 ),
                 Text(
                   description,
@@ -128,6 +128,7 @@ class MembershipHeroCard extends StatelessWidget {
                     fontSize: m.heroBodySize,
                     height: 1.4,
                     color: onHeroMuted,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 SizedBox(

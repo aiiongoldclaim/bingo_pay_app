@@ -164,7 +164,7 @@ class _MembershipActionBar
                   MembershipActionHelper
                       .getLabel(action),
                   style: TextStyle(
-                    fontSize: m.labelSize,
+                    fontSize: m.labelSize * 1.3,
                     fontWeight:
                     FontWeight.w700,
                   ),
@@ -433,7 +433,7 @@ class MembershipActionHelper {
                   child: Text(
                     'Keep membership',
                     style: TextStyle(
-                      fontSize: m.labelSize,
+                      fontSize: m.labelSize * 1.25,
                       fontWeight:
                       FontWeight.w600,
                     ),
@@ -684,7 +684,7 @@ class _SheetDescription extends StatelessWidget {
       text,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontSize: m.labelSize,
+        fontSize: m.labelSize * 1.15,
         height: 1.45,
         color: colors.textSecondary,
       ),

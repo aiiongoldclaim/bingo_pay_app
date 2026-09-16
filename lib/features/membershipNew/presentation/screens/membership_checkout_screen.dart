@@ -770,7 +770,7 @@ class _CheckoutViewState
                     'Total Amount',
                     style: TextStyle(
                       fontSize:
-                      metrics.labelSize,
+                      metrics.labelSize * 1.25,
                       fontWeight:
                       FontWeight.w500,
                       color:
@@ -937,7 +937,7 @@ class _CheckoutViewState
           text,
           style: TextStyle(
             fontSize:
-            metrics.bodySize,
+            metrics.bodySize * 1.15,
             fontWeight:
             FontWeight.w700,
           ),
@@ -983,7 +983,7 @@ class _CheckoutViewState
             TextOverflow.ellipsis,
             style: TextStyle(
               fontSize:
-              metrics.bodySize,
+              metrics.bodySize * 1.15,
               fontWeight:
               FontWeight.w700,
             ),

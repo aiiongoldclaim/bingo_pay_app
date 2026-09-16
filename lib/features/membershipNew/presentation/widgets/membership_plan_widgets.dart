@@ -1318,7 +1318,7 @@ class MembershipPlanTierCard extends StatelessWidget {
                     child: Text(
                       'Selected',
                       style: TextStyle(
-                        fontSize: m.labelSize,
+                        fontSize: m.labelSize * 1.3,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -1425,7 +1425,7 @@ class MembershipCompareTable extends StatelessWidget {
                   child: Text(
                     'Features',
                     style: TextStyle(
-                      fontSize: m.labelSize,
+                      fontSize: m.labelSize * 1.2,
                       fontWeight: FontWeight.w700,
                       color: colors.textPrimary,
                     ),
@@ -1450,7 +1450,7 @@ class MembershipCompareTable extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: m.labelSize,
+                              fontSize: m.labelSize * 1.1,
                               fontWeight: FontWeight.w700,
                               height: 1.25,
                               color: colors.textPrimary,

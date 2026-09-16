@@ -62,7 +62,7 @@ class MembershipActivatedScreen extends StatelessWidget {
                   child: Text(
                     'Done',
                     style: TextStyle(
-                      fontSize: m.labelSize,
+                      fontSize: m.labelSize * 1.25,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -318,7 +318,7 @@ class _SummaryCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: m.captionSize,
+                  fontSize: m.captionSize * 1.2,
                   fontWeight: FontWeight.w400,
                   color: colors.textSecondary,
                 ),
@@ -329,7 +329,7 @@ class _SummaryCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: emphasise ? m.sectionTitleSize : m.labelSize,
+                  fontSize: emphasise ? m.sectionTitleSize * 1.15 : m.labelSize * 1.15,
                   fontWeight: FontWeight.w700,
                   height: 1.25,
                   color: emphasise ? colors.brand : colors.textPrimary,
@@ -452,7 +452,7 @@ class _OrderSummary extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.receipt_long_outlined,
-                    size: m.iconSize * 0.75,
+                    size: m.iconSize,
                     color: colors.brand,
                   ),
                 ),
@@ -465,7 +465,7 @@ class _OrderSummary extends StatelessWidget {
                       Text(
                         'Order ID',
                         style: TextStyle(
-                          fontSize: m.captionSize,
+                          fontSize: m.captionSize * 1.15,
                           fontWeight: FontWeight.w400,
                           color: colors.textSecondary,
                         ),
@@ -476,7 +476,7 @@ class _OrderSummary extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: m.labelSize,
+                          fontSize: m.labelSize * 1.15,
                           fontWeight: FontWeight.w700,
                           color: colors.textPrimary,
                         ),
@@ -630,7 +630,7 @@ class _NextTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: m.captionSize * 1.05,
+                fontSize: m.captionSize * 1.2,
                 fontWeight: FontWeight.w700,
                 color: colors.textPrimary,
               ),
@@ -641,7 +641,7 @@ class _NextTile extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: m.captionSize * 0.88,
+                fontSize: m.captionSize * 1.1,
                 fontWeight: FontWeight.w400,
                 height: 1.3,
                 color: colors.textSecondary,
@@ -698,7 +698,7 @@ class _BottomBar extends StatelessWidget {
               child: Text(
                 'Continue Shopping',
                 style: TextStyle(
-                  fontSize: m.sectionTitleSize,
+                  fontSize: m.sectionTitleSize * 1.15,
                   fontWeight: FontWeight.w700,
                 ),
               ),

@@ -73,7 +73,7 @@ class CheckoutStepper extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: m.captionSize,
+              fontSize: m.captionSize * 1.15,
               fontWeight: active ? FontWeight.w700 : FontWeight.w400,
               color: active ? colors.textPrimary : colors.textSecondary,
             ),
@@ -234,7 +234,7 @@ class CheckoutHeroCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: m.heroBodySize,
+                            fontSize: m.heroBodySize * 1.1,
                             fontWeight: FontWeight.w500,
                             color: onHeroMuted,
                           ),
@@ -436,7 +436,7 @@ class BigodPaymentCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: m.captionSize,
+                        fontSize: m.captionSize * 1.15,
                         fontWeight: FontWeight.w400,
                         color: colors.textSecondary,
                       ),
@@ -483,7 +483,7 @@ class BigodPaymentCard extends StatelessWidget {
                           ? 'This price has expired'
                           : 'This price is held for ${timerLabel ?? '--:--'}',
                       style: TextStyle(
-                        fontSize: m.captionSize,
+                        fontSize: m.captionSize * 1.1,
                         fontWeight: FontWeight.w600,
                         color: expired ? colors.statusWarning : colors.textPrimary,
                       ),
@@ -520,7 +520,7 @@ class BigodPaymentCard extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: m.labelSize,
+                fontSize: m.labelSize * 1.15,
                 fontWeight: FontWeight.w500,
                 color: colors.textSecondary,
               ),
@@ -534,7 +534,7 @@ class BigodPaymentCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: bold ? m.bodySize : m.labelSize,
+                fontSize: bold ? m.bodySize * 1.15 : m.labelSize * 1.15,
                 fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
                 color: bold ? colors.brand : colors.textPrimary,
               ),
@@ -569,7 +569,7 @@ class _QrExpansion extends StatelessWidget {
           title: Text(
             'Or scan with your wallet',
             style: TextStyle(
-              fontSize: m.labelSize,
+              fontSize: m.labelSize * 1.15, 
               fontWeight: FontWeight.w600,
               color: colors.textPrimary,
             ),

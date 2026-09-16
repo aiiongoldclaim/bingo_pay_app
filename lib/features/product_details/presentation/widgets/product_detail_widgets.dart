@@ -401,6 +401,7 @@ class ProductInfoBlock extends StatelessWidget {
                   color: colors.textSecondary,
                   fontFamily: 'Inter',
                   fontSize: m.ratingFontSize,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -1005,7 +1006,7 @@ class ProductOffersCard extends StatelessWidget {
                     SizedBox(width: m.gapXs),
                     Icon(
                       Icons.chevron_right_rounded,
-                      size: m.linkSize + 6,
+                      size: m.linkSize + 8,
                       color: colors.brand,
                     ),
                   ],

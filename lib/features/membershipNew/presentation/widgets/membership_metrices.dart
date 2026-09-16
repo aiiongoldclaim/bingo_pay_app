@@ -177,18 +177,18 @@ class MembershipMetrics {
 
         heroHeight: 27.h,
         heroTitleSize: 21.sp,
-        heroBodySize: 12.sp,
+        heroBodySize: 14.sp,
         brandWordSize: 15.sp,
 
         screenTitleSize: 17.sp,
-        sectionTitleSize: 16.sp,
+        sectionTitleSize: 15.sp,
         planNameSize: 17.sp,
         priceSize: 21.sp,
-        bodySize: 13.sp,
+        bodySize: 14.5.sp,
         tileTitleSize: 13.5.sp,
         tileValueSize: 11.5.sp,
-        labelSize: 12.5.sp,
-        captionSize: 10.5.sp,
+        labelSize: 13.sp,
+        captionSize: 13.5.sp,
 
         iconBox: 11.w,
         iconSize: 5.2.w,

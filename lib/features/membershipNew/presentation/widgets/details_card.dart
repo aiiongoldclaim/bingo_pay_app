@@ -133,7 +133,7 @@ class MembershipDetailRow extends StatelessWidget {
             child: Text(
               item.label,
               style: TextStyle(
-                fontSize: m.labelSize,
+                fontSize: m.labelSize * 1.2,
                 fontWeight: FontWeight.w500,
                 color: colors.textPrimary,
               ),
@@ -146,7 +146,7 @@ class MembershipDetailRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: m.labelSize,
+                fontSize: m.labelSize * 1.15,
                 fontWeight: FontWeight.w600,
                 color: colors.textSecondary,
               ),
