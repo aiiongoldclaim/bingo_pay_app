@@ -109,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   title: 'Edit Profile',
                                   subtitle: 'Update your personal details',
                                   onTap: () =>
-                                      context.push(AppRoutes.editProfile),
+                                      context.go(AppRoutes.editProfile),
                                 ),
                                 SettingsTile(
                                   metrics: m,
@@ -117,14 +117,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   title: 'Saved Addresses',
                                   subtitle: 'Manage delivery addresses',
                                   onTap: () =>
-                                      context.push(AppRoutes.buyerAddresses),
+                                      context.go(AppRoutes.buyerAddresses),
                                 ),
                                 SettingsTile(
                                   metrics: m,
                                   icon: Icons.account_balance_wallet_outlined,
                                   title: 'Bingold Wallet',
                                   subtitle: 'Balance and transactions',
-                                  onTap: () => context.push(AppRoutes.wallet),
+                                  onTap: () => context.go(AppRoutes.wallet),
                                 ),
                               ],
                             ),
@@ -196,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   title: 'Change Password',
                                   subtitle: 'Update your login password',
                                   onTap: () =>
-                                      context.push(AppRoutes.forgotPassword),
+                                      context.go(AppRoutes.forgotPassword),
                                 ),
                               ],
                             ),
@@ -217,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   icon: Icons.headset_mic_outlined,
                                   title: 'Help & Support',
                                   subtitle: 'FAQs and contact us',
-                                  onTap: () => context.push(AppRoutes.help),
+                                  onTap: () => context.go(AppRoutes.help),
                                 ),
                                 SettingsTile(
                                   metrics: m,

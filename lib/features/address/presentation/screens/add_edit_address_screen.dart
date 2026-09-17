@@ -1070,7 +1070,7 @@ class AddressField extends StatelessWidget {
             children: [
               TextSpan(
                 text: ' *',
-                style: TextStyle(color: colors.statusWarning),
+                style: TextStyle(color: colors.statusWarning, fontSize: m.fieldLabelSize * 1.1),
               ),
             ],
           ),

@@ -544,7 +544,10 @@ class AppRouter {
             // ),
             GoRoute(
               path: AppRoutes.buyerAddresses,
-              builder: (_, _) => const _PlaceholderPage('Addresses'),
+              builder: (context, state) => BlocProvider(
+                create: (_) => AddressCubit(getIt<AddressRepository>()),
+                child: const AddressListScreen(),
+              ),
             ),
             GoRoute(
               path: AppRoutes.buyerPayments,

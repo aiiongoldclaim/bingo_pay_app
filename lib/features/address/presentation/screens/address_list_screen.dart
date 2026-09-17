@@ -115,7 +115,9 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
@@ -326,7 +328,9 @@ class _AddressTopBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => context.canPop()
+                ? context.pop()
+                : context.go(AppRoutes.buyerSettings),
             splashRadius: m.backIconSize * 1.2,
             icon: Icon(
               Icons.arrow_back_ios_rounded,

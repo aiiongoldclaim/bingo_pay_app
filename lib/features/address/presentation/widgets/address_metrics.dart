@@ -84,7 +84,7 @@ class AddressMetrics {
     maxContentWidth: double.infinity,
     backIconSize: 20.sp,
     titleSize: 19.sp,
-    subtitleSize: 12.sp,
+    subtitleSize: 14.sp,
     cardRadius: 16,
     cardPad: 4.w,
     radioSize: 5.5.w,
