@@ -10,9 +10,11 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:bingo_pay/core/api/api_client.dart' as _i541;
+import 'package:bingo_pay/core/cubit/in_app_review_cubit.dart' as _i104;
 import 'package:bingo_pay/core/di/app_module.dart' as _i842;
 import 'package:bingo_pay/core/network/connectivity_service.dart' as _i133;
 import 'package:bingo_pay/core/router/app_router.dart' as _i14;
+import 'package:bingo_pay/core/services/in_app_review_service.dart' as _i1020;
 import 'package:bingo_pay/core/services/product_cache_service.dart' as _i734;
 import 'package:bingo_pay/core/services/update_service.dart' as _i153;
 import 'package:bingo_pay/core/storage/preferences_service.dart' as _i356;
@@ -214,10 +216,14 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.singleton<_i895.Connectivity>(() => appModule.connectivity);
+    gh.singleton<_i1020.InAppReviewService>(() => _i1020.InAppReviewService());
     gh.singleton<_i153.UpdateService>(() => _i153.UpdateService());
     gh.lazySingleton<_i14.AppRouter>(() => _i14.AppRouter());
     gh.lazySingleton<_i133.ConnectivityService>(
       () => _i133.ConnectivityService(connectivity: gh<_i895.Connectivity>()),
+    );
+    gh.singleton<_i104.InAppReviewCubit>(
+      () => _i104.InAppReviewCubit(gh<_i1020.InAppReviewService>()),
     );
     gh.factory<_i337.PaymentRemoteDataSource>(
       () => const _i337.PaymentRemoteDataSourceImpl(),

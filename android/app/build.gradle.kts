@@ -103,7 +103,8 @@ android {
     productFlavors {
         create("dev") {
             dimension = "environment"
-            applicationIdSuffix = ".dev"
+            // Removed applicationIdSuffix to use same package name as prod
+            // applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
             resValue("string", "app_name", "Vaults DEV")
         }

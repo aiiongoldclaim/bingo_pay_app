@@ -23,6 +23,7 @@ import '../features/bookings/presentation/cubit/booking_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
 import '../features/services/presentation/cubit/services_cubit.dart';
 import '../features/wishlist/presentation/cubit/wishlist_cubit.dart';
+import '../core/cubit/in_app_review_cubit.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -127,6 +128,7 @@ class _AppState extends State<App> {
         BlocProvider<AuctionCubit>(create: (_) => getIt<AuctionCubit>()),
         BlocProvider<BookingCubit>(create: (_) => getIt<BookingCubit>()),
         BlocProvider<AvailabilityCubit>(create: (_) => getIt<AvailabilityCubit>()),
+        BlocProvider<InAppReviewCubit>(create: (_) => getIt<InAppReviewCubit>()),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,

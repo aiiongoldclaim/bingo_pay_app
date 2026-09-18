@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
+import '../../../../core/utils/review_helper.dart';
 import '../../../orders/data/datasources/orders_remote_datasource.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
@@ -24,6 +25,25 @@ class PaymentSuccessScreen extends StatefulWidget {
 
 class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   bool _generatingPdf = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Show in-app review dialog 2 seconds after successful payment
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        ReviewHelper.showReviewDialog(
+          context,
+          title: 'Payment Successful! 🎉',
+          subtitle: 'Help us improve by rating this app',
+          positiveRatingMessage:
+              'Thank you! Please share your positive experience on the Play Store.',
+          negativeRatingMessage:
+              'We appreciate your feedback. Let us know how we can improve.',
+        );
+      }
+    });
+  }
 
   Future<void> _downloadInvoice(PaymentMethodState state) async {
     if (state.orderUuid.isEmpty) {
