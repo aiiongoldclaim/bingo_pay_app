@@ -421,6 +421,7 @@ class _Header extends StatelessWidget {
                   color: colors.surface.withValues(alpha: 0.82),
                   fontFamily: 'Inter',
                   fontSize: m.metaSize,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),

@@ -361,7 +361,7 @@ class ReviewOffersCard extends StatelessWidget {
                     SizedBox(width: m.gapXs),
                     Icon(
                       Icons.chevron_right_rounded,
-                      size: m.linkSize + 6,
+                      size: m.linkSize + 8,
                       color: colors.brand,
                     ),
                   ],

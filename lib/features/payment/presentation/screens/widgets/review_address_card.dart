@@ -61,7 +61,7 @@ class ReviewAddressCard extends StatelessWidget {
             icon: Icons.location_on_outlined,
           ),
 
-          SizedBox(height: m.gapMd),
+          SizedBox(height: m.gapMd * 0.4),
 
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

@@ -82,7 +82,7 @@ class _ReviewCouponNotesCardState extends State<ReviewCouponNotesCard> {
               SizedBox(width: m.gapSm),
 
               SizedBox(
-                height: m.fieldHeight,
+                height: m.fieldHeight * 0.8,
                 child: Material(
                   color: colors.brandSoft,
                   borderRadius: BorderRadius.circular(m.fieldRadius),

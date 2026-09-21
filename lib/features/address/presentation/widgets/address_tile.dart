@@ -58,9 +58,9 @@ class AddressTileMetrics {
     cardPad: 4.w,
     radioSize: 5.5.w,
     nameSize: 15.sp,
-    tagFontSize: 13.sp,
-    phoneSize: 14.sp,
-    bodySize: 14.sp,
+    tagFontSize: 14.sp,
+    phoneSize: 14.5.sp,
+    bodySize: 14.5.sp,
     actionFontSize: 14.sp,
     actionHeight: 4.4.h,
     actionIconSize: 15.sp,
@@ -267,7 +267,8 @@ class AddressTile extends StatelessWidget {
               ),
 
               SizedBox(height: m.gapMd),
-              Divider(height: 1, thickness: 1, color: colors.border),
+              // Divider(height: 1, thickness: 1, color: colors.border),
+              Divider(height: 1, thickness: 1, ),
               SizedBox(height: m.gapSm),
 
               Row(
