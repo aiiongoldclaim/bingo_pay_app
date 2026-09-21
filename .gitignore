@@ -44,6 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/upload-keystore.jks
+/android/keystore.properties
 
 # Environment variables (secrets)
 .env
