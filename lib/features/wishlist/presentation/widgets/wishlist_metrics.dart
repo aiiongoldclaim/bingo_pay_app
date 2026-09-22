@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+double _cl(double v, double lo, double hi) => v.clamp(lo, hi).toDouble();
+
 class WishlistMetrics {
   final bool isTablet;
   final bool isLandscape;
@@ -57,6 +59,9 @@ class WishlistMetrics {
   final double emptyTitleSize;
   final double emptySubSize;
 
+  // Item action sheet ("View Product" / "Remove from Wishlist")
+  final double sheetActionFontSize;
+
   final double gapXs;
   final double gapSm;
   final double gapMd;
@@ -101,6 +106,7 @@ class WishlistMetrics {
     required this.emptyIllustration,
     required this.emptyTitleSize,
     required this.emptySubSize,
+    required this.sheetActionFontSize,
     required this.gapXs,
     required this.gapSm,
     required this.gapMd,
@@ -111,57 +117,66 @@ class WishlistMetrics {
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.shortestSide >= 540;
     final isLandscape = size.width > size.height;
-    if (!isTablet) return WishlistMetrics.phone();
+    if (!isTablet) return WishlistMetrics.phone(size);
     return isLandscape
         ? WishlistMetrics.tabletLandscape(size)
         : WishlistMetrics.tabletPortrait(size);
   }
 
   // ── PHONE ───────────────────────────────────────────────────────────────
-  factory WishlistMetrics.phone() => WishlistMetrics(
-    isTablet: false,
-    isLandscape: false,
-    pageHPad: 4.w,
-    pageVPad: 1.2.h,
-    maxContentWidth: double.infinity,
-    titleSize: 22.sp,
-    subtitleSize: 12.sp,
-    topIconSize: 21.sp,
-    // chipHeight: 4.6.h,
-    // chipHPad: 4.w,
-    // chipFontSize: 12.sp,
-    // chipRadius: 24,
-    crossAxisCount: 2,
-    gridSpacing: 3.w,
-    cardAspectRatio: 0.60,
-    cardRadius: 16,
-    cardPad: 3.w,
-    imageRatio: 1.0,
-    heartBox: 9.w,
-    heartIcon: 16.sp,
-    brandSize: 14.sp,
-    nameSize: 14.sp,
-    priceSize: 14.5.sp,
-    sizeChipSize: 11.sp,
-    actionHeight: 4.4.h,
-    actionFontSize: 13.sp,
-    actionIconSize: 15.sp,
-    moreBoxWidth: 12.w,
-    promoRadius: 16,
-    promoPad: 4.w,
-    promoTitleSize: 18.sp,
-    promoSubSize: 14.sp,
-    promoBtnHeight: 5.2.h,
-    promoBtnFontSize: 14.sp,
-    promoArtSize: 30.w,
-    emptyIllustration: 34.w,
-    emptyTitleSize: 17.sp,
-    emptySubSize: 14.5.sp,
-    gapXs: 0.5.h,
-    gapSm: 1.h,
-    gapMd: 1.8.h,
-    gapLg: 2.6.h,
-  );
+  factory WishlistMetrics.phone(Size size) {
+    // sizer's `.sp` folds in device pixel ratio and aspect ratio, so it can
+    // swing wildly (and shrink too far) across phones of similar width but
+    // different aspect ratios. Clamp a plain width ratio instead so empty
+    // state text stays legible and consistent across devices.
+    final k = _cl(size.width / 390, 0.88, 1.15);
+
+    return WishlistMetrics(
+      isTablet: false,
+      isLandscape: false,
+      pageHPad: 4.w,
+      pageVPad: 1.2.h,
+      maxContentWidth: double.infinity,
+      titleSize: 22.sp,
+      subtitleSize: 12.sp,
+      topIconSize: 21.sp,
+      // chipHeight: 4.6.h,
+      // chipHPad: 4.w,
+      // chipFontSize: 12.sp,
+      // chipRadius: 24,
+      crossAxisCount: 2,
+      gridSpacing: 3.w,
+      cardAspectRatio: 0.60,
+      cardRadius: 16,
+      cardPad: 3.w,
+      imageRatio: 1.0,
+      heartBox: 9.w,
+      heartIcon: 16.sp,
+      brandSize: 14.sp,
+      nameSize: 14.sp,
+      priceSize: 14.5.sp,
+      sizeChipSize: 11.sp,
+      actionHeight: 4.4.h,
+      actionFontSize: 13.sp,
+      actionIconSize: 15.sp,
+      moreBoxWidth: 12.w,
+      promoRadius: 16,
+      promoPad: 4.w,
+      promoTitleSize: 18.sp,
+      promoSubSize: 14.sp,
+      promoBtnHeight: 5.2.h,
+      promoBtnFontSize: 14.sp,
+      promoArtSize: 30.w,
+      emptyIllustration: _cl(34.w, 130.0, 190.0),
+      emptyTitleSize: 19 * k,
+      emptySubSize: 15 * k,
+      sheetActionFontSize: 16 * k,
+      gapXs: 0.5.h,
+      gapSm: 1.h,
+      gapMd: 1.8.h,
+      gapLg: 2.6.h,
+    );
+  }
 
   // ── TABLET PORTRAIT ─────────────────────────────────────────────────────
   factory WishlistMetrics.tabletPortrait(Size size) => WishlistMetrics(
@@ -203,6 +218,7 @@ class WishlistMetrics {
     emptyIllustration: 180,
     emptyTitleSize: 22,
     emptySubSize: 16,
+    sheetActionFontSize: 18,
     gapXs: 4,
     gapSm: 10,
     gapMd: 16,
@@ -249,6 +265,7 @@ class WishlistMetrics {
     emptyIllustration: 150,
     emptyTitleSize: 20,
     emptySubSize: 15,
+    sheetActionFontSize: 17,
     gapXs: 3,
     gapSm: 8,
     gapMd: 14,

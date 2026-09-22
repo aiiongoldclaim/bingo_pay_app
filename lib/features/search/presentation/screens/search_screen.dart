@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/matrics/search_metrics.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../cubit/search_cubit.dart';
 import '../cubit/search_state.dart';
@@ -48,7 +49,7 @@ class _SearchViewState extends State<_SearchView> {
       listenWhen: (_, state) => state is SearchSubmitted,
       listener: (context, state) {
         if (state is SearchSubmitted) {
-          context.pop(state.query);
+          context.push(AppRoutes.searchResults, extra: state.query);
         }
       },
       child: Scaffold(

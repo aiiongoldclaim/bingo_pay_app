@@ -61,9 +61,6 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Body — maps WalletLoaded → widget data
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _WalletBody extends StatelessWidget {
   const _WalletBody({required this.state});

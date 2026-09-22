@@ -103,21 +103,21 @@ class AuthMetrics {
       return AuthMetrics._(
         isTablet: true,
         isLandscape: true,
-        pagePadH: w * 0.030, // 0.035 → 0.030
-        pagePadV: _cl(h * 0.035, 14, 28), // height bachai
+        pagePadH: w * 0.030,
+        pagePadV: _cl(h * 0.035, 14, 28),
         fieldGap: 18,
-        blockGap: 22, // 28 → 22
+        blockGap: 22,
         sectionGap: 36,
-        paneGap: w * 0.012, // 0.025 → 0.012  (image ↔ form gap kam)
+        paneGap: w * 0.012,
         logoBox: 46,
         brandTitle: _cl(w * 0.024, 24, 34),
         brandTagline: _cl(w * 0.010, 11, 14),
         heroTitle: _cl(w * 0.032, 30, 46),
         heroBody: _cl(w * 0.013, 14, 18),
         heroImageMax: _cl(w * 0.34, 280, 520),
-        heroImageMaxH: _cl(h * 0.42, 220, 400), // image thoda chhota
+        heroImageMaxH: _cl(h * 0.42, 220, 400),
         contentMaxWidth: double.infinity,
-        formMaxWidth: _cl(w * 0.36, 400, 520), // 380–460 → 400–520 (form bada)
+        formMaxWidth: _cl(w * 0.36, 400, 520),
         buttonHeight: 54,
         buttonRadius: 12,
         linkText: _cl(w * 0.011, 13, 16),

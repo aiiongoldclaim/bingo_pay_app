@@ -198,7 +198,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 style: AppTextStyles.labelLarge.copyWith(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: m.nameSize,
+                  fontWeight: FontWeight.w600,
+                  fontSize: m.sheetActionFontSize,
                 ),
               ),
               onTap: () {
@@ -216,7 +217,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
                 style: AppTextStyles.labelLarge.copyWith(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: m.nameSize,
+                  fontWeight: FontWeight.w600,
+                  fontSize: m.sheetActionFontSize,
                 ),
               ),
               onTap: () {
@@ -243,10 +245,6 @@ class _WishlistScreenState extends State<WishlistScreen> {
           backgroundColor: colors.background,
           appBar: CustomAppBar(
             title: AppStrings.wishlistTitle,
-            actionIcon1: Icons.search_rounded,
-            onAction1: () => context.push(AppRoutes.search),
-            actionIcon2: items.isEmpty ? null : Icons.delete_outline_rounded,
-            onAction2: items.isEmpty ? null : () => _confirmClearAll(context),
             actionIconGap: 4,
           ),
           body: SafeArea(

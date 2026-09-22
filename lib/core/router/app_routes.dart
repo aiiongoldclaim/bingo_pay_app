@@ -32,6 +32,7 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String wallet = '/wallet';
   static const String search = '/search';
+  static const String searchResults = '/search-results';
   static const String scanner = '/scanner';
   static const String services = '/services';
   static const String servicesDetails = '/service-detail/:uuid';

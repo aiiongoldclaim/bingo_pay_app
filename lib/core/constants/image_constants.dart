@@ -27,5 +27,6 @@ class AppImages {
   static const String membership = '$base/membership.png';
   static const String membershipCard = '$base/card.png';
   static const String membershipProfileCard = '$base/profile_card.png';
+  static const String profileMembershipCard = '$base/profile_membership_card.png';
   static const String wishlistImg = '$base/wishlist_img.png';
 }

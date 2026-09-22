@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:bingo_pay/core/router/app_routes.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
+import 'package:sizer/sizer.dart';
 
 import '../../../../core/constants/image_constants.dart';
 
@@ -27,39 +28,23 @@ class ProfileMembershipCard extends StatelessWidget {
                 () {
                   context.push(AppRoutes.membership);
                 },
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.textPrimary.withValues(alpha: 0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: AspectRatio(
-                  aspectRatio: 2.55,
-                  child: Image.asset(
-                    AppImages.membershipProfileCard,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: colors.brandSoft,
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.card_membership_outlined,
-                          color: colors.brand,
-                          size: 42,
-                        ),
-                      );
-                    },
-                  ),
-                ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16.sp),
+              child: Image.asset(
+                AppImages.profileMembershipCard,
+                width: double.infinity,
+                fit: BoxFit.fill,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: colors.brandSoft,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.card_membership_outlined,
+                      color: colors.brand,
+                      size: 42,
+                    ),
+                  );
+                },
               ),
             ),
           ),
