@@ -15,7 +15,6 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -41,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
   bool _isSubmitting = false;
-  Failure? _currentError;
 
   @override
   void initState() {
@@ -107,13 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
             _isSubmitting = false;
           }
           if (state is AuthAuthenticated) {
-            setState(() => _currentError = null);
             context.go(AppRoutes.home);
           } else if (state is AuthOtpRequired) {
-            setState(() => _currentError = null);
             context.push(AppRoutes.registerOtp, extra: state.email);
           } else if (state is AuthError) {
-            setState(() => _currentError = state.failure);
             if (state.failure is! RateLimitFailure) {
               AppSnackbar.showError(context, state.failure.message);
             }
@@ -121,24 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
         },
 
         buildWhen: (prev, curr) =>
-        (prev is AuthLoading) != (curr is AuthLoading) ||
-        (prev is AuthError) != (curr is AuthError),
+        (prev is AuthLoading) != (curr is AuthLoading),
 
         builder: (context, state) {
-          if (_currentError != null) {
-            return SafeArea(
-              child: _currentError!.buildErrorWidget(
-                onRetry: () {
-                  setState(() => _currentError = null);
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _submit();
-                  }
-                },
-                fullScreen: true,
-              ),
-            );
-          }
-
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
             child: SafeArea(

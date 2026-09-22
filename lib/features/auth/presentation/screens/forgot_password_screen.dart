@@ -13,7 +13,6 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/custom_footer_section.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -32,7 +31,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
 
   final _emailFocusNode = FocusNode();
-  Failure? _currentError;
 
   @override
   void initState() {
@@ -76,35 +74,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is PasswordResetSent) {
-            setState(() => _currentError = null);
             AppSnackbar.showSuccess(context, state.message);
             Navigator.of(context).pop();
           } else if (state is AuthError) {
-            setState(() => _currentError = state.failure);
             if (state.failure is! RateLimitFailure) {
               AppSnackbar.showError(context, state.failure.message);
             }
           }
         },
         buildWhen: (prev, curr) =>
-        (prev is AuthLoading) != (curr is AuthLoading) ||
-        (prev is AuthError) != (curr is AuthError),
+        (prev is AuthLoading) != (curr is AuthLoading),
 
         builder: (context, state) {
-          if (_currentError != null) {
-            return SafeArea(
-              child: _currentError!.buildErrorWidget(
-                onRetry: () {
-                  setState(() => _currentError = null);
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _submit();
-                  }
-                },
-                fullScreen: true,
-              ),
-            );
-          }
-
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
             child: SafeArea(

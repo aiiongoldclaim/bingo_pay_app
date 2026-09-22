@@ -24,5 +24,14 @@ class PreferencesService {
 
   String? getLocale() => _prefs.getString(AppConstants.localeKey);
 
+  List<String> getRecentSearches() =>
+      _prefs.getStringList(AppConstants.recentSearchesKey) ?? const [];
+
+  Future<void> setRecentSearches(List<String> searches) =>
+      _prefs.setStringList(AppConstants.recentSearchesKey, searches);
+
+  Future<void> clearRecentSearches() =>
+      _prefs.remove(AppConstants.recentSearchesKey);
+
   Future<void> clear() => _prefs.clear();
 }

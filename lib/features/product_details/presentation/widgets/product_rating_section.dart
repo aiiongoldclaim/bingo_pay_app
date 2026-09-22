@@ -201,7 +201,7 @@ class ProductRatingsBlock extends StatelessWidget {
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: colors.textSecondary,
                   fontFamily: 'Inter',
-                  fontSize: m.rowSubSize,
+                  fontSize: m.rowSubSize+3,
                 ),
               ),
             ],

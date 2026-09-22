@@ -64,6 +64,7 @@ import '../../features/product_details/presentation/screens/product_details_scre
 import '../../features/scanner/presentation/cubit/payment_cubit.dart';
 import '../../features/scanner/presentation/screens/scanner_screen.dart';
 import '../../features/search/presentation/cubit/search_cubit.dart';
+import '../../features/search/presentation/screens/search_results_screen.dart';
 import '../../features/search/presentation/screens/search_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/transactions/presentation/screens/transactions_screen.dart';
@@ -184,6 +185,16 @@ class AppRouter {
             create: (_) => SearchCubit(),
             child: const SearchScreen(),
           ),
+        ),
+
+        GoRoute(
+          path: AppRoutes.searchResults,
+          builder: (context, state) =>
+              SearchResultsScreen(query: state.extra as String),
+          redirect: (context, state) =>
+              state.extra is String && (state.extra as String).trim().isNotEmpty
+                  ? null
+                  : AppRoutes.home,
         ),
 
         // GoRoute(

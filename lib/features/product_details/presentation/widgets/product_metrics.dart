@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+double _cl(double v, double lo, double hi) => v.clamp(lo, hi).toDouble();
+
 class ProductMetrics {
   final bool isTablet;
   final bool isLandscape;
@@ -45,6 +47,10 @@ class ProductMetrics {
   final double rowIconSize;
   final double rowTitleSize;
   final double rowSubSize;
+
+  // Offers For You (bigger than the generic action-row text)
+  final double offerTitleSize;
+  final double offerSubSize;
 
   final double railHeight;
 
@@ -103,6 +109,8 @@ class ProductMetrics {
     required this.rowIconSize,
     required this.rowTitleSize,
     required this.rowSubSize,
+    required this.offerTitleSize,
+    required this.offerSubSize,
     required this.sizeChipHeight,
     required this.sizeChipMinWidth,
     required this.sizeChipFontSize,
@@ -126,63 +134,73 @@ class ProductMetrics {
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.shortestSide >= 540;
     final isLandscape = size.width > size.height;
-    if (!isTablet) return ProductMetrics.phone();
+    if (!isTablet) return ProductMetrics.phone(size);
     return isLandscape
         ? ProductMetrics.tabletLandscape(size)
         : ProductMetrics.tabletPortrait(size);
   }
 
   // ── PHONE ───────────────────────────────────────────────────────────────
-  factory ProductMetrics.phone() => ProductMetrics(
-    isTablet: false,
-    isLandscape: false,
-    pageHPad: 4.w,
-    pageVPad: 1.2.h,
-    maxContentWidth: double.infinity,
-    galleryWidth: 0,
-    backIconSize: 20.sp,
-    logoSize: 24.sp,
-    topIconSize: 21.sp,
-    heroRadius: 16,
-    heroHeight: 38.h,
-    thumbSize: 20.w,
-    thumbRadius: 12,
-    thumbGap: 2.5.h,
-    railHeight: 22.w,
-    pillHeight: 5.2.h,
-    pillFontSize: 13.sp,
-    floatBtnSize: 11.w,
-    brandSize: 14.sp,
-    titleSize: 16.sp,
-    ratingChipHeight: 4.2.h,
-    ratingFontSize: 13.sp,
-    priceSize: 22.sp,
-    strikeSize: 15.sp,
-    discountSize: 14.sp,
-    captionSize: 14.sp,
-    cardRadius: 14,
-    cardPad: 4.w,
-    sectionTitleSize: 15.sp,
-    linkSize: 14.sp,
-    rowIconBox: 11.w,
-    rowIconSize: 18.sp,
-    rowTitleSize: 14.sp,
-    rowSubSize: 14.sp,
-    sizeChipHeight: 8.h,
-    sizeChipMinWidth: 19.w,
-    sizeChipFontSize: 14.sp,
-    sizeChipSubSize: 11.sp,
-    variantCardWidth: 45.w,
-    variantCardHeight: 17.h,
-    policyIconBox: 10.w,
-    policyIconSize: 18.sp,
-    policyTitleSize: 12.sp,
-    policySubSize: 10.sp,
-    gapXs: 0.5.h,
-    gapSm: 1.h,
-    gapMd: 1.8.h,
-    gapLg: 2.6.h,
-  );
+  factory ProductMetrics.phone(Size size) {
+    // sizer's `.sp` folds in device pixel ratio and aspect ratio, so it can
+    // swing wildly (and shrink too far) across phones of similar width but
+    // different aspect ratios. Clamp a plain width ratio instead so the
+    // offer text stays legible and consistent across devices.
+    final k = _cl(size.width / 390, 0.88, 1.15);
+
+    return ProductMetrics(
+      isTablet: false,
+      isLandscape: false,
+      pageHPad: 4.w,
+      pageVPad: 1.2.h,
+      maxContentWidth: double.infinity,
+      galleryWidth: 0,
+      backIconSize: 20.sp,
+      logoSize: 24.sp,
+      topIconSize: 21.sp,
+      heroRadius: 16,
+      heroHeight: 38.h,
+      thumbSize: 20.w,
+      thumbRadius: 12,
+      thumbGap: 2.5.h,
+      railHeight: 22.w,
+      pillHeight: 5.2.h,
+      pillFontSize: 13.sp,
+      floatBtnSize: 11.w,
+      brandSize: 14.sp,
+      titleSize: 16.sp,
+      ratingChipHeight: 4.2.h,
+      ratingFontSize: 13.sp,
+      priceSize: 22.sp,
+      strikeSize: 15.sp,
+      discountSize: 14.sp,
+      captionSize: 14.sp,
+      cardRadius: 14,
+      cardPad: 4.w,
+      sectionTitleSize: 15.sp,
+      linkSize: 14.sp,
+      rowIconBox: 11.w,
+      rowIconSize: 18.sp,
+      rowTitleSize: 14.sp,
+      rowSubSize: 14.sp,
+      offerTitleSize: 16 * k,
+      offerSubSize: 14 * k,
+      sizeChipHeight: 8.h,
+      sizeChipMinWidth: 19.w,
+      sizeChipFontSize: 14.sp,
+      sizeChipSubSize: 11.sp,
+      variantCardWidth: 45.w,
+      variantCardHeight: 17.h,
+      policyIconBox: 10.w,
+      policyIconSize: 18.sp,
+      policyTitleSize: 12.sp,
+      policySubSize: 10.sp,
+      gapXs: 0.5.h,
+      gapSm: 1.h,
+      gapMd: 1.8.h,
+      gapLg: 2.6.h,
+    );
+  }
 
   // ── TABLET PORTRAIT ─────────────────────────────────────────────────────
   factory ProductMetrics.tabletPortrait(Size size) => ProductMetrics(
@@ -220,6 +238,8 @@ class ProductMetrics {
     rowIconSize: 24,
     rowTitleSize: 17,
     rowSubSize: 15,
+    offerTitleSize: 19,
+    offerSubSize: 16,
     sizeChipHeight: 72,
     sizeChipMinWidth: 88,
     sizeChipFontSize: 18,
@@ -272,6 +292,8 @@ class ProductMetrics {
     rowIconSize: 22,
     rowTitleSize: 16,
     rowSubSize: 14,
+    offerTitleSize: 18,
+    offerSubSize: 15,
     sizeChipHeight: 64,
     sizeChipMinWidth: 78,
     sizeChipFontSize: 17,

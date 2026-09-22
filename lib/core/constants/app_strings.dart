@@ -148,6 +148,11 @@ class AppStrings {
   static String productCount(int count) =>
       '$count product${count == 1 ? '' : 's'}';
 
+  // ── Search Results ────────────────────────────────────────────────
+  static const String noSearchResultsTitle = 'No results found';
+  static String noSearchResultsSubtitle(String query) =>
+      'We couldn\'t find anything for "$query". Try a different search term.';
+
   // ── Product Detail ───────────────────────────────────────────────
   static const String addedToWishlist = 'Added to wishlist';
   static const String newBadge = 'NEW';
@@ -341,6 +346,9 @@ class AppStrings {
   static const String failedToCancelBookingMsg = 'Failed to cancel booking';
   static const String failedToRescheduleBookingMsg =
       'Failed to reschedule booking';
+  static const String browseAllProductsUppercase =
+      'BROWSE ALL PRODUCTS';
+
 
   static String paymentModeText(String mode) => 'Payment mode: $mode';
   static String participantsCountText(int count) =>

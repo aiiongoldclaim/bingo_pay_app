@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+double _cl(double v, double lo, double hi) => v.clamp(lo, hi).toDouble();
+
 /// Phone  -> Sizer units
 /// Tablet -> fixed dp with clamp() (no Sizer oversizing)
 class CartMetrics {
@@ -130,65 +132,73 @@ class CartMetrics {
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.shortestSide >= 540;
     final isLandscape = size.width > size.height;
-    if (!isTablet) return CartMetrics.phone();
+    if (!isTablet) return CartMetrics.phone(size);
     return isLandscape
         ? CartMetrics.tabletLandscape(size)
         : CartMetrics.tabletPortrait(size);
   }
 
   // ── PHONE ───────────────────────────────────────────────────────────────
-  factory CartMetrics.phone() => CartMetrics(
-    isTablet: false,
-    isLandscape: false,
-    pageHPad: 4.w,
-    pageVPad: 1.2.h,
-    maxContentWidth: double.infinity,
-    railWidth: 0,
-    backIconSize: 20.sp,
-    logoSize: 24.sp,
-    topIconSize: 20.sp,
-    pageTitleSize: 19.sp,
-    pageSubtitleSize: 14.sp,
-    linkSize: 13.5.sp,
-    bannerRadius: 14,
-    bannerPad: 3.5.w,
-    bannerIconBox: 11.w,
-    bannerIconSize: 21.sp,
-    bannerTitleSize: 14.2.sp,
-    bannerSubSize: 13.sp,
-    progressHeight: 5,
-    cardRadius: 16,
-    cardPad: 3.5.w,
-    checkboxSize: 5.5.w,
-    thumbSize: 22.w,
-    thumbRadius: 12,
-    brandSize: 14.sp,
-    titleSize: 13.sp,
-    metaSize: 12.sp,
-    priceSize: 16.sp,
-    actionHeight: 4.4.h,
-    actionFontSize: 12.sp,
-    actionIconSize: 14.sp,
-    qtyBoxHeight: 4.4.h,
-    qtyBoxWidth: 29.w,
-    qtyIconSize: 16.sp,
-    qtyFontSize: 14.sp,
-    summaryTitleSize: 16.sp,
-    summaryLabelSize: 13.sp,
-    summaryValueSize: 13.sp,
-    totalLabelSize: 15.sp,
-    totalValueSize: 18.sp,
-    payHeight: 6.6.h,
-    payFontSize: 15.sp,
-    payNoteSize: 13.sp,
-    emptyIllustration: 34.w,
-    emptyTitleSize: 17.sp,
-    emptySubSize: 14.5.sp,
-    gapXs: 0.5.h,
-    gapSm: 1.h,
-    gapMd: 1.8.h,
-    gapLg: 2.6.h,
-  );
+  factory CartMetrics.phone(Size size) {
+    // sizer's `.sp` folds in device pixel ratio and aspect ratio, so it can
+    // swing wildly (and shrink too far) across phones of similar width but
+    // different aspect ratios. Clamp a plain width ratio instead so empty
+    // state text stays legible and consistent across devices.
+    final k = _cl(size.width / 390, 0.88, 1.15);
+
+    return CartMetrics(
+      isTablet: false,
+      isLandscape: false,
+      pageHPad: 4.w,
+      pageVPad: 1.2.h,
+      maxContentWidth: double.infinity,
+      railWidth: 0,
+      backIconSize: 20.sp,
+      logoSize: 24.sp,
+      topIconSize: 20.sp,
+      pageTitleSize: 19.sp,
+      pageSubtitleSize: 14.sp,
+      linkSize: 13.5.sp,
+      bannerRadius: 14,
+      bannerPad: 3.5.w,
+      bannerIconBox: 11.w,
+      bannerIconSize: 21.sp,
+      bannerTitleSize: 14.2.sp,
+      bannerSubSize: 13.sp,
+      progressHeight: 5,
+      cardRadius: 16,
+      cardPad: 3.5.w,
+      checkboxSize: 5.5.w,
+      thumbSize: 22.w,
+      thumbRadius: 12,
+      brandSize: 14.sp,
+      titleSize: 13.sp,
+      metaSize: 12.sp,
+      priceSize: 16.sp,
+      actionHeight: 4.4.h,
+      actionFontSize: 12.sp,
+      actionIconSize: 14.sp,
+      qtyBoxHeight: 4.4.h,
+      qtyBoxWidth: 29.w,
+      qtyIconSize: 16.sp,
+      qtyFontSize: 14.sp,
+      summaryTitleSize: 16.sp,
+      summaryLabelSize: 13.sp,
+      summaryValueSize: 13.sp,
+      totalLabelSize: 15.sp,
+      totalValueSize: 18.sp,
+      payHeight: 6.6.h,
+      payFontSize: 15.sp,
+      payNoteSize: 13.sp,
+      emptyIllustration: _cl(34.w, 130.0, 190.0),
+      emptyTitleSize: 19 * k,
+      emptySubSize: 15 * k,
+      gapXs: 0.5.h,
+      gapSm: 1.h,
+      gapMd: 1.8.h,
+      gapLg: 2.6.h,
+    );
+  }
 
   // ── TABLET PORTRAIT ─────────────────────────────────────────────────────
   factory CartMetrics.tabletPortrait(Size size) => CartMetrics(

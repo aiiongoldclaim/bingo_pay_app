@@ -332,7 +332,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_interaction_blocker.dart';
@@ -344,7 +344,7 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_metrics.dart';
 import '../widgets/auth_tablet_layout.dart';
-import '../widgets/auth_terms_text.dart';
+import '../widgets/auth_terms_checkbox.dart';
 import '../widgets/country_picker.dart';
 import '../widgets/password_requirements.dart';
 import '../widgets/sso_login_dialog.dart';
@@ -362,7 +362,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _countryIdController = TextEditingController(text: '91');
   final _phoneController = TextEditingController();
 
   final _fullNameFocus = FocusNode();
@@ -374,6 +373,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _isSubmitting = false;
+  bool _agreedToTerms = false;
+  bool _showTermsError = false;
 
   Timer? _emailDebounce;
   String? _checkedEmail;
@@ -392,7 +393,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _countryIdController.dispose();
     _phoneController.dispose();
     _emailDebounce?.cancel();
 
@@ -425,26 +425,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submit() {
     if (_isSubmitting) return;
-    // if (context.read<AuthBloc>().state is AuthLoading) return;
     if (_emailExists == true) {
       AppSnackbar.showError(context, 'This email is already registered');
       return;
     }
 
-    _isSubmitting = true;
-    if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(
-        RegisterRequested(
-          fullName: _fullNameController.text.trim(),
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          countryId: _countryIdController.text.trim(),
-          phone: _phoneController.text.trim(),
-        ),
-      );
-    } else {
-      _isSubmitting = false;
+    final isFormValid = _formKey.currentState?.validate() ?? false;
+
+    if (!_agreedToTerms) {
+      setState(() => _showTermsError = true);
     }
+
+    if (!isFormValid || !_agreedToTerms) {
+      return;
+    }
+
+    final dialCode = _selectedCountry?.dialCode ?? '+91';
+
+    _isSubmitting = true;
+    context.read<AuthBloc>().add(
+      RegisterRequested(
+        fullName: _fullNameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        countryId: dialCode.startsWith('+')
+            ? dialCode.substring(1)
+            : dialCode,
+        phone: _phoneController.text.trim(),
+      ),
+    );
   }
 
   void _showSsoDialog(String email) {
@@ -592,7 +601,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
 
     return Form(
       key: _formKey,
@@ -645,9 +654,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(
-                          isDark ? ThemeColors.gold1 : ThemeColors.blue,
-                        ),
+                        valueColor: AlwaysStoppedAnimation(colors.brand),
                       ),
                     ),
                   )
@@ -658,7 +665,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _emailExists!
                         ? Icons.error_outline_rounded
                         : Icons.check_circle_outline_rounded,
-                    color: _emailExists! ? ThemeColors.red : ThemeColors.green,
+                    color: _emailExists!
+                        ? colors.error
+                        : colors.statusSuccess,
                   ),
           ),
 
@@ -671,7 +680,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 'This email is already registered',
                 style: AppTextStyles.bodySmall.copyWith(
                   fontSize: m.footerText,
-                  color: ThemeColors.red,
+                  color: colors.error,
                 ),
               ),
             ),
@@ -793,7 +802,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
 
-          SizedBox(height: m.blockGap * 2),
+          SizedBox(height: m.blockGap),
+
+          /// TERMS AND CONDITIONS
+          AuthTermsCheckbox(
+            m: m,
+            value: _agreedToTerms,
+            showError: _showTermsError && !_agreedToTerms,
+            onChanged: (value) {
+              setState(() {
+                _agreedToTerms = value;
+                if (value) _showTermsError = false;
+              });
+            },
+          ),
+
+          SizedBox(height: m.blockGap),
 
           /// CREATE ACCOUNT
           BlocBuilder<AuthBloc, AuthState>(
@@ -809,18 +833,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
           /// OR DIVIDER
           Row(
             children: [
-              Expanded(child: Divider(color: _lineColor(isDark))),
+              Expanded(child: Divider(color: colors.border)),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
                 child: Text(
                   'or',
                   style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: m.footerText,
-                    color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+                    color: colors.textSecondary,
                   ),
                 ),
               ),
-              Expanded(child: Divider(color: _lineColor(isDark))),
+              Expanded(child: Divider(color: colors.border)),
             ],
           ),
 
@@ -838,9 +862,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
-  Color _lineColor(bool isDark) =>
-      isDark ? ThemeColors.white.withValues(alpha: 0.14) : ThemeColors.line;
 }
 
 class _CountryPrefix extends StatelessWidget {
@@ -858,7 +879,7 @@ class _CountryPrefix extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.colors;
 
     return GestureDetector(
       onTap: onTap,
@@ -868,12 +889,7 @@ class _CountryPrefix extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8),
         decoration: BoxDecoration(
           border: Border(
-            right: BorderSide(
-              color: isDark
-                  ? ThemeColors.white.withValues(alpha: 0.14)
-                  : ThemeColors.line,
-              width: 1,
-            ),
+            right: BorderSide(color: colors.border, width: 1),
           ),
         ),
         child: Row(
@@ -887,16 +903,14 @@ class _CountryPrefix extends StatelessWidget {
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
                 fontSize: m.linkText,
-                color: isDark ? ThemeColors.white : ThemeColors.ink,
+                color: colors.textPrimary,
               ),
             ),
             const SizedBox(width: 2),
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: m.linkText + 4,
-              color: isDark
-                  ? ThemeColors.mediumPurple
-                  : ThemeColors.textSecondary,
+              color: colors.brand,
             ),
           ],
         ),
