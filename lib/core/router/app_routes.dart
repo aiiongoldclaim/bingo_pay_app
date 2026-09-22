@@ -11,6 +11,9 @@ class AppRoutes {
   static const String kycSelfie = '/register/kyc/selfie';
   static const String forgotPassword = '/forgot-password';
 
+  // Navigation
+  static const String splitViewNavigation = '/split-view-navigation';
+
   // Buyer shell
   static const String buyerHome = '/buyer/home';
   static const String home = '/home';

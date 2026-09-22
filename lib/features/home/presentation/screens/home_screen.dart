@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   brandName: AppStrings.appBrandName,
                                   cartCount: cartState.totalItems,
                                   onMenuTap: () {
-                                    context.push(AppRoutes.auctionScreen);
+                                    context.push(AppRoutes.splitViewNavigation);
                                   },
                                   onWishlistTap: () =>
                                       context.push(AppRoutes.buyerWishlist),

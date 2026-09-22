@@ -51,6 +51,7 @@ import '../../features/auth/presentation/screens/sso_otp_verification_screen.dar
 import '../../features/auth/presentation/screens/sso_set_password_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/screens/split_view_screen.dart';
 import '../../features/home/presentation/screens/all_products_screen.dart';
 import '../../features/on_boarding/presentation/screens/onboarding_screen.dart';
 import '../../features/services/presentation/screens/all_services_screen.dart';
@@ -365,6 +366,11 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.help,
           builder: (_, _) => const HelpSupportScreen(),
+        ),
+
+        GoRoute(
+          path: AppRoutes.splitViewNavigation,
+          builder: (_, _) => const SplitViewScreen(),
         ),
 
         // ---------------- membership (ShellRoute ke BAHAR) ----------------
