@@ -12,6 +12,7 @@ import '../../../orders/data/models/order_model.dart';
 import '../../../auctions/presentation/cubit/auction_cubit.dart';
 import '../../../auctions/presentation/cubit/auction_state.dart';
 import '../../../auctions/presentation/screens/auction_detail_screen.dart';
+import '../../../auctions/presentation/screens/my_bids_screen.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import 'home_metrics.dart';
@@ -368,7 +369,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () => context.push(AppRoutes.myBids),
+                    onPressed: () => _openMyBids(context),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: colors.brand,
                       side: BorderSide(color: colors.brand, width: 1.2),
@@ -984,6 +985,15 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
       context,
       MaterialPageRoute(
         builder: (_) => AuctionDetailScreen(auctionId: auctionId),
+      ),
+    );
+  }
+
+  void _openMyBids(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MyBidsScreen(),
       ),
     );
   }
