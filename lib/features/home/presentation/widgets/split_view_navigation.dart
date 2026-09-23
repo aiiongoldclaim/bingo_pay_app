@@ -23,9 +23,7 @@ enum NavigationSection {
   auctions('Auctions', Icons.local_activity_outlined),
   products('Products', Icons.shopping_bag_outlined),
   categories('Categories', Icons.category_outlined),
-  orders('Orders', Icons.receipt_outlined),
-  wallet('Wallet', Icons.account_balance_wallet_outlined),
-  help('Help & Support', Icons.help_outline);
+  orders('Orders', Icons.receipt_outlined);
 
   final String label;
   final IconData icon;
@@ -167,8 +165,6 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
             _buildProductsContent(colors, metrics),
             _buildCategoriesContent(colors, metrics),
             _buildOrdersContent(colors, metrics),
-            _buildWalletContent(colors, metrics),
-            _buildHelpContent(colors, metrics),
           ],
         ),
       ),
@@ -1268,89 +1264,6 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     return '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year} - ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildWalletContent(AppThemeColors colors, HomeMetrics metrics) {
-    return Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Wallet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                  SizedBox(height: 4),
-                  Text('Manage your balance', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [colors.brand, colors.brand.withValues(alpha: 0.7)],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Available Balance', style: TextStyle(fontSize: 14, color: Colors.white70)),
-                        SizedBox(height: 8),
-                        Text('₹ 5,240.50', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text('Recent Transactions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-                  SizedBox(height: 12),
-                  _buildTransactionCard('Service Booking', '-₹250', colors),
-                  SizedBox(height: 8),
-                  _buildTransactionCard('Refund Received', '+₹500', colors),
-                  SizedBox(height: 8),
-                  _buildTransactionCard('Product Purchase', '-₹1,200', colors),
-                ],
-              ),
-            ),
-          ],
-        );
-  }
-
-  Widget _buildHelpContent(AppThemeColors colors, HomeMetrics metrics) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Help & Support', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-              SizedBox(height: 4),
-              Text('Find answers and support', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-            children: [
-              _buildHelpCard('How to place an order?', Icons.shopping_cart_outlined, colors),
-              SizedBox(height: 12),
-              _buildHelpCard('Track your shipment', Icons.local_shipping_outlined, colors),
-              SizedBox(height: 12),
-              _buildHelpCard('Return & Refund Policy', Icons.assignment_return_outlined, colors),
-              SizedBox(height: 12),
-              _buildHelpCard('Contact Support', Icons.support_agent_outlined, colors),
-              SizedBox(height: 12),
-              _buildHelpCard('FAQs', Icons.help_outline, colors),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildPremiumCategoryCard({
     required CategoryModel category,
@@ -1435,44 +1348,6 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
   }
 
 
-  Widget _buildTransactionCard(String title, String amount, AppThemeColors colors) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colors.border, width: 0.5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.textPrimary)),
-          Text(amount, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: amount.startsWith('-') ? Colors.red : Colors.green)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHelpCard(String title, IconData icon, AppThemeColors colors) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colors.border, width: 1),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 24, color: colors.brand),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-          ),
-          Icon(Icons.arrow_forward_ios_outlined, size: 16, color: colors.textSecondary),
-        ],
-      ),
-    );
-  }
 
   Widget _buildServiceCard({required String title, required String? imageUrl, required AppThemeColors colors, required VoidCallback onTap}) {
     return GestureDetector(
