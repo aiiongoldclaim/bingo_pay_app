@@ -16,6 +16,7 @@ import '../../../auctions/presentation/screens/my_bids_screen.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import 'home_metrics.dart';
+import '../../../categories/data/models/categories_model.dart';
 
 enum NavigationSection {
   services('Services', Icons.miscellaneous_services_outlined),
@@ -1093,17 +1094,17 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
               child: state.categories.isEmpty
                   ? Center(child: Text('No categories', style: TextStyle(color: colors.textSecondary)))
                   : GridView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.9,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.95,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 14,
                       ),
                       itemCount: state.categories.length,
                       itemBuilder: (context, index) {
                         final category = state.categories[index];
-                        return _buildCategoryCard(title: category.name, colors: colors, onTap: () {});
+                        return _buildPremiumCategoryCard(category: category, colors: colors, onTap: () {});
                       },
                     ),
             ),
@@ -1351,22 +1352,83 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildCategoryCard({required String title, required AppThemeColors colors, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: colors.border, width: 1),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.category_outlined, size: 32, color: colors.brand),
-            SizedBox(height: 8),
-            Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.textPrimary), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
-          ],
+  Widget _buildPremiumCategoryCard({
+    required CategoryModel category,
+    required AppThemeColors colors,
+    required VoidCallback onTap,
+  }) {
+    final hasImage = category.image != null && category.image!.isNotEmpty;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: colors.surface,
+            border: Border.all(color: colors.border, width: 0.9),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Circular icon/image container - fixed size
+              SizedBox(
+                width: 76,
+                height: 76,
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: category.color.withValues(alpha: 0.45),
+                    shape: BoxShape.circle,
+                  ),
+                  child: hasImage
+                      ? ClipOval(
+                          child: Image.network(
+                            category.image!,
+                            width: 64,
+                            height: 64,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => Icon(
+                              category.icon,
+                              size: 32,
+                              color: colors.brand,
+                            ),
+                          ),
+                        )
+                      : Icon(
+                          category.icon,
+                          size: 32,
+                          color: colors.brand,
+                        ),
+                ),
+              ),
+              SizedBox(height: 12),
+              // Category name with fixed height
+              SizedBox(
+                height: 44,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      category.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textPrimary,
+                        height: 1.2,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
