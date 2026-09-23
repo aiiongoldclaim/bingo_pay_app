@@ -15,6 +15,12 @@ class ProductModel {
   final IconData icon;
   final List<String> images;
 
+  /// Backend-assigned listing tier — "NORMAL" for the regular catalogue,
+  /// or a Luxe / Ultra Luxe value for products a vendor has tagged into
+  /// that membership-gated tier. Drives which VaultSection dashboard a
+  /// product appears on; defaults to "NORMAL" when the API omits it.
+  final String listingLevel;
+
   ProductModel({
     this.uuid,
     required this.brand,
@@ -27,7 +33,15 @@ class ProductModel {
     required this.images,
     this.variantUuid,
     this.stock,
+    this.listingLevel = 'NORMAL',
   });
+
+  /// Whether [listingLevel] marks this product as Ultra Luxe.
+  bool get isUltraLuxe => listingLevel.toUpperCase().contains('ULTRA');
+
+  /// Whether [listingLevel] marks this product as (non-Ultra) Vaults Luxe.
+  bool get isVaultsLuxe =>
+      !isUltraLuxe && listingLevel.toUpperCase().contains('LUXE');
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('_cached')) {
@@ -49,6 +63,7 @@ class ProductModel {
         icon: Icons.shopping_bag_outlined,
         images:
             (json['images'] as List<dynamic>?)?.cast<String>() ?? const [],
+        listingLevel: json['listingLevel'] as String? ?? 'NORMAL',
       );
     }
 
@@ -106,6 +121,7 @@ class ProductModel {
       stock: stock,
       icon: Icons.shopping_bag_outlined,
       images: images,
+      listingLevel: json['listingLevel'] as String? ?? 'NORMAL',
     );
   }
 
@@ -121,6 +137,7 @@ class ProductModel {
     'images': images,
     'variantUuid': variantUuid,
     'stock': stock,
+    'listingLevel': listingLevel,
   };
 
   static String _fmt(double v) {

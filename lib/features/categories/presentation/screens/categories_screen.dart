@@ -102,7 +102,6 @@ import '../widgets/cat_section_header.dart';
 import '../widgets/categories_grid.dart';
 import '../widgets/categories_metrics.dart';
 import '../widgets/categories_shimmer.dart';
-import '../widgets/curated_collection_list.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -253,33 +252,6 @@ class _CategoriesView extends StatelessWidget {
                       ),
 
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
-
-                      // ── Curated Collection ────────────────────
-                      if (state.collections.isNotEmpty) ...[
-                        SliverToBoxAdapter(
-                          child: CatSectionHeader(
-                            metrics: m,
-                            title: 'Curated Collection',
-                            actionText: 'View All',
-                            onActionTap: () =>
-                                context.push(AppRoutes.allProducts),
-                          ),
-                        ),
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: m.pagePadding * 0.9),
-                        ),
-                        SliverToBoxAdapter(
-                          child: CuratedCollectionsList(
-                            metrics: m,
-                            collections: state.collections,
-                            // imageResolver: (col) => col.imageUrl,
-                            onCollectionTap: (col) {},
-                          ),
-                        ),
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: m.sectionGap),
-                        ),
-                      ],
 
                       SliverToBoxAdapter(
                         child: SizedBox(

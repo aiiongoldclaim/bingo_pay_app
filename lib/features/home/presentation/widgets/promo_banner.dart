@@ -123,11 +123,18 @@ class PromoBanner extends StatelessWidget {
     required this.metrics,
     required this.banner,
     this.onTap,
+    this.overlayGradient,
   });
 
   final HomeMetrics metrics;
   final HomeBannerData banner;
   final VoidCallback? onTap;
+
+  /// Optional colour wash drawn over the same banner image — lets a section
+  /// (e.g. Vaults Luxe / Ultra Luxe) reuse TheVaults' banner art with its own
+  /// tint instead of needing separate image assets. `null` (the default,
+  /// used by TheVaults) leaves the banner exactly as-is.
+  final Gradient? overlayGradient;
 
   @override
   Widget build(BuildContext context) {
@@ -138,20 +145,29 @@ class PromoBanner extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(metrics.heroRadius),
-        child: Image.asset(
-          banner.imageAsset,
-          fit: BoxFit.fill, // container ab exact ratio ka hai
-          width: double.infinity,
-          height: double.infinity,
-          errorBuilder: (_, __, ___) => Container(
-            color: colors.surfaceAlt,
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.image_outlined,
-              size: metrics.categoryIconSize,
-              color: colors.textMuted,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              banner.imageAsset,
+              fit: BoxFit.fill, // container ab exact ratio ka hai
+              width: double.infinity,
+              height: double.infinity,
+              errorBuilder: (_, __, ___) => Container(
+                color: colors.surfaceAlt,
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.image_outlined,
+                  size: metrics.categoryIconSize,
+                  color: colors.textMuted,
+                ),
+              ),
             ),
-          ),
+            if (overlayGradient != null)
+              DecoratedBox(
+                decoration: BoxDecoration(gradient: overlayGradient),
+              ),
+          ],
         ),
       ),
     );

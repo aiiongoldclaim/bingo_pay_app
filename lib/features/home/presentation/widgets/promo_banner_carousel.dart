@@ -12,11 +12,16 @@ class PromoBannerCarousel extends StatefulWidget {
     required this.metrics,
     required this.banners,
     this.onBannerTap,
+    this.overlayGradient,
   });
 
   final HomeMetrics metrics;
   final List<HomeBannerData> banners;
   final ValueChanged<HomeBannerData>? onBannerTap;
+
+  /// Passed straight through to each [PromoBanner] — see its doc. `null`
+  /// (the default) keeps the banner exactly as TheVaults renders it today.
+  final Gradient? overlayGradient;
 
   @override
   State<PromoBannerCarousel> createState() => _PromoBannerCarouselState();
@@ -48,6 +53,7 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
                   metrics: m,
                   banner: widget.banners[index],
                   onTap: () => widget.onBannerTap?.call(widget.banners[index]),
+                  overlayGradient: widget.overlayGradient,
                 ),
                 options: CarouselOptions(
                   aspectRatio: ratio, // ← image se aaya, hardcode nahi

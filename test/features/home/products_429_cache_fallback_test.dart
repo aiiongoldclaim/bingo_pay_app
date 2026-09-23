@@ -127,6 +127,68 @@ void main() {
         );
       },
     );
+
+    test(
+      'a tiered (listingLevel) fetch is never cached under, or served back '
+      'from, the general home-products cache key',
+      () async {
+        // Pre-existing general cache from a prior default (untiered) load.
+        await cacheService.cacheHomeProducts([
+          ProductModel.fromJson(_fakeProductJson('general-1')),
+        ]);
+
+        when(
+          () => dio.get(any(), queryParameters: any(named: 'queryParameters')),
+        ).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(path: '/api/v1/products'),
+            statusCode: 200,
+            data: {
+              'data': {
+                'data': [
+                  _fakeProductJson('ultra-1')..['listingLevel'] = 'ULTRA_LUXE',
+                ],
+              },
+            },
+          ),
+        );
+
+        final tierResult = await repository.getAllProducts(
+          page: 1,
+          limit: 20,
+          listingLevel: 'ULTRA_LUXE',
+        );
+        expect(tierResult.map((p) => p.uuid), ['ultra-1']);
+
+        final cachedAfter = await cacheService.getHomeProductsCache();
+        expect(
+          cachedAfter?.map((p) => p.uuid),
+          ['general-1'],
+          reason:
+              'the tiered fetch above must not have overwritten the '
+              'general catalogue cache',
+        );
+      },
+    );
+
+    test(
+      'a tiered fetch failure rethrows instead of falling back to the '
+      'general cache, which would show the wrong products',
+      () async {
+        await cacheService.cacheHomeProducts([
+          ProductModel.fromJson(_fakeProductJson('general-1')),
+        ]);
+
+        when(
+          () => dio.get(any(), queryParameters: any(named: 'queryParameters')),
+        ).thenThrow(_throttled());
+
+        await expectLater(
+          repository.getAllProducts(page: 1, limit: 20, listingLevel: 'LUXE'),
+          throwsA(isA<DioException>()),
+        );
+      },
+    );
   });
 
   group('HomeCubit surfaces the 429 cache fallback without a hard error', () {

@@ -23,11 +23,22 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<ProductModel>> getAllProducts({
     int page = 1,
     int limit = 100,
+    String? listingLevel,
   }) async {
+    // A tiered (Luxe/Ultra Luxe) query result must never be cached under —
+    // or served back from — the general "home products" cache key; that
+    // cache backs the plain dashboard's offline/429 fallback and must only
+    // ever hold the untiered public catalogue.
+    final isDefaultCatalogue = listingLevel == null;
+
     try {
       final response = await _apiClient.dio.get(
         ApiEndpoints.allProducts,
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: {
+          'page': page,
+          'limit': limit,
+          'listingLevel': ?listingLevel,
+        },
       );
       final raw = response.data as Map<String, dynamic>;
       final dataMap = raw['data'] as Map<String, dynamic>;
@@ -36,11 +47,23 @@ class ProductRepositoryImpl implements ProductRepository {
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      await _cacheService.cacheHomeProducts(products);
-      debugPrint('✓ Loaded and cached ${products.length} products from API');
+      if (isDefaultCatalogue) {
+        await _cacheService.cacheHomeProducts(products);
+        debugPrint('✓ Loaded and cached ${products.length} products from API');
+      } else {
+        debugPrint(
+          '✓ Loaded ${products.length} products for listingLevel=$listingLevel',
+        );
+      }
       return products;
     } catch (e) {
       debugPrint('✗ Failed to fetch products: $e');
+
+      if (!isDefaultCatalogue) {
+        // No offline fallback for a tiered query — surfacing the unrelated
+        // cached general catalogue here would show the wrong products.
+        rethrow;
+      }
 
       final isDioError = e is DioException;
       final isThrottled = isDioError && e.response?.statusCode == 429;

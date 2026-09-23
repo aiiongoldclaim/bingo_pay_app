@@ -109,6 +109,17 @@ class ThemeColors {
   // =========================
 
   static const Color black = Color(0xFF000000);
+
+  // =========================
+  // VAULT SECTION SELECTOR (top app bar: TheVaults / Vaults Luxe / Ultra Luxe)
+  // =========================
+  static const Color vaultSelectorPrimary = Color(0xFF5B2A86);
+  static const Color vaultSelectorLavender = Color(0xFF8E6BBE);
+  static const Color vaultSelectorLightLavender = Color(0xFFF0EAF8);
+  static const Color vaultSelectorVeryLightLavender = Color(0xFFF8F5FC);
+  static const Color vaultSelectorText = Color(0xFF241A2F);
+  static const Color vaultSelectorSecondaryText = Color(0xFF77717F);
+
   // =========================
   // AUCTION HERO (gold-on-navy spotlight card)
   // =========================

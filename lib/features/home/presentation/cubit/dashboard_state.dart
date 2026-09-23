@@ -1,7 +1,15 @@
 import '../../../categories/data/models/categories_model.dart';
 import '../../data/models/product_model.dart';
+import '../models/vault_section.dart';
 
 enum HomeStatus { initial, loading, loaded, error }
+
+/// Loading state of the currently selected vault section's own content
+/// (banner/product data), distinct from [HomeStatus] which covers the
+/// dashboard's one-time bootstrap (categories/profile/products). TheVaults
+/// never goes through [loading] — its content is already fetched — only
+/// Vaults Luxe / Ultra Luxe show a brief loading transition when selected.
+enum VaultContentStatus { loading, loaded }
 
 class HomeState {
   final HomeStatus status;
@@ -10,6 +18,8 @@ class HomeState {
   final List<CategoryModel> categories;
   final List<ProductModel> flashDeals;
   final List<ProductModel> recommended;
+  final VaultSection selectedVaultSection;
+  final VaultContentStatus vaultContentStatus;
 
   final String? errorMessage;
 
@@ -20,6 +30,8 @@ class HomeState {
     this.categories = const [],
     this.flashDeals = const [],
     this.recommended = const [],
+    this.selectedVaultSection = VaultSection.theVaults,
+    this.vaultContentStatus = VaultContentStatus.loaded,
     this.errorMessage,
   });
 
@@ -51,6 +63,8 @@ class HomeState {
     List<CategoryModel>? categories,
     List<ProductModel>? flashDeals,
     List<ProductModel>? recommended,
+    VaultSection? selectedVaultSection,
+    VaultContentStatus? vaultContentStatus,
     String? errorMessage,
   }) {
     return HomeState(
@@ -60,6 +74,8 @@ class HomeState {
       categories: categories ?? this.categories,
       flashDeals: flashDeals ?? this.flashDeals,
       recommended: recommended ?? this.recommended,
+      selectedVaultSection: selectedVaultSection ?? this.selectedVaultSection,
+      vaultContentStatus: vaultContentStatus ?? this.vaultContentStatus,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

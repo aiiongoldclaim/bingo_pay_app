@@ -84,17 +84,3 @@ class CategoryModel {
     }
   }
 }
-
-class CuratedCollectionModel {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color iconBg;
-
-  CuratedCollectionModel({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.iconBg,
-  });
-}

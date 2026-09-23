@@ -79,13 +79,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'home_metrics.dart';
-import '../../../../core/theme/app_text_styles.dart';
+import '../models/vault_section.dart';
+import 'vault_section_selector.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
     super.key,
     required this.metrics,
-    required this.brandName,
+    required this.selectedSection,
+    this.onSectionChanged,
     this.cartCount = 0,
     this.onMenuTap,
     this.onWishlistTap,
@@ -93,7 +95,8 @@ class HomeHeader extends StatelessWidget {
   });
 
   final HomeMetrics metrics;
-  final String brandName;
+  final VaultSection selectedSection;
+  final ValueChanged<VaultSection>? onSectionChanged;
   final int cartCount;
   final VoidCallback? onMenuTap;
   final VoidCallback? onWishlistTap;
@@ -113,20 +116,15 @@ class HomeHeader extends StatelessWidget {
             color: colors.textPrimary,
             onTap: onMenuTap,
           ),
+          SizedBox(width: metrics.pagePadding * 0.6),
           Expanded(
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  brandName,
-                  style: AppTextStyles.brandLogo.copyWith(
-                    fontSize: metrics.logoSize,
-                    color: colors.brand,
-                  ),
-                ),
-              ),
+            child: VaultSectionSelector(
+              metrics: metrics,
+              selected: selectedSection,
+              onChanged: onSectionChanged,
             ),
           ),
+          SizedBox(width: metrics.pagePadding * 0.6),
           _HeaderIcon(
             icon: Icons.favorite_border_rounded,
             size: metrics.headerIconSize,
