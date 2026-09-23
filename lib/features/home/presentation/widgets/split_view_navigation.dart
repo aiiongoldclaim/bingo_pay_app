@@ -9,6 +9,9 @@ import '../../../services/presentation/cubit/services_state.dart';
 import '../../../orders/cubit/orders_cubit.dart';
 import '../../../orders/cubit/orders_state.dart';
 import '../../../orders/data/models/order_model.dart';
+import '../../../auctions/presentation/cubit/auction_cubit.dart';
+import '../../../auctions/presentation/cubit/auction_state.dart';
+import '../../../auctions/presentation/screens/auction_detail_screen.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import 'home_metrics.dart';
@@ -35,54 +38,25 @@ class SplitViewNavigation extends StatefulWidget {
   State<SplitViewNavigation> createState() => _SplitViewNavigationState();
 }
 
-class _SplitViewNavigationState extends State<SplitViewNavigation> with TickerProviderStateMixin {
+class _SplitViewNavigationState extends State<SplitViewNavigation> {
   NavigationSection _selectedSection = NavigationSection.services;
   late final ServicesCubit _servicesCubit;
-  String _auctionTab = 'active';
-  late AnimationController _timerController;
-  late DateTime _auctionStartTime;
+  late final AuctionCubit _auctionCubit;
 
   @override
   void initState() {
     super.initState();
     _servicesCubit = getIt<ServicesCubit>()..loadServices();
-    _auctionStartTime = DateTime.now();
-    _timerController = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    )..repeat();
+    _auctionCubit = getIt<AuctionCubit>()..getAuctions();
   }
 
   @override
   void dispose() {
-    _timerController.dispose();
     _servicesCubit.close();
+    _auctionCubit.close();
     super.dispose();
   }
 
-  String _getTimeRemaining(int secondsLeft) {
-    int remaining = secondsLeft - DateTime.now().difference(_auctionStartTime).inSeconds;
-    if (remaining < 0) remaining = 0;
-
-    final hours = remaining ~/ 3600;
-    final minutes = (remaining % 3600) ~/ 60;
-    final seconds = remaining % 60;
-
-    return '${hours}h ${minutes}m ${seconds}s';
-  }
-
-  String _getTimeUntilStart(int secondsUntilStart) {
-    int remaining = secondsUntilStart - DateTime.now().difference(_auctionStartTime).inSeconds;
-    if (remaining < 0) remaining = 0;
-
-    final days = remaining ~/ 86400;
-    final hours = (remaining % 86400) ~/ 3600;
-
-    if (days > 0) {
-      return '${days}d ${hours}h';
-    }
-    return '${hours}h';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -252,267 +226,406 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> with TickerPr
   }
 
   Widget _buildAuctionsContent(AppThemeColors colors, HomeMetrics metrics) {
-    final activeAuctions = [
-      {'name': 'Bauble Cluster Anti Tarnish Ring', 'category': 'Beauty & Personal Care', 'price': '300', 'bids': '0', 'secondsLeft': 9930, 'status': 'ending-soon'},
-      {'name': 'Z-zone Gold Ball Crystal Set', 'category': 'Beauty Wellness', 'price': '200', 'bids': '2', 'secondsLeft': 19815, 'status': 'active'},
-      {'name': 'Premium Gold Necklace Set', 'category': 'Jewelry', 'price': '450', 'bids': '5', 'secondsLeft': 4545, 'status': 'ending-soon'},
-      {'name': 'Vintage Watch Collection', 'category': 'Accessories', 'price': '180', 'bids': '1', 'secondsLeft': 28820, 'status': 'active'},
-    ];
+    return BlocProvider.value(
+      value: _auctionCubit,
+      child: BlocBuilder<AuctionCubit, AuctionState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Auctions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
+                    SizedBox(height: 4),
+                    Text('Bid on exclusive items', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => context.push(AppRoutes.auctionScreen),
+                        icon: Icon(Icons.view_list_outlined),
+                        label: Text('View All'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.brand,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push(AppRoutes.myBids),
+                        icon: Icon(Icons.history_outlined),
+                        label: Text('My Bids'),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: colors.brand),
+                          foregroundColor: colors.brand,
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: _buildAuctionContent(state, colors, context),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
-    final upcomingAuctions = [
-      {'name': 'Designer Handbag Premium', 'category': 'Fashion', 'price': '2500', 'secondsUntilStart': 183600, 'status': 'upcoming'},
-      {'name': 'Antique Vase Ceramic', 'category': 'Collectibles', 'price': '850', 'secondsUntilStart': 129600, 'status': 'upcoming'},
-      {'name': 'Luxury Watch Timepiece', 'category': 'Electronics', 'price': '5000', 'secondsUntilStart': 272400, 'status': 'upcoming'},
-      {'name': 'Rare Book Collection', 'category': 'Books', 'price': '400', 'secondsUntilStart': 288000, 'status': 'upcoming'},
-    ];
+  Widget _buildAuctionContent(AuctionState state, AppThemeColors colors, BuildContext context) {
+    if (state is AuctionLoading || state is AuctionInitial) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(colors.brand)),
+            SizedBox(height: 16),
+            Text('Loading auctions...', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
+          ],
+        ),
+      );
+    }
 
-    final currentAuctions = _auctionTab == 'active' ? activeAuctions : upcomingAuctions;
+    if (state is AuctionError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
+            SizedBox(height: 16),
+            Text('Failed to load auctions', style: TextStyle(color: colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+            SizedBox(height: 8),
+            Text(state.message, style: TextStyle(color: colors.textSecondary, fontSize: 12), textAlign: TextAlign.center),
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => _auctionCubit.getAuctions(),
+              icon: Icon(Icons.refresh),
+              label: Text('Retry'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.brand,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+    if (state is AuctionLoaded) {
+      final allAuctions = [...state.liveAuctions, ...state.endingSoonAuctions, ...state.upcomingAuctions];
+      if (allAuctions.isEmpty) {
+        return Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.local_activity_outlined, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
+              SizedBox(height: 16),
+              Text('No auctions available', style: TextStyle(color: colors.textSecondary, fontSize: 14)),
+              SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () => context.push(AppRoutes.auctionScreen),
+                icon: Icon(Icons.view_list_outlined),
+                label: Text('View All Auctions'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.brand,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      return ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+        separatorBuilder: (_, _) => SizedBox(height: 12),
+        itemCount: allAuctions.length,
+        itemBuilder: (context, index) {
+          final auction = allAuctions[index];
+          return _buildAuctionCardFromEntity(auction, colors, context);
+        },
+      );
+    }
+
+    return Center(
+      child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(colors.brand)),
+    );
+  }
+
+  Widget _buildAuctionCardFromEntity(dynamic auction, AppThemeColors colors, BuildContext context) {
+    final price = auction.currentBid ?? auction.startingPrice;
+    final priceLabel = auction.currentBid != null ? 'Current Bid' : 'Starting Price';
+    final isLive = auction.status.toUpperCase() == 'LIVE';
+    final category = auction.category?.name.trim() ?? '';
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openAuctionDetails(context, auction.uuid),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colors.border.withValues(alpha: 0.5), width: 1),
+          ),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Auctions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-              SizedBox(height: 4),
-              Text('Bid on exclusive items', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
-            ],
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              _buildTabButton('Active (${activeAuctions.length})', 'active', colors),
-              SizedBox(width: 12),
-              _buildTabButton('Upcoming (${upcomingAuctions.length})', 'upcoming', colors),
-            ],
-          ),
-        ),
-        SizedBox(height: 16),
-        Expanded(
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-            separatorBuilder: (_, _) => SizedBox(height: 12),
-            itemCount: currentAuctions.length,
-            itemBuilder: (context, index) {
-              final auction = currentAuctions[index];
-              if (_auctionTab == 'active') {
-                return AnimatedBuilder(
-                  animation: _timerController,
-                  builder: (context, child) {
-                    return _buildLiveAuctionCard(
-                      name: auction['name'].toString(),
-                      category: auction['category'].toString(),
-                      price: auction['price'].toString(),
-                      bids: auction['bids'].toString(),
-                      secondsLeft: auction['secondsLeft'] as int,
-                      status: auction['status'].toString(),
-                      colors: colors,
-                    );
-                  },
-                );
-              } else {
-                return AnimatedBuilder(
-                  animation: _timerController,
-                  builder: (context, child) {
-                    return _buildUpcomingAuctionCard(
-                      name: auction['name'].toString(),
-                      category: auction['category'].toString(),
-                      price: auction['price'].toString(),
-                      secondsUntilStart: auction['secondsUntilStart'] as int,
-                      colors: colors,
-                    );
-                  },
-                );
-              }
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTabButton(String label, String tabValue, AppThemeColors colors) {
-    final isActive = _auctionTab == tabValue;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _auctionTab = tabValue),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: isActive ? colors.brand.withValues(alpha: 0.1) : Colors.transparent,
-            border: Border(bottom: BorderSide(color: isActive ? colors.brand : Colors.transparent, width: 2)),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-              color: isActive ? colors.brand : colors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLiveAuctionCard({
-    required String name,
-    required String category,
-    required String price,
-    required String bids,
-    required int secondsLeft,
-    required String status,
-    required AppThemeColors colors,
-  }) {
-    final timeLeft = _getTimeRemaining(secondsLeft);
-    final isEndingSoon = status == 'ending-soon';
-    return Container(
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(10)),
-      padding: EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(color: colors.brand.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                child: Icon(Icons.shopping_bag_outlined, color: colors.brand),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text(category, style: TextStyle(fontSize: 11, color: colors.textSecondary)),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isEndingSoon ? Colors.red.withValues(alpha: 0.15) : colors.brand.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  isEndingSoon ? 'ENDING SOON' : 'LIVE',
-                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: isEndingSoon ? Colors.red : colors.brand),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Image thumbnail with LIVE badge
+              Stack(
                 children: [
-                  Text('Starting Price', style: TextStyle(fontSize: 10, color: colors.textSecondary)),
-                  Text('₹$price', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.brand)),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Bids', style: TextStyle(fontSize: 10, color: colors.textSecondary)),
-                  Text(bids, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Ending in', style: TextStyle(fontSize: 10, color: colors.textSecondary)),
-                  Text(
-                    timeLeft,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isEndingSoon ? Colors.red : colors.textPrimary,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 75,
+                      height: 75,
+                      child: auction.images != null && auction.images!.isNotEmpty
+                          ? Image.network(
+                              auction.images!.first,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, _, _) => _placeholderImage(colors),
+                            )
+                          : _placeholderImage(colors),
                     ),
                   ),
+                  if (isLive)
+                    Positioned(
+                      left: 4,
+                      top: 4,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colors.surface.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'LIVE',
+                              style: TextStyle(
+                                color: colors.textPrimary,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildUpcomingAuctionCard({
-    required String name,
-    required String category,
-    required String price,
-    required int secondsUntilStart,
-    required AppThemeColors colors,
-  }) {
-    final startsIn = _getTimeUntilStart(secondsUntilStart);
-    return Container(
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(10)),
-      padding: EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(color: colors.brand.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                child: Icon(Icons.hourglass_empty_outlined, color: colors.brand),
-              ),
               SizedBox(width: 12),
+
+              // Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text(category, style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                    // Title and bid count
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            auction.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: colors.textPrimary,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          '${auction.bidCount} ${auction.bidCount == 1 ? 'bid' : 'bids'}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 4),
+
+                    // Category
+                    if (category.isNotEmpty)
+                      Text(
+                        category,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: colors.textSecondary,
+                        ),
+                      ),
+
+                    SizedBox(height: 8),
+
+                    // Price section
+                    Text(
+                      priceLabel,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '₹$price',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: colors.brand,
+                      ),
+                    ),
+
+                    SizedBox(height: 6),
+
+                    // Time remaining
+                    if (auction.secondsRemaining != null && auction.secondsRemaining! > 0)
+                      Row(
+                        children: [
+                          Text(
+                            'Closes in',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: colors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            _formatSecondsRemaining(auction.secondsRemaining!),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: colors.brand,
+                            ),
+                          ),
+                        ],
+                      )
+                    else if (auction.status.toUpperCase() == 'STARTING_SOON' && auction.secondsUntilStart != null)
+                      Row(
+                        children: [
+                          Text(
+                            'Starts in',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: colors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            _formatSecondsRemaining(auction.secondsUntilStart!),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: colors.brand,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
+
+              SizedBox(width: 8),
+
+              // Chevron icon
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: colors.brand.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  shape: BoxShape.circle,
                 ),
-                child: Text('UPCOMING', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: colors.brand)),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: colors.brand,
+                  size: 18,
+                ),
               ),
             ],
           ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Starting Price', style: TextStyle(fontSize: 10, color: colors.textSecondary)),
-                  Text('₹$price', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.brand)),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Starts in', style: TextStyle(fontSize: 10, color: colors.textSecondary)),
-                  Text(startsIn, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-                ],
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
+
+  Widget _placeholderImage(AppThemeColors colors) {
+    return Container(
+      color: colors.surface,
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          size: 30,
+          color: colors.textSecondary.withValues(alpha: 0.5),
+        ),
+      ),
+    );
+  }
+
+  void _openAuctionDetails(BuildContext context, String auctionId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AuctionDetailScreen(auctionId: auctionId),
+      ),
+    );
+  }
+
+
+  String _formatSecondsRemaining(int seconds) {
+    if (seconds <= 0) return '0s';
+
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+    final secs = seconds % 60;
+
+    if (hours > 0) {
+      return '${hours}h ${minutes}m';
+    } else if (minutes > 0) {
+      return '${minutes}m ${secs}s';
+    } else {
+      return '${secs}s';
+    }
+  }
+
 
   Widget _buildProductsContent(AppThemeColors colors, HomeMetrics metrics) {
     return BlocBuilder<HomeCubit, HomeState>(
