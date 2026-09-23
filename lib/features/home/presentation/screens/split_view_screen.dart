@@ -8,8 +8,25 @@ import '../../../orders/cubit/orders_cubit.dart';
 import '../../../../core/di/injection.dart';
 import '../widgets/split_view_navigation.dart';
 
-class SplitViewScreen extends StatelessWidget {
+class SplitViewScreen extends StatefulWidget {
   const SplitViewScreen({super.key});
+
+  @override
+  State<SplitViewScreen> createState() => _SplitViewScreenState();
+}
+
+class _SplitViewScreenState extends State<SplitViewScreen> {
+  bool _isNavigating = false;
+
+  void _handleBackPress() {
+    if (_isNavigating) return;
+
+    _isNavigating = true;
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
+    _isNavigating = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +57,7 @@ class SplitViewScreen extends StatelessWidget {
             padding: EdgeInsets.only(left: 8),
             child: IconButton(
               icon: Icon(Icons.arrow_back_ios, size: 20),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: _handleBackPress,
               splashRadius: 24,
             ),
           ),
