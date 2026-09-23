@@ -243,39 +243,6 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                   ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => context.push(AppRoutes.auctionScreen),
-                        icon: Icon(Icons.view_list_outlined),
-                        label: Text('View All'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.brand,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => context.push(AppRoutes.myBids),
-                        icon: Icon(Icons.history_outlined),
-                        label: Text('My Bids'),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: colors.brand),
-                          foregroundColor: colors.brand,
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16),
               Expanded(
                 child: _buildAuctionContent(state, colors, context),
               ),
@@ -326,8 +293,9 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     }
 
     if (state is AuctionLoaded) {
-      final allAuctions = [...state.liveAuctions, ...state.endingSoonAuctions, ...state.upcomingAuctions];
-      if (allAuctions.isEmpty) {
+      final hasAuctions = state.liveAuctions.isNotEmpty || state.endingSoonAuctions.isNotEmpty || state.upcomingAuctions.isNotEmpty;
+
+      if (!hasAuctions) {
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -335,29 +303,143 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
               Icon(Icons.local_activity_outlined, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
               SizedBox(height: 16),
               Text('No auctions available', style: TextStyle(color: colors.textSecondary, fontSize: 14)),
-              SizedBox(height: 20),
-              ElevatedButton.icon(
-                onPressed: () => context.push(AppRoutes.auctionScreen),
-                icon: Icon(Icons.view_list_outlined),
-                label: Text('View All Auctions'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.brand,
-                  foregroundColor: Colors.white,
-                ),
-              ),
             ],
           ),
         );
       }
 
-      return ListView.separated(
+      final heroAuction = state.liveAuctions.isNotEmpty
+          ? _getHeroAuction(state.liveAuctions)
+          : null;
+
+      return ListView(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-        separatorBuilder: (_, _) => SizedBox(height: 12),
-        itemCount: allAuctions.length,
-        itemBuilder: (context, index) {
-          final auction = allAuctions[index];
-          return _buildAuctionCardFromEntity(auction, colors, context);
-        },
+        children: [
+          // Hero auction card
+          if (heroAuction != null) ...[
+            SizedBox(height: 12),
+            _buildHeroAuctionCard(heroAuction, colors, context),
+            SizedBox(height: 16),
+
+            // Action buttons - stacked vertically for narrow split view
+            Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [colors.brand, colors.brand.withValues(alpha: 0.8)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => _openAuctionDetails(context, heroAuction.uuid),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 11),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.gavel_rounded, color: Colors.white, size: 15),
+                              SizedBox(width: 6),
+                              Text(
+                                'PLACE A BID',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              SizedBox(width: 4),
+                              Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 12),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => context.push(AppRoutes.myBids),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colors.brand,
+                      side: BorderSide(color: colors.brand, width: 1.2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 11),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.history_rounded, size: 13),
+                        SizedBox(width: 6),
+                        Text(
+                          'MY BIDS',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 24),
+          ],
+
+          // Live Auctions section
+          if (state.liveAuctions.isNotEmpty) ...[
+            _buildAuctionSectionHeader('Live Auctions', 'Bidding open now', colors),
+            SizedBox(height: 12),
+            ...state.liveAuctions.take(3).map((auction) =>
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: _buildAuctionCardFromEntity(auction, colors, context),
+              ),
+            ),
+            SizedBox(height: 20),
+          ],
+
+          // Ending Soon section
+          if (state.endingSoonAuctions.isNotEmpty) ...[
+            _buildAuctionSectionHeader('Ending Soon', 'Don\'t miss these auctions', colors),
+            SizedBox(height: 12),
+            ...state.endingSoonAuctions.take(3).map((auction) =>
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: _buildAuctionCardFromEntity(auction, colors, context),
+              ),
+            ),
+            SizedBox(height: 20),
+          ],
+
+          // Upcoming section
+          if (state.upcomingAuctions.isNotEmpty) ...[
+            _buildAuctionSectionHeader('Upcoming', 'Get ready to bid', colors),
+            SizedBox(height: 12),
+            ...state.upcomingAuctions.take(3).map((auction) =>
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: _buildAuctionCardFromEntity(auction, colors, context),
+              ),
+            ),
+            SizedBox(height: 20),
+          ],
+        ],
       );
     }
 
@@ -366,8 +448,228 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
+  Widget _buildAuctionSectionHeader(String title, String subtitle, AppThemeColors colors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: colors.textPrimary,
+            letterSpacing: 0.2,
+          ),
+        ),
+        SizedBox(height: 2),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 12,
+            color: colors.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeroAuctionCard(dynamic auction, AppThemeColors colors, BuildContext context) {
+    final price = auction.currentBid ?? auction.startingPrice;
+    final imageUrl = auction.images != null && auction.images!.isNotEmpty ? auction.images!.first : null;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _openAuctionDetails(context, auction.uuid),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colors.border, width: 1.2),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 160,
+                    child: imageUrl != null
+                        ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => _placeholderImage(colors),
+                          )
+                        : _placeholderImage(colors),
+                  ),
+                  Positioned(
+                    left: 12,
+                    top: 12,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: colors.surface.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            'LIVE',
+                            style: TextStyle(
+                              color: colors.textPrimary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            auction.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: colors.textPrimary,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: colors.brand.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${auction.bidCount} bids',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: colors.brand,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Current Bid',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '₹${_formatPrice(price)}',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: colors.brand,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.schedule_rounded, size: 13, color: colors.textSecondary),
+                        SizedBox(width: 6),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Closes in',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: colors.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (auction.secondsRemaining != null && auction.secondsRemaining! > 0)
+                                Text(
+                                  _formatSecondsRemaining(auction.secondsRemaining!),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.brand,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  dynamic _getHeroAuction(List<dynamic> liveAuctions) {
+    if (liveAuctions.isEmpty) return null;
+
+    final sorted = List.from(liveAuctions);
+    sorted.sort((a, b) {
+      final aTime = a.secondsRemaining ?? 999999999;
+      final bTime = b.secondsRemaining ?? 999999999;
+      return aTime.compareTo(bTime);
+    });
+
+    return sorted.first;
+  }
+
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+    if (price is num) return price.toStringAsFixed(0);
+    if (price is String) {
+      try {
+        return double.parse(price).toStringAsFixed(0);
+      } catch (e) {
+        return price;
+      }
+    }
+    return '0';
+  }
+
   Widget _buildAuctionCardFromEntity(dynamic auction, AppThemeColors colors, BuildContext context) {
     final price = auction.currentBid ?? auction.startingPrice;
+    final startingPrice = auction.startingPrice;
     final priceLabel = auction.currentBid != null ? 'Current Bid' : 'Starting Price';
     final isLive = auction.status.toUpperCase() == 'LIVE';
     final category = auction.category?.name.trim() ?? '';
@@ -376,13 +678,13 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
       color: Colors.transparent,
       child: InkWell(
         onTap: () => _openAuctionDetails(context, auction.uuid),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
-          padding: EdgeInsets.all(12),
+          padding: EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: colors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colors.border.withValues(alpha: 0.5), width: 1),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colors.border.withValues(alpha: 0.6), width: 1.2),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,10 +693,10 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
-                      width: 75,
-                      height: 75,
+                      width: 90,
+                      height: 90,
                       child: auction.images != null && auction.images!.isNotEmpty
                           ? Image.network(
                               auction.images!.first,
@@ -406,33 +708,33 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                   ),
                   if (isLive)
                     Positioned(
-                      left: 4,
-                      top: 4,
+                      left: 6,
+                      top: 6,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: colors.surface.withValues(alpha: 0.92),
+                          color: colors.surface.withValues(alpha: 0.94),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 6,
-                              height: 6,
+                              width: 7,
+                              height: 7,
                               decoration: BoxDecoration(
                                 color: Colors.green,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            SizedBox(width: 4),
+                            SizedBox(width: 5),
                             Text(
                               'LIVE',
                               style: TextStyle(
                                 color: colors.textPrimary,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.3,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.4,
                               ),
                             ),
                           ],
@@ -442,7 +744,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 ],
               ),
 
-              SizedBox(width: 12),
+              SizedBox(width: 14),
 
               // Details
               Expanded(
@@ -452,6 +754,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                     // Title and bid count
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
@@ -459,7 +762,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: colors.textPrimary,
                               height: 1.2,
@@ -467,18 +770,26 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                           ),
                         ),
                         SizedBox(width: 8),
-                        Text(
-                          '${auction.bidCount} ${auction.bidCount == 1 ? 'bid' : 'bids'}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: colors.textSecondary,
-                            fontWeight: FontWeight.w600,
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: colors.brand.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${auction.bidCount} '
+                            '${auction.bidCount == 1 ? 'bid' : 'bids'}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: colors.brand,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ],
                     ),
 
-                    SizedBox(height: 4),
+                    SizedBox(height: 6),
 
                     // Category
                     if (category.isNotEmpty)
@@ -487,14 +798,35 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 11,
                           color: colors.textSecondary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
 
                     SizedBox(height: 8),
 
-                    // Price section
+                    // Starting price info
+                    Text(
+                      'Starting Price',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: colors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      '₹${_formatPrice(startingPrice)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+
+                    SizedBox(height: 6),
+
+                    // Current bid / Current price section
                     Text(
                       priceLabel,
                       style: TextStyle(
@@ -504,35 +836,49 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                       ),
                     ),
                     Text(
-                      '₹$price',
+                      '₹${_formatPrice(price)}',
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: colors.brand,
                       ),
                     ),
 
-                    SizedBox(height: 6),
+                    SizedBox(height: 8),
 
                     // Time remaining
                     if (auction.secondsRemaining != null && auction.secondsRemaining! > 0)
                       Row(
                         children: [
-                          Text(
-                            'Closes in',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: colors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 13,
+                            color: colors.textSecondary,
                           ),
                           SizedBox(width: 6),
-                          Text(
-                            _formatSecondsRemaining(auction.secondsRemaining!),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: colors.brand,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Closes in',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: colors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  _formatSecondsRemaining(auction.secondsRemaining!),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.brand,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -540,21 +886,54 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                     else if (auction.status.toUpperCase() == 'STARTING_SOON' && auction.secondsUntilStart != null)
                       Row(
                         children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            size: 13,
+                            color: colors.textSecondary,
+                          ),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Starts in',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: colors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  _formatSecondsRemaining(auction.secondsUntilStart!),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.brand,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 13,
+                            color: colors.textSecondary,
+                          ),
+                          SizedBox(width: 6),
                           Text(
-                            'Starts in',
+                            '${auction.status.toUpperCase()}',
                             style: TextStyle(
                               fontSize: 10,
                               color: colors.textSecondary,
                               fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            _formatSecondsRemaining(auction.secondsUntilStart!),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: colors.brand,
                             ),
                           ),
                         ],
@@ -567,8 +946,8 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
 
               // Chevron icon
               Container(
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: colors.brand.withValues(alpha: 0.1),
@@ -577,7 +956,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 child: Icon(
                   Icons.chevron_right_rounded,
                   color: colors.brand,
-                  size: 18,
+                  size: 20,
                 ),
               ),
             ],
@@ -613,12 +992,20 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
   String _formatSecondsRemaining(int seconds) {
     if (seconds <= 0) return '0s';
 
-    final hours = seconds ~/ 3600;
+    final days = seconds ~/ 86400;
+    final hours = (seconds % 86400) ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
     final secs = seconds % 60;
 
-    if (hours > 0) {
-      return '${hours}h ${minutes}m';
+    if (days >= 30) {
+      final months = days ~/ 30;
+      final remainingDays = days % 30;
+      final remainingHours = hours;
+      return '${months}mo ${remainingDays}d ${remainingHours}h';
+    } else if (days > 0) {
+      return '${days}d ${hours}h ${minutes}m';
+    } else if (hours > 0) {
+      return '${hours}h ${minutes}m ${secs}s';
     } else if (minutes > 0) {
       return '${minutes}m ${secs}s';
     } else {
