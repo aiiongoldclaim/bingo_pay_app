@@ -13,6 +13,9 @@ import '../../../auctions/presentation/cubit/auction_cubit.dart';
 import '../../../auctions/presentation/cubit/auction_state.dart';
 import '../../../auctions/presentation/screens/auction_detail_screen.dart';
 import '../../../auctions/presentation/screens/my_bids_screen.dart';
+import '../../../categories/presentation/cubit/categories_cubit.dart';
+import '../../../categories/presentation/cubit/categories_state.dart';
+import '../../../categories/presentation/widgets/categories_metrics.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import 'home_metrics.dart';
@@ -23,6 +26,7 @@ enum NavigationSection {
   auctions('Auctions', Icons.local_activity_outlined),
   products('Products', Icons.shopping_bag_outlined),
   categories('Categories', Icons.category_outlined),
+  brands('Brands', Icons.storefront_outlined),
   orders('Orders', Icons.receipt_outlined);
 
   final String label;
@@ -42,18 +46,21 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
   NavigationSection _selectedSection = NavigationSection.services;
   late final ServicesCubit _servicesCubit;
   late final AuctionCubit _auctionCubit;
+  late final CategoriesCubit _categoriesCubit;
 
   @override
   void initState() {
     super.initState();
     _servicesCubit = getIt<ServicesCubit>()..loadServices();
     _auctionCubit = getIt<AuctionCubit>()..getAuctions();
+    _categoriesCubit = getIt<CategoriesCubit>()..loadData();
   }
 
   @override
   void dispose() {
     _servicesCubit.close();
     _auctionCubit.close();
+    _categoriesCubit.close();
     super.dispose();
   }
 
@@ -164,6 +171,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
             _buildAuctionsContent(colors, metrics),
             _buildProductsContent(colors, metrics),
             _buildCategoriesContent(colors, metrics),
+            _buildBrandsContent(colors, metrics),
             _buildOrdersContent(colors, metrics),
           ],
         ),
@@ -1110,6 +1118,173 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
+  Widget _buildBrandsContent(AppThemeColors colors, HomeMetrics metrics) {
+    final m = CategoriesMetrics.of(context);
+
+    return BlocProvider.value(
+      value: _categoriesCubit,
+      child: BlocBuilder<CategoriesCubit, CategoriesState>(
+        builder: (context, state) {
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Top Brands', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
+                    SizedBox(height: 4),
+                    Text('Discover top brands', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: _buildBrandsView(state, colors, m, context),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBrandsView(CategoriesState state, AppThemeColors colors, CategoriesMetrics metrics, BuildContext context) {
+    if (state.isBrandsLoading) {
+      return GridView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 0.75,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 12,
+        ),
+        itemCount: 6,
+        itemBuilder: (_, _) => Container(
+          decoration: BoxDecoration(
+            color: colors.surfaceAlt,
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+    }
+
+    if (state.brandsError != null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(metrics.pagePadding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline_rounded, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
+              SizedBox(height: 16),
+              Text(
+                'Failed to load brands',
+                style: TextStyle(color: colors.textSecondary, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (state.brands.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.storefront_outlined, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
+            SizedBox(height: 16),
+            Text(
+              'No brands available',
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return GridView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 0.75,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 12,
+      ),
+      itemCount: state.brands.length,
+      itemBuilder: (context, index) {
+        final brand = state.brands[index];
+        return _buildBrandGridItem(
+          brand: brand,
+          colors: colors,
+          onTap: () {
+            if (brand.uuid.isEmpty) return;
+            context.push(
+              AppRoutes.brandListingPath(brand.name),
+              extra: brand.uuid,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildBrandGridItem({
+    required dynamic brand,
+    required AppThemeColors colors,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colors.border, width: 0.8),
+              ),
+              child: Text(
+                brand.name.toUpperCase(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.3,
+                  color: colors.textPrimary,
+                  height: 1.3,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            Flexible(
+              child: Text(
+                brand.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: colors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildOrdersContent(AppThemeColors colors, HomeMetrics metrics) {
     return BlocBuilder<OrdersCubit, OrdersState>(
       builder: (context, state) {
@@ -1304,7 +1479,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                             width: 64,
                             height: 64,
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => Icon(
+                            errorBuilder: (_, _, _) => Icon(
                               category.icon,
                               size: 32,
                               color: colors.brand,
