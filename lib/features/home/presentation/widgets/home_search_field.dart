@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
 import 'home_metrics.dart';
 
 class HomeSearchField extends StatelessWidget {
@@ -28,14 +28,21 @@ class HomeSearchField extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(metrics.searchRadius),
-          border: Border.all(color: colors.border),
+          border: Border.all(color: ThemeColors.vaultSearchBorder),
+          boxShadow: [
+            BoxShadow(
+              color: ThemeColors.vaultSelectorPrimary.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Icon(
               Icons.search_rounded,
               size: metrics.searchIconSize,
-              color: colors.textMuted,
+              color: ThemeColors.vaultSelectorPrimary,
             ),
             SizedBox(width: metrics.pagePadding * 0.7),
             Expanded(
@@ -45,7 +52,7 @@ class HomeSearchField extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: metrics.searchFontSize,
-                  color: colors.textMuted,
+                  color: ThemeColors.vaultSelectorSecondaryText,
                 ),
               ),
             ),

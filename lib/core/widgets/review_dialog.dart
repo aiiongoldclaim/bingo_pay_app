@@ -40,17 +40,17 @@ class _ReviewDialogState extends State<ReviewDialog> {
           children: [
             Text(
               widget.title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               widget.subtitle,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -66,13 +66,15 @@ class _ReviewDialogState extends State<ReviewDialog> {
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.amber.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       widget.positiveRatingMessage,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.amber[800],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.amber[800]),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -88,13 +90,15 @@ class _ReviewDialogState extends State<ReviewDialog> {
                     decoration: BoxDecoration(
                       color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                      border: Border.all(
+                        color: Colors.blue.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
                       widget.negativeRatingMessage,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.blue[800],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.blue[800]),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -110,11 +114,11 @@ class _ReviewDialogState extends State<ReviewDialog> {
   }
 
   Widget _buildStarRating(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        5,
-        (index) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(5, (index) {
           final ratingValue = index + 1;
           final isSelected = _selectedRating >= ratingValue;
 
@@ -126,7 +130,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
               });
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: AnimatedScale(
                 scale: isSelected ? 1.1 : 1.0,
                 duration: const Duration(milliseconds: 200),
@@ -138,7 +142,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
               ),
             ),
           );
-        },
+        }),
       ),
     );
   }
@@ -157,10 +161,7 @@ class _ReviewDialogState extends State<ReviewDialog> {
           );
         } else if (state is ErrorState) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },

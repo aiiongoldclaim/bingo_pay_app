@@ -306,7 +306,7 @@ class MembershipActionHelper {
 
     switch (action) {
       case MembershipAction.cancel:
-        return colors.statusWarning;
+        return colors.error;
 
       case MembershipAction.resume:
         return colors.brand;
@@ -362,11 +362,11 @@ class MembershipActionHelper {
                 _ActionIcon(
                   metrics: m,
                   background:
-                  colors.statusWarningSoft,
+                  colors.error.withValues(alpha: 0.12),
                   icon:
                   Icons.cancel_outlined,
                   color:
-                  colors.statusWarning,
+                  colors.error,
                 ),
                 SizedBox(
                   height: m.rowGap,
@@ -399,7 +399,7 @@ class MembershipActionHelper {
                     style:
                     ElevatedButton.styleFrom(
                       backgroundColor:
-                      colors.statusWarning,
+                      colors.error,
                       foregroundColor:
                       ThemeColors.white,
                       elevation: 0,

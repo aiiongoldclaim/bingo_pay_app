@@ -859,7 +859,7 @@ class _MyMembershipViewState
       ) => (
       text,
       isError
-          ? colors.statusWarning
+          ? colors.error
           : colors.statusSuccess,
       ),
 
@@ -1178,7 +1178,7 @@ class _PendingViewState extends State<_PendingView> {
                 'Your membership will activate as soon as the payment clears on-chain.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: m.bodySize,
+                  fontSize: m.bodySize+2,
                   height: 1.45,
                   color: colors.textSecondary,
                 ),
@@ -1328,7 +1328,7 @@ class _PendingViewState extends State<_PendingView> {
                     size: m.smallIcon,
                   ),
                   label: Text(
-                    'Check again',
+                    'Check Again',
                     style: TextStyle(
                       fontSize: m.bodySize,
                       fontWeight: FontWeight.w700,
@@ -1343,7 +1343,7 @@ class _PendingViewState extends State<_PendingView> {
                 'Checking automatically every few seconds…',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: m.captionSize,
+                  fontSize: m.captionSize+2,
                   color: colors.textMuted,
                 ),
               ),

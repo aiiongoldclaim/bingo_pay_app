@@ -33,7 +33,7 @@ class OrderDetailBottomBar extends StatelessWidget {
     Widget primary() => SizedBox(
       height: btnHeight,
       child: Material(
-        color: canCancel ? colors.statusWarning : colors.brand,
+        color: canCancel ? colors.error : colors.brand,
         borderRadius: BorderRadius.circular(12),
         clipBehavior: Clip.antiAlias,
         child: InkWell(

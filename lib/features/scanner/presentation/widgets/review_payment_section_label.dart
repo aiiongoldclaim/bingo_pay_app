@@ -26,7 +26,7 @@ class ReviewPaymentSectionLabel extends StatelessWidget {
         color: colors.textSecondary,
         fontFamily: 'Inter',
         fontWeight: FontWeight.w600,
-        fontSize: m.sectionLabelSize,
+        fontSize: m.sectionLabelSize+3,
         letterSpacing: 0.6,
       ),
     );

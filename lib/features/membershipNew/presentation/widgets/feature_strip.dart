@@ -120,7 +120,7 @@ class _FeatureCell extends StatelessWidget {
             feature.valueLabel,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: m.captionSize * 1.15,
+              fontSize: m.captionSize * 1.4,
               fontWeight: FontWeight.w400,
               height: 1.4,
               color: colors.textSecondary,

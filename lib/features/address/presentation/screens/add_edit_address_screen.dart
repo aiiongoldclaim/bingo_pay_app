@@ -894,6 +894,7 @@ class _ContactSection extends StatelessWidget {
           hint: 'Enter full name',
           icon: Icons.person_outline,
           textCapitalization: TextCapitalization.words,
+          nameOnly: true,
           validator: Validators.name,
         ),
 
@@ -912,6 +913,9 @@ class _ContactSection extends StatelessWidget {
             final value = v?.trim() ?? '';
             if (value.isEmpty) return 'Phone number is required';
             if (value.length != 10) return 'Enter a valid 10 digit number';
+            if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
+              return 'Enter a valid mobile number';
+            }
             return null;
           },
         ),
@@ -953,7 +957,12 @@ class _AddressSection extends StatelessWidget {
           icon: Icons.home_outlined,
           maxLines: 2,
           textCapitalization: TextCapitalization.words,
-          validator: (v) => Validators.required(v, fieldName: 'Address'),
+          validator: (v) {
+            final value = v?.trim() ?? '';
+            if (value.isEmpty) return 'Address is required';
+            if (value.length < 5) return 'Enter a complete address';
+            return null;
+          },
         ),
 
         SizedBox(height: m.gapMd),
@@ -968,8 +977,16 @@ class _AddressSection extends StatelessWidget {
                 label: 'City',
                 hint: 'City',
                 icon: Icons.location_city_rounded,
+                lettersOnly: true,
                 textCapitalization: TextCapitalization.words,
-                validator: (v) => Validators.required(v, fieldName: 'City'),
+                validator: (v) {
+                  final value = v?.trim() ?? '';
+                  if (value.isEmpty) return 'City is required';
+                  if (RegExp(r'[0-9]').hasMatch(value)) {
+                    return 'City cannot contain numbers';
+                  }
+                  return null;
+                },
               ),
             ),
             SizedBox(width: m.gapSm * 1.2),
@@ -1010,6 +1027,9 @@ class _AddressSection extends StatelessWidget {
             final value = v?.trim() ?? '';
             if (value.isEmpty) return 'PIN code is required';
             if (value.length != 6) return 'Enter a valid 6 digit PIN code';
+            if (value.startsWith('0')) {
+              return 'Enter a valid 6 digit PIN code';
+            }
             return null;
           },
         ),
@@ -1031,6 +1051,7 @@ class AddressField extends StatelessWidget {
   final TextCapitalization textCapitalization;
   final bool digitsOnly;
   final bool lettersOnly;
+  final bool nameOnly;
   final String? Function(String?)? validator;
 
   const AddressField({
@@ -1046,6 +1067,7 @@ class AddressField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.digitsOnly = false,
     this.lettersOnly = false,
+    this.nameOnly = false,
     this.validator,
   });
 
@@ -1070,7 +1092,7 @@ class AddressField extends StatelessWidget {
             children: [
               TextSpan(
                 text: ' *',
-                style: TextStyle(color: colors.statusWarning, fontSize: m.fieldLabelSize * 1.1),
+                style: TextStyle(color: colors.error, fontSize: m.fieldLabelSize * 1.1),
               ),
             ],
           ),
@@ -1094,6 +1116,8 @@ class AddressField extends StatelessWidget {
               ? [FilteringTextInputFormatter.digitsOnly]
               : lettersOnly
               ? [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))]
+              : nameOnly
+              ? [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s.'-]"))]
               : [],
           decoration: InputDecoration(
             hintText: hint,
@@ -1115,7 +1139,7 @@ class AddressField extends StatelessWidget {
             ),
             counterText: '',
             errorStyle: AppTextStyles.bodySmall.copyWith(
-              color: colors.statusWarning,
+              color: colors.error,
               fontFamily: 'Inter',
               fontSize: m.errorSize,
             ),
@@ -1140,11 +1164,11 @@ class AddressField extends StatelessWidget {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: colors.statusWarning),
+              borderSide: BorderSide(color: colors.error),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(m.fieldRadius),
-              borderSide: BorderSide(color: colors.statusWarning, width: 1.5),
+              borderSide: BorderSide(color: colors.error, width: 1.5),
             ),
           ),
         ),

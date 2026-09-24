@@ -16,7 +16,7 @@ class IconLine extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16.sp, color: colors.brand),
+        Icon(icon, size: 17.sp, color: colors.brand),
         SizedBox(width: 1.54.w),
         Flexible(
           child: Text(
@@ -26,7 +26,7 @@ class IconLine extends StatelessWidget {
             style: TextStyle(
               color: colors.textSecondary,
               fontFamily: 'Inter',
-              fontSize: 14.sp,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -404,8 +404,10 @@ final class MembershipLoaded extends MembershipState {
   bool get isActionInProgress =>
       isSubscribing || isCancelling || isResuming || isPaying;
 
+  /// null jab tak user khud kisi plan ko tap na kare — koi implicit default
+  /// (jaise plans.first) nahi, taaki Subscribe button tab tak disabled rahe.
   MembershipPlanOption? get selectedPlan {
-    if (plans.isEmpty) return null;
+    if (plans.isEmpty || selectedPlanUuid == null) return null;
 
     for (final plan in plans) {
       if (plan.uuid == selectedPlanUuid) {
@@ -413,7 +415,7 @@ final class MembershipLoaded extends MembershipState {
       }
     }
 
-    return plans.first;
+    return null;
   }
 
   List<String> get comparableFeatureKeys {

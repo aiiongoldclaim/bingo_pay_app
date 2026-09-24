@@ -188,7 +188,7 @@ class TransactionCard extends StatelessWidget {
       return (bg: c.statusSuccessSoft, fg: c.statusSuccess);
     }
     if (transaction.isFailed) {
-      return (bg: c.statusWarningSoft, fg: c.statusWarning);
+      return (bg: c.error.withValues(alpha: 0.12), fg: c.error);
     }
     return (bg: c.statusWarningSoft, fg: c.statusWarning);
   }

@@ -63,34 +63,13 @@ class MembershipBenefitsCard extends StatelessWidget {
           SizedBox(
             height: m.rowGap,
           ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final itemColumns =
-                  columns ??
-                      (m.isTablet ? 4 : 3);
-
-              final itemWidth =
-                  (constraints.maxWidth -
-                      m.tileGap *
-                          (itemColumns - 1)) /
-                      itemColumns;
-
-              return Wrap(
-                spacing: m.tileGap,
-                runSpacing: m.tileGap,
-                children: [
-                  for (final entitlement in items)
-                    SizedBox(
-                      width: itemWidth,
-                      child: MembershipBenefitTile(
-                        entitlement: entitlement,
-                        metrics: m,
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) SizedBox(height: m.rowGap * 0.65),
+            MembershipBenefitTile(
+              entitlement: items[i],
+              metrics: m,
+            ),
+          ],
         ],
       ),
     );
@@ -114,80 +93,27 @@ class MembershipBenefitTile
     final m = metrics;
     final enabled = entitlement.enabled;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: m.cardPad * 0.4,
-        vertical: m.cardPad * 0.7,
-      ),
-      decoration: BoxDecoration(
-        color: enabled
-            ? colors.surfaceAlt
-            : colors.surface,
-        borderRadius: BorderRadius.circular(
-          m.radiusMd,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          enabled ? Icons.check_circle_rounded : Icons.lock_outline_rounded,
+          size: m.badgeIcon,
+          color: enabled ? colors.statusSuccess : colors.textMuted,
         ),
-        border: Border.all(
-          color: colors.border,
-        ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: m.iconCircle * 0.78,
-            height: m.iconCircle * 0.78,
-            decoration: BoxDecoration(
-              color: enabled
-                  ? colors.brandSoft
-                  : colors.surfaceAlt,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              _icon(entitlement.key),
-              size: m.iconSize * 0.9,
-              color: enabled
-                  ? colors.brand
-                  : colors.textMuted,
-            ),
-          ),
-          SizedBox(
-            height: m.rowGap * 0.5,
-          ),
-          Text(
-            entitlement.name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+        SizedBox(width: m.cardPad * 0.5),
+        Expanded(
+          child: Text(
+            '${entitlement.name} — ${entitlement.valueLabel}',
             style: TextStyle(
-              fontSize: m.captionSize * 1.05,
-              fontWeight: FontWeight.w700,
-              color: enabled
-                  ? colors.textPrimary
-                  : colors.textSecondary,
+              fontSize: m.bodySize,
+              fontWeight: FontWeight.w500,
+              height: 1.35,
+              color: enabled ? colors.textPrimary : colors.textSecondary,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
-  }
-
-  IconData _icon(String key) {
-    return switch (key.toUpperCase()) {
-      'AUCTION_BUYER_ACCESS' =>
-      Icons.gavel_rounded,
-      'FREE_DELIVERY' =>
-      Icons.local_shipping_outlined,
-      'DISCOUNT_PERCENT' =>
-      Icons.local_offer_outlined,
-      'LUXE_EARLY_ACCESS' =>
-      Icons.access_time_rounded,
-      'ULTRA_LUXE_EARLY_ACCESS' =>
-      Icons.diamond_outlined,
-      'EXCLUSIVE_ACCESS' =>
-      Icons.workspace_premium_outlined,
-      'EARLY_ACCESS_DURATION' =>
-      Icons.timer_outlined,
-      _ =>
-      Icons.card_giftcard_rounded,
-    };
   }
 }

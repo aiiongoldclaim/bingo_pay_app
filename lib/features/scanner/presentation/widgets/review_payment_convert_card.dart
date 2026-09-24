@@ -142,7 +142,7 @@ class ReviewPaymentConvertCard extends StatelessWidget {
                   style: AppTextStyles.bodySmall.copyWith(
                     color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: m.rateSize,
+                    fontSize: m.rateSize+3,
                   ),
                 ),
               ),
@@ -194,7 +194,7 @@ class _ConvertBox extends StatelessWidget {
                   style: AppTextStyles.bodySmall.copyWith(
                     color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: m.convertLabelSize,
+                    fontSize: m.convertLabelSize+3,
                     height: 1.2,
                   ),
                 ),
@@ -208,7 +208,7 @@ class _ConvertBox extends StatelessWidget {
                       color: colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: m.convertValueSize,
+                      fontSize: m.convertValueSize+2,
                       height: 1.2,
                     ),
                   ),

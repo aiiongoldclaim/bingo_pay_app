@@ -59,7 +59,7 @@ class InvoiceButton extends StatelessWidget {
                       color: colors.brand,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 14.5.sp,
+                      fontSize: 15.5.sp,
                     ),
                   ),
                 ),

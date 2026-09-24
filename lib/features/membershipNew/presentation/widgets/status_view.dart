@@ -115,13 +115,13 @@ class MembershipErrorView extends StatelessWidget {
               width: m.iconBox * 1.7,
               height: m.iconBox * 1.7,
               decoration: BoxDecoration(
-                color: colors.statusWarningSoft,
+                color: colors.error.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.wifi_tethering_error_rounded,
                 size: m.iconSize * 1.5,
-                color: colors.statusWarning,
+                color: colors.error,
               ),
             ),
             SizedBox(height: m.rowGap),

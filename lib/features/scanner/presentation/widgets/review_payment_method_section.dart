@@ -126,7 +126,7 @@ class _MethodTile extends StatelessWidget {
                         color: colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
-                        fontSize: m.methodTitleSize,
+                        fontSize: m.methodTitleSize+3,
                         height: 1.3,
                       ),
                     ),
@@ -138,7 +138,7 @@ class _MethodTile extends StatelessWidget {
                       style: AppTextStyles.bodySmall.copyWith(
                         color: colors.textSecondary,
                         fontFamily: 'Inter',
-                        fontSize: m.methodSubSize,
+                        fontSize: m.methodSubSize+3,
                         height: 1.3,
                       ),
                     ),

@@ -164,6 +164,9 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
       case 4:
         context.push(AppRoutes.profile);
         break;
+      case 5:
+        context.push(AppRoutes.splitViewNavigation);
+        break;
     }
   }
 

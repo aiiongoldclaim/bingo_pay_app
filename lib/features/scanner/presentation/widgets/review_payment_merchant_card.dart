@@ -84,7 +84,7 @@ class ReviewPaymentMerchantCard extends StatelessWidget {
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: colors.textSecondary,
                         fontFamily: 'Inter',
-                        fontSize: m.merchantIdSize,
+                        fontSize: m.merchantIdSize+2,
                         height: 1.3,
                       ),
                     ),
@@ -155,7 +155,7 @@ class _Chip extends StatelessWidget {
                   color: colors.brand,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
-                  fontSize: m.chipFontSize,
+                  fontSize: m.chipFontSize+2,
                 ),
               ),
             ),

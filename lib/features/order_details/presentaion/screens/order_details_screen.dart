@@ -291,7 +291,14 @@ class _Body extends StatelessWidget {
                     order.orderStatus,
                   ),
                   actionAsButton: isCancelled || isDelivered,
-                  onAction: () {},
+                  onAction:
+                      isDelivered &&
+                          (order.items[i].productUuid ?? '').isNotEmpty
+                      ? () => context.push(
+                          AppRoutes.productDetails,
+                          extra: order.items[i].productUuid,
+                        )
+                      : null,
                 ),
               ],
             ],

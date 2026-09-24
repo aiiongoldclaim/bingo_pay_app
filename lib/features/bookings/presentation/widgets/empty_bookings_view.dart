@@ -45,6 +45,7 @@ class EmptyBookingsView extends StatelessWidget {
                 color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w800,
+                fontSize: 20.sp,
               ),
             ),
             SizedBox(height: 0.83.h),
@@ -56,6 +57,7 @@ class EmptyBookingsView extends StatelessWidget {
               style: AppTextStyles.bodyMedium.copyWith(
                 color: colors.textSecondary,
                 fontFamily: 'Inter',
+                fontSize: 15.sp,
               ),
             ),
           ],

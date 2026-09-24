@@ -111,14 +111,53 @@ class ThemeColors {
   static const Color black = Color(0xFF000000);
 
   // =========================
-  // VAULT SECTION SELECTOR (top app bar: TheVaults / Vaults Luxe / Ultra Luxe)
+  // VAULT EXPERIENCE SELECTOR (top nav: TheVaults / Vaults Luxe / Ultra Luxe)
   // =========================
   static const Color vaultSelectorPrimary = Color(0xFF5B2A86);
   static const Color vaultSelectorLavender = Color(0xFF8E6BBE);
-  static const Color vaultSelectorLightLavender = Color(0xFFF0EAF8);
   static const Color vaultSelectorVeryLightLavender = Color(0xFFF8F5FC);
   static const Color vaultSelectorText = Color(0xFF241A2F);
   static const Color vaultSelectorSecondaryText = Color(0xFF77717F);
+
+  /// Unselected experience tab border — the fill itself now washes from
+  /// [vaultHeaderGradientTop] to white, so only the border needs its own
+  /// colour.
+  static const Color vaultTabUnselectedBorder = Color(0xFFE1D5E9);
+
+  /// Continuous 3-stop gradient behind the experience selector + search row
+  /// (top → middle; the bottom stop reuses [vaultSelectorVeryLightLavender]).
+  static const Color vaultHeaderGradientTop = Color(0xFFE8D5F5);
+  static const Color vaultHeaderGradientMiddle = Color(0xFFF0E5F8);
+
+  /// Search bar border once it sits on the lavender gradient header.
+  static const Color vaultSearchBorder = Color(0xFFE8DDF3);
+
+  // =========================
+  // MEMBERSHIP PLAN CARDS (Choose Your Plan redesign)
+  // =========================
+  static const Color membershipPrimaryPurple = Color(0xFF5B2A86);
+  static const Color membershipMediumPurple = Color(0xFF6F3A9A);
+  static const Color membershipLavender = Color(0xFF8E6BBE);
+  static const Color membershipLightLavender = Color(0xFFE8DDF3);
+  static const Color membershipVeryLightLavender = Color(0xFFF8F5FC);
+  static const Color membershipGold = Color(0xFFD8A93A);
+  static const Color membershipGoldLight = Color(0xFFF3CE6B);
+  static const Color membershipTextDark = Color(0xFF241A2F);
+  static const Color membershipTextSecondary = Color(0xFF77717F);
+
+  /// TheVaults tier (entry) — purple/lavender.
+  static const Color membershipEssentialBg = Color(0xFFF8F5FC);
+  static const Color membershipEssentialBorder = Color(0xFF8E6BBE);
+
+  /// Vaults Luxe tier (mid) — champagne/gold.
+  static const Color membershipLuxeBg = Color(0xFFFFFCF5);
+  static const Color membershipLuxeBorder = Color(0xFFE8C872);
+  static const Color membershipLuxeAccent = Color(0xFFC58A18);
+  static const Color membershipLuxeText = Color(0xFF5A421A);
+
+  /// Ultra Luxe tier (top) — dark + gold.
+  static const Color membershipUltraBg = Color(0xFF18131F);
+  static const Color membershipUltraAccent = Color(0xFFF3CE6B);
 
   // =========================
   // AUCTION HERO (gold-on-navy spotlight card)

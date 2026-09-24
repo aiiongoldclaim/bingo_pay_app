@@ -78,7 +78,7 @@ class BookingFilterChip extends StatelessWidget {
               color: active ? colors.onBrand : colors.brand,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
-              fontSize: 14.sp,
+              fontSize: 15.sp,
             ),
           ),
         ),

@@ -543,7 +543,7 @@ class _QtyStepper extends StatelessWidget {
           _QtyButton(
             icon: isRemoveMode ? Icons.delete_outline_rounded : Icons.remove,
             metrics: m,
-            color: isRemoveMode ? colors.statusWarning : null,
+            color: isRemoveMode ? colors.error : null,
             onTap: isPending ? null : onDecrease,
           ),
           Text(

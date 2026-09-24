@@ -47,7 +47,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
             color: colors.surface,
             borderRadius: BorderRadius.circular(m.cardRadius * 0.8),
             border: Border.all(
-              color: isOverLimit ? colors.statusWarning : colors.brand,
+              color: isOverLimit ? colors.error : colors.brand,
               width: 1.5,
             ),
           ),
@@ -149,14 +149,14 @@ class ReviewPaymentAmountSection extends StatelessWidget {
               Icon(
                 Icons.info_outline_rounded,
                 size: m.helperSize + 3,
-                color: colors.statusWarning,
+                color: colors.error,
               ),
               SizedBox(width: m.gapXs),
               Expanded(
                 child: Text(
                   'You can only send upto \$${maxAmount.toStringAsFixed(1)} at a time.',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: colors.statusWarning,
+                    color: colors.error,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w500,
                     fontSize: m.helperSize,
@@ -171,7 +171,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
             style: AppTextStyles.bodySmall.copyWith(
               color: colors.textSecondary,
               fontFamily: 'Inter',
-              fontSize: m.helperSize,
+              fontSize: m.helperSize+3,
             ),
           ),
       ],

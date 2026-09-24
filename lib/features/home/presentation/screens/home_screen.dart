@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intro/intro.dart';
@@ -23,13 +24,13 @@ import '../widgets/home_shimmer.dart';
 import '../widgets/luxe_dashboard_body.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
 import '../../../services/presentation/cubit/services_state.dart';
 
 import '../widgets/book_services_section.dart';
 import '../widgets/home_category_tabs.dart';
 import '../widgets/home_metrics.dart';
 import '../widgets/home_search_field.dart';
-import '../widgets/home_wallet_chip.dart';
 import '../widgets/product_rail.dart';
 import '../widgets/promo_banner_carousel.dart';
 
@@ -102,17 +103,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
       child: Scaffold(
         backgroundColor: colors.background,
-        body: SafeArea(
-          bottom: false,
-
+        body: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+          ),
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
               if (state.status == HomeStatus.loading) {
-                return const HomeShimmer();
+                return const SafeArea(bottom: false, child: HomeShimmer());
               }
 
               if (state.status == HomeStatus.error) {
-                return _HomeErrorState(metrics: m, message: state.errorMessage);
+                return SafeArea(
+                  bottom: false,
+                  child: _HomeErrorState(
+                    metrics: m,
+                    message: state.errorMessage,
+                  ),
+                );
               }
 
               _startIntroIfReady(state);
@@ -123,263 +133,290 @@ class _HomeScreenState extends State<HomeScreen> {
                 onRefresh: () async {
                   context.read<HomeCubit>().loadHome();
                 },
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        // ── Header ──────────────────────────────
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: m.pagePadding,
-                            ),
-                            child: _buildStep1(
-                              BlocBuilder<CartCubit, CartState>(
-                                buildWhen: (a, b) =>
-                                    a.totalItems != b.totalItems,
-                                builder: (context, cartState) => HomeHeader(
-                                  metrics: m,
-                                  selectedSection: state.selectedVaultSection,
-                                  onSectionChanged: (section) => context
-                                      .read<HomeCubit>()
-                                      .selectVaultSection(section),
-                                  cartCount: cartState.totalItems,
-                                  onMenuTap: () {
-                                    context.push(AppRoutes.splitViewNavigation);
-                                  },
-                                  onWishlistTap: () =>
-                                      context.push(AppRoutes.buyerWishlist),
-                                  onCartTap: () => context.push(AppRoutes.cart),
+
+                child: SafeArea(
+                  top: false,
+                  bottom: false,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+
+                          SliverToBoxAdapter(
+                            child: DecoratedBox(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    ThemeColors.vaultHeaderGradientTop,
+                                    ThemeColors.vaultHeaderGradientMiddle,
+                                    ThemeColors.vaultSelectorVeryLightLavender,
+                                  ],
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  m.pagePadding,
+                                  MediaQuery.paddingOf(context).top +
+                                      m.pagePadding * 0.7,
+                                  m.pagePadding,
+                                  m.pagePadding * 0.9,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildStep1(
+                                      HomeHeader(
+                                        metrics: m,
+                                        selectedSection:
+                                            state.selectedVaultSection,
+                                        onSectionChanged: (section) => context
+                                            .read<HomeCubit>()
+                                            .selectVaultSection(section),
+                                      ),
+                                    ),
+                                    SizedBox(height: m.pagePadding * 0.6),
+                                    _buildStep3(
+                                      BlocBuilder<CartCubit, CartState>(
+                                        buildWhen: (a, b) =>
+                                            a.totalItems != b.totalItems,
+                                        builder: (context, cartState) => Row(
+                                          children: [
+                                            Expanded(
+                                              child: HomeSearchField(
+                                                metrics: m,
+                                                hintText: AppStrings.searchHint,
+                                                onTap: () => context.push(
+                                                  AppRoutes.search,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: m.pagePadding * 0.7,
+                                            ),
+                                            HeaderIconButton(
+                                              icon:
+                                                  Icons.favorite_border_rounded,
+                                              size: m.headerIconSize,
+                                              color: colors.textPrimary,
+                                              onTap: () => context.push(
+                                                AppRoutes.buyerWishlist,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: m.pagePadding * 0.7,
+                                            ),
+                                            HeaderIconButton(
+                                              icon: Icons.shopping_bag_outlined,
+                                              size: m.headerIconSize,
+                                              color: colors.textPrimary,
+                                              badgeCount: cartState.totalItems,
+                                              badgeColor: colors.brand,
+                                              onTap: () =>
+                                                  context.push(AppRoutes.cart),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ),
 
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: m.pagePadding * 0.6),
-                        ),
+                          SliverToBoxAdapter(
+                            child: SizedBox(height: m.pagePadding * 0.6),
+                          ),
 
-                        // ── Search + wallet ─────────────────────
-                        SliverToBoxAdapter(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: m.pagePadding,
-                            ),
-                            child: _buildStep3(
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: HomeSearchField(
+                          // ── Category tabs ───────────────────────
+                          if (state.categories.isNotEmpty)
+                            SliverToBoxAdapter(
+                              child:
+                                  state.vaultContentStatus ==
+                                      VaultContentStatus.loading
+                                  ? LuxeCategoryShimmer(metrics: m)
+                                  : HomeCategoryTabs(
                                       metrics: m,
-                                      hintText: AppStrings.searchHint,
-                                      onTap: () =>
-                                          context.push(AppRoutes.search),
-                                    ),
-                                  ),
-                                  SizedBox(width: m.pagePadding * 0.5),
-                                  HomeWalletChip(
-                                    metrics: m,
-                                    balanceLabel: state.compactBigoldBalance,
-                                    onTap: () => context.push(AppRoutes.wallet),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                                      labels: [
+                                        AppStrings.allTab,
+                                        ...state.categories.map((e) => e.name),
+                                      ],
+                                      selectedIndex: _selectedTabIndex,
+                                      onSelected: (i) {
+                                        if (i == 0) {
+                                          setState(() => _selectedTabIndex = 0);
+                                          return;
+                                        }
 
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: m.pagePadding * 0.6),
-                        ),
+                                        final category =
+                                            state.categories[i - 1];
 
-                        // ── Category tabs ───────────────────────
-                        if (state.categories.isNotEmpty)
-                          SliverToBoxAdapter(
-                            child:
-                                state.vaultContentStatus ==
-                                    VaultContentStatus.loading
-                                ? LuxeCategoryShimmer(metrics: m)
-                                : HomeCategoryTabs(
-                                    metrics: m,
-                                    labels: [
-                                      AppStrings.allTab,
-                                      ...state.categories.map((e) => e.name),
-                                    ],
-                                    selectedIndex: _selectedTabIndex,
-                                    onSelected: (i) {
-                                      if (i == 0) {
-                                        setState(
-                                          () => _selectedTabIndex = 0,
-                                        );
-                                        return;
-                                      }
-
-                                      final category =
-                                          state.categories[i - 1];
-
-                                      context.push(
-                                        AppRoutes.productListingPath(
-                                          category.name,
-                                        ),
-                                        extra: category.uuid,
-                                      );
-                                    },
-                                  ),
-                          ),
-
-                        SliverToBoxAdapter(
-                          child: SizedBox(height: m.sectionGap),
-                        ),
-
-                        if (state.selectedVaultSection ==
-                            VaultSection.theVaults) ...[
-                          // ── Hero banner ─────────────────────────
-                          SliverToBoxAdapter(
-                            child: _buildStep2(
-                              PromoBannerCarousel(
-                                metrics: m,
-                                banners: HomeBanners.defaults,
-                                onBannerTap: (banner) {},
-                              ),
-                            ),
-                          ),
-
-                          SliverToBoxAdapter(
-                            child: SizedBox(height: m.sectionGap),
-                          ),
-
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: m.pagePadding,
-                              ),
-                              child: _buildStep4(
-                                BlocBuilder<ServicesCubit, ServicesState>(
-                                  buildWhen: (previous, current) =>
-                                      previous.services != current.services,
-                                  builder: (context, servicesState) {
-                                    return BookServicesSection(
-                                      metrics: m,
-                                      title: AppStrings.bookService,
-                                      subtitle: AppStrings.bookServiceSubtitle,
-                                      buttonText: AppStrings.bookNow,
-                                      services: servicesState.services,
-                                      onViewAll: () =>
-                                          context.push(AppRoutes.services),
-                                      onServiceTap: (service) {
-                                        if (service.uuid.isEmpty) return;
                                         context.push(
-                                          AppRoutes.serviceDetailPath(
-                                            service.uuid,
+                                          AppRoutes.productListingPath(
+                                            category.name,
                                           ),
+                                          extra: category.uuid,
                                         );
                                       },
-                                    );
-                                  },
-                                ),
-                              ),
+                                    ),
                             ),
-                          ),
 
                           SliverToBoxAdapter(
                             child: SizedBox(height: m.sectionGap),
                           ),
 
-                          // ── Flash Deals / Recommended / Empty ────
-                          if (state.flashDeals.isEmpty &&
-                              state.recommended.isEmpty)
+                          if (state.selectedVaultSection ==
+                              VaultSection.theVaults) ...[
+                            // ── Hero banner ─────────────────────────
                             SliverToBoxAdapter(
-                              child: _EmptyProductsState(metrics: m),
-                            )
-                          else ...[
-                            if (state.flashDeals.isNotEmpty) ...[
-                              SliverToBoxAdapter(
-                                child: _buildStep5(
-                                  ProductRail(
-                                    metrics: m,
-                                    title: AppStrings.todaysDeals,
-                                    actionText: AppStrings.viewAll,
-                                    products: state.flashDeals,
-                                    onActionTap: () =>
-                                        context.push(AppRoutes.allProducts),
-                                    onProductTap: (p) {
-                                      if (p.uuid == null) return;
-                                      context.push(
-                                        AppRoutes.productDetails,
-                                        extra: p.uuid,
+                              child: _buildStep2(
+                                PromoBannerCarousel(
+                                  metrics: m,
+                                  banners: HomeBanners.defaults,
+                                  onBannerTap: (banner) {},
+                                ),
+                              ),
+                            ),
+
+                            SliverToBoxAdapter(
+                              child: SizedBox(height: m.sectionGap),
+                            ),
+
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: m.pagePadding,
+                                ),
+                                child: _buildStep4(
+                                  BlocBuilder<ServicesCubit, ServicesState>(
+                                    buildWhen: (previous, current) =>
+                                        previous.services != current.services,
+                                    builder: (context, servicesState) {
+                                      return BookServicesSection(
+                                        metrics: m,
+                                        title: AppStrings.bookService,
+                                        subtitle:
+                                            AppStrings.bookServiceSubtitle,
+                                        buttonText: AppStrings.bookNow,
+                                        services: servicesState.services,
+                                        onViewAll: () =>
+                                            context.push(AppRoutes.services),
+                                        onServiceTap: (service) {
+                                          if (service.uuid.isEmpty) return;
+                                          context.push(
+                                            AppRoutes.serviceDetailPath(
+                                              service.uuid,
+                                            ),
+                                          );
+                                        },
                                       );
                                     },
-                                    onWishlistTap: _toggleWishlist,
-                                    onAddToCart: _addToCart,
-                                    addingIds: _addingIds,
                                   ),
                                 ),
                               ),
+                            ),
+
+                            SliverToBoxAdapter(
+                              child: SizedBox(height: m.sectionGap),
+                            ),
+
+                            // ── Flash Deals / Recommended / Empty ────
+                            if (state.flashDeals.isEmpty &&
+                                state.recommended.isEmpty)
                               SliverToBoxAdapter(
-                                child: SizedBox(height: m.sectionGap),
-                              ),
-                            ],
-                            if (state.recommended.isNotEmpty) ...[
-                              SliverToBoxAdapter(
-                                child: _buildStep6(
-                                  ProductRail(
-                                    metrics: m,
-                                    title: AppStrings.recommendedForYou,
-                                    actionText: AppStrings.viewAll,
-                                    products: state.recommended,
-                                    onActionTap: () =>
-                                        context.push(AppRoutes.allProducts),
-                                    onProductTap: (p) {
-                                      if (p.uuid == null) return;
-                                      context.push(
-                                        AppRoutes.productDetails,
-                                        extra: p.uuid,
-                                      );
-                                    },
-                                    onWishlistTap: _toggleWishlist,
-                                    onAddToCart: _addToCart,
-                                    addingIds: _addingIds,
+                                child: _EmptyProductsState(metrics: m),
+                              )
+                            else ...[
+                              if (state.flashDeals.isNotEmpty) ...[
+                                SliverToBoxAdapter(
+                                  child: _buildStep5(
+                                    ProductRail(
+                                      metrics: m,
+                                      title: AppStrings.todaysDeals,
+                                      actionText: AppStrings.viewAll,
+                                      products: state.flashDeals,
+                                      onActionTap: () =>
+                                          context.push(AppRoutes.allProducts),
+                                      onProductTap: (p) {
+                                        if (p.uuid == null) return;
+                                        context.push(
+                                          AppRoutes.productDetails,
+                                          extra: p.uuid,
+                                        );
+                                      },
+                                      onWishlistTap: _toggleWishlist,
+                                      onAddToCart: _addToCart,
+                                      addingIds: _addingIds,
+                                    ),
                                   ),
                                 ),
-                              ),
+                                SliverToBoxAdapter(
+                                  child: SizedBox(height: m.sectionGap),
+                                ),
+                              ],
+                              if (state.recommended.isNotEmpty) ...[
+                                SliverToBoxAdapter(
+                                  child: _buildStep6(
+                                    ProductRail(
+                                      metrics: m,
+                                      title: AppStrings.recommendedForYou,
+                                      actionText: AppStrings.viewAll,
+                                      products: state.recommended,
+                                      onActionTap: () =>
+                                          context.push(AppRoutes.allProducts),
+                                      onProductTap: (p) {
+                                        if (p.uuid == null) return;
+                                        context.push(
+                                          AppRoutes.productDetails,
+                                          extra: p.uuid,
+                                        );
+                                      },
+                                      onWishlistTap: _toggleWishlist,
+                                      onAddToCart: _addToCart,
+                                      addingIds: _addingIds,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
-                        ] else
+                          ] else
+                            SliverToBoxAdapter(
+                              child: LuxeDashboardBody(
+                                metrics: m,
+                                section: state.selectedVaultSection,
+                                isLoading:
+                                    state.vaultContentStatus ==
+                                    VaultContentStatus.loading,
+                                flashDeals: state.flashDeals,
+                                recommended: state.recommended,
+                                onProductTap: (p) {
+                                  if (p.uuid == null) return;
+                                  context.push(
+                                    AppRoutes.productDetails,
+                                    extra: p.uuid,
+                                  );
+                                },
+                                onWishlistTap: _toggleWishlist,
+                                onAddToCart: _addToCart,
+                                addingIds: _addingIds,
+                                onViewAll: () =>
+                                    context.push(AppRoutes.allProducts),
+                              ),
+                            ),
                           SliverToBoxAdapter(
-                            child: LuxeDashboardBody(
-                              metrics: m,
-                              section: state.selectedVaultSection,
-                              isLoading:
-                                  state.vaultContentStatus ==
-                                  VaultContentStatus.loading,
-                              flashDeals: state.flashDeals,
-                              recommended: state.recommended,
-                              onProductTap: (p) {
-                                if (p.uuid == null) return;
-                                context.push(
-                                  AppRoutes.productDetails,
-                                  extra: p.uuid,
-                                );
-                              },
-                              onWishlistTap: _toggleWishlist,
-                              onAddToCart: _addToCart,
-                              addingIds: _addingIds,
-                              onViewAll: () =>
-                                  context.push(AppRoutes.allProducts),
+                            child: SizedBox(
+                              height:
+                                  m.sectionGap +
+                                  MediaQuery.paddingOf(context).bottom,
                             ),
                           ),
-                        SliverToBoxAdapter(
-                          child: SizedBox(
-                            height:
-                                m.sectionGap +
-                                MediaQuery.paddingOf(context).bottom,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -1275,6 +1275,10 @@ class MembershipCubit extends Cubit<MembershipState> {
     }
   }
 
+  /// Sirf explicit preselect (deep link / caller ne diya) honor hota hai —
+  /// koi implicit default (current plan / highlighted / first) nahi chunta,
+  /// taaki jab tak user khud kisi plan pe tap na kare tab tak koi plan
+  /// "selected" na ho aur Subscribe button disabled rahe.
   String? _initialSelection(
       List<MembershipPlanOption> plans,
       String? preselect,
@@ -1286,18 +1290,7 @@ class MembershipCubit extends Cubit<MembershipState> {
       return preselect;
     }
 
-    final currentUuid = membership.plan?.uuid;
-
-    if (currentUuid != null && plans.any((p) => p.uuid == currentUuid)) {
-      return currentUuid;
-    }
-
-    return plans
-        .firstWhere(
-          (p) => p.isHighlighted,
-      orElse: () => plans.first,
-    )
-        .uuid;
+    return null;
   }
 
   @override

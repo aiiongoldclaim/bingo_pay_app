@@ -29,31 +29,6 @@ class ReviewPaymentPayBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.verified_user_outlined,
-              size: m.payNoteSize + 4,
-              color: colors.statusSuccess,
-            ),
-            SizedBox(width: m.gapXs),
-            Flexible(
-              child: Text(
-                'Your payment details are secure with 256-bit encryption',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  fontFamily: 'Inter',
-                  fontSize: m.payNoteSize,
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: m.gapSm),
 
         AppButton(
           label: 'Proceed to Pay',

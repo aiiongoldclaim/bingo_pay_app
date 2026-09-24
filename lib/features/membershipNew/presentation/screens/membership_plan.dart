@@ -67,7 +67,7 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
               content: Text(text),
               backgroundColor:
               isError
-                  ? colors.statusWarning
+                  ? colors.error
                   : colors.statusSuccess,
               behavior:
               SnackBarBehavior.floating,
@@ -131,7 +131,7 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
                 Text(
                   'Choose Your Plan',
                   style: TextStyle(
-                    fontSize: m.screenTitleSize * 1,
+                    fontSize: m.screenTitleSize * 1.15,
                     fontWeight: FontWeight.w700,
                     color: colors.textPrimary,
                     fontFamily: "CormorantGaramond",
@@ -141,7 +141,7 @@ class _MembershipPlansViewState extends State<_MembershipPlansView> {
                 Text(
                   'Select the perfect membership for you',
                   style: TextStyle(
-                    fontSize: m.captionSize * 1.2,
+                    fontSize: m.captionSize * 1.35,
                     fontWeight: FontWeight.w600,
                     color: colors.textSecondary,
                   ),
@@ -240,13 +240,15 @@ class _Loaded extends StatelessWidget {
 
                     SizedBox(height: m.sectionGap * 0.8),
 
-                    // 3D ring carousel
-                    MembershipPlanRingCarousel(
-                      plans: state.plans,
-                      selectedUuid: state.selectedPlan?.uuid,
-                      metrics: m,
-                      onPlanChanged: (uuid) =>
-                          context.read<MembershipCubit>().selectPlan(uuid),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: m.hPad),
+                      child: MembershipPlanCardsColumn(
+                        plans: state.plans,
+                        selectedUuid: state.selectedPlan?.uuid,
+                        metrics: m,
+                        onPlanChanged: (uuid) =>
+                            context.read<MembershipCubit>().selectPlan(uuid),
+                      ),
                     ),
 
                     SizedBox(height: m.rowGap * 1.2),
@@ -259,9 +261,9 @@ class _Loaded extends StatelessWidget {
                           Text(
                             'Compare Plan Features',
                             style: TextStyle(
-                              fontSize: m.sectionTitleSize,
+                              fontSize: m.sectionTitleSize * 1.12,
                               fontWeight: FontWeight.w700,
-                              color: context.c.textPrimary,
+                              color: ThemeColors.membershipTextDark,
                             ),
                           ),
                           SizedBox(height: m.rowGap),
@@ -319,9 +321,11 @@ class _BottomBar extends StatelessWidget {
                   ? null
                   : () => context.read<MembershipCubit>().subscribe(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: colors.brand,
+                backgroundColor: ThemeColors.membershipPrimaryPurple,
                 foregroundColor: ThemeColors.white,
-                disabledBackgroundColor: colors.brand.withValues(alpha: 0.45),
+                disabledBackgroundColor:
+                ThemeColors.membershipPrimaryPurple.withValues(alpha: 0.45),
+                disabledForegroundColor: ThemeColors.white,
                 elevation: 0,
                 minimumSize: Size.zero,
                 shape: RoundedRectangleBorder(
@@ -329,27 +333,16 @@ class _BottomBar extends StatelessWidget {
                 ),
               ),
               child: busy
-                  ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: m.smallIcon,
-                    height: m.smallIcon,
-                    child: const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor:
-                      AlwaysStoppedAnimation<Color>(ThemeColors.white),
-                    ),
+                  ? Center(
+                child: SizedBox(
+                  width: m.smallIcon,
+                  height: m.smallIcon,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor:
+                    AlwaysStoppedAnimation<Color>(ThemeColors.white),
                   ),
-                  SizedBox(width: m.cardPad * 0.45),
-                  Text(
-                    'Creating order\u2026',
-                    style: TextStyle(
-                      fontSize: m.sectionTitleSize,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+                ),
               )
                   : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -357,24 +350,27 @@ class _BottomBar extends StatelessWidget {
                   Icon(
                     Icons.diamond_outlined,
                     size: m.smallIcon,
-                    color: ThemeColors.gold1,
+                    color: ThemeColors.membershipGoldLight,
                   ),
                   SizedBox(width: m.cardPad * 0.45),
                   Flexible(
                     child: Text(
-                      plan == null
-                          ? 'CONTINUE'
-                          : 'CONTINUE WITH ${plan.name}',
+                      'SUBSCRIBE NOW',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontFamily: "Inter",
-                        fontSize: m.sectionTitleSize,
+                        fontSize: m.sectionTitleSize * 1.12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-
+                  SizedBox(width: m.cardPad * 0.35),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: m.smallIcon * 0.9,
+                    color: ThemeColors.white,
+                  ),
                 ],
               ),
             ),

@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
-
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
-
 import '../../../address/domain/entities/address_entity.dart';
 import '../../../address/domain/repositories/address_respository.dart';
 import '../../../address/presentation/cubit/address_cubit.dart';
@@ -160,7 +158,7 @@ class _ServiceCheckoutScreenState extends State<ServiceCheckoutScreen> {
               onPressed: () => Navigator.pop(dialogContext, true),
               child: Text(
                 'Delete',
-                style: TextStyle(color: colors.statusWarning),
+                style: TextStyle(color: colors.error),
               ),
             ),
           ],
@@ -721,7 +719,7 @@ class _SectionHeading extends StatelessWidget {
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
-                  fontSize: 15.sp,
+                  fontSize: 17.sp,
                 ),
               ),
               SizedBox(height: 0.25.h),
@@ -730,7 +728,7 @@ class _SectionHeading extends StatelessWidget {
                 style: AppTextStyles.bodySmall.copyWith(
                   color: colors.textSecondary,
                   fontFamily: 'Inter',
-                  fontSize: 12.8.sp,
+                  fontSize: 14.sp,
                   height: 1.3,
                 ),
               ),
@@ -1173,7 +1171,7 @@ class _AddressSelectionSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: showError
-              ? colors.statusWarning
+              ? colors.error
               : colors.border.withValues(alpha: 0.75),
           width: showError ? 1.2 : 1,
         ),
@@ -1237,16 +1235,16 @@ class _AddressSelectionSection extends StatelessWidget {
                       Icon(
                         Icons.info_outline_rounded,
                         size: 17,
-                        color: colors.statusWarning,
+                        color: colors.error,
                       ),
                       SizedBox(width: 1.5.w),
                       Expanded(
                         child: Text(
                           'Please select a service address',
                           style: TextStyle(
-                            color: colors.statusWarning,
+                            color: colors.error,
                             fontFamily: 'Inter',
-                            fontSize: 12.sp,
+                            fontSize: 13.5.sp,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1330,7 +1328,7 @@ class _DynamicAddressCard extends StatelessWidget {
                                 color: colors.textPrimary,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w800,
-                                fontSize: 14.sp,
+                                fontSize: 18.5.sp,
                               ),
                             ),
                           ),
@@ -1350,8 +1348,29 @@ class _DynamicAddressCard extends StatelessWidget {
                                 style: TextStyle(
                                   color: colors.brand,
                                   fontFamily: 'Inter',
-                                  fontSize: 10.5.sp,
+                                  fontSize: 14.5.sp,
                                   fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          if (isSelected)
+                            Container(
+                              margin: EdgeInsets.only(left: 1.5.w),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 1.8.w,
+                                vertical: 0.4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.brand,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'SELECTED',
+                                style: TextStyle(
+                                  color: colors.surface,
+                                  fontFamily: 'Inter',
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ),
@@ -1363,7 +1382,7 @@ class _DynamicAddressCard extends StatelessWidget {
                         style: TextStyle(
                           color: colors.textSecondary,
                           fontFamily: 'Inter',
-                          fontSize: 12.5.sp,
+                          fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -1375,7 +1394,7 @@ class _DynamicAddressCard extends StatelessWidget {
                         style: TextStyle(
                           color: colors.textPrimary,
                           fontFamily: 'Inter',
-                          fontSize: 12.sp,
+                          fontSize: 13.5.sp,
                           fontWeight: FontWeight.w600,
                           height: 1.35,
                         ),
@@ -1400,7 +1419,7 @@ class _DynamicAddressCard extends StatelessWidget {
                               style: TextStyle(
                                 color: colors.brand,
                                 fontFamily: 'Inter',
-                                fontSize: 11.5.sp,
+                                fontSize: 12.5.sp,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -1416,14 +1435,14 @@ class _DynamicAddressCard extends StatelessWidget {
                             icon: Icon(
                               Icons.delete_outline_rounded,
                               size: 15,
-                              color: colors.statusWarning,
+                              color: colors.error,
                             ),
                             label: Text(
                               'Delete',
                               style: TextStyle(
-                                color: colors.statusWarning,
+                                color: colors.error,
                                 fontFamily: 'Inter',
-                                fontSize: 11.5.sp,
+                                fontSize: 12.5.sp,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -1433,28 +1452,6 @@ class _DynamicAddressCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (isSelected) ...[
-                  SizedBox(width: 1.w),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 1.8.w,
-                      vertical: 0.4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.brand,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'SELECTED',
-                      style: TextStyle(
-                        color: colors.surface,
-                        fontFamily: 'Inter',
-                        fontSize: 9.5.sp,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -1496,7 +1493,7 @@ class _AddNewAddressButton extends StatelessWidget {
                 style: TextStyle(
                   color: colors.brand,
                   fontFamily: 'Inter',
-                  fontSize: 13.sp,
+                  fontSize: 14.5.sp,
                   fontWeight: FontWeight.w800,
                 ),
               ),
@@ -1538,7 +1535,7 @@ class _EmptyAddressView extends StatelessWidget {
           style: TextStyle(
             color: colors.textPrimary,
             fontFamily: 'Inter',
-            fontSize: 14.sp,
+            fontSize: 15.5.sp,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -1549,7 +1546,7 @@ class _EmptyAddressView extends StatelessWidget {
           style: TextStyle(
             color: colors.textSecondary,
             fontFamily: 'Inter',
-            fontSize: 12.sp,
+            fontSize: 13.5.sp,
           ),
         ),
         SizedBox(height: 1.5.h),
@@ -1620,7 +1617,7 @@ class _AddressErrorView extends StatelessWidget {
           style: TextStyle(
             color: colors.textSecondary,
             fontFamily: 'Inter',
-            fontSize: 12.sp,
+            fontSize: 13.5.sp,
           ),
         ),
         SizedBox(height: 1.5.h),
@@ -1691,7 +1688,7 @@ class _DeliveringToCard extends StatelessWidget {
                       style: TextStyle(
                         color: colors.textSecondary,
                         fontFamily: 'Inter',
-                        fontSize: 15.sp,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1703,7 +1700,7 @@ class _DeliveringToCard extends StatelessWidget {
                   style: TextStyle(
                     color: colors.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 13.5.sp,
+                    fontSize: 15.sp,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -1713,7 +1710,7 @@ class _DeliveringToCard extends StatelessWidget {
                   style: TextStyle(
                     color: colors.textPrimary,
                     fontFamily: 'Inter',
-                    fontSize: 12.8.sp,
+                    fontSize: 14.3.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -1723,7 +1720,7 @@ class _DeliveringToCard extends StatelessWidget {
                   style: TextStyle(
                     color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: 13.5.sp,
+                    fontSize: 15.sp,
                     height: 1.4,
                   ),
                 ),
@@ -1822,7 +1819,7 @@ class _PaymentMethodCard extends StatelessWidget {
                               style: TextStyle(
                                 color: colors.textPrimary,
                                 fontFamily: 'Inter',
-                                fontSize: 13.8.sp,
+                                fontSize: 15.5.sp,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),

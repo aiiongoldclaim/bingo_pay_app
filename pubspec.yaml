@@ -1,7 +1,7 @@
 name: bingo_pay
 description: "Bingo Pay — Multi-vendor marketplace app"
 publish_to: 'none'
-version: 1.0.0+7
+version: 1.0.0+9
 
 environment:
   sdk: ^3.10.8
@@ -141,8 +141,6 @@ flutter_native_splash:
   android: true
   ios: true
   web: false
-
-  # ── Fullscreen: status bar hide, taaki Dart splash se match kare ──
   fullscreen: false
   android_gravity: center
   ios_content_mode: center

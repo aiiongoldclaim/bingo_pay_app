@@ -68,7 +68,7 @@ class PaymentAddressSection extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text('Delete', style: TextStyle(color: colors.statusWarning)),
+            child: Text('Delete', style: TextStyle(color: colors.error)),
           ),
         ],
       ),
@@ -106,7 +106,7 @@ class PaymentAddressSection extends StatelessWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius),
         border: Border.all(
-          color: showError ? colors.statusWarning : colors.border,
+          color: showError ? colors.error : colors.border,
           width: 1,
         ),
         boxShadow: colors.isDark
@@ -210,13 +210,13 @@ class PaymentAddressSection extends StatelessWidget {
                           Icon(
                             Icons.info_outline_rounded,
                             size: m.addrChipSize + 2,
-                            color: colors.statusWarning,
+                            color: colors.error,
                           ),
                           SizedBox(width: m.gapXs),
                           Text(
                             'Please select a delivery address',
                             style: AppTextStyles.bodySmall.copyWith(
-                              color: colors.statusWarning,
+                              color: colors.error,
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w500,
                               fontSize: m.addrChipSize + 1,

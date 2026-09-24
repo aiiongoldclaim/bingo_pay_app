@@ -36,8 +36,12 @@ class Validators {
   }
 
   static String? name(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Full Name is required';
-    if (value.trim().length < 3) return 'Name must be at least 3 characters';
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Full Name is required';
+    if (v.length < 3) return 'Name must be at least 3 characters';
+    if (!RegExp(r"^[a-zA-Z][a-zA-Z\s.'-]*$").hasMatch(v)) {
+      return 'Name can only contain letters';
+    }
     return null;
   }
 

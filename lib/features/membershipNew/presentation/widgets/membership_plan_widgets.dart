@@ -765,8 +765,6 @@
 //     return Icon(Icons.check_rounded, size: m.smallIcon * 1.1, color: colors.brand);
 //   }
 // }
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/core/theme/theme_colors.dart';
@@ -820,11 +818,13 @@ class MembershipPlansHero extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// 3D RING CAROUSEL — ek time pe ek card, scroll pe agla
+// PLAN CARDS — vertical stack of large premium horizontal cards, one per
+// tier (TheVaults / Vaults Luxe / Ultra Luxe), each visually distinct by its
+// position in the (existing, dynamic) plans list.
 // ---------------------------------------------------------------------------
 
-class MembershipPlanRingCarousel extends StatefulWidget {
-  const MembershipPlanRingCarousel({
+class MembershipPlanCardsColumn extends StatelessWidget {
+  const MembershipPlanCardsColumn({
     super.key,
     required this.plans,
     required this.selectedUuid,
@@ -835,225 +835,83 @@ class MembershipPlanRingCarousel extends StatefulWidget {
   final List<MembershipPlanOption> plans;
   final String? selectedUuid;
   final MembershipMetrics metrics;
-
   final ValueChanged<String> onPlanChanged;
 
   @override
-  State<MembershipPlanRingCarousel> createState() =>
-      _MembershipPlanRingCarouselState();
-}
-
-class _MembershipPlanRingCarouselState
-    extends State<MembershipPlanRingCarousel> {
-  late final PageController _controller;
-  late int _current;
-
-  static const double _maxRotation = 0.42;
-  static const double _minScale = 0.82;
-
-  // features se zyada ke liye "+N more" dikhane ki cap — card height calc
-  // isse match hona chahiye (MembershipPlanTierCard me bhi wahi cap hai).
-  static const int _maxVisibleFeatures = 6;
-
-  @override
-  void initState() {
-    super.initState();
-    _current = _indexOf(widget.selectedUuid);
-    _controller = PageController(
-      initialPage: _current,
-      viewportFraction: _viewportFraction,
-    );
-  }
-
-  double get _viewportFraction {
-    final m = widget.metrics;
-    if (m.isTabletLandscape) return 0.36;
-    if (m.isTablet) return 0.52;
-    return 0.74;
-  }
-
-  int _indexOf(String? uuid) {
-    if (uuid == null) return 0;
-    final i = widget.plans.indexWhere((p) => p.uuid == uuid);
-    return i < 0 ? 0 : i;
-  }
-
-  @override
-  void didUpdateWidget(covariant MembershipPlanRingCarousel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final target = _indexOf(widget.selectedUuid);
-    if (target != _current && _controller.hasClients) {
-      _current = target;
-      _controller.animateToPage(
-        target,
-        duration: const Duration(milliseconds: 320),
-        curve: Curves.easeOutCubic,
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final m = widget.metrics;
-    final height = _cardHeight(m, widget.plans);
+    final m = metrics;
 
     return Column(
       children: [
-        SizedBox(
-          height: height,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: widget.plans.length,
-            clipBehavior: Clip.none,
-            onPageChanged: (i) {
-              setState(() => _current = i);
-              widget.onPlanChanged(widget.plans[i].uuid);
-            },
-            itemBuilder: (context, index) {
-              final plan = widget.plans[index];
-
-              return AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  double page = _current.toDouble();
-                  if (_controller.hasClients &&
-                      _controller.position.haveDimensions) {
-                    page = _controller.page ?? page;
-                  }
-
-                  final delta = (index - page).clamp(-1.5, 1.5);
-                  final absDelta = delta.abs();
-
-                  final rotation = delta * _maxRotation;
-                  final scale = 1 - (absDelta * (1 - _minScale));
-                  final opacity = (1 - absDelta * 0.45).clamp(0.35, 1.0);
-
-                  final transform = Matrix4.identity()
-                    ..setEntry(3, 2, 0.0014) // perspective
-                    ..rotateY(rotation)
-                    ..scale(scale, scale);
-
-                  return Transform(
-                    alignment: delta > 0
-                        ? Alignment.centerLeft
-                        : Alignment.centerRight,
-                    transform: transform,
-                    child: Opacity(opacity: opacity, child: child),
-                  );
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: m.tileGap * 0.5,
-                    vertical: m.tileGap * 0.4,
-                  ),
-                  child: MembershipPlanTierCard(
-                    plan: plan,
-                    selected: widget.selectedUuid == plan.uuid,
-                    metrics: m,
-                    onTap: () => _goTo(index),
-                  ),
-                ),
-              );
-            },
+        for (var i = 0; i < plans.length; i++) ...[
+          if (i > 0) SizedBox(height: m.rowGap * 1.1),
+          MembershipPlanTierCard(
+            plan: plans[i],
+            tierStyle: MembershipTierStyle.forIndex(i),
+            selected: selectedUuid == plans[i].uuid,
+            metrics: m,
+            onTap: () => onPlanChanged(plans[i].uuid),
           ),
-        ),
-
-        SizedBox(height: m.rowGap * 0.8),
-        _Dots(
-          count: widget.plans.length,
-          current: _current,
-          metrics: m,
-          onTap: _goTo,
-        ),
+        ],
       ],
     );
-  }
-
-  void _goTo(int index) {
-    if (!_controller.hasClients) return;
-    widget.onPlanChanged(widget.plans[index].uuid);   // ← add
-    _controller.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  /// Card ki height sabse zyada features wale plan se
-  /// (features ab max _maxVisibleFeatures + "+N more" line tak hi count hote hain,
-  /// aur price/period ab ek hi line me hai — dono is formula me reflect kiye hain).
-  double _cardHeight(MembershipMetrics m, List<MembershipPlanOption> plans) {
-    var maxFeatures = 0;
-    for (final p in plans) {
-      final count = p.features.length > _maxVisibleFeatures
-          ? _maxVisibleFeatures + 1 // extra line for "+N more"
-          : p.features.length;
-      maxFeatures = math.max(maxFeatures, count);
-    }
-
-    final base =
-        m.cardPad * 1.9 + // padding
-            m.captionSize * 2.4 + // ribbon
-            m.sectionTitleSize * 1.5 + // name
-            m.captionSize * 2.8 + // description
-            m.iconCircle + // icon
-            m.rowGap * 3.6 + // gaps
-            m.priceSize * 1.25 + // price + period (single line now)
-            m.captionSize * 1.9 + // trial tag (bigger now)
-            m.buttonHeight * 0.95; // button
-
-    final featureBlock =
-        maxFeatures * (m.labelSize * 1.55 + m.rowGap * 0.5);
-
-    return base + featureBlock;
   }
 }
 
-class _Dots extends StatelessWidget {
-  const _Dots({
-    required this.count,
-    required this.current,
-    required this.metrics,
-    required this.onTap,
+/// Purely presentational per-tier palette — picked by position in the
+/// existing dynamic plans list, never by hardcoded plan name/id.
+class MembershipTierStyle {
+  const MembershipTierStyle({
+    required this.background,
+    required this.border,
+    required this.accent,
+    required this.titleColor,
+    required this.subtitleColor,
+    required this.dividerColor,
+    required this.isDark,
   });
 
-  final int count;
-  final int current;
-  final MembershipMetrics metrics;
-  final ValueChanged<int> onTap;
+  final Color background;
+  final Color border;
+  final Color accent;
+  final Color titleColor;
+  final Color subtitleColor;
+  final Color dividerColor;
+  final bool isDark;
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-    final dot = m.captionSize * 0.62;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = 0; i < count; i++)
-          GestureDetector(
-            onTap: () => onTap(i),
-            behavior: HitTestBehavior.opaque,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              margin: EdgeInsets.symmetric(horizontal: dot * 0.45),
-              width: i == current ? dot * 3.2 : dot,
-              height: dot,
-              decoration: BoxDecoration(
-                color: i == current ? colors.brand : colors.border,
-                borderRadius: BorderRadius.circular(99),
-              ),
-            ),
-          ),
-      ],
-    );
+  factory MembershipTierStyle.forIndex(int index) {
+    switch (index) {
+      case 0: // TheVaults — purple / lavender
+        return const MembershipTierStyle(
+          background: ThemeColors.membershipEssentialBg,
+          border: ThemeColors.membershipEssentialBorder,
+          accent: ThemeColors.membershipPrimaryPurple,
+          titleColor: ThemeColors.membershipTextDark,
+          subtitleColor: ThemeColors.membershipTextSecondary,
+          dividerColor: ThemeColors.membershipLightLavender,
+          isDark: false,
+        );
+      case 1: // Vaults Luxe — champagne / gold
+        return const MembershipTierStyle(
+          background: ThemeColors.membershipLuxeBg,
+          border: ThemeColors.membershipLuxeBorder,
+          accent: ThemeColors.membershipLuxeAccent,
+          titleColor: ThemeColors.membershipLuxeText,
+          subtitleColor: ThemeColors.membershipLuxeText,
+          dividerColor: ThemeColors.membershipLuxeBorder,
+          isDark: false,
+        );
+      default: // Ultra Luxe — darkest, most premium
+        return const MembershipTierStyle(
+          background: ThemeColors.membershipUltraBg,
+          border: ThemeColors.membershipUltraAccent,
+          accent: ThemeColors.membershipUltraAccent,
+          titleColor: ThemeColors.white,
+          subtitleColor: Color(0xB3FFFFFF),
+          dividerColor: Color(0x33F3CE6B),
+          isDark: true,
+        );
+    }
   }
 }
 
@@ -1068,22 +926,24 @@ class MembershipPlanTierCard extends StatelessWidget {
     required this.selected,
     required this.metrics,
     required this.onTap,
-  });
+    MembershipTierStyle? tierStyle,
+  }) : _tierStyle = tierStyle;
 
   final MembershipPlanOption plan;
   final bool selected;
   final MembershipMetrics metrics;
   final VoidCallback onTap;
+  final MembershipTierStyle? _tierStyle;
 
   static const int _maxVisibleFeatures = 6;
+  static const Duration _animDuration = Duration(milliseconds: 250);
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.c;
     final m = metrics;
     final version = plan.version;
-    final ribbon = plan.isHighlighted;
-    final pad = m.cardPad * 0.85;
+    final style = _tierStyle ?? MembershipTierStyle.forIndex(0);
+    final pad = m.cardPad * 0.9;
 
     final totalFeatures = plan.features.length;
     final visibleFeatures = totalFeatures > _maxVisibleFeatures
@@ -1091,267 +951,248 @@ class MembershipPlanTierCard extends StatelessWidget {
         : plan.features;
     final remainingFeatures = totalFeatures - visibleFeatures.length;
 
-    return InkWell(
+    final subtitleColor = style.isDark
+        ? style.subtitleColor
+        : style.subtitleColor.withValues(alpha: 0.85);
+
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(m.radiusMd),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(m.radiusMd),
-          border: Border.all(
-            color: selected || ribbon ? colors.brand : colors.border,
-            width: selected ? 1.8 : 1,
-          ),
-          boxShadow: selected
-              ? [
-            BoxShadow(
-              color: colors.brand.withValues(alpha: 0.18),
-              blurRadius: m.cardPad,
-              offset: Offset(0, m.cardPad * 0.35),
-            ),
-          ]
-              : null,
-        ),
-        // Column ab poori (parent se milne wali fixed) height fill karta hai:
-        // upar scrollable content, neeche hamesha-fixed button — card ka size
-        // same rehta hai (parent SizedBox height decide karta hai), sirf button
-        // ab bottom pe pinned rehta hai.
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            if (ribbon)
-              Container(
-                width: double.infinity,
-                color: colors.brand,
-                padding: EdgeInsets.symmetric(vertical: pad * 0.36),
-                child: Text(
-                  plan.highlight!.toUpperCase(),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: m.captionSize,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                    color: ThemeColors.white,
-                  ),
-                ),
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedContainer(
+            duration: _animDuration,
+            curve: Curves.easeInOut,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: style.background,
+              borderRadius: BorderRadius.circular(m.radiusMd),
+              border: Border.all(
+                color: style.border,
+                width: selected ? 2.0 : 1.2,
               ),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(pad, pad, pad, 0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      plan.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: m.sectionTitleSize,
-                        fontWeight: FontWeight.w700,
-                        height: 1.2,
-                        color: colors.textPrimary,
+              boxShadow: selected
+                  ? [
+                BoxShadow(
+                  color: style.accent.withValues(alpha: style.isDark ? 0.35 : 0.22),
+                  blurRadius: m.cardPad,
+                  offset: Offset(0, m.cardPad * 0.3),
+                ),
+              ]
+                  : null,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(pad),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── header: icon, name, selection indicator ──────────
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MembershipIconCircle(
+                        icon: _planIcon(plan),
+                        metrics: m,
+                        size: m.iconCircle * 0.62,
+                        background: style.accent.withValues(alpha: style.isDark ? 0.18 : 0.12),
+                        foreground: style.accent,
                       ),
-                    ),
-                    if (plan.hasDescription) ...[
-                      SizedBox(height: m.rowGap * 0.3),
-                      Text(
-                        plan.description,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: m.captionSize,
-                          fontWeight: FontWeight.w400,
-                          height: 1.35,
-                          color: colors.textSecondary,
-                        ),
-                      ),
-                    ],
-
-                    SizedBox(height: m.rowGap * 0.9),
-                    MembershipIconCircle(icon: _planIcon(plan), metrics: m),
-                    SizedBox(height: m.rowGap * 0.6),
-
-                    Container(
-                      width: m.iconCircle * 0.34,
-                      height: 2,
-                      decoration: BoxDecoration(
-                        color: colors.brand,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-
-                    SizedBox(height: m.rowGap * 0.75),
-
-                    // Price aur period ab ek hi line me, baseline-aligned.
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            version?.priceLabel ?? '--',
-                            style: TextStyle(
-                              fontSize: m.priceSize,
-                              fontWeight: FontWeight.w700,
-                              height: 1.1,
-                              color: colors.brand,
-                            ),
-                          ),
-                          SizedBox(width: m.rowGap * 0.2),
-                          Text(
-                            version?.periodLabel ?? '',
-                            style: TextStyle(
-                              fontSize: m.captionSize,
-                              fontWeight: FontWeight.w500,
-                              color: colors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    if (version?.hasTrial ?? false) ...[
-                      SizedBox(height: m.rowGap * 0.55),
-                      // Trial tag ka text thoda bada dikhane ke liye scale
-                      // (MembershipTag ka internal font size benifits_tile.dart
-                      // me define hai; woh file share karo to exact fontSize
-                      // bhi badal sakti hoon).
-                      Transform.scale(
-                        scale: 1.12,
-                        child: MembershipTag(
-                          label: '${version!.trialDays}-day trial',
-                          metrics: m,
-                          background: colors.statusSuccessSoft,
-                          foreground: colors.statusSuccess,
-                        ),
-                      ),
-                    ],
-
-                    SizedBox(height: m.rowGap * 0.9),
-
-                    for (final f in visibleFeatures)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: m.rowGap * 0.5),
-                        child: Row(
+                      SizedBox(width: m.cardPad * 0.6),
+                      Expanded(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              f.isIncluded
-                                  ? Icons.check_rounded
-                                  : Icons.cancel_outlined,
-                              size: m.smallIcon,
-                              color: f.isIncluded ? colors.brand : colors.textMuted,
+                            Text(
+                              plan.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: m.sectionTitleSize * 1.12,
+                                fontWeight: FontWeight.w700,
+                                height: 1.2,
+                                color: style.titleColor,
+                              ),
                             ),
-                            SizedBox(width: pad * 0.45),
-                            Expanded(
-                              child: Text(
-                                f.name,
+                            if (plan.hasDescription) ...[
+                              SizedBox(height: m.rowGap * 0.2),
+                              Text(
+                                plan.description,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: m.labelSize,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: m.captionSize * 1.15,
+                                  fontWeight: FontWeight.w400,
                                   height: 1.3,
-                                  color: f.isIncluded
-                                      ? colors.textPrimary
-                                      : colors.textMuted,
+                                  color: subtitleColor,
                                 ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),
+                      SizedBox(width: m.cardPad * 0.4),
+                      AnimatedSwitcher(
+                        duration: _animDuration,
+                        child: Icon(
+                          selected
+                              ? Icons.check_circle_rounded
+                              : Icons.radio_button_unchecked_rounded,
+                          key: ValueKey(selected),
+                          size: m.radioSize,
+                          color: selected ? style.accent : style.border,
+                        ),
+                      ),
+                    ],
+                  ),
 
-                    if (remainingFeatures > 0)
-                      Padding(
-                        padding: EdgeInsets.only(bottom: m.rowGap * 0.5),
-                        child: Row(
-                          children: [
-                            SizedBox(width: m.smallIcon + pad * 0.45),
-                            Text(
-                              '+$remainingFeatures more',
-                              style: TextStyle(
-                                fontSize: m.labelSize,
-                                fontWeight: FontWeight.w700,
-                                color: colors.brand,
+                  SizedBox(height: m.rowGap * 0.85),
+
+                  // ── price ─────────────────────────────────────────────
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          version?.priceLabel ?? '--',
+                          style: TextStyle(
+                            fontSize: m.priceSize * 1.1,
+                            fontWeight: FontWeight.w800,
+                            height: 1.1,
+                            color: style.accent,
+                          ),
+                        ),
+                        SizedBox(width: m.rowGap * 0.25),
+                        Text(
+                          version?.periodLabel ?? '',
+                          style: TextStyle(
+                            fontSize: m.captionSize * 1.15,
+                            fontWeight: FontWeight.w500,
+                            color: subtitleColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  if (version?.hasTrial ?? false) ...[
+                    SizedBox(height: m.rowGap * 0.5),
+                    MembershipTag(
+                      label: '${version!.trialDays}-day trial',
+                      metrics: m,
+                      background: style.accent.withValues(alpha: 0.14),
+                      foreground: style.accent,
+                    ),
+                  ],
+
+                  SizedBox(height: m.rowGap),
+                  Divider(height: 1, thickness: 1, color: style.dividerColor),
+                  SizedBox(height: m.rowGap),
+
+                  // ── benefits: compact icon + text, 2 columns ─────────
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      const columns = 2;
+                      final spacing = m.cardPad * 0.6;
+                      final itemWidth =
+                          (constraints.maxWidth - spacing * (columns - 1)) /
+                              columns;
+
+                      return Wrap(
+                        spacing: spacing,
+                        runSpacing: m.rowGap * 0.55,
+                        children: [
+                          for (final f in visibleFeatures)
+                            SizedBox(
+                              width: itemWidth,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    membershipEntitlementIcon(f.key),
+                                    size: m.smallIcon * 0.8,
+                                    color: f.isIncluded
+                                        ? style.accent
+                                        : subtitleColor.withValues(alpha: 0.5),
+                                  ),
+                                  SizedBox(width: m.cardPad * 0.35),
+                                  Flexible(
+                                    child: Text(
+                                      f.name,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: m.labelSize * 1.15,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.3,
+                                        color: f.isIncluded
+                                            ? style.titleColor
+                                            : subtitleColor.withValues(alpha: 0.6),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+                        ],
+                      );
+                    },
+                  ),
 
-            // Button hamesha card ke bottom pe fixed.
-            Padding(
-              padding: EdgeInsets.fromLTRB(pad, m.rowGap * 0.5, pad, pad),
-              child: SizedBox(
-                width: double.infinity,
-                height: m.buttonHeight * 0.82,
-                child: selected
-                    ? ElevatedButton(
-                  onPressed: onTap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.brand,
-                    foregroundColor: ThemeColors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        m.radiusSm,
-                      ),
-                    ),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Selected',
+                  if (remainingFeatures > 0) ...[
+                    SizedBox(height: m.rowGap * 0.4),
+                    Text(
+                      '+$remainingFeatures more',
                       style: TextStyle(
-                        fontSize: m.labelSize * 1.3,
+                        fontSize: m.labelSize * 1.15,
                         fontWeight: FontWeight.w700,
+                        color: style.accent,
                       ),
                     ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+
+          // ── "Most Popular" corner ribbon — existing highlight data only ──
+          if (plan.isHighlighted)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: m.cardPad * 0.6,
+                  vertical: m.rowGap * 0.25,
+                ),
+                decoration: BoxDecoration(
+                  color: style.accent,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(m.radiusMd),
+                    bottomLeft: Radius.circular(m.radiusMd),
                   ),
-                )
-                    : OutlinedButton(
-                  onPressed: onTap,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colors.brand,
-                    side: BorderSide(color: colors.brand),
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        m.radiusSm,
-                      ),
-                    ),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Select Plan',
-                      style: TextStyle(
-                        fontSize: m.labelSize,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                ),
+                child: Text(
+                  plan.highlight!.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: m.captionSize * 0.95,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                    color: style.isDark ? ThemeColors.membershipUltraBg : ThemeColors.white,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -1398,15 +1239,15 @@ class MembershipCompareTable extends StatelessWidget {
 
     // Header aur har feature row ke liye fixed heights, taaki left (fixed)
     // column aur right (scrollable) columns hamesha row-by-row align rahein.
-    final headerHeight = m.cardPad * 1.3 + m.captionSize * 2.6;
-    final rowHeight = m.cardPad * 1.1 + m.labelSize * 2.6;
+    final headerHeight = m.cardPad * 1.3 + m.captionSize * 1.15 * 2.6;
+    final rowHeight = m.cardPad * 1.1 + m.labelSize * 1.25 * 2.6;
 
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: colors.border),
+        border: Border.all(color: ThemeColors.membershipLightLavender),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1419,20 +1260,20 @@ class MembershipCompareTable extends StatelessWidget {
               children: [
                 Container(
                   height: headerHeight,
-                  color: colors.surfaceAlt,
+                  color: ThemeColors.membershipVeryLightLavender,
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.all(m.cardPad * 0.65),
                   child: Text(
                     'Features',
                     style: TextStyle(
-                      fontSize: m.labelSize * 1.2,
+                      fontSize: m.labelSize * 1.35,
                       fontWeight: FontWeight.w700,
-                      color: colors.textPrimary,
+                      color: ThemeColors.membershipTextDark,
                     ),
                   ),
                 ),
                 for (final key in featureKeys) ...[
-                  Divider(height: 1, color: colors.border),
+                  Divider(height: 1, color: ThemeColors.membershipLightLavender),
                   Container(
                     height: rowHeight,
                     padding: EdgeInsets.all(m.cardPad * 0.55),
@@ -1442,6 +1283,8 @@ class MembershipCompareTable extends StatelessWidget {
                           icon: membershipEntitlementIcon(key),
                           metrics: m,
                           size: m.iconCircle * 0.55,
+                          background: ThemeColors.membershipPrimaryPurple.withValues(alpha: 0.12),
+                          foreground: ThemeColors.membershipPrimaryPurple,
                         ),
                         SizedBox(width: m.cardPad * 0.4),
                         Expanded(
@@ -1450,10 +1293,10 @@ class MembershipCompareTable extends StatelessWidget {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: m.labelSize * 1.1,
+                              fontSize: m.labelSize * 1.25,
                               fontWeight: FontWeight.w700,
                               height: 1.25,
-                              color: colors.textPrimary,
+                              color: ThemeColors.membershipTextDark,
                             ),
                           ),
                         ),
@@ -1480,10 +1323,10 @@ class MembershipCompareTable extends StatelessWidget {
                         for (final plan in plans)
                           Container(
                             width: planColWidth,
-                            color: colors.surfaceAlt,
+                            color: ThemeColors.membershipVeryLightLavender,
                             child: Container(
                               color: plan.uuid == highlightPlanUuid
-                                  ? colors.brandSoft.withValues(alpha: 0.55)
+                                  ? ThemeColors.membershipLightLavender.withValues(alpha: 0.7)
                                   : null,
                               padding: EdgeInsets.all(m.cardPad * 0.65),
                               alignment: Alignment.center,
@@ -1493,9 +1336,9 @@ class MembershipCompareTable extends StatelessWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontSize: m.captionSize,
+                                  fontSize: m.captionSize * 1.15,
                                   fontWeight: FontWeight.w700,
-                                  color: colors.textPrimary,
+                                  color: ThemeColors.membershipTextDark,
                                 ),
                               ),
                             ),
@@ -1504,7 +1347,7 @@ class MembershipCompareTable extends StatelessWidget {
                     ),
                   ),
                   for (final key in featureKeys) ...[
-                    Divider(height: 1, color: colors.border),
+                    Divider(height: 1, color: ThemeColors.membershipLightLavender),
                     SizedBox(
                       height: rowHeight,
                       child: Row(
@@ -1514,7 +1357,7 @@ class MembershipCompareTable extends StatelessWidget {
                             Container(
                               width: planColWidth,
                               color: plan.uuid == highlightPlanUuid
-                                  ? colors.brandSoft.withValues(alpha: 0.3)
+                                  ? ThemeColors.membershipLightLavender.withValues(alpha: 0.4)
                                   : null,
                               alignment: Alignment.center,
                               padding: EdgeInsets.all(m.cardPad * 0.3),
@@ -1560,14 +1403,18 @@ class MembershipCompareTable extends StatelessWidget {
           feature.valueLabel,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: m.captionSize,
+            fontSize: m.captionSize * 1.15,
             fontWeight: FontWeight.w700,
-            color: colors.brand,
+            color: ThemeColors.membershipPrimaryPurple,
           ),
         ),
       );
     }
 
-    return Icon(Icons.check_rounded, size: m.smallIcon * 1.1, color: colors.brand);
+    return Icon(
+      Icons.check_rounded,
+      size: m.smallIcon * 1.1,
+      color: ThemeColors.membershipPrimaryPurple,
+    );
   }
 }

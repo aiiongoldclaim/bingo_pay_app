@@ -82,7 +82,7 @@ class ReviewTopBar extends StatelessWidget {
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: metrics.pageSubtitleSize,
+                    fontSize: metrics.pageSubtitleSize + 2.5,
                     height: 1.25,
                   ),
                 ),

@@ -73,7 +73,7 @@ class CheckoutStepper extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: m.captionSize * 1.15,
+              fontSize: m.captionSize +2,
               fontWeight: active ? FontWeight.w700 : FontWeight.w400,
               color: active ? colors.textPrimary : colors.textSecondary,
             ),
@@ -234,7 +234,7 @@ class CheckoutHeroCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: m.heroBodySize * 1.1,
+                            fontSize: m.heroBodySize + 2,
                             fontWeight: FontWeight.w500,
                             color: onHeroMuted,
                           ),
@@ -425,7 +425,7 @@ class BigodPaymentCard extends StatelessWidget {
                     Text(
                       'BIGOD wallet',
                       style: TextStyle(
-                        fontSize: m.bodySize,
+                        fontSize: m.bodySize+2,
                         fontWeight: FontWeight.w700,
                         color: colors.textPrimary,
                       ),
@@ -436,7 +436,7 @@ class BigodPaymentCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: m.captionSize * 1.15,
+                        fontSize: m.captionSize +2,
                         fontWeight: FontWeight.w400,
                         color: colors.textSecondary,
                       ),
@@ -483,7 +483,7 @@ class BigodPaymentCard extends StatelessWidget {
                           ? 'This price has expired'
                           : 'This price is held for ${timerLabel ?? '--:--'}',
                       style: TextStyle(
-                        fontSize: m.captionSize * 1.1,
+                        fontSize: m.captionSize * 1.35,
                         fontWeight: FontWeight.w600,
                         color: expired ? colors.statusWarning : colors.textPrimary,
                       ),

@@ -31,7 +31,7 @@ class MetaBlock extends StatelessWidget {
           style: TextStyle(
             color: colors.textMuted,
             fontFamily: 'Inter',
-            fontSize: 14.sp,
+            fontSize: 15.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
           ),
@@ -41,7 +41,7 @@ class MetaBlock extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (leading != null) ...[
-              Icon(leading, size: 13.sp, color: colors.brand),
+              Icon(leading, size: 14.sp, color: colors.brand),
               SizedBox(width: 1.03.w),
             ],
             Flexible(
@@ -52,7 +52,7 @@ class MetaBlock extends StatelessWidget {
                 style: TextStyle(
                   color: colors.textPrimary,
                   fontFamily: 'Inter',
-                  fontSize: 14.sp,
+                  fontSize: 15.sp,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -76,7 +76,7 @@ class MetaBlock extends StatelessWidget {
                     style: TextStyle(
                       color: colors.statusSuccess,
                       fontFamily: 'Inter',
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

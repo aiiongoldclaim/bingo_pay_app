@@ -88,7 +88,7 @@ class _CartPageState extends State<CartPage> {
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
               AppStrings.clear,
-              style: TextStyle(color: colors.statusWarning),
+              style: TextStyle(color: colors.error),
             ),
           ),
         ],

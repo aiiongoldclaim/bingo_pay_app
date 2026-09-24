@@ -17,7 +17,8 @@ void main() async {
     name: 'dev',
     color: Colors.green,
     variables: const {
-      'apiBaseUrl': 'https://dev.thevaults.org',
+      // 'apiBaseUrl': 'https://dev.thevaults.org',
+      'apiBaseUrl': 'https://dev.thevaults.to/',
       'appName': 'Vaults DEV',
       'enableLogging': true,
       'enableAnalytics': true,

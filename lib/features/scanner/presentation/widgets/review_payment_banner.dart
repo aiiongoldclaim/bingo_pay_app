@@ -63,7 +63,7 @@ class ReviewPaymentSecureBanner extends StatelessWidget {
                   style: AppTextStyles.bodySmall.copyWith(
                     color: colors.textSecondary,
                     fontFamily: 'Inter',
-                    fontSize: m.bannerSubSize,
+                    fontSize: m.bannerSubSize+2,
                     height: 1.3,
                   ),
                 ),

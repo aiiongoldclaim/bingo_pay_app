@@ -621,7 +621,7 @@ class _InfoTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(m.cardRadius),
             border: Border.all(
               color: hasError
-                  ? colors.statusWarning
+                  ? colors.error
                   : (isEditing ? colors.brand : colors.border),
               width: hasError || isEditing ? 1.5 : 1,
             ),
@@ -727,14 +727,14 @@ class _InfoTile extends StatelessWidget {
                 Icon(
                   Icons.info_outline_rounded,
                   size: m.errorSize + 2,
-                  color: colors.statusWarning,
+                  color: colors.error,
                 ),
                 SizedBox(width: m.gapXs),
                 Flexible(
                   child: Text(
                     error!,
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: colors.statusWarning,
+                      color: colors.error,
                       fontFamily: 'Inter',
                       fontSize: m.errorSize,
                     ),

@@ -60,10 +60,10 @@ class AddressTileMetrics {
     nameSize: 15.sp,
     tagFontSize: 14.sp,
     phoneSize: 14.5.sp,
-    bodySize: 14.5.sp,
-    actionFontSize: 14.sp,
+    bodySize: 15.5.sp,
+    actionFontSize: 15.sp,
     actionHeight: 4.4.h,
-    actionIconSize: 15.sp,
+    actionIconSize: 16.sp,
     addBtnHeight: 6.2.h,
     addBtnFontSize: 14.sp,
     gapXs: 0.5.h,
@@ -78,10 +78,10 @@ class AddressTileMetrics {
     nameSize: 19,
     tagFontSize: 12,
     phoneSize: 16,
-    bodySize: 16,
-    actionFontSize: 15,
+    bodySize: 17,
+    actionFontSize: 16,
     actionHeight: 42,
-    actionIconSize: 18,
+    actionIconSize: 19,
     addBtnHeight: 56,
     addBtnFontSize: 17,
     gapXs: 4,
@@ -96,10 +96,10 @@ class AddressTileMetrics {
     nameSize: 18,
     tagFontSize: 11,
     phoneSize: 15,
-    bodySize: 15,
-    actionFontSize: 14,
+    bodySize: 16,
+    actionFontSize: 15,
     actionHeight: 38,
-    actionIconSize: 17,
+    actionIconSize: 18,
     addBtnHeight: 52,
     addBtnFontSize: 16,
     gapXs: 3,
@@ -126,6 +126,88 @@ class AddressTile extends StatelessWidget {
     required this.onDelete,
   });
 
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.c;
+    final m = AddressTileMetrics.of(context);
+
+    return Material(
+      color: isSelected ? colors.brandSoft : colors.surface,
+      borderRadius: BorderRadius.circular(m.cardRadius),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onSelect,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(m.cardRadius),
+            border: Border.all(
+              color: isSelected ? colors.brand : colors.border,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(m.cardPad),
+                child: _AddressTileBody(
+                  metrics: m,
+                  address: address,
+                  isSelected: isSelected,
+                  onEdit: onEdit,
+                  onDelete: onDelete,
+                ),
+              ),
+              if (address.isDefaultAddress)
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: m.gapSm,
+                      vertical: m.gapXs * 0.7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.brand,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(m.cardRadius),
+                        bottomLeft: Radius.circular(m.cardRadius),
+                      ),
+                    ),
+                    child: Text(
+                      'DEFAULT',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: colors.surface,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: m.tagFontSize,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddressTileBody extends StatelessWidget {
+  final AddressTileMetrics metrics;
+  final AddressEntity address;
+  final bool isSelected;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  const _AddressTileBody({
+    required this.metrics,
+    required this.address,
+    required this.isSelected,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
   String _formatted() {
     final parts = [
       address.addressLine1,
@@ -140,159 +222,117 @@ class AddressTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
-    final m = AddressTileMetrics.of(context);
+    final m = metrics;
 
-    return Material(
-      color: isSelected ? colors.brandSoft : colors.surface,
-      borderRadius: BorderRadius.circular(m.cardRadius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onSelect,
-        child: Container(
-          padding: EdgeInsets.all(m.cardPad),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(
-              color: isSelected ? colors.brand : colors.border,
-              width: isSelected ? 1.5 : 1,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: m.gapXs * 0.6),
+              child: Icon(
+                isSelected
+                    ? Icons.radio_button_checked_rounded
+                    : Icons.radio_button_unchecked_rounded,
+                size: m.radioSize,
+                color: isSelected ? colors.brand : colors.textMuted,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+
+            SizedBox(width: m.cardPad * 0.7),
+
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(top: m.gapXs * 0.6),
-                    child: Icon(
-                      isSelected
-                          ? Icons.radio_button_checked_rounded
-                          : Icons.radio_button_unchecked_rounded,
-                      size: m.radioSize,
-                      color: isSelected ? colors.brand : colors.textMuted,
+                    padding: EdgeInsets.only(
+                      right: address.isDefaultAddress ? m.cardPad * 2.2 : 0,
+                    ),
+                    child: Text(
+                      address.fullName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: colors.textPrimary,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: m.nameSize,
+                        height: 1.3,
+                      ),
                     ),
                   ),
 
-                  SizedBox(width: m.cardPad * 0.7),
+                  SizedBox(height: m.gapXs),
 
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                address.fullName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTextStyles.titleMedium.copyWith(
-                                  color: colors.textPrimary,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: m.nameSize,
-                                  height: 1.3,
-                                ),
-                              ),
-                            ),
-                            if (address.isDefaultAddress) ...[
-                              SizedBox(width: m.gapSm * 0.8),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: m.gapSm * 0.9,
-                                  vertical: m.gapXs * 0.7,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: colors.brand.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  'DEFAULT',
-                                  style: AppTextStyles.labelMedium.copyWith(
-                                    color: colors.brand,
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: m.tagFontSize,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-
-                        SizedBox(height: m.gapXs),
-
-                        Text(
-                          address.phoneNumber,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: colors.textSecondary,
-                            fontFamily: 'Inter',
-                            fontSize: m.phoneSize,
-                            height: 1.35,
-                          ),
-                        ),
-
-                        SizedBox(height: m.gapXs * 0.8),
-
-                        Text(
-                          _formatted(),
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: colors.textSecondary,
-                            fontFamily: 'Inter',
-                            fontSize: m.bodySize,
-                            height: 1.45,
-                          ),
-                        ),
-
-                        if (isSelected) ...[
-                          SizedBox(height: m.gapXs),
-                          Text(
-                            'Deliver to this address',
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: colors.brand,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: m.tagFontSize + 1,
-                            ),
-                          ),
-                        ],
-                      ],
+                  Text(
+                    address.phoneNumber,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: colors.textSecondary,
+                      fontFamily: 'Inter',
+                      fontSize: m.phoneSize,
+                      height: 1.35,
                     ),
                   ),
+
+                  SizedBox(height: m.gapXs * 0.8),
+
+                  Text(
+                    _formatted(),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: colors.textSecondary,
+                      fontFamily: 'Inter',
+                      fontSize: m.bodySize,
+                      height: 1.45,
+                    ),
+                  ),
+
+                  if (isSelected) ...[
+                    SizedBox(height: m.gapXs),
+                    Text(
+                      'Deliver to this address',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: colors.brand,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: m.tagFontSize + 1,
+                      ),
+                    ),
+                  ],
                 ],
               ),
-
-              SizedBox(height: m.gapMd),
-              // Divider(height: 1, thickness: 1, color: colors.border),
-              Divider(height: 1, thickness: 1, ),
-              SizedBox(height: m.gapSm),
-
-              Row(
-                children: [
-                  _AddressTileAction(
-                    metrics: m,
-                    icon: Icons.edit_outlined,
-                    label: 'Edit',
-                    onTap: onEdit,
-                  ),
-                  SizedBox(width: m.gapSm),
-                  _AddressTileAction(
-                    metrics: m,
-                    icon: Icons.delete_outline_rounded,
-                    label: 'Delete',
-                    isDestructive: true,
-                    onTap: onDelete,
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
+
+        SizedBox(height: m.gapMd),
+        // Divider(height: 1, thickness: 1, color: colors.border),
+        Divider(height: 1, thickness: 1),
+        SizedBox(height: m.gapSm),
+
+        Row(
+          children: [
+            _AddressTileAction(
+              metrics: m,
+              icon: Icons.edit_outlined,
+              label: 'Edit',
+              onTap: onEdit,
+            ),
+            SizedBox(width: m.gapSm),
+            _AddressTileAction(
+              metrics: m,
+              icon: Icons.delete_outline_rounded,
+              label: 'Delete',
+              isDestructive: true,
+              onTap: onDelete,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -316,7 +356,7 @@ class _AddressTileAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.c;
     final m = metrics;
-    final color = isDestructive ? colors.statusWarning : colors.brand;
+    final color = isDestructive ? colors.error : colors.brand;
 
     return Material(
       color: Colors.transparent,

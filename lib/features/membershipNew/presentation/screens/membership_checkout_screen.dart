@@ -162,9 +162,6 @@ class _CheckoutViewState
     }
   }
 
-  // ===========================================================================
-  // PAYMENT SUCCESS
-  // ===========================================================================
 
   void _handlePaymentSuccess(
       dynamic result,
@@ -208,7 +205,7 @@ class _CheckoutViewState
           content: Text(message),
           backgroundColor:
           isError
-              ? colors.statusWarning
+              ? colors.error
               : colors.statusSuccess,
           behavior:
           SnackBarBehavior.floating,
@@ -442,9 +439,7 @@ class _CheckoutViewState
     );
   }
 
-  // ===========================================================================
-  // APP BAR
-  // ===========================================================================
+
 
   PreferredSizeWidget _buildAppBar(
       BuildContext context,
@@ -937,7 +932,7 @@ class _CheckoutViewState
           text,
           style: TextStyle(
             fontSize:
-            metrics.bodySize * 1.15,
+            metrics.bodySize * 1.35,
             fontWeight:
             FontWeight.w700,
           ),
@@ -983,7 +978,7 @@ class _CheckoutViewState
             TextOverflow.ellipsis,
             style: TextStyle(
               fontSize:
-              metrics.bodySize * 1.15,
+              metrics.bodySize * 1.35,
               fontWeight:
               FontWeight.w700,
             ),

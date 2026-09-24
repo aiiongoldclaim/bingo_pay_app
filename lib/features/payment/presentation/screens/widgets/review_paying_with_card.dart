@@ -76,25 +76,25 @@ class ReviewPayingWithCard extends StatelessWidget {
                         height: 1.25,
                       ),
                     ),
-                    SizedBox(height: m.gapXs * 0.8),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.lock_outline_rounded,
-                          size: m.walletSubSize + 3,
-                          color: colors.surface.withValues(alpha: 0.85),
-                        ),
-                        SizedBox(width: m.gapXs),
-                        Text(
-                          'Secured & Encrypted',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: colors.surface.withValues(alpha: 0.85),
-                            fontFamily: 'Inter',
-                            fontSize: m.walletSubSize,
-                          ),
-                        ),
-                      ],
-                    ),
+                    // SizedBox(height: m.gapXs * 0.8),
+                    // Row(
+                    //   children: [
+                    //     Icon(
+                    //       Icons.lock_outline_rounded,
+                    //       size: m.walletSubSize + 3,
+                    //       color: colors.surface.withValues(alpha: 0.85),
+                    //     ),
+                    //     SizedBox(width: m.gapXs),
+                    //     Text(
+                    //       'Secured & Encrypted',
+                    //       style: AppTextStyles.bodySmall.copyWith(
+                    //         color: colors.surface.withValues(alpha: 0.85),
+                    //         fontFamily: 'Inter',
+                    //         fontSize: m.walletSubSize+2,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -155,7 +155,7 @@ class ReviewPayingWithCard extends StatelessWidget {
                           color: colors.surface.withValues(alpha: 0.75),
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
-                          fontSize: m.balanceLabelSize,
+                          fontSize: m.balanceLabelSize+2,
                           letterSpacing: 0.6,
                         ),
                       ),

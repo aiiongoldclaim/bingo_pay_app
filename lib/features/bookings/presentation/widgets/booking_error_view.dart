@@ -43,6 +43,7 @@ class BookingErrorView extends StatelessWidget {
                 color: colors.textPrimary,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w800,
+                fontSize: 18.sp,
               ),
             ),
             SizedBox(height: 0.83.h),
@@ -52,6 +53,7 @@ class BookingErrorView extends StatelessWidget {
               style: AppTextStyles.bodyMedium.copyWith(
                 color: colors.textSecondary,
                 fontFamily: 'Inter',
+                fontSize: 15.sp,
               ),
             ),
             SizedBox(height: 2.37.h),
@@ -60,7 +62,10 @@ class BookingErrorView extends StatelessWidget {
                 context.read<BookingCubit>().fetchBookings();
               },
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text(AppStrings.tryAgainSentenceCase),
+              label: Text(
+                AppStrings.tryAgainSentenceCase,
+                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w700),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colors.brand,
                 side: BorderSide(color: colors.brand),

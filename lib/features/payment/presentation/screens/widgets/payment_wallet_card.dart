@@ -88,7 +88,7 @@ class PaymentWalletCard extends StatelessWidget {
                         color: colors.statusSuccess,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
-                        fontSize: m.addrChipSize,
+                        fontSize: m.addrChipSize + 2,
                       ),
                     ),
                   ],

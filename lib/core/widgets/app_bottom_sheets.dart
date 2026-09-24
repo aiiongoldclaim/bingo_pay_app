@@ -512,14 +512,14 @@ Future<void> showAppActionsSheet({
                 Icon(
                   a.icon,
                   size: m.rowIconSize,
-                  color: a.isDestructive ? colors.statusWarning : colors.textSecondary,
+                  color: a.isDestructive ? colors.error : colors.textSecondary,
                 ),
                 SizedBox(width: m.rowIconGap),
                 Expanded(
                   child: Text(
                     a.label,
                     style: AppTextStyles.labelLarge.copyWith(
-                      color: a.isDestructive ? colors.statusWarning : colors.textPrimary,
+                      color: a.isDestructive ? colors.error : colors.textPrimary,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w500,
                       fontSize: m.labelSize,
@@ -1448,7 +1448,7 @@ Future<bool> showAppConfirmDialog({
                       height: m.infoArtSize * 0.7,
                       decoration: BoxDecoration(
                         color: isDestructive
-                            ? colors.statusWarningSoft
+                            ? colors.error.withValues(alpha: 0.12)
                             : colors.brandSoft,
                         shape: BoxShape.circle,
                       ),
@@ -1456,7 +1456,7 @@ Future<bool> showAppConfirmDialog({
                       child: Icon(
                         icon,
                         size: m.infoArtSize * 0.32,
-                        color: isDestructive ? colors.statusWarning : colors.brand,
+                        color: isDestructive ? colors.error : colors.brand,
                       ),
                     ),
                   ),
@@ -1504,7 +1504,7 @@ Future<bool> showAppConfirmDialog({
                         height: m.btnHeight,
                         child: Material(
                           color: confirmColor ??
-                              (isDestructive ? colors.statusWarning : colors.brand),
+                              (isDestructive ? colors.error : colors.brand),
                           borderRadius: BorderRadius.circular(m.btnRadius),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(

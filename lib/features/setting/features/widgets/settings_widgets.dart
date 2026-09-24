@@ -199,7 +199,7 @@ class SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.c;
     final m = metrics;
-    final accent = isDestructive ? colors.statusWarning : colors.brand;
+    final accent = isDestructive ? colors.error : colors.brand;
     final isSwitch = switchValue != null;
 
     return Material(
@@ -220,7 +220,7 @@ class SettingsTile extends StatelessWidget {
                 height: m.iconBox,
                 decoration: BoxDecoration(
                   color: isDestructive
-                      ? colors.statusWarningSoft
+                      ? colors.error.withValues(alpha: 0.12)
                       : colors.brandSoft,
                   shape: BoxShape.circle,
                 ),
@@ -240,7 +240,7 @@ class SettingsTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.labelLarge.copyWith(
-                        color: isDestructive ? colors.statusWarning : colors.textPrimary,
+                        color: isDestructive ? colors.error : colors.textPrimary,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
                         fontSize: m.tileTitleSize,

@@ -148,7 +148,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
               AppStrings.clear,
-              style: TextStyle(color: colors.statusWarning),
+              style: TextStyle(color: colors.error),
             ),
           ),
         ],
@@ -210,7 +210,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             ListTile(
               leading: Icon(
                 Icons.favorite_border_rounded,
-                color: colors.statusWarning,
+                color: colors.error,
               ),
               title: Text(
                 AppStrings.removeFromWishlist,

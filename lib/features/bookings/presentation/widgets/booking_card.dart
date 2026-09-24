@@ -126,7 +126,7 @@ class _BookingCardState extends State<BookingCard> {
                                     color: colors.textPrimary,
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 16.sp,
+                                    fontSize: 17.5.sp,
                                     letterSpacing: -0.2,
                                   ),
                                 ),
@@ -164,7 +164,7 @@ class _BookingCardState extends State<BookingCard> {
                               style: AppTextStyles.bodySmall.copyWith(
                                 color: colors.textSecondary,
                                 fontFamily: 'Inter',
-                                fontSize: 14.5.sp,
+                                fontSize: 15.5.sp,
                               ),
                             ),
                           ],

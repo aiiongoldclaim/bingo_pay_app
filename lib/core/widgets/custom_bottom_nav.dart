@@ -304,6 +304,11 @@ class CustomBottomNav extends StatelessWidget {
       inactiveIcon: Icons.person_outline_rounded,
       label: 'Profile',
     ),
+    BottomNavItemData(
+      activeIcon: Icons.menu_rounded,
+      inactiveIcon: Icons.menu_rounded,
+      label: 'Menu',
+    ),
   ];
 
   @override
