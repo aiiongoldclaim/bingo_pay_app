@@ -13,15 +13,23 @@ class PromoBannerCarousel extends StatefulWidget {
     required this.banners,
     this.onBannerTap,
     this.overlayGradient,
+    this.borderColor,
+    this.activeDotColor,
+    this.inactiveDotColor,
+    this.fallbackIconColor,
+    this.fallbackBackgroundColor,
   });
 
   final HomeMetrics metrics;
   final List<HomeBannerData> banners;
   final ValueChanged<HomeBannerData>? onBannerTap;
-
-  /// Passed straight through to each [PromoBanner] — see its doc. `null`
-  /// (the default) keeps the banner exactly as TheVaults renders it today.
   final Gradient? overlayGradient;
+
+  final Color? borderColor;
+  final Color? activeDotColor;
+  final Color? inactiveDotColor;
+  final Color? fallbackIconColor;
+  final Color? fallbackBackgroundColor;
 
   @override
   State<PromoBannerCarousel> createState() => _PromoBannerCarouselState();
@@ -35,9 +43,6 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
     if (widget.banners.isEmpty) return const SizedBox.shrink();
 
     final m = widget.metrics;
-
-    // Pehli image ka ratio saare slides pe apply hota hai — isliye chaaron
-    // banners same dimensions ke hone chahiye.
     return ImageRatioBuilder(
       assetPath: widget.banners.first.imageAsset,
       fallbackRatio: m.heroAspectRatio,
@@ -54,9 +59,12 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
                   banner: widget.banners[index],
                   onTap: () => widget.onBannerTap?.call(widget.banners[index]),
                   overlayGradient: widget.overlayGradient,
+                  borderColor: widget.borderColor,
+                  fallbackIconColor: widget.fallbackIconColor,
+                  fallbackBackgroundColor: widget.fallbackBackgroundColor,
                 ),
                 options: CarouselOptions(
-                  aspectRatio: ratio, // ← image se aaya, hardcode nahi
+                  aspectRatio: ratio,
                   viewportFraction: 1,
                   autoPlay: widget.banners.length > 1,
                   autoPlayInterval: const Duration(seconds: 5),
@@ -73,6 +81,8 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
               metrics: m,
               count: widget.banners.length,
               activeIndex: _current,
+              activeColor: widget.activeDotColor,
+              inactiveColor: widget.inactiveDotColor,
             ),
           ],
         );
@@ -86,15 +96,21 @@ class _DotsIndicator extends StatelessWidget {
     required this.metrics,
     required this.count,
     required this.activeIndex,
+    this.activeColor,
+    this.inactiveColor,
   });
 
   final HomeMetrics metrics;
   final int count;
   final int activeIndex;
+  final Color? activeColor;
+  final Color? inactiveColor;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
+    final resolvedActive = activeColor ?? colors.brand;
+    final resolvedInactive = inactiveColor ?? colors.brandSoft;
     final dotHeight = metrics.heroEyebrowSize * 0.32;
 
     return Row(
@@ -102,13 +118,13 @@ class _DotsIndicator extends StatelessWidget {
       children: List.generate(count, (i) {
         final active = i == activeIndex;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           margin: EdgeInsets.symmetric(horizontal: dotHeight * 0.8),
           width: active ? dotHeight * 6 : dotHeight * 3,
           height: dotHeight,
           decoration: BoxDecoration(
-            color: active ? colors.brand : colors.brandSoft,
+            color: active ? resolvedActive : resolvedInactive,
             borderRadius: BorderRadius.circular(dotHeight),
           ),
         );

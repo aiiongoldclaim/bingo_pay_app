@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
 import '../../data/models/product_model.dart';
 import '../models/vault_section.dart';
+import '../models/vault_theme_colors.dart';
 import 'home_banner_data.dart';
 import 'home_metrics.dart';
 import 'product_rail.dart';
 import 'promo_banner_carousel.dart';
+import 'ultra_luxe_feature_card.dart';
 
 class LuxeDashboardBody extends StatelessWidget {
   const LuxeDashboardBody({
@@ -41,7 +41,8 @@ class LuxeDashboardBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tier = _tierPresentationFor(section);
+    final activeTheme = VaultThemeColors.forSection(section);
+    final tier = _tierPresentationFor(section, activeTheme);
 
     if (isLoading) {
       return const _LuxeContentShimmer();
@@ -52,18 +53,33 @@ class LuxeDashboardBody extends StatelessWidget {
       children: [
         PromoBannerCarousel(
           metrics: metrics,
-          banners: HomeBanners.defaults,
+          banners: section == VaultSection.ultraLuxe
+              ? HomeBanners.ultraLuxe
+              : HomeBanners.defaults,
           onBannerTap: (_) {},
           overlayGradient: tier.bannerOverlay,
+          borderColor: activeTheme.border,
+          activeDotColor: activeTheme.primary,
+          inactiveDotColor: activeTheme.secondary.withValues(alpha: 0.35),
+          fallbackIconColor: activeTheme.secondaryText,
+          fallbackBackgroundColor: activeTheme.sectionBackground,
         ),
         SizedBox(height: metrics.sectionGap),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
-          child: _LuxeTierBanner(metrics: metrics, tier: tier),
+          child: section == VaultSection.ultraLuxe
+              ? UltraLuxeFeatureCard(
+                  metrics: metrics,
+                  activeTheme: activeTheme,
+                  title: tier.eyebrow,
+                  subtitle: tier.tagline,
+                  onTap: onViewAll,
+                )
+              : _LuxeTierBanner(metrics: metrics, tier: tier),
         ),
         SizedBox(height: metrics.sectionGap),
         if (flashDeals.isEmpty && recommended.isEmpty)
-          _LuxeEmptyState(metrics: metrics)
+          _LuxeEmptyState(metrics: metrics, activeTheme: activeTheme)
         else ...[
           if (flashDeals.isNotEmpty) ...[
             ProductRail(
@@ -76,6 +92,9 @@ class LuxeDashboardBody extends StatelessWidget {
               onWishlistTap: onWishlistTap,
               onAddToCart: onAddToCart,
               addingIds: addingIds,
+              activeTheme: activeTheme,
+              titleHighlightPrefix: tier.highlightPrefix,
+              titleHighlightColor: tier.highlightColor,
             ),
             SizedBox(height: metrics.sectionGap),
           ],
@@ -90,6 +109,9 @@ class LuxeDashboardBody extends StatelessWidget {
               onWishlistTap: onWishlistTap,
               onAddToCart: onAddToCart,
               addingIds: addingIds,
+              activeTheme: activeTheme,
+              titleHighlightPrefix: tier.highlightPrefix,
+              titleHighlightColor: tier.highlightColor,
             ),
         ],
         SizedBox(height: metrics.sectionGap),
@@ -108,62 +130,59 @@ class _TierPresentation {
     required this.dealsTitle,
     required this.recommendedTitle,
     required this.bannerOverlay,
-    this.accentBorder,
+    required this.accentBorder,
+    this.gradientStops,
+    this.highlightPrefix,
+    this.highlightColor,
   });
 
   final String eyebrow;
   final String tagline;
   final IconData icon;
   final List<Color> gradientColors;
-  final Color? accentBorder;
+  final List<double>? gradientStops;
+  final Color accentBorder;
   final String dealsTitle;
   final String recommendedTitle;
-  final Gradient bannerOverlay;
+  final Gradient? bannerOverlay;
+  final String? highlightPrefix;
+  final Color? highlightColor;
 }
 
-_TierPresentation _tierPresentationFor(VaultSection section) {
+_TierPresentation _tierPresentationFor(
+  VaultSection section,
+  VaultThemeColors theme,
+) {
   switch (section) {
     case VaultSection.vaultsLuxe:
       return _TierPresentation(
         eyebrow: 'VAULTS LUXE',
         tagline: 'Elevated picks, handpicked for you',
         icon: Icons.workspace_premium_outlined,
-        gradientColors: const [
-          ThemeColors.vaultSelectorPrimary,
-          ThemeColors.vaultSelectorLavender,
-        ],
+        gradientColors: [theme.primary, theme.secondary],
+        accentBorder: theme.buttonText,
         dealsTitle: 'Vaults Luxe Edit',
         recommendedTitle: 'Curated For You',
-        bannerOverlay: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            ThemeColors.vaultSelectorPrimary.withValues(alpha: 0.28),
-            ThemeColors.vaultSelectorPrimary.withValues(alpha: 0.58),
-          ],
-        ),
+        bannerOverlay: theme.bannerOverlay,
       );
     case VaultSection.ultraLuxe:
-
       return _TierPresentation(
         eyebrow: 'ULTRA LUXE',
         tagline: 'The pinnacle of curated luxury',
         icon: Icons.diamond_outlined,
-        gradientColors: const [
-          ThemeColors.vaultSelectorText,
-          ThemeColors.vaultSelectorPrimary,
+        gradientColors: [
+          theme.sectionBackground,
+          theme.sectionBackground,
+          theme.primary,
+          theme.primary,
         ],
-        accentBorder: ThemeColors.accent,
+        gradientStops: const [0.0, 0.48, 0.52, 1.0],
+        accentBorder: theme.primary,
         dealsTitle: 'Ultra Luxe Exclusives',
         recommendedTitle: 'Handpicked For You',
-        bannerOverlay: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            ThemeColors.vaultSelectorText.withValues(alpha: 0.35),
-            ThemeColors.vaultSelectorText.withValues(alpha: 0.72),
-          ],
-        ),
+        bannerOverlay: null,
+        highlightPrefix: 'Ultra Luxe',
+        highlightColor: theme.primary,
       );
     case VaultSection.theVaults:
       throw StateError('LuxeDashboardBody is only for non-default sections');
@@ -189,19 +208,14 @@ class _LuxeTierBanner extends StatelessWidget {
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: tier.gradientColors,
+          stops: tier.gradientStops,
         ),
         borderRadius: BorderRadius.circular(metrics.heroRadius),
-        border: tier.accentBorder != null
-            ? Border.all(color: tier.accentBorder!, width: 1)
-            : null,
+        border: Border.all(color: tier.accentBorder, width: 1),
       ),
       child: Row(
         children: [
-          Icon(
-            tier.icon,
-            color: tier.accentBorder ?? Colors.white,
-            size: metrics.headerIconSize,
-          ),
+          Icon(tier.icon, color: tier.accentBorder, size: metrics.headerIconSize),
           SizedBox(width: metrics.pagePadding * 0.6),
           Expanded(
             child: Column(
@@ -234,14 +248,13 @@ class _LuxeTierBanner extends StatelessWidget {
 }
 
 class _LuxeEmptyState extends StatelessWidget {
-  const _LuxeEmptyState({required this.metrics});
+  const _LuxeEmptyState({required this.metrics, required this.activeTheme});
 
   final HomeMetrics metrics;
+  final VaultThemeColors activeTheme;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: metrics.pagePadding * 1.5,
@@ -254,7 +267,7 @@ class _LuxeEmptyState extends StatelessWidget {
             style: TextStyle(
               fontSize: metrics.sectionTitleSize * 1.1,
               fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
+              color: activeTheme.text,
             ),
           ),
           SizedBox(height: metrics.pagePadding * 0.5),
@@ -264,7 +277,7 @@ class _LuxeEmptyState extends StatelessWidget {
             style: TextStyle(
               fontSize: metrics.heroBodySize,
               height: 1.55,
-              color: colors.textSecondary,
+              color: activeTheme.secondaryText,
             ),
           ),
         ],

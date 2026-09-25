@@ -62,7 +62,7 @@ class ReviewTopBar extends StatelessWidget {
               children: [
                 Text(
                   'Review & Pay',
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.titleLarge.copyWith(
@@ -76,7 +76,7 @@ class ReviewTopBar extends StatelessWidget {
                 SizedBox(height: metrics.gapXs * 0.5),
                 Text(
                   'Review your order details and proceed to payment',
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.start,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.bodyMedium.copyWith(

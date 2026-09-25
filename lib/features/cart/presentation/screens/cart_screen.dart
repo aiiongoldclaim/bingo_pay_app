@@ -134,12 +134,12 @@ class _CartPageState extends State<CartPage> {
               title: AppStrings.myCart,
               actionIcon1: Icons.favorite_border_rounded,
               onAction1: () => context.push(AppRoutes.buyerWishlist),
-              actionIcon2: state.items.isEmpty
-                  ? null
-                  : Icons.delete_sweep_outlined,
-              onAction2: state.items.isEmpty
-                  ? null
-                  : () => _confirmClearCart(context),
+              // actionIcon2: state.items.isEmpty
+              //     ? null
+              //     : Icons.delete_sweep_outlined,
+              // onAction2: state.items.isEmpty
+              //     ? null
+              //     : () => _confirmClearCart(context),
             ),
             body: SafeArea(
               bottom: false,

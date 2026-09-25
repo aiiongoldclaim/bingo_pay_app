@@ -18,13 +18,13 @@ import '../../data/models/product_model.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import '../models/vault_section.dart';
+import '../models/vault_theme_colors.dart';
 import '../widgets/home_banner_data.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_shimmer.dart';
 import '../widgets/luxe_dashboard_body.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/theme/theme_colors.dart';
 import '../../../services/presentation/cubit/services_state.dart';
 
 import '../widgets/book_services_section.dart';
@@ -103,33 +103,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
       child: Scaffold(
         backgroundColor: colors.background,
-        body: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: const SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: Brightness.dark,
-            statusBarBrightness: Brightness.light,
-          ),
-          child: BlocBuilder<HomeCubit, HomeState>(
-            builder: (context, state) {
-              if (state.status == HomeStatus.loading) {
-                return const SafeArea(bottom: false, child: HomeShimmer());
-              }
+        body: BlocBuilder<HomeCubit, HomeState>(
+          builder: (context, state) {
+            final vaultTheme =
+                VaultThemeColors.forSection(state.selectedVaultSection);
 
-              if (state.status == HomeStatus.error) {
-                return SafeArea(
-                  bottom: false,
-                  child: _HomeErrorState(
-                    metrics: m,
-                    message: state.errorMessage,
-                  ),
-                );
-              }
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: vaultTheme.statusBarIconBrightness,
+                statusBarBrightness: vaultTheme.statusBarBrightness,
+              ),
+              child: Builder(
+                builder: (context) {
+                  if (state.status == HomeStatus.loading) {
+                    return const SafeArea(
+                      bottom: false,
+                      child: HomeShimmer(),
+                    );
+                  }
 
-              _startIntroIfReady(state);
+                  if (state.status == HomeStatus.error) {
+                    return SafeArea(
+                      bottom: false,
+                      child: _HomeErrorState(
+                        metrics: m,
+                        message: state.errorMessage,
+                        activeTheme: vaultTheme,
+                      ),
+                    );
+                  }
 
-              return RefreshIndicator(
-                color: colors.brand,
-                backgroundColor: colors.surface,
+                  _startIntroIfReady(state);
+
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeInOut,
+                    color: vaultTheme.pageBackground,
+                    child: RefreshIndicator(
+                color: vaultTheme.primary,
+                backgroundColor: vaultTheme.cardBackground,
                 onRefresh: () async {
                   context.read<HomeCubit>().loadHome();
                 },
@@ -146,15 +159,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         slivers: [
 
                           SliverToBoxAdapter(
-                            child: DecoratedBox(
-                              decoration: const BoxDecoration(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeInOut,
+                              decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    ThemeColors.vaultHeaderGradientTop,
-                                    ThemeColors.vaultHeaderGradientMiddle,
-                                    ThemeColors.vaultSelectorVeryLightLavender,
+                                    vaultTheme.headerGradientTop,
+                                    vaultTheme.headerGradientMiddle,
+                                    vaultTheme.headerGradientBottom,
                                   ],
                                 ),
                               ),
@@ -174,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         metrics: m,
                                         selectedSection:
                                             state.selectedVaultSection,
+                                        activeTheme: vaultTheme,
                                         onSectionChanged: (section) => context
                                             .read<HomeCubit>()
                                             .selectVaultSection(section),
@@ -190,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               child: HomeSearchField(
                                                 metrics: m,
                                                 hintText: AppStrings.searchHint,
+                                                activeTheme: vaultTheme,
                                                 onTap: () => context.push(
                                                   AppRoutes.search,
                                                 ),
@@ -202,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               icon:
                                                   Icons.favorite_border_rounded,
                                               size: m.headerIconSize,
-                                              color: colors.textPrimary,
+                                              color: vaultTheme.cartHeartIcon,
                                               onTap: () => context.push(
                                                 AppRoutes.buyerWishlist,
                                               ),
@@ -213,9 +230,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                             HeaderIconButton(
                                               icon: Icons.shopping_bag_outlined,
                                               size: m.headerIconSize,
-                                              color: colors.textPrimary,
+                                              color: vaultTheme.cartHeartIcon,
                                               badgeCount: cartState.totalItems,
-                                              badgeColor: colors.brand,
+                                              badgeColor: vaultTheme.primary,
                                               onTap: () =>
                                                   context.push(AppRoutes.cart),
                                             ),
@@ -247,6 +264,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ...state.categories.map((e) => e.name),
                                       ],
                                       selectedIndex: _selectedTabIndex,
+                                      activeColor: vaultTheme.activeCategory,
+                                      dividerColor: vaultTheme.border,
                                       onSelected: (i) {
                                         if (i == 0) {
                                           setState(() => _selectedTabIndex = 0);
@@ -279,6 +298,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   metrics: m,
                                   banners: HomeBanners.defaults,
                                   onBannerTap: (banner) {},
+                                  borderColor: vaultTheme.border,
+                                  activeDotColor: vaultTheme.primary,
+                                  inactiveDotColor: vaultTheme.secondary
+                                      .withValues(alpha: 0.35),
+                                  fallbackIconColor: vaultTheme.secondaryText,
+                                  fallbackBackgroundColor:
+                                      vaultTheme.sectionBackground,
                                 ),
                               ),
                             ),
@@ -304,6 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             AppStrings.bookServiceSubtitle,
                                         buttonText: AppStrings.bookNow,
                                         services: servicesState.services,
+                                        activeTheme: vaultTheme,
                                         onViewAll: () =>
                                             context.push(AppRoutes.services),
                                         onServiceTap: (service) {
@@ -329,7 +356,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (state.flashDeals.isEmpty &&
                                 state.recommended.isEmpty)
                               SliverToBoxAdapter(
-                                child: _EmptyProductsState(metrics: m),
+                                child: _EmptyProductsState(
+                                  metrics: m,
+                                  activeTheme: vaultTheme,
+                                ),
                               )
                             else ...[
                               if (state.flashDeals.isNotEmpty) ...[
@@ -340,8 +370,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       title: AppStrings.todaysDeals,
                                       actionText: AppStrings.viewAll,
                                       products: state.flashDeals,
-                                      onActionTap: () =>
-                                          context.push(AppRoutes.allProducts),
+                                      onActionTap: () => context.push(
+                                        AppRoutes.allProducts,
+                                        extra: VaultSection.theVaults,
+                                      ),
                                       onProductTap: (p) {
                                         if (p.uuid == null) return;
                                         context.push(
@@ -352,6 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onWishlistTap: _toggleWishlist,
                                       onAddToCart: _addToCart,
                                       addingIds: _addingIds,
+                                      activeTheme: vaultTheme,
                                     ),
                                   ),
                                 ),
@@ -367,8 +400,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       title: AppStrings.recommendedForYou,
                                       actionText: AppStrings.viewAll,
                                       products: state.recommended,
-                                      onActionTap: () =>
-                                          context.push(AppRoutes.allProducts),
+                                      onActionTap: () => context.push(
+                                        AppRoutes.allProducts,
+                                        extra: VaultSection.theVaults,
+                                      ),
                                       onProductTap: (p) {
                                         if (p.uuid == null) return;
                                         context.push(
@@ -379,6 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       onWishlistTap: _toggleWishlist,
                                       onAddToCart: _addToCart,
                                       addingIds: _addingIds,
+                                      activeTheme: vaultTheme,
                                     ),
                                   ),
                                 ),
@@ -404,8 +440,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onWishlistTap: _toggleWishlist,
                                 onAddToCart: _addToCart,
                                 addingIds: _addingIds,
-                                onViewAll: () =>
-                                    context.push(AppRoutes.allProducts),
+                                onViewAll: () => context.push(
+                                  AppRoutes.allProducts,
+                                  extra: state.selectedVaultSection,
+                                ),
                               ),
                             ),
                           SliverToBoxAdapter(
@@ -420,9 +458,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+                  );
+                },
+              ),
+            );
+          },
         ),
       ),
     );
@@ -584,13 +625,12 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _EmptyProductsState extends StatelessWidget {
-  const _EmptyProductsState({required this.metrics});
+  const _EmptyProductsState({required this.metrics, required this.activeTheme});
   final HomeMetrics metrics;
+  final VaultThemeColors activeTheme;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.c;
-
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: metrics.pagePadding * 1.5,
@@ -604,13 +644,13 @@ class _EmptyProductsState extends StatelessWidget {
             height: metrics.categoryCircle * 1.6,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: colors.surfaceAlt,
+              color: activeTheme.sectionBackground,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.storefront_outlined,
               size: metrics.categoryCircle * 0.72,
-              color: colors.brand,
+              color: activeTheme.primary,
             ),
           ),
           SizedBox(height: metrics.pagePadding),
@@ -619,7 +659,7 @@ class _EmptyProductsState extends StatelessWidget {
             style: TextStyle(
               fontSize: metrics.sectionTitleSize * 1.1,
               fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
+              color: activeTheme.text,
             ),
           ),
           SizedBox(height: metrics.pagePadding * 0.5),
@@ -629,7 +669,7 @@ class _EmptyProductsState extends StatelessWidget {
             style: TextStyle(
               fontSize: metrics.heroBodySize,
               height: 1.55,
-              color: colors.textSecondary,
+              color: activeTheme.secondaryText,
             ),
           ),
           SizedBox(height: metrics.sectionGap),
@@ -640,8 +680,8 @@ class _EmptyProductsState extends StatelessWidget {
               icon: const Icon(Icons.refresh_rounded),
               label: Text(AppStrings.refresh),
               style: OutlinedButton.styleFrom(
-                foregroundColor: colors.brand,
-                side: BorderSide(color: colors.brand, width: 1.4),
+                foregroundColor: activeTheme.primary,
+                side: BorderSide(color: activeTheme.primary, width: 1.4),
                 padding: EdgeInsets.symmetric(
                   vertical: metrics.pagePadding * 0.85,
                 ),
@@ -662,14 +702,17 @@ class _EmptyProductsState extends StatelessWidget {
 }
 
 class _HomeErrorState extends StatelessWidget {
-  const _HomeErrorState({required this.metrics, this.message});
+  const _HomeErrorState({
+    required this.metrics,
+    this.message,
+    required this.activeTheme,
+  });
   final HomeMetrics metrics;
   final String? message;
+  final VaultThemeColors activeTheme;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.c;
-
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding * 1.5),
@@ -681,13 +724,13 @@ class _HomeErrorState extends StatelessWidget {
               height: metrics.categoryCircle * 1.6,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: colors.surfaceAlt,
+                color: activeTheme.sectionBackground,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.wifi_off_rounded,
                 size: metrics.categoryCircle * 0.72,
-                color: colors.brand,
+                color: activeTheme.primary,
               ),
             ),
             SizedBox(height: metrics.pagePadding),
@@ -696,7 +739,7 @@ class _HomeErrorState extends StatelessWidget {
               style: TextStyle(
                 fontSize: metrics.sectionTitleSize * 1.1,
                 fontWeight: FontWeight.w700,
-                color: colors.textPrimary,
+                color: activeTheme.text,
               ),
             ),
             SizedBox(height: metrics.pagePadding * 0.5),
@@ -706,7 +749,7 @@ class _HomeErrorState extends StatelessWidget {
               style: TextStyle(
                 fontSize: metrics.heroBodySize,
                 height: 1.55,
-                color: colors.textSecondary,
+                color: activeTheme.secondaryText,
               ),
             ),
             SizedBox(height: metrics.sectionGap),

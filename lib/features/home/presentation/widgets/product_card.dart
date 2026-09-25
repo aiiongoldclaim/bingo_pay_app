@@ -1,198 +1,9 @@
+import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../data/models/product_model.dart';
+import '../models/vault_theme_colors.dart';
 import 'home_metrics.dart';
-
-// class ProductCard extends StatelessWidget {
-//   const ProductCard({
-//     super.key,
-//     required this.metrics,
-//     required this.product,
-//     this.isWishlisted = false,
-//     this.onTap,
-//     this.onWishlistTap,
-//     this.onAddToCart,
-//     this.width,
-//   });
-//
-//   final HomeMetrics metrics;
-//   final ProductModel product;
-//   final bool isWishlisted;
-//   final VoidCallback? onTap;
-//   final VoidCallback? onWishlistTap;
-//   final VoidCallback? onAddToCart;
-//   final double? width;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final colors = context.c;
-//     final imageUrl = product.images.isNotEmpty ? product.images.first : '';
-//     final hasOldPrice = product.oldPrice.isNotEmpty;
-//     final hasDiscount = product.discount > 0;
-//
-//     return GestureDetector(
-//       onTap: onTap,
-//       behavior: HitTestBehavior.opaque,
-//       child: SizedBox(
-//         width: width ?? metrics.productCardWidth,
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             // ── Image + wishlist ─────────────────────────
-//             Stack(
-//               children: [
-//                 ClipRRect(
-//                   borderRadius: BorderRadius.circular(8),
-//                   child: Container(
-//                     height: metrics.productImageHeight,
-//                     width: double.infinity,
-//                     color: colors.surfaceAlt,
-//                     child: imageUrl.isEmpty
-//                         ? Icon(
-//                             product.icon,
-//                             size: metrics.categoryIconSize,
-//                             color: colors.textMuted,
-//                           )
-//                         : Image.network(
-//                             imageUrl,
-//                             fit: BoxFit.cover,
-//                             errorBuilder: (_, __, ___) => Icon(
-//                               product.icon,
-//                               size: metrics.categoryIconSize,
-//                               color: colors.textMuted,
-//                             ),
-//                           ),
-//                   ),
-//                 ),
-//                 Positioned(
-//                   top: metrics.pagePadding * 0.45,
-//                   right: metrics.pagePadding * 0.45,
-//                   child: InkResponse(
-//                     onTap: onWishlistTap,
-//                     radius: metrics.searchIconSize,
-//                     child: Icon(
-//                       isWishlisted
-//                           ? Icons.favorite_rounded
-//                           : Icons.favorite_border_rounded,
-//                       size: metrics.searchIconSize,
-//                       color: isWishlisted ? colors.brand : colors.textPrimary,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//
-//             SizedBox(height: metrics.pagePadding * 0.5),
-//
-//             // ── Brand ────────────────────────────────────
-//             Text(
-//               product.brand.toUpperCase(),
-//               maxLines: 1,
-//               overflow: TextOverflow.ellipsis,
-//               style: TextStyle(
-//                 fontSize: metrics.productBrandSize,
-//                 fontWeight: FontWeight.w700,
-//                 letterSpacing: 0.2,
-//                 color: colors.textPrimary,
-//               ),
-//             ),
-//
-//             SizedBox(height: metrics.pagePadding * 0.15),
-//
-//             // ── Name ─────────────────────────────────────
-//             Text(
-//               product.name,
-//               maxLines: 1,
-//               overflow: TextOverflow.ellipsis,
-//               style: TextStyle(
-//                 fontSize: metrics.productNameSize,
-//                 color: colors.textSecondary,
-//               ),
-//             ),
-//
-//             SizedBox(height: metrics.pagePadding * 0.35),
-//
-//             // ── Price row ────────────────────────────────
-//             Row(
-//               crossAxisAlignment: CrossAxisAlignment.baseline,
-//               textBaseline: TextBaseline.alphabetic,
-//               children: [
-//                 Text(
-//                   product.price,
-//                   style: TextStyle(
-//                     fontSize: metrics.productPriceSize,
-//                     fontWeight: FontWeight.w700,
-//                     color: colors.textPrimary,
-//                   ),
-//                 ),
-//                 if (hasOldPrice) ...[
-//                   SizedBox(width: metrics.pagePadding * 0.3),
-//                   Flexible(
-//                     child: Text(
-//                       product.oldPrice,
-//                       maxLines: 1,
-//                       overflow: TextOverflow.ellipsis,
-//                       style: TextStyle(
-//                         fontSize: metrics.productNameSize,
-//                         color: colors.textMuted,
-//                         decoration: TextDecoration.lineThrough,
-//                         decorationColor: colors.textMuted,
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ],
-//             ),
-//
-//             SizedBox(height: metrics.pagePadding * 0.3),
-//
-//             // ── Discount + cart ──────────────────────────
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 if (hasDiscount)
-//                   Flexible(
-//                     child: Text(
-//                       '${product.discount}% OFF',
-//                       maxLines: 1,
-//                       overflow: TextOverflow.ellipsis,
-//                       style: TextStyle(
-//                         fontSize: metrics.productNameSize,
-//                         fontWeight: FontWeight.w600,
-//                         color: colors.discount,
-//                       ),
-//                     ),
-//                   )
-//                 else
-//                   const SizedBox.shrink(),
-//                 InkWell(
-//                   onTap: onAddToCart,
-//                   borderRadius: BorderRadius.circular(6),
-//                   child: Container(
-//                     padding: EdgeInsets.all(metrics.pagePadding * 0.35),
-//                     decoration: BoxDecoration(
-//                       color: colors.brand,
-//                       borderRadius: BorderRadius.circular(6),
-//                     ),
-//                     child: Icon(
-//                       Icons.shopping_bag_outlined,
-//                       size: metrics.searchIconSize * 0.85,
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
 import '../../../../core/constants/app_strings.dart';
 
 
@@ -208,6 +19,7 @@ class ProductCard extends StatelessWidget {
     this.onWishlistTap,
     this.onAddToCart,
     this.width,
+    this.activeTheme,
   });
 
   final HomeMetrics metrics;
@@ -220,20 +32,41 @@ class ProductCard extends StatelessWidget {
   final VoidCallback? onAddToCart;
   final double? width;
 
+  final VaultThemeColors? activeTheme;
+
+  static const _animationDuration = Duration(milliseconds: 320);
+  static const _animationCurve = Curves.easeInOut;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
+    final theme = activeTheme;
     final m = metrics;
     final imageUrl = product.images.isNotEmpty ? product.images.first : '';
     final hasOldPrice = product.oldPrice.isNotEmpty;
     final hasDiscount = product.discount > 0;
+    final cardPad = theme != null ? m.pagePadding * 0.4 : 0.0;
+    final isUltraLuxe = identical(theme, VaultThemeColors.ultraLuxe);
+    final sizeScale = isUltraLuxe ? 1.12 : 1.0;
+    final discountColor = theme?.text ?? colors.discount;
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         width: width ?? m.productCardWidth,
-        child: Column(
+        child: AnimatedContainer(
+          duration: _animationDuration,
+          curve: _animationCurve,
+          padding: EdgeInsets.all(cardPad),
+          decoration: BoxDecoration(
+            color: theme?.cardBackground ?? Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: theme != null
+                ? Border.all(color: theme.border)
+                : null,
+          ),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -244,12 +77,12 @@ class ProductCard extends StatelessWidget {
                   child: Container(
                     height: m.productImageHeight,
                     width: double.infinity,
-                    color: colors.surfaceAlt,
+                    color: theme?.sectionBackground ?? colors.surfaceAlt,
                     child: imageUrl.isEmpty
                         ? Icon(
                             product.icon,
                             size: m.categoryIconSize,
-                            color: colors.textMuted,
+                            color: theme?.secondaryText ?? colors.textMuted,
                           )
                         : Image.network(
                             imageUrl,
@@ -257,7 +90,7 @@ class ProductCard extends StatelessWidget {
                             errorBuilder: (_, __, ___) => Icon(
                               product.icon,
                               size: m.categoryIconSize,
-                              color: colors.textMuted,
+                              color: theme?.secondaryText ?? colors.textMuted,
                             ),
                           ),
                   ),
@@ -273,7 +106,6 @@ class ProductCard extends StatelessWidget {
                       onTap: onWishlistTap,
                       customBorder: const CircleBorder(),
                       child: Padding(
-                        // 44dp tap target — pehle sirf icon clickable tha
                         padding: EdgeInsets.all(m.pagePadding * 0.6),
                         child: Icon(
                           isWishlisted
@@ -281,8 +113,8 @@ class ProductCard extends StatelessWidget {
                               : Icons.favorite_border_rounded,
                           size: m.searchIconSize,
                           color: isWishlisted
-                              ? const Color(0xFFE0533B)
-                              : colors.textPrimary,
+                              ? ThemeColors.red
+                              : (theme?.text ?? colors.textPrimary),
                         ),
                       ),
                     ),
@@ -328,7 +160,7 @@ class ProductCard extends StatelessWidget {
                 fontSize: m.productBrandSize,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2,
-                color: colors.textPrimary,
+                color: theme?.text ?? colors.textPrimary,
               ),
             ),
 
@@ -339,8 +171,8 @@ class ProductCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: m.productNameSize,
-                color: colors.textSecondary,
+                fontSize: m.productNameSize * sizeScale,
+                color: theme?.secondaryText ?? colors.textSecondary,
               ),
             ),
 
@@ -353,9 +185,9 @@ class ProductCard extends StatelessWidget {
                 Text(
                   product.price,
                   style: TextStyle(
-                    fontSize: m.productPriceSize,
+                    fontSize: m.productPriceSize * sizeScale,
                     fontWeight: FontWeight.w700,
-                    color: colors.textPrimary,
+                    color: theme?.text ?? colors.textPrimary,
                   ),
                 ),
                 if (hasOldPrice) ...[
@@ -366,10 +198,10 @@ class ProductCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: m.productNameSize,
-                        color: colors.textMuted,
+                        fontSize: m.productNameSize * sizeScale,
+                        color: theme?.secondaryText ?? colors.textMuted,
                         decoration: TextDecoration.lineThrough,
-                        decorationColor: colors.textMuted,
+                        decorationColor: theme?.secondaryText ?? colors.textMuted,
                       ),
                     ),
                   ),
@@ -391,7 +223,7 @@ class ProductCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: m.productNameSize,
                         fontWeight: FontWeight.w600,
-                        color: colors.discount,
+                        color: discountColor,
                       ),
                     ),
                   )
@@ -400,7 +232,9 @@ class ProductCard extends StatelessWidget {
 
                 // ── Add to cart ──
                 Material(
-                  color: isOutOfStock ? colors.surfaceAlt : colors.brand,
+                  color: isOutOfStock
+                      ? (theme?.sectionBackground ?? colors.surfaceAlt)
+                      : (theme?.button ?? colors.brand),
                   borderRadius: BorderRadius.circular(6),
                   child: InkWell(
                     onTap: (isOutOfStock || isAddingToCart) ? null : onAddToCart,
@@ -411,10 +245,10 @@ class ProductCard extends StatelessWidget {
                         width: m.searchIconSize * 0.85,
                         height: m.searchIconSize * 0.85,
                         child: isAddingToCart
-                            ? const CircularProgressIndicator(
+                            ? CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation(
-                                  Colors.white,
+                                  theme?.buttonText ?? Colors.white,
                                 ),
                               )
                             : Icon(
@@ -422,7 +256,9 @@ class ProductCard extends StatelessWidget {
                                     ? Icons.remove_shopping_cart_outlined
                                     : Icons.shopping_bag_outlined,
                                 size: m.searchIconSize * 0.85,
-                                color: isOutOfStock ? colors.textMuted : Colors.white,
+                                color: isOutOfStock
+                                    ? (theme?.secondaryText ?? colors.textMuted)
+                                    : (theme?.buttonText ?? Colors.white),
                               ),
                       ),
                     ),
@@ -431,6 +267,7 @@ class ProductCard extends StatelessWidget {
               ],
             ),
           ],
+          ),
         ),
       ),
     );

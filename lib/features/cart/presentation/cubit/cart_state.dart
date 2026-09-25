@@ -3,11 +3,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/cart_entity.dart';
 import '../../domain/entities/cart_item_entity.dart';
 
-/// Outcome of a single `CartCubit.addItem` call, returned directly to the
-/// caller instead of being read back off the shared `CartState.error` —
-/// that field reflects whichever cart operation last settled app-wide, so
-/// a concurrent add/remove elsewhere can overwrite it before this call's
-/// own caller gets a chance to read it.
+
 class CartActionResult {
   final bool success;
   final String? errorMessage;

@@ -53,6 +53,7 @@ import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/home/presentation/screens/split_view_screen.dart';
 import '../../features/home/presentation/screens/all_products_screen.dart';
+import '../../features/home/presentation/models/vault_section.dart';
 import '../../features/on_boarding/presentation/screens/onboarding_screen.dart';
 import '../../features/services/presentation/screens/all_services_screen.dart';
 import '../../features/services/presentation/screens/service_detail_screen.dart';
@@ -456,7 +457,11 @@ class AppRouter {
             ),
             GoRoute(
               path: AppRoutes.allProducts,
-              builder: (_, _) => const AllProductsScreen(),
+              builder: (_, state) => AllProductsScreen(
+                section: state.extra is VaultSection
+                    ? state.extra as VaultSection
+                    : null,
+              ),
             ),
             GoRoute(
               path: AppRoutes.services,

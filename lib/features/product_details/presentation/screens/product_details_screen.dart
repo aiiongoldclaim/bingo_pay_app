@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -11,6 +12,8 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
+import '../../../membershipNew/presentation/cubit/membership_cubit.dart';
+import '../../../membershipNew/presentation/cubit/membership_state.dart';
 import '../../../payment/presentation/screens/payment_args.dart';
 import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
@@ -166,7 +169,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final colors = context.c;
 
-    return Scaffold(
+    return BlocProvider<MembershipCubit>(
+      create: (_) => getIt<MembershipCubit>()..load(),
+      child: Scaffold(
       backgroundColor: colors.background,
       body: BlocBuilder<ProductDetailCubit, ProductDetailState>(
         builder: (context, state) {
@@ -184,6 +189,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
           final cartState = context.watch<CartCubit>();
           final wishlistCubit = context.watch<WishlistCubit>();
+          final membershipState = context.watch<MembershipCubit>().state;
+          final isMember =
+              membershipState is MembershipLoaded && membershipState.isMember;
           final isOutOfStock = product.availableStock <= 0;
           final isInCart = cartState.state.items.any(
                 (item) => item.variant.uuid == product.variantUuid,
@@ -205,6 +213,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ProductInfoBlock(metrics: m, product: product),
+
+              if (isMember && product.benefits.isNotEmpty) ...[
+                SizedBox(height: m.gapSm),
+                AppBenefitsStrip(
+                  items: [
+                    for (final b in product.benefits)
+                      BenefitItem(icon: b.icon, title: b.label),
+                  ],
+                ),
+              ],
 
               // SizedBox(height: m.gapLg),
               //
@@ -252,7 +270,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               // ),
 
 
-              SizedBox(height: m.gapMd),
+              // SizedBox(height: m.gapMd-3),
 
               ProductOffersCard(
                 metrics: m,
@@ -283,20 +301,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 rating: product.rating,
                 reviewCount: product.reviewCount,
               ),
-
-              if (product.benefits.isNotEmpty) ...[
-                SizedBox(height: m.gapMd),
-                AppBenefitsStrip(
-                  items: [
-                    for (final b in product.benefits)
-                      BenefitItem(
-                        icon: b.icon,
-                        title: b.label,
-                        subtitle: b.subtitle,
-                      ),
-                  ],
-                ),
-              ],
             ],
           );
 
@@ -396,6 +400,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:injectable/injectable.dart';
-
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_endpoints.dart';
 import 'models/bigod_confirm_response.dart';
@@ -15,9 +14,9 @@ class BigodPaymentDataSource {
     required String addressId,
     String? variantUuid,
     int? quantity,
-    String? offeringUuid, // NEW
-    String? slotUuid, // NEW
-    int? participants, // NEW
+    String? offeringUuid,
+    String? slotUuid,
+    int? participants,
   }) async {
     final response = await _client.dio.post(
       ApiEndpoints.bigodIntent,

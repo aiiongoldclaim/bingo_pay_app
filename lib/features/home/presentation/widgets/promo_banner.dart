@@ -1,114 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:sizer/sizer.dart';
-//
-// import '../../../../core/constants/app_sizes.dart';
-// import '../../../../core/theme/app_text_styles.dart';
-// import '../../../../core/theme/theme_colors.dart';
-//
-// class PromoBanner extends StatelessWidget {
-//   const PromoBanner({
-//     super.key,
-//     required this.title,
-//     required this.heading,
-//     required this.buttonText,
-//     this.onTap,
-//     this.icon = Icons.card_giftcard_rounded,
-//   });
-//
-//   final String title;
-//   final String heading;
-//   final String buttonText;
-//   final VoidCallback? onTap;
-//   final IconData icon;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: EdgeInsets.symmetric(horizontal: 5.w),
-//       height: 22.h,
-//       width: double.infinity,
-//       decoration: BoxDecoration(
-//         color: ThemeColors.accent,
-//         borderRadius: BorderRadius.circular(AppSizes.cardRadius),
-//       ),
-//       child: Stack(
-//         children: [
-//           /// Background Gift Icon
-//           Positioned(
-//             right: -2.w,
-//             bottom: -2.h,
-//             child: Icon(
-//               icon,
-//               size: 28.w,
-//               color: ThemeColors.white.withOpacity(.25),
-//             ),
-//           ),
-//
-//           /// Content
-//           Padding(
-//             padding: EdgeInsets.all(AppSizes.paddingLg.toDouble()),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text(
-//                   title.toUpperCase(),
-//                   style: AppTextStyles.bannerTitle.copyWith(
-//                     fontSize: 15.sp,
-//                     fontWeight: FontWeight.w700,
-//                   ),
-//                 ),
-//
-//                 SizedBox(height: 0.8.h),
-//
-//                 Expanded(
-//                   child: Text(
-//                     heading,
-//                     style: AppTextStyles.bannerHeading.copyWith(
-//                       fontSize: 20.sp,
-//                       color: ThemeColors.accentInk,
-//                     ),
-//                   ),
-//                 ),
-//
-//                 GestureDetector(
-//                   onTap: onTap,
-//                   child: Container(
-//                     padding: EdgeInsets.symmetric(
-//                       horizontal: 5.w,
-//                       vertical: 1.4.h,
-//                     ),
-//                     decoration: BoxDecoration(
-//                       color: ThemeColors.accentInk,
-//                       borderRadius: BorderRadius.circular(AppSizes.radiusXl),
-//                     ),
-//                     child: Row(
-//                       mainAxisSize: MainAxisSize.min,
-//                       children: [
-//                         Text(
-//                           buttonText,
-//                           style: AppTextStyles.buttonText.copyWith(
-//                             fontSize: 15.sp,
-//                             color: ThemeColors.white,
-//                           ),
-//                         ),
-//                         SizedBox(width: 2.w),
-//                         Icon(
-//                           Icons.arrow_forward_rounded,
-//                           color: ThemeColors.white,
-//                           size: AppSizes.iconMd,
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -124,17 +13,21 @@ class PromoBanner extends StatelessWidget {
     required this.banner,
     this.onTap,
     this.overlayGradient,
+    this.borderColor,
+    this.fallbackIconColor,
+    this.fallbackBackgroundColor,
   });
 
   final HomeMetrics metrics;
   final HomeBannerData banner;
   final VoidCallback? onTap;
-
-  /// Optional colour wash drawn over the same banner image — lets a section
-  /// (e.g. Vaults Luxe / Ultra Luxe) reuse TheVaults' banner art with its own
-  /// tint instead of needing separate image assets. `null` (the default,
-  /// used by TheVaults) leaves the banner exactly as-is.
   final Gradient? overlayGradient;
+  final Color? borderColor;
+  final Color? fallbackIconColor;
+  final Color? fallbackBackgroundColor;
+
+  static const _animationDuration = Duration(milliseconds: 350);
+  static const _animationCurve = Curves.easeInOut;
 
   @override
   Widget build(BuildContext context) {
@@ -143,31 +36,41 @@ class PromoBanner extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(metrics.heroRadius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(
-              banner.imageAsset,
-              fit: BoxFit.fill, // container ab exact ratio ka hai
-              width: double.infinity,
-              height: double.infinity,
-              errorBuilder: (_, __, ___) => Container(
-                color: colors.surfaceAlt,
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.image_outlined,
-                  size: metrics.categoryIconSize,
-                  color: colors.textMuted,
+      child: AnimatedContainer(
+        duration: _animationDuration,
+        curve: _animationCurve,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(metrics.heroRadius),
+          border: borderColor != null
+              ? Border.all(color: borderColor!, width: 1.2)
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(metrics.heroRadius),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.asset(
+                banner.imageAsset,
+                fit: BoxFit.fill,
+                width: double.infinity,
+                height: double.infinity,
+                errorBuilder: (_, __, ___) => Container(
+                  color: fallbackBackgroundColor ?? colors.surfaceAlt,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.image_outlined,
+                    size: metrics.categoryIconSize,
+                    color: fallbackIconColor ?? colors.textMuted,
+                  ),
                 ),
               ),
-            ),
-            if (overlayGradient != null)
-              DecoratedBox(
-                decoration: BoxDecoration(gradient: overlayGradient),
-              ),
-          ],
+              if (overlayGradient != null)
+                DecoratedBox(
+                  decoration: BoxDecoration(gradient: overlayGradient),
+                ),
+            ],
+          ),
         ),
       ),
     );

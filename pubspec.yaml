@@ -1,7 +1,7 @@
 name: bingo_pay
 description: "Bingo Pay — Multi-vendor marketplace app"
 publish_to: 'none'
-version: 1.0.0+9
+version: 1.0.0+10
 
 environment:
   sdk: ^3.10.8
@@ -55,6 +55,7 @@ dependencies:
   share_plus: ^12.0.2
 
   url_launcher: ^6.2.4
+  open_filex: ^4.7.0
   in_app_update: ^4.2.2
   in_app_review: ^2.0.12
 

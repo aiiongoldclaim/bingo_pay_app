@@ -133,6 +133,72 @@ class ThemeColors {
   static const Color vaultSearchBorder = Color(0xFFE8DDF3);
 
   // =========================
+  // DASHBOARD VAULT EXPERIENCE THEMES
+  // (upper dashboard area: status bar → TheVaults/Vaults Luxe/Ultra Luxe
+  // selector → search bar → heart/cart icons → category tabs). Consumed via
+  // [VaultThemeColors] — never reference these hex values directly from a
+  // widget.
+  // =========================
+
+  // ── TheVaults — lavender / purple ──────────────────────────
+  static const Color dashboardTheVaultsHeaderTop = Color(0xFFDCC8EE);
+  static const Color dashboardTheVaultsHeaderMiddle = Color(0xFFE9DDF3);
+  static const Color dashboardTheVaultsHeaderBottom = Color(0xFFF8F4FB);
+  static const Color dashboardTheVaultsPrimary = Color(0xFF5B2A86);
+  static const Color dashboardTheVaultsSecondary = Color(0xFF7B4BA3);
+  static const Color dashboardTheVaultsSelectedTab = Color(0xFF5B2A86);
+  static const Color dashboardTheVaultsUnselectedTab = Color(0xFFF4ECF9);
+  static const Color dashboardTheVaultsText = Color(0xFF3F2456);
+  static const Color dashboardTheVaultsActiveCategory = Color(0xFF5B2A86);
+  static const Color dashboardTheVaultsSearchIcon = Color(0xFF5B2A86);
+  static const Color dashboardTheVaultsCartIcon = Color(0xFF5B2A86);
+  static const Color dashboardTheVaultsPageBackground = Color(0xFFFFFFFF);
+  static const Color dashboardTheVaultsSectionBackground = Color(0xFFF8F4FB);
+  static const Color dashboardTheVaultsCardBackground = Color(0xFFFFFFFF);
+  static const Color dashboardTheVaultsBorder = Color(0xFFE3D5ED);
+
+  // ── Vaults Luxe — champagne / gold ─────────────────────────
+  static const Color dashboardLuxeHeaderTop = Color(0xFFEBD5B5);
+  static const Color dashboardLuxeHeaderMiddle = Color(0xFFF3E3CA);
+  static const Color dashboardLuxeHeaderBottom = Color(0xFFFBF6ED);
+  static const Color dashboardLuxePrimary = Color(0xFFA06B1F);
+  static const Color dashboardLuxeSecondary = Color(0xFFC59645);
+  static const Color dashboardLuxeSelectedTab = Color(0xFFA06B1F);
+  static const Color dashboardLuxeUnselectedTab = Color(0xFFFCF4E6);
+  static const Color dashboardLuxeText = Color(0xFF5A421A);
+  static const Color dashboardLuxeActiveCategory = Color(0xFFA06B1F);
+  static const Color dashboardLuxeSearchIcon = Color(0xFFA06B1F);
+  static const Color dashboardLuxeCartIcon = Color(0xFFA06B1F);
+  static const Color dashboardLuxePageBackground = Color(0xFFFFFCF6);
+  static const Color dashboardLuxeSectionBackground = Color(0xFFFBF6ED);
+  static const Color dashboardLuxeCardBackground = Color(0xFFFFFDF8);
+  static const Color dashboardLuxeBorder = Color(0xFFE8D3AE);
+
+  // ── Ultra Luxe — deep plum / black + gold ──────────────────
+  static const Color dashboardUltraHeaderTop = Color(0xFF24102F);
+  static const Color dashboardUltraHeaderMiddle = Color(0xFF3B1D4D);
+  static const Color dashboardUltraHeaderBottom = Color(0xFF5A326D);
+  static const Color dashboardUltraPrimary = Color(0xFFF3CE6B);
+  static const Color dashboardUltraSecondary = Color(0xFFD8A93A);
+  static const Color dashboardUltraSelectedTab = Color(0xFF1A0B24);
+  static const Color dashboardUltraUnselectedTab = Color(0xFF3A2350);
+  static const Color dashboardUltraText = Color(0xFFFFFFFF);
+  static const Color dashboardUltraActiveCategory = Color(0xFFF3CE6B);
+  // Search icon stays TheVaults-purple even on Ultra Luxe's white search
+  // field, per design spec.
+  static const Color dashboardUltraSearchIcon = Color(0xFF5B2A86);
+  static const Color dashboardUltraCartIcon = Color(0xFFF3CE6B);
+  static const Color dashboardUltraPageBackground = Color(0xFF170C20);
+  static const Color dashboardUltraSectionBackground = Color(0xFF24102F);
+  static const Color dashboardUltraCardBackground = Color(0xFF2F183C);
+  static const Color dashboardUltraBorder = Color(0xFF6B477A);
+  static const Color dashboardUltraSecondaryText = Color(0xFFE7DDF0);
+  // Text-on-button colour for Ultra Luxe's gold (#D8A93A) buttons — needs a
+  // dark ink for contrast, unlike TheVaults/Luxe whose buttons stay solid
+  // enough for white text.
+  static const Color dashboardUltraButtonText = Color(0xFF1A0B24);
+
+  // =========================
   // MEMBERSHIP PLAN CARDS (Choose Your Plan redesign)
   // =========================
   static const Color membershipPrimaryPurple = Color(0xFF5B2A86);

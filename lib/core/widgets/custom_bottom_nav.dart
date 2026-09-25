@@ -269,6 +269,7 @@ class CustomBottomNav extends StatelessWidget {
     this.onTap,
     this.items = defaultItems,
     this.badges = const {},
+    this.activeColorOverride,
   });
 
   final int currentIndex;
@@ -277,6 +278,8 @@ class CustomBottomNav extends StatelessWidget {
 
   /// Tab index → badge count. e.g. `{4: cartCount}`
   final Map<int, int> badges;
+
+  final Color? activeColorOverride;
 
   static const List<BottomNavItemData> defaultItems = [
     BottomNavItemData(
@@ -340,6 +343,7 @@ class CustomBottomNav extends StatelessWidget {
                       data: items[i],
                       selected: i == currentIndex,
                       badgeCount: badges[i] ?? 0,
+                      activeColorOverride: activeColorOverride,
                       onTap: () => onTap?.call(i),
                     );
                   }),
@@ -362,6 +366,7 @@ class _NavItem extends StatelessWidget {
     required this.selected,
     required this.badgeCount,
     required this.onTap,
+    this.activeColorOverride,
   });
 
   final BottomNavMetrics metrics;
@@ -369,12 +374,18 @@ class _NavItem extends StatelessWidget {
   final bool selected;
   final int badgeCount;
   final VoidCallback onTap;
+  final Color? activeColorOverride;
+
+  static const _animationDuration = Duration(milliseconds: 320);
+  static const _animationCurve = Curves.easeInOut;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
     final m = metrics;
-    final color = selected ? colors.navSelected : colors.navUnselected;
+    final targetColor = selected
+        ? (activeColorOverride ?? colors.navSelected)
+        : colors.navUnselected;
 
     return Expanded(
       child: InkResponse(
@@ -382,40 +393,48 @@ class _NavItem extends StatelessWidget {
         radius: m.iconSize * 1.6,
         highlightShape: BoxShape.rectangle,
         containedInkWell: true,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
+        child: TweenAnimationBuilder<Color?>(
+          tween: ColorTween(end: targetColor),
+          duration: _animationDuration,
+          curve: _animationCurve,
+          builder: (context, animatedColor, _) {
+            final color = animatedColor ?? targetColor;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  selected ? data.activeIcon : data.inactiveIcon,
-                  size: m.iconSize,
-                  color: color,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Icon(
+                      selected ? data.activeIcon : data.inactiveIcon,
+                      size: m.iconSize,
+                      color: color,
+                    ),
+                    if (badgeCount > 0)
+                      Positioned(
+                        top: -m.badgeSize * 0.35,
+                        right: -m.badgeSize * 0.35,
+                        child: _Badge(metrics: m, count: badgeCount),
+                      ),
+                  ],
                 ),
-                if (badgeCount > 0)
-                  Positioned(
-                    top: -m.badgeSize * 0.35,
-                    right: -m.badgeSize * 0.35,
-                    child: _Badge(metrics: m, count: badgeCount),
+                SizedBox(height: m.iconLabelGap),
+                Text(
+                  data.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: m.labelSize,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                    height: 1.1,
+                    letterSpacing: 0.1,
+                    color: color,
                   ),
+                ),
               ],
-            ),
-            SizedBox(height: m.iconLabelGap),
-            Text(
-              data.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: m.labelSize,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                height: 1.1,
-                letterSpacing: 0.1,
-                color: color,
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

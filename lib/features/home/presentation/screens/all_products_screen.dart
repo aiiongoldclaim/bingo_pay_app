@@ -14,11 +14,13 @@ import '../../../wishlist/data/models/wishlist_model.dart';
 import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_model.dart';
 import '../../data/repositories/all_products_repo.dart';
+import '../models/vault_section.dart';
 import '../widgets/products_grid_shimmer.dart';
 import '../widgets/products_metrics.dart';
 
 class AllProductsScreen extends StatefulWidget {
-  const AllProductsScreen({super.key});
+  const AllProductsScreen({super.key, this.section});
+  final VaultSection? section;
 
   @override
   State<AllProductsScreen> createState() => _AllProductsScreenState();
@@ -37,6 +39,30 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
   bool _hasMore = true;
 
   final Set<String> _addingIds = {};
+
+  String? get _listingLevel {
+    switch (widget.section) {
+      case VaultSection.ultraLuxe:
+        return 'ULTRA_LUXE';
+      case VaultSection.vaultsLuxe:
+        return 'LUXE';
+      case VaultSection.theVaults:
+      case null:
+        return null;
+    }
+  }
+
+  List<ProductModel> _filterForSection(List<ProductModel> products) {
+    switch (widget.section) {
+      case VaultSection.ultraLuxe:
+        return products.where((p) => p.isUltraLuxe).toList();
+      case VaultSection.vaultsLuxe:
+        return products.where((p) => p.isVaultsLuxe).toList();
+      case VaultSection.theVaults:
+      case null:
+        return products;
+    }
+  }
 
   @override
   void initState() {
@@ -69,12 +95,14 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       final products = await getIt<ProductRepository>().getAllProducts(
         page: 1,
         limit: _pageSize,
+        listingLevel: _listingLevel,
       );
+      final filtered = _filterForSection(products);
       if (!mounted) return;
       setState(() {
         _products
           ..clear()
-          ..addAll(products);
+          ..addAll(filtered);
         _currentPage = 1;
         _hasMore = products.length == _pageSize;
         _isLoading = false;
@@ -96,10 +124,12 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
       final products = await getIt<ProductRepository>().getAllProducts(
         page: nextPage,
         limit: _pageSize,
+        listingLevel: _listingLevel,
       );
+      final filtered = _filterForSection(products);
       if (!mounted) return;
       setState(() {
-        _products.addAll(products);
+        _products.addAll(filtered);
         _currentPage = nextPage;
         _hasMore = products.length == _pageSize;
         _isLoadingMore = false;
@@ -196,6 +226,7 @@ class _AllProductsScreenState extends State<AllProductsScreen> {
             _ProductsTopBar(
               metrics: m,
               count: _isLoading ? null : _products.length,
+              title: widget.section?.label ?? AppStrings.allProducts,
             ),
 
             Expanded(
@@ -343,8 +374,13 @@ class _ProductsGrid extends StatelessWidget {
 class _ProductsTopBar extends StatelessWidget {
   final ProductsMetrics metrics;
   final int? count;
+  final String title;
 
-  const _ProductsTopBar({required this.metrics, required this.count});
+  const _ProductsTopBar({
+    required this.metrics,
+    required this.count,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -378,7 +414,7 @@ class _ProductsTopBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  AppStrings.allProducts,
+                  title,
                   style: AppTextStyles.titleLarge.copyWith(
                     color: colors.textPrimary,
                     fontFamily: 'Inter',

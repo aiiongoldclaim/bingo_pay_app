@@ -104,6 +104,8 @@ import '../router/app_routes.dart';
 import 'custom_bottom_nav.dart';
 import '../di/injection.dart';
 import '../../features/home/presentation/cubit/dashboard_cubit.dart';
+import '../../features/home/presentation/cubit/dashboard_state.dart';
+import '../../features/home/presentation/models/vault_theme_colors.dart';
 
 class BuyerShellScreen extends StatefulWidget {
   final Widget child;
@@ -202,9 +204,20 @@ class _BuyerShellScreenState extends State<BuyerShellScreen> {
       // ── Glass bottom nav ─────────────────────────────────────────────────
       bottomNavigationBar: hideNav
           ? null
-          : CustomBottomNav(
-              currentIndex: _selectedIndex,
-              onTap: (index) => _onTap(context, index),
+          : BlocBuilder<HomeCubit, HomeState>(
+              bloc: _homeCubit,
+              builder: (context, homeState) {
+                final activeColorOverride = _selectedIndex == 0
+                    ? VaultThemeColors.forSection(
+                        homeState.selectedVaultSection,
+                      ).primary
+                    : null;
+                return CustomBottomNav(
+                  currentIndex: _selectedIndex,
+                  activeColorOverride: activeColorOverride,
+                  onTap: (index) => _onTap(context, index),
+                );
+              },
             ),
     );
   }

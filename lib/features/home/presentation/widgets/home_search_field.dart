@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../models/vault_theme_colors.dart';
 import 'home_metrics.dart';
 
 class HomeSearchField extends StatelessWidget {
@@ -8,30 +8,35 @@ class HomeSearchField extends StatelessWidget {
     super.key,
     required this.metrics,
     required this.hintText,
+    required this.activeTheme,
     this.onTap,
   });
 
   final HomeMetrics metrics;
   final String hintText;
+  final VaultThemeColors activeTheme;
   final VoidCallback? onTap;
+
+  static const _animationDuration = Duration(milliseconds: 350);
+  static const _animationCurve = Curves.easeInOut;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.c;
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AnimatedContainer(
+        duration: _animationDuration,
+        curve: _animationCurve,
         height: metrics.searchHeight,
         padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding * 0.85),
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: ThemeColors.white,
           borderRadius: BorderRadius.circular(metrics.searchRadius),
-          border: Border.all(color: ThemeColors.vaultSearchBorder),
+          border: Border.all(color: activeTheme.searchBorder),
           boxShadow: [
             BoxShadow(
-              color: ThemeColors.vaultSelectorPrimary.withValues(alpha: 0.06),
+              color: activeTheme.primary.withValues(alpha: 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -39,10 +44,15 @@ class HomeSearchField extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.search_rounded,
-              size: metrics.searchIconSize,
-              color: ThemeColors.vaultSelectorPrimary,
+            TweenAnimationBuilder<Color?>(
+              tween: ColorTween(end: activeTheme.searchIcon),
+              duration: _animationDuration,
+              curve: _animationCurve,
+              builder: (context, animatedColor, _) => Icon(
+                Icons.search_rounded,
+                size: metrics.searchIconSize,
+                color: animatedColor ?? activeTheme.searchIcon,
+              ),
             ),
             SizedBox(width: metrics.pagePadding * 0.7),
             Expanded(

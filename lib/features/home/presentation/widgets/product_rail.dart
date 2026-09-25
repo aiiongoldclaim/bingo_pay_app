@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/models/product_model.dart';
+import '../models/vault_theme_colors.dart';
 import 'home_metrics.dart';
 import 'product_card.dart';
 import 'section_header.dart';
@@ -21,6 +22,9 @@ class ProductRail extends StatelessWidget {
     this.onWishlistTap,
     this.onAddToCart,
     this.addingIds = const {},
+    this.activeTheme,
+    this.titleHighlightPrefix,
+    this.titleHighlightColor,
   });
 
   final HomeMetrics metrics;
@@ -32,6 +36,12 @@ class ProductRail extends StatelessWidget {
   final ValueChanged<ProductModel>? onWishlistTap;
   final ValueChanged<ProductModel>? onAddToCart;
   final Set<String> addingIds;
+
+
+  final VaultThemeColors? activeTheme;
+
+  final String? titleHighlightPrefix;
+  final Color? titleHighlightColor;
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +57,15 @@ class ProductRail extends StatelessWidget {
             title: title,
             actionText: actionText,
             onActionTap: onActionTap,
+            titleColor: activeTheme?.text,
+            actionColor: activeTheme?.button,
+            highlightPrefix: titleHighlightPrefix,
+            highlightColor: titleHighlightColor,
           ),
         ),
         SizedBox(height: metrics.pagePadding * 0.8),
         SizedBox(
           height: metrics.productCardHeight,
-          // Wishlist change pe sirf ye rail rebuild hogi, poora screen nahi
           child: BlocBuilder<WishlistCubit, WishlistState>(
             builder: (context, wishlistState) {
               return ListView.separated(
@@ -66,6 +79,7 @@ class ProductRail extends StatelessWidget {
                   return ProductCard(
                     metrics: metrics,
                     product: p,
+                    activeTheme: activeTheme,
                     isWishlisted:
                         p.uuid != null &&
                         wishlistState.items.any((e) => e.id == p.uuid),

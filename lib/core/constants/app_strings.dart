@@ -62,10 +62,9 @@ class AppStrings {
   static const String clearCartTitle = 'Clear cart?';
   static const String clearCartContent =
       'All items in your bag will be removed.';
-  static const String cartEmptyTitle = 'Your bag feels light!';
+  static const String cartEmptyTitle = 'Hey, it feels light!';
   static const String cartEmptySubtitle =
-      "Add items you love and they'll show up right here,\nready for "
-      'checkout.';
+      "There is nothing in your cart. Let's add some items";
   static const String startShopping = 'START SHOPPING';
   static const String orderSummary = 'Order Summary';
   static const String shippingFee = 'Shipping Fee';

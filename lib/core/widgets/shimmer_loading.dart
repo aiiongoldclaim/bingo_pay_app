@@ -29,9 +29,6 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
     final colors = context.colors;
     final baseColor = colors.surfaceAlt;
 
-    // Dark mode: nudge the highlight toward white just a little, so the
-    // sweep stays a dark gray tone instead of flashing bright. Light mode:
-    // nudge further, for the usual light-gray sweep.
     final highlightColor = Color.lerp(
       baseColor,
       Colors.white,
@@ -60,8 +57,7 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   }
 }
 
-/// A solid placeholder block used inside [ShimmerLoading] to represent
-/// text lines, images, or cards while content is loading.
+
 class ShimmerBox extends StatelessWidget {
   const ShimmerBox({
     super.key,

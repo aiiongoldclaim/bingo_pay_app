@@ -42,8 +42,7 @@ class BookingRemoteDatasources {
 
   Future<InvoiceDownload> downloadInvoice(String orderUuid) async {
     final response = await _apiClient.dio.get<List<int>>(
-      // '${ApiEndpoints.myBookings}/$bookingUuid/invoice',
-      '${ApiEndpoints.orders}/$orderUuid/invoice',
+      '${ApiEndpoints.myBookings}/$orderUuid/invoice',
       options: Options(responseType: ResponseType.bytes),
     );
     final disposition = response.headers.value('content-disposition');

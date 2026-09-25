@@ -54,6 +54,8 @@
 // }
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/constants/image_constants.dart';
+
 @immutable
 class HomeBannerData {
   final String imageAsset;
@@ -85,5 +87,11 @@ class HomeBanners {
       id: 'member_offer',
       imageAsset: '$_dir/TheVaults_Banner_4.png',
     ),
+  ];
+
+  static const List<HomeBannerData> ultraLuxe = [
+    HomeBannerData(id: 'ultra_luxe_1', imageAsset: AppImages.ultraLuxeBanner1),
+    HomeBannerData(id: 'ultra_luxe_2', imageAsset: AppImages.ultraLuxeBanner2),
+    HomeBannerData(id: 'ultra_luxe_3', imageAsset: AppImages.ultraLuxeBanner3),
   ];
 }

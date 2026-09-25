@@ -22,6 +22,10 @@ class AppImages {
   static const String dashboardDark = '$base/dashboard_dark.png';
   static const String dashboardLight = '$base/dashboard_light.png';
 
+  static const String ultraLuxeBanner1 = '$base/ultra_luxe_banner_1.png';
+  static const String ultraLuxeBanner2 = '$base/ultra_luxe_banner_1.png';
+  static const String ultraLuxeBanner3 = '$base/ultra_luxe_banner_1.png';
+
   //help&suport
   static const String help = '$base/help.png';
   static const String membership = '$base/membership.png';

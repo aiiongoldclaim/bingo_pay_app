@@ -10,6 +10,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
 import '../../../../core/utils/review_helper.dart';
+import '../../../bookings/data/datasources/booking_remote_datasources.dart';
 import '../../../orders/data/datasources/orders_remote_datasource.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
@@ -55,9 +56,20 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
 
     setState(() => _generatingPdf = true);
     try {
-      final invoice = await GetIt.I<OrdersRemoteDataSource>()
-          .downloadInvoice(state.orderUuid);
-      await openOrSharePdf(invoice.bytes, invoice.filename);
+      final List<int> bytes;
+      final String filename;
+      if (state.isServiceBooking) {
+        final invoice = await GetIt.I<BookingRemoteDatasources>()
+            .downloadInvoice(state.orderUuid);
+        bytes = invoice.bytes;
+        filename = invoice.filename;
+      } else {
+        final invoice = await GetIt.I<OrdersRemoteDataSource>()
+            .downloadInvoice(state.orderUuid);
+        bytes = invoice.bytes;
+        filename = invoice.filename;
+      }
+      await openOrSharePdf(bytes, filename);
     } catch (e, st) {
       debugPrint('[Invoice] Download failed: $e\n$st');
       if (mounted) {

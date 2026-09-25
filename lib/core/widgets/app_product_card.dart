@@ -1,9 +1,9 @@
 import 'package:bingo_pay/core/theme/theme_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
 import '../theme/app_text_styles.dart';
 import '../theme/app_theme_colors.dart';
+import 'app_product_card_metrics.dart';
 
 
 class AppProductCard extends StatelessWidget {
@@ -45,23 +45,21 @@ class AppProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
-    final size = MediaQuery.sizeOf(context);
-    final isTablet = size.shortestSide >= 540;
-    final isLandscape = size.width > size.height;
+    final m = AppProductCardMetrics.of(context);
 
-    final radius = isTablet ? 18.0 : 16.0;
-    final pad = isTablet ? (isLandscape ? 12.0 : 14.0) : 3.w;
-    final heartBox = isTablet ? (isLandscape ? 36.0 : 40.0) : 9.w;
-    final heartIcon = isTablet ? (isLandscape ? 18.0 : 20.0) : 16.sp;
-    final brandSize = isTablet ? (isLandscape ? 12.0 : 13.0) : 11.sp;
-    final nameSize = isTablet ? (isLandscape ? 15.0 : 16.0) : 13.sp;
-    final priceSize = isTablet ? (isLandscape ? 16.0 : 17.0) : 14.sp;
-    final metaSize = isTablet ? (isLandscape ? 12.0 : 13.0) : 11.sp;
-    final btnHeight = isTablet ? (isLandscape ? 36.0 : 40.0) : 4.4.h;
-    final btnFont = isTablet ? (isLandscape ? 13.0 : 14.0) : 12.sp;
-    final btnIcon = isTablet ? (isLandscape ? 16.0 : 17.0) : 14.sp;
-    final gapXs = isTablet ? 4.0 : 0.5.h;
-    final gapSm = isTablet ? 8.0 : 0.9.h;
+    final radius = m.radius;
+    final pad = m.pad;
+    final heartBox = m.heartBox;
+    final heartIcon = m.heartIcon;
+    final brandSize = m.brandSize;
+    final nameSize = m.nameSize;
+    final priceSize = m.priceSize;
+    final metaSize = m.metaSize;
+    final btnHeight = m.btnHeight;
+    final btnFont = m.btnFont;
+    final btnIcon = m.btnIcon;
+    final gapXs = m.gapXs;
+    final gapSm = m.gapSm;
 
     return Material(
       color: colors.surface,
@@ -131,7 +129,7 @@ class AppProductCard extends StatelessWidget {
                                 color: colors.surface,
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
-                                fontSize: metaSize - 1,
+                                fontSize: metaSize,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -170,7 +168,6 @@ class AppProductCard extends StatelessWidget {
                                     : Icons.favorite_border_rounded,
                                 size: heartIcon,
                                  color: isFavourite ? ThemeColors.red : colors.textSecondary,
-                                // color: ThemeColors.red,
                               ),
                             ),
                           ),
@@ -268,7 +265,7 @@ class AppProductCard extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.star_rounded,
-                              size: metaSize + 3,
+                              size: metaSize + 4,
                               color: colors.brand,
                             ),
                             SizedBox(width: gapXs * 0.6),
@@ -289,64 +286,6 @@ class AppProductCard extends StatelessWidget {
 
                       SizedBox(height: gapSm * 0.6),
 
-                      // if (onAddToCart != null)
-                      //   SizedBox(
-                      //     height: btnHeight,
-                      //     width: double.infinity,
-                      //     child: Material(
-                      //       color: isInCart ? colors.brand : colors.brandSoft,
-                      //       borderRadius: BorderRadius.circular(10),
-                      //       clipBehavior: Clip.antiAlias,
-                      //       child: InkWell(
-                      //         onTap: isAddingToCart ? null : onAddToCart,
-                      //         child: Center(
-                      //           child: isAddingToCart
-                      //               ? SizedBox(
-                      //             width: btnIcon,
-                      //             height: btnIcon,
-                      //             child: CircularProgressIndicator(
-                      //               strokeWidth: 2,
-                      //               valueColor: AlwaysStoppedAnimation(
-                      //                 isInCart ? colors.surface : colors.brand,
-                      //               ),
-                      //             ),
-                      //           )
-                      //               : Row(
-                      //             mainAxisAlignment:
-                      //             MainAxisAlignment.center,
-                      //             children: [
-                      //               Icon(
-                      //                 Icons.shopping_bag_outlined,
-                      //                 size: btnIcon,
-                      //                 color: isInCart
-                      //                     ? colors.surface
-                      //                     : colors.brand,
-                      //               ),
-                      //               SizedBox(width: gapXs * 1.2),
-                      //               Flexible(
-                      //                 child: Text(
-                      //                   isInCart
-                      //                       ? 'Go to Cart'
-                      //                       : 'Add to Cart',
-                      //                   maxLines: 1,
-                      //                   overflow: TextOverflow.ellipsis,
-                      //                   style: AppTextStyles.labelMedium
-                      //                       .copyWith(
-                      //                     color: isInCart
-                      //                         ? colors.surface
-                      //                         : colors.brand,
-                      //                     fontFamily: 'Inter',
-                      //                     fontWeight: FontWeight.w600,
-                      //                     fontSize: btnFont,
-                      //                   ),
-                      //                 ),
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
                       if (onAddToCart != null || isOutOfStock)
                         SizedBox(
                           height: btnHeight,
