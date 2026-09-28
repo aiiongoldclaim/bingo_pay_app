@@ -216,12 +216,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                               width: m.pagePadding * 0.7,
                                             ),
                                             HeaderIconButton(
-                                              icon:
-                                                  Icons.favorite_border_rounded,
+                                              icon: Icons
+                                                  .qr_code_scanner_rounded,
                                               size: m.headerIconSize,
                                               color: vaultTheme.cartHeartIcon,
                                               onTap: () => context.push(
-                                                AppRoutes.buyerWishlist,
+                                                AppRoutes.scanner,
                                               ),
                                             ),
                                             SizedBox(

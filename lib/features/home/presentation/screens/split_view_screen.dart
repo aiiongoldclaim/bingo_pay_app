@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
@@ -16,17 +17,7 @@ class SplitViewScreen extends StatefulWidget {
 }
 
 class _SplitViewScreenState extends State<SplitViewScreen> {
-  bool _isNavigating = false;
 
-  void _handleBackPress() {
-    if (_isNavigating) return;
-
-    _isNavigating = true;
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
-    _isNavigating = false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,21 +40,10 @@ class _SplitViewScreenState extends State<SplitViewScreen> {
         ),
       ],
       child: Scaffold(
-        appBar: AppBar(
-          elevation: 1,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          surfaceTintColor: Colors.transparent,
-          leading: Padding(
-            padding: EdgeInsets.only(left: 8),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_ios, size: 20),
-              onPressed: _handleBackPress,
-              splashRadius: 24,
-            ),
-          ),
-          title: Text('Browse & Explore', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 0.3)),
+        appBar: CustomAppBar(
+          title: "Browse & Explore",
           centerTitle: false,
-          titleSpacing: 0,
+          showBackButton: false,
         ),
         body: SafeArea(
           bottom: false,

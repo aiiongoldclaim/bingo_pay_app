@@ -86,8 +86,6 @@ class AppRouter {
   RouteAuthState _authState = const RouteAuthState.loading();
   late bool _onboardingSeen;
 
-  /// Splash minimum visible duration
-  // static const _minSplashDuration = Duration(milliseconds: 1500);
   final DateTime _startedAt = DateTime.now();
 
   void markOnboardingSeen() {
@@ -162,16 +160,7 @@ class AppRouter {
           builder: (_, _) => const KycSelfieScreen(),
         ),
 
-        // GoRoute(
-        //   path: AppRoutes.orderDetail,
-        //   builder: (context, state) {
-        //     debugPrint('ORDER DETAIL ROUTE HIT');
-        //
-        //     final order = state.extra as OrderModel;
-        //
-        //     return OrderDetailScreen(order: order);
-        //   },
-        // ),
+
         GoRoute(
           path: AppRoutes.orderDetail,
           builder: (context, state) =>
@@ -198,17 +187,6 @@ class AppRouter {
                   : AppRoutes.home,
         ),
 
-        // GoRoute(
-        //   path: AppRoutes.productDetails,
-        //   builder: (context, state) {
-        //     final product = state.extra as ProductModel;
-        //
-        //     return BlocProvider(
-        //       create: (_) => ProductDetailCubit()..loadProduct(product),
-        //       child: const ProductDetailScreen(),
-        //     );
-        //   },
-        // ),
         GoRoute(
           path: AppRoutes.productDetails,
           builder: (context, state) {
@@ -289,7 +267,7 @@ class AppRouter {
               state.extra is ImageViewerArgs ? null : AppRoutes.home,
         ),
 
-        // Deep link routes for product sharing
+
         GoRoute(
           path: '/products/:id',
           builder: (context, state) {
@@ -304,32 +282,12 @@ class AppRouter {
 
         GoRoute(path: AppRoutes.cart, builder: (_, _) => const CartPage()),
 
-        // Not a bottom-nav tab — always reached via context.push() from both
-        // shell and non-shell screens (Cart, Categories, dashboard, etc.).
-        // Kept as a top-level route (like AppRoutes.cart above) instead of
-        // nested inside the ShellRoute, since pushing a shell-scoped route
-        // from a non-shell page causes go_router to mount the shell's
-        // Navigator twice with the same key ("GlobalKey used multiple
-        // times" crash).
         GoRoute(
           path: AppRoutes.buyerWishlist,
           builder: (_, _) => const WishlistScreen(),
         ),
 
-        // GoRoute(
-        //   path: AppRoutes.reviewPayment,
-        //   builder: (context, state) {
-        //     final data = state.extra as Map<String, dynamic>;
-        //
-        //     return BlocProvider(
-        //       create: (_) => getIt<PaymentCubit>(),
-        //       child: ReviewPaymentScreen(
-        //         merchantName: data['merchantName'] ?? '',
-        //         merchantEmail: data['merchantEmail'] ?? '',
-        //       ),
-        //     );
-        //   },
-        // ),
+
         GoRoute(
           path: AppRoutes.reviewPayment,
           builder: (context, state) {
@@ -380,10 +338,7 @@ class AppRouter {
           builder: (_, _) => const HelpSupportScreen(),
         ),
 
-        GoRoute(
-          path: AppRoutes.splitViewNavigation,
-          builder: (_, _) => const SplitViewScreen(),
-        ),
+
 
         // ---------------- membership (ShellRoute ke BAHAR) ----------------
         GoRoute(
@@ -444,13 +399,6 @@ class AppRouter {
               ),
             ),
 
-            // GoRoute(
-            //   path: AppRoutes.buyerDashboard,
-            //   builder: (_, _) => BlocProvider<BuyerDashboardCubit>(
-            //     create: (_) => BuyerDashboardCubit(),
-            //     child: const BuyerDashboardScreen(),
-            //   ),
-            // ),
             GoRoute(
               path: AppRoutes.categories,
               builder: (_, _) => const CategoriesScreen(),
@@ -499,6 +447,11 @@ class AppRouter {
                   child: const ProfileScreen(),
                 );
               },
+            ),
+
+            GoRoute(
+              path: AppRoutes.splitViewNavigation,
+              builder: (_, _) => const SplitViewScreen(),
             ),
 
             GoRoute(

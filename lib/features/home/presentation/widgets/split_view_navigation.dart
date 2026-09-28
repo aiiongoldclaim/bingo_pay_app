@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sizer/sizer.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/di/injection.dart';
+import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/app_shimmer.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
 import '../../../services/presentation/cubit/services_state.dart';
+import '../../../services/presentation/widgets/all_services_shimmer.dart';
 import '../../../orders/cubit/orders_cubit.dart';
 import '../../../orders/cubit/orders_state.dart';
 import '../../../orders/data/models/order_model.dart';
+import '../../../orders/presentation/widgets/orders_shimmer.dart';
+import '../../../orders/presentation/widgets/orders_metrics.dart';
 import '../../../auctions/presentation/cubit/auction_cubit.dart';
 import '../../../auctions/presentation/cubit/auction_state.dart';
 import '../../../auctions/presentation/screens/auction_detail_screen.dart';
 import '../../../auctions/presentation/screens/my_bids_screen.dart';
+import '../../../auctions/presentation/widgets/auction_list_shimmer.dart';
 import '../../../categories/presentation/cubit/categories_cubit.dart';
 import '../../../categories/presentation/cubit/categories_state.dart';
 import '../../../categories/presentation/widgets/categories_metrics.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
 import 'home_metrics.dart';
+import 'products_grid_shimmer.dart';
+import 'products_metrics.dart';
 import '../../../categories/data/models/categories_model.dart';
 
 enum NavigationSection {
@@ -64,7 +74,6 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
@@ -73,24 +82,25 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     return Row(
       children: [
         _buildLeftSidebar(colors, metrics),
-        Expanded(
-          child: _buildRightContent(colors, metrics),
-        ),
+        Expanded(child: _buildRightContent(colors, metrics)),
       ],
     );
   }
 
   Widget _buildLeftSidebar(AppThemeColors colors, HomeMetrics metrics) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final sidebarWidth = (screenWidth * 0.24).clamp(76.0, 110.0);
+
     return Container(
-      width: 95,
+      width: sidebarWidth,
       color: colors.surface,
       child: Column(
         children: [
-          SizedBox(height: 12),
+          SizedBox(height: 1.42.h),
           Expanded(
             child: ListView.separated(
               itemCount: NavigationSection.values.length,
-              separatorBuilder: (_, _) => SizedBox(height: 8),
+              separatorBuilder: (_, _) => SizedBox(height: 0.95.h),
               itemBuilder: (context, index) {
                 final section = NavigationSection.values[index];
                 final isSelected = _selectedSection == section;
@@ -103,7 +113,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
               },
             ),
           ),
-          SizedBox(height: 12),
+          SizedBox(height: 1.42.h),
         ],
       ),
     );
@@ -116,7 +126,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 6),
+      padding: EdgeInsets.symmetric(horizontal: 1.54.w),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -124,25 +134,32 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           borderRadius: BorderRadius.circular(10),
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected ? colors.brand.withValues(alpha: 0.12) : Colors.transparent,
+              color: isSelected
+                  ? colors.brand.withValues(alpha: 0.12)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
-              border: isSelected ? Border.all(color: colors.brand.withValues(alpha: 0.3), width: 1) : null,
+              border: isSelected
+                  ? Border.all(
+                      color: colors.brand.withValues(alpha: 0.3),
+                      width: 1,
+                    )
+                  : null,
             ),
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.symmetric(vertical: 1.19.h),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   section.icon,
-                  size: 22,
+                  size: 26,
                   color: isSelected ? colors.brand : colors.textSecondary,
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: 0.59.h),
                 Text(
                   section.label.split(' ')[0],
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                     color: isSelected ? colors.brand : colors.textSecondary,
                     height: 1.2,
@@ -154,6 +171,22 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Wraps [child] so it's always scrollable — even when it's shorter than
+  /// the viewport — so pull-to-refresh keeps working on empty/error states.
+  Widget _scrollableCenter(Widget child) {
+    return LayoutBuilder(
+      builder: (context, constraints) => ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: constraints.maxHeight,
+            child: Center(child: child),
+          ),
+        ],
       ),
     );
   }
@@ -187,41 +220,89 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           return Column(
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
+                padding: EdgeInsets.fromLTRB(4.1.w, 2.84.h, 4.1.w, 2.37.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Services', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                    SizedBox(height: 4),
-                    Text('Book amazing services', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                    Text(
+                      'Services',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 0.47.h),
+                    Text(
+                      'Book amazing services',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Expanded(
-                child: state.services.isEmpty
-                    ? Center(child: Text('No services', style: TextStyle(color: colors.textSecondary)))
-                    : GridView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.75,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                        ),
-                        itemCount: state.services.length,
-                        itemBuilder: (context, index) {
-                          final service = state.services[index];
-                          return _buildServiceCard(
-                            title: service.title,
-                            imageUrl: service.imageUrl,
-                            colors: colors,
-                            onTap: () {
-                              if (service.uuid.isNotEmpty) {
-                                context.push(AppRoutes.serviceDetailPath(service.uuid));
-                              }
-                            },
-                          );
-                        },
+                child:
+                    state.status == ServicesStatus.initial ||
+                        state.status == ServicesStatus.loading
+                    ? const AllServicesShimmer()
+                    : RefreshIndicator(
+                        onRefresh: () => _servicesCubit.loadServices(),
+                        color: colors.brand,
+                        child: state.status == ServicesStatus.error
+                            ? _scrollableCenter(
+                                Text(
+                                  state.errorMessage ??
+                                      'Unable to load services',
+                                  style: TextStyle(color: colors.textSecondary),
+                                ),
+                              )
+                            : state.services.isEmpty
+                            ? _scrollableCenter(
+                                Text(
+                                  'No services',
+                                  style: TextStyle(color: colors.textSecondary),
+                                ),
+                              )
+                            : GridView.builder(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                padding: EdgeInsets.fromLTRB(
+                                  4.1.w,
+                                  0,
+                                  4.1.w,
+                                  10.h,
+                                ),
+                                gridDelegate:
+                                    SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 43.59.w,
+                                      mainAxisExtent: 23.7.h,
+                                      mainAxisSpacing: 1.9.h,
+                                      crossAxisSpacing: 4.1.w,
+                                    ),
+                                itemCount: state.services.length,
+                                itemBuilder: (context, index) {
+                                  final service = state.services[index];
+                                  return _buildServiceCard(
+                                    title: service.title,
+                                    imageUrl: service.imageUrl,
+                                    displayPrice: service.displayPrice,
+                                    averageRating: service.averageRating,
+                                    totalReviews: service.totalReviews,
+                                    colors: colors,
+                                    onTap: () {
+                                      if (service.uuid.isNotEmpty) {
+                                        context.push(
+                                          AppRoutes.serviceDetailPath(
+                                            service.uuid,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
                       ),
               ),
             ],
@@ -239,18 +320,35 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           return Column(
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+                padding: EdgeInsets.fromLTRB(4.1.w, 2.84.h, 4.1.w, 1.9.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Auctions', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                    SizedBox(height: 4),
-                    Text('Bid on exclusive items', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                    Text(
+                      'Auctions',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 0.47.h),
+                    Text(
+                      'Bid on exclusive items',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Expanded(
-                child: _buildAuctionContent(state, colors, context),
+                child: RefreshIndicator(
+                  onRefresh: () => _auctionCubit.getAuctions(),
+                  color: colors.brand,
+                  child: _buildAuctionContent(state, colors, context),
+                ),
               ),
             ],
           );
@@ -259,38 +357,48 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildAuctionContent(AuctionState state, AppThemeColors colors, BuildContext context) {
+  Widget _buildAuctionContent(
+    AuctionState state,
+    AppThemeColors colors,
+    BuildContext context,
+  ) {
     if (state is AuctionLoading || state is AuctionInitial) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(colors.brand)),
-            SizedBox(height: 16),
-            Text('Loading auctions...', style: TextStyle(color: colors.textSecondary, fontSize: 12)),
-          ],
-        ),
-      );
+      return const AuctionListShimmer();
     }
 
     if (state is AuctionError) {
-      return Center(
-        child: Column(
+      return _scrollableCenter(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
-            SizedBox(height: 16),
-            Text('Failed to load auctions', style: TextStyle(color: colors.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            Text(state.message, style: TextStyle(color: colors.textSecondary, fontSize: 12), textAlign: TextAlign.center),
-            SizedBox(height: 20),
+            Icon(
+              Icons.error_outline,
+              size: 58,
+              color: colors.textSecondary.withValues(alpha: 0.5),
+            ),
+            SizedBox(height: 1.9.h),
+            Text(
+              'Failed to load auctions',
+              style: TextStyle(
+                color: colors.textPrimary,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 0.95.h),
+            Text(
+              state.message,
+              style: TextStyle(color: colors.textSecondary, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 2.37.h),
             ElevatedButton.icon(
               onPressed: () => _auctionCubit.getAuctions(),
               icon: Icon(Icons.refresh),
               label: Text('Retry'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.brand,
-                foregroundColor: Colors.white,
+                foregroundColor: colors.onBrand,
               ),
             ),
           ],
@@ -299,16 +407,26 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     }
 
     if (state is AuctionLoaded) {
-      final hasAuctions = state.liveAuctions.isNotEmpty || state.endingSoonAuctions.isNotEmpty || state.upcomingAuctions.isNotEmpty;
+      final hasAuctions =
+          state.liveAuctions.isNotEmpty ||
+          state.endingSoonAuctions.isNotEmpty ||
+          state.upcomingAuctions.isNotEmpty;
 
       if (!hasAuctions) {
-        return Center(
-          child: Column(
+        return _scrollableCenter(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.local_activity_outlined, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
-              SizedBox(height: 16),
-              Text('No auctions available', style: TextStyle(color: colors.textSecondary, fontSize: 14)),
+              Icon(
+                Icons.local_activity_outlined,
+                size: 58,
+                color: colors.textSecondary.withValues(alpha: 0.5),
+              ),
+              SizedBox(height: 1.9.h),
+              Text(
+                'No auctions available',
+                style: TextStyle(color: colors.textSecondary, fontSize: 17),
+              ),
             ],
           ),
         );
@@ -319,13 +437,14 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           : null;
 
       return ListView(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 4.1.w, vertical: 0),
         children: [
           // Hero auction card
           if (heroAuction != null) ...[
-            SizedBox(height: 12),
+            SizedBox(height: 1.42.h),
             _buildHeroAuctionCard(heroAuction, colors, context),
-            SizedBox(height: 16),
+            SizedBox(height: 1.9.h),
 
             // Action buttons - stacked vertically for narrow split view
             Column(
@@ -338,31 +457,43 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [colors.brand, colors.brand.withValues(alpha: 0.8)],
+                          colors: [
+                            colors.brand,
+                            colors.brand.withValues(alpha: 0.8),
+                          ],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: () => _openAuctionDetails(context, heroAuction.uuid),
+                        onTap: () =>
+                            _openAuctionDetails(context, heroAuction.uuid),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 11),
+                          padding: EdgeInsets.symmetric(vertical: 1.3.h),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.gavel_rounded, color: Colors.white, size: 15),
-                              SizedBox(width: 6),
+                              Icon(
+                                Icons.gavel_rounded,
+                                color: colors.onBrand,
+                                size: 18,
+                              ),
+                              SizedBox(width: 1.54.w),
                               Text(
                                 'PLACE A BID',
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                                  color: colors.onBrand,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.8,
                                 ),
                               ),
-                              SizedBox(width: 4),
-                              Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 12),
+                              SizedBox(width: 1.03.w),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: colors.onBrand,
+                                size: 14,
+                              ),
                             ],
                           ),
                         ),
@@ -370,7 +501,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 1.19.h),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -381,97 +512,129 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 11),
+                      padding: EdgeInsets.symmetric(vertical: 1.3.h),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.history_rounded, size: 13),
-                        SizedBox(width: 6),
+                        Icon(Icons.history_rounded, size: 16),
+                        SizedBox(width: 1.54.w),
                         Text(
                           'MY BIDS',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.8,
                           ),
                         ),
-                        SizedBox(width: 4),
-                        Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                        SizedBox(width: 1.03.w),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 14),
                       ],
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            SizedBox(height: 2.84.h),
           ],
 
           // Live Auctions section
           if (state.liveAuctions.isNotEmpty) ...[
-            _buildAuctionSectionHeader('Live Auctions', 'Bidding open now', colors),
-            SizedBox(height: 12),
-            ...state.liveAuctions.take(3).map((auction) =>
-              Padding(
-                padding: EdgeInsets.only(bottom: 12),
-                child: _buildAuctionCardFromEntity(auction, colors, context),
-              ),
+            _buildAuctionSectionHeader(
+              'Live Auctions',
+              'Bidding open now',
+              colors,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 1.h),
+            ...state.liveAuctions
+                .take(3)
+                .map(
+                  (auction) => Padding(
+                    padding: EdgeInsets.only(bottom: 1.2.h),
+                    child: _buildAuctionCardFromEntity(
+                      auction,
+                      colors,
+                      context,
+                    ),
+                  ),
+                ),
+            SizedBox(height: 10.h),
           ],
 
           // Ending Soon section
           if (state.endingSoonAuctions.isNotEmpty) ...[
-            _buildAuctionSectionHeader('Ending Soon', 'Don\'t miss these auctions', colors),
-            SizedBox(height: 12),
-            ...state.endingSoonAuctions.take(3).map((auction) =>
-              Padding(
-                padding: EdgeInsets.only(bottom: 12),
-                child: _buildAuctionCardFromEntity(auction, colors, context),
-              ),
+            _buildAuctionSectionHeader(
+              'Ending Soon',
+              'Don\'t miss these auctions',
+              colors,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 1.42.h),
+            ...state.endingSoonAuctions
+                .take(3)
+                .map(
+                  (auction) => Padding(
+                    padding: EdgeInsets.only(bottom: 1.42.h),
+                    child: _buildAuctionCardFromEntity(
+                      auction,
+                      colors,
+                      context,
+                    ),
+                  ),
+                ),
+            SizedBox(height: 2.37.h),
           ],
 
           // Upcoming section
           if (state.upcomingAuctions.isNotEmpty) ...[
             _buildAuctionSectionHeader('Upcoming', 'Get ready to bid', colors),
-            SizedBox(height: 12),
-            ...state.upcomingAuctions.take(3).map((auction) =>
-              Padding(
-                padding: EdgeInsets.only(bottom: 12),
-                child: _buildAuctionCardFromEntity(auction, colors, context),
-              ),
-            ),
-            SizedBox(height: 20),
+            SizedBox(height: 1.42.h),
+            ...state.upcomingAuctions
+                .take(3)
+                .map(
+                  (auction) => Padding(
+                    padding: EdgeInsets.only(bottom: 1.42.h),
+                    child: _buildAuctionCardFromEntity(
+                      auction,
+                      colors,
+                      context,
+                    ),
+                  ),
+                ),
+            SizedBox(height: 2.37.h),
           ],
         ],
       );
     }
 
     return Center(
-      child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(colors.brand)),
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(colors.brand),
+      ),
     );
   }
 
-  Widget _buildAuctionSectionHeader(String title, String subtitle, AppThemeColors colors) {
+  Widget _buildAuctionSectionHeader(
+    String title,
+    String subtitle,
+    AppThemeColors colors,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 19,
             fontWeight: FontWeight.w700,
             color: colors.textPrimary,
             letterSpacing: 0.2,
           ),
         ),
-        SizedBox(height: 2),
+        SizedBox(height: 0.24.h),
         Text(
           subtitle,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 14,
             color: colors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
@@ -480,9 +643,15 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildHeroAuctionCard(dynamic auction, AppThemeColors colors, BuildContext context) {
+  Widget _buildHeroAuctionCard(
+    dynamic auction,
+    AppThemeColors colors,
+    BuildContext context,
+  ) {
     final price = auction.currentBid ?? auction.startingPrice;
-    final imageUrl = auction.images != null && auction.images!.isNotEmpty ? auction.images!.first : null;
+    final imageUrl = auction.images != null && auction.images!.isNotEmpty
+        ? auction.images!.first
+        : null;
 
     return Material(
       color: Colors.transparent,
@@ -503,20 +672,24 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 children: [
                   SizedBox(
                     width: double.infinity,
-                    height: 160,
+                    height: 18.96.h,
                     child: imageUrl != null
                         ? Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => _placeholderImage(colors),
+                            errorBuilder: (_, _, _) =>
+                                _placeholderImage(colors),
                           )
                         : _placeholderImage(colors),
                   ),
                   Positioned(
-                    left: 12,
-                    top: 12,
+                    left: 3.08.w,
+                    top: 1.42.h,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2.56.w,
+                        vertical: 0.59.h,
+                      ),
                       decoration: BoxDecoration(
                         color: colors.surface.withValues(alpha: 0.95),
                         borderRadius: BorderRadius.circular(12),
@@ -525,19 +698,19 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 8,
-                            height: 8,
+                            width: 2.05.w,
+                            height: 2.05.w,
                             decoration: BoxDecoration(
-                              color: Colors.green,
+                              color: ThemeColors.green,
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 6),
+                          SizedBox(width: 1.54.w),
                           Text(
                             'LIVE',
                             style: TextStyle(
                               color: colors.textPrimary,
-                              fontSize: 11,
+                              fontSize: 13,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
                             ),
@@ -549,7 +722,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.all(14),
+                padding: EdgeInsets.all(3.59.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -562,16 +735,19 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: colors.textPrimary,
                               height: 1.2,
                             ),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(width: 2.05.w),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2.05.w,
+                            vertical: 0.47.h,
+                          ),
                           decoration: BoxDecoration(
                             color: colors.brand.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
@@ -579,7 +755,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                           child: Text(
                             '${auction.bidCount} bids',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 13,
                               color: colors.brand,
                               fontWeight: FontWeight.w700,
                             ),
@@ -587,28 +763,32 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 0.95.h),
                     Text(
                       'Current Bid',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 13,
                         color: colors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Text(
-                      '₹${_formatPrice(price)}',
+                      '\$${_formatPrice(price)}',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color: colors.brand,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    SizedBox(height: 0.95.h),
                     Row(
                       children: [
-                        Icon(Icons.schedule_rounded, size: 13, color: colors.textSecondary),
-                        SizedBox(width: 6),
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 16,
+                          color: colors.textSecondary,
+                        ),
+                        SizedBox(width: 1.54.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,16 +796,19 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                               Text(
                                 'Closes in',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   color: colors.textSecondary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (auction.secondsRemaining != null && auction.secondsRemaining! > 0)
+                              if (auction.secondsRemaining != null &&
+                                  auction.secondsRemaining! > 0)
                                 Text(
-                                  _formatSecondsRemaining(auction.secondsRemaining!),
+                                  _formatSecondsRemaining(
+                                    auction.secondsRemaining!,
+                                  ),
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 13,
                                     fontWeight: FontWeight.w700,
                                     color: colors.brand,
                                   ),
@@ -673,74 +856,118 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     return '0';
   }
 
-  Widget _buildAuctionCardFromEntity(dynamic auction, AppThemeColors colors, BuildContext context) {
+  Widget _buildAuctionCardFromEntity(
+    dynamic auction,
+    AppThemeColors colors,
+    BuildContext context,
+  ) {
     final price = auction.currentBid ?? auction.startingPrice;
-    final startingPrice = auction.startingPrice;
-    final priceLabel = auction.currentBid != null ? 'Current Bid' : 'Starting Price';
+    final priceLabel = auction.currentBid != null
+        ? 'CURRENT BID'
+        : 'STARTING PRICE';
+
     final isLive = auction.status.toUpperCase() == 'LIVE';
     final category = auction.category?.name.trim() ?? '';
+
+    final hasImage = auction.images != null && auction.images!.isNotEmpty;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () => _openAuctionDetails(context, auction.uuid),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(24),
         child: Container(
-          padding: EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: colors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colors.border.withValues(alpha: 0.6), width: 1.2),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: colors.border.withValues(alpha: 0.35),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colors.textPrimary.withValues(alpha: 0.06),
+                blurRadius: 22,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          child: Row(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image thumbnail with LIVE badge
+              // ============================================================
+              // PRODUCT IMAGE
+              // ============================================================
               Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                      width: 90,
-                      height: 90,
-                      child: auction.images != null && auction.images!.isNotEmpty
-                          ? Image.network(
-                              auction.images!.first,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => _placeholderImage(colors),
-                            )
-                          : _placeholderImage(colors),
+                  AspectRatio(
+                    aspectRatio: 1.35,
+                    child: hasImage
+                        ? Image.network(
+                            auction.images!.first,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) {
+                              return _placeholderImage(colors);
+                            },
+                          )
+                        : _placeholderImage(colors),
+                  ),
+
+                  // Slight image gradient
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              colors.scrim.withValues(alpha: 0.10),
+                              Colors.transparent,
+                              colors.scrim.withValues(alpha: 0.15),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
+
+                  // ========================================================
+                  // LIVE BADGE
+                  // ========================================================
                   if (isLive)
                     Positioned(
-                      left: 6,
-                      top: 6,
+                      top: 2.0.h,
+                      left: 4.1.w,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 3.6.w,
+                          vertical: 1.05.h,
+                        ),
                         decoration: BoxDecoration(
-                          color: colors.surface.withValues(alpha: 0.94),
-                          borderRadius: BorderRadius.circular(12),
+                          color: colors.surface.withValues(alpha: 0.96),
+                          borderRadius: BorderRadius.circular(30),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(
-                                color: Colors.green,
+                              width: 2.05.w,
+                              height: 2.05.w,
+                              decoration: const BoxDecoration(
+                                color: ThemeColors.green,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            SizedBox(width: 5),
+                            SizedBox(width: 1.8.w),
                             Text(
                               'LIVE',
                               style: TextStyle(
                                 color: colors.textPrimary,
-                                fontSize: 10,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: 0.4,
+                                letterSpacing: 0.3,
                               ),
                             ),
                           ],
@@ -750,224 +977,243 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 ],
               ),
 
-              SizedBox(width: 14),
-
-              // Details
-              Expanded(
+              // ============================================================
+              // DETAILS SECTION
+              // ============================================================
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.fromLTRB(4.2.w, 2.0.h, 4.2.w, 2.2.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title and bid count
+                    // ------------------------------------------------------
+                    // BID COUNT + CATEGORY
+                    // ------------------------------------------------------
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text(
-                            auction.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: colors.textPrimary,
-                              height: 1.2,
-                            ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2.8.w,
+                            vertical: 0.9.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.brand.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.gavel_rounded,
+                                color: colors.brand,
+                                size: 17,
+                              ),
+                              SizedBox(width: 1.4.w),
+                              Text(
+                                '${auction.bidCount}',
+                                style: TextStyle(
+                                  color: colors.brand,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: colors.brand.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${auction.bidCount} '
-                            '${auction.bidCount == 1 ? 'bid' : 'bids'}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: colors.brand,
-                              fontWeight: FontWeight.w700,
+
+                        if (category.isNotEmpty) ...[
+                          SizedBox(width: 2.3.w),
+                          Expanded(
+                            child: Text(
+                              category.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.1,
+                                color: colors.brand,
+                              ),
                             ),
+                          ),
+                        ],
+                      ],
+                    ),
+
+                    SizedBox(height: 0.8.h),
+
+                    // ------------------------------------------------------
+                    // TITLE
+                    // ------------------------------------------------------
+                    Text(
+                      auction.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 23,
+                        height: 1.22,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+
+                    SizedBox(height: 1.8.h),
+
+                    // ------------------------------------------------------
+                    // PRICE + ARROW
+                    // ------------------------------------------------------
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                priceLabel,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.0,
+                                  color: colors.textSecondary,
+                                ),
+                              ),
+                              SizedBox(height: 0.25.h),
+                              Text(
+                                '\$${_formatPrice(price)}',
+                                style: TextStyle(
+                                  fontSize: 29,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w800,
+                                  color: colors.brand,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(width: 3.w),
+
+                        // Arrow button
+                        Container(
+                          width: 12.w,
+                          height: 12.w,
+                          constraints: const BoxConstraints(
+                            minWidth: 46,
+                            minHeight: 46,
+                            maxWidth: 58,
+                            maxHeight: 58,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.brand.withValues(alpha: 0.10),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            color: colors.brand,
+                            size: 24,
                           ),
                         ),
                       ],
                     ),
 
-                    SizedBox(height: 6),
+                    SizedBox(height: 1.8.h),
 
-                    // Category
-                    if (category.isNotEmpty)
-                      Text(
-                        category,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: colors.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-
-                    SizedBox(height: 8),
-
-                    // Starting price info
-                    Text(
-                      'Starting Price',
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: colors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      '₹${_formatPrice(startingPrice)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: colors.textSecondary,
-                      ),
-                    ),
-
-                    SizedBox(height: 6),
-
-                    // Current bid / Current price section
-                    Text(
-                      priceLabel,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: colors.textSecondary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      '₹${_formatPrice(price)}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: colors.brand,
-                      ),
-                    ),
-
-                    SizedBox(height: 8),
-
-                    // Time remaining
-                    if (auction.secondsRemaining != null && auction.secondsRemaining! > 0)
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule_rounded,
-                            size: 13,
-                            color: colors.textSecondary,
-                          ),
-                          SizedBox(width: 6),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Closes in',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: colors.textSecondary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  _formatSecondsRemaining(auction.secondsRemaining!),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: colors.brand,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    else if (auction.status.toUpperCase() == 'STARTING_SOON' && auction.secondsUntilStart != null)
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.schedule_rounded,
-                            size: 13,
-                            color: colors.textSecondary,
-                          ),
-                          SizedBox(width: 6),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Starts in',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: colors.textSecondary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  _formatSecondsRemaining(auction.secondsUntilStart!),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: colors.brand,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            size: 13,
-                            color: colors.textSecondary,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            '${auction.status.toUpperCase()}',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: colors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
+                    // ------------------------------------------------------
+                    // COUNTDOWN
+                    // ------------------------------------------------------
+                    _buildAuctionTimer(auction: auction, colors: colors),
                   ],
-                ),
-              ),
-
-              SizedBox(width: 8),
-
-              // Chevron icon
-              Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: colors.brand.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.chevron_right_rounded,
-                  color: colors.brand,
-                  size: 20,
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAuctionTimer({
+    required dynamic auction,
+    required AppThemeColors colors,
+  }) {
+    final status = auction.status.toUpperCase();
+
+    String label;
+    String time;
+    IconData icon;
+
+    if (auction.secondsRemaining != null && auction.secondsRemaining! > 0) {
+      label = 'Closes in';
+      time = _formatSecondsRemaining(auction.secondsRemaining!);
+      icon = Icons.access_time_rounded;
+    } else if (status == 'STARTING_SOON' && auction.secondsUntilStart != null) {
+      label = 'Starts in';
+      time = _formatSecondsRemaining(auction.secondsUntilStart!);
+      icon = Icons.access_time_rounded;
+    } else {
+      label = status;
+      time = '';
+      icon = Icons.check_circle_outline_rounded;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 3.8.w, vertical: 1.55.h),
+      decoration: BoxDecoration(
+        color: colors.brand.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(17),
+      ),
+      child: Row(
+        children: [
+          // Clock
+          Container(
+            width: 10.w,
+            height: 10.w,
+            constraints: const BoxConstraints(
+              minWidth: 38,
+              minHeight: 38,
+              maxWidth: 48,
+              maxHeight: 48,
+            ),
+            decoration: BoxDecoration(
+              color: colors.brand.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: colors.brand, size: 23),
+          ),
+
+          SizedBox(width: 3.w),
+
+          // Label
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: colors.textSecondary,
+              ),
+            ),
+          ),
+
+          // Time
+          if (time.isNotEmpty)
+            Flexible(
+              child: Text(
+                time,
+                textAlign: TextAlign.right,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: colors.brand,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -997,12 +1243,9 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
   void _openMyBids(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const MyBidsScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const MyBidsScreen()),
     );
   }
-
 
   String _formatSecondsRemaining(int seconds) {
     if (seconds <= 0) return '0s';
@@ -1028,48 +1271,87 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     }
   }
 
-
   Widget _buildProductsContent(AppThemeColors colors, HomeMetrics metrics) {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
-        final products = [...state.flashDeals, ...state.recommended].take(6).toList();
+        final products = [
+          ...state.flashDeals,
+          ...state.recommended,
+        ].take(6).toList();
         return Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
+              padding: EdgeInsets.fromLTRB(4.1.w, 2.84.h, 4.1.w, 2.37.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Products', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                  SizedBox(height: 4),
-                  Text('Discover our collection', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                  Text(
+                    'Products',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 0.47.h),
+                  Text(
+                    'Discover our collection',
+                    style: TextStyle(fontSize: 16, color: colors.textSecondary),
+                  ),
                 ],
               ),
             ),
             Expanded(
-              child: products.isEmpty
-                  ? Center(child: Text('No products', style: TextStyle(color: colors.textSecondary)))
-                  : GridView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.75,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                      ),
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        final p = products[index];
-                        return _buildProductCard(
-                          title: p.name,
-                          imageUrl: p.images.isNotEmpty ? p.images.first : null,
-                          price: p.price.toString(),
-                          colors: colors,
-                          onTap: () {
-                            if (p.uuid != null) context.push(AppRoutes.productDetails, extra: p.uuid);
-                          },
-                        );
-                      },
+              child:
+                  state.status == HomeStatus.initial ||
+                      state.status == HomeStatus.loading
+                  ? ProductsGridShimmer(metrics: ProductsMetrics.of(context))
+                  : RefreshIndicator(
+                      onRefresh: () => context.read<HomeCubit>().loadHome(),
+                      color: colors.brand,
+                      child: products.isEmpty
+                          ? _scrollableCenter(
+                              Text(
+                                'No products',
+                                style: TextStyle(color: colors.textSecondary),
+                              ),
+                            )
+                          : GridView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.fromLTRB(
+                                4.1.w,
+                                0,
+                                4.1.w,
+                                10.h,
+                              ),
+                              gridDelegate:
+                                  SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 43.59.w,
+                                    mainAxisExtent: 23.7.h,
+                                    mainAxisSpacing: 1.9.h,
+                                    crossAxisSpacing: 4.1.w,
+                                  ),
+                              itemCount: products.length,
+                              itemBuilder: (context, index) {
+                                final p = products[index];
+                                return _buildProductCard(
+                                  title: p.name,
+                                  imageUrl: p.images.isNotEmpty
+                                      ? p.images.first
+                                      : null,
+                                  price: p.price.toString(),
+                                  colors: colors,
+                                  onTap: () {
+                                    if (p.uuid != null) {
+                                      context.push(
+                                        AppRoutes.productDetails,
+                                        extra: p.uuid,
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            ),
                     ),
             ),
           ],
@@ -1084,32 +1366,66 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
         return Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
+              padding: EdgeInsets.fromLTRB(4.1.w, 2.84.h, 4.1.w, 2.37.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Categories', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                  SizedBox(height: 4),
-                  Text('Browse by category', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                  Text(
+                    'Categories',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 0.47.h),
+                  Text(
+                    'Browse by category',
+                    style: TextStyle(fontSize: 16, color: colors.textSecondary),
+                  ),
                 ],
               ),
             ),
             Expanded(
-              child: state.categories.isEmpty
-                  ? Center(child: Text('No categories', style: TextStyle(color: colors.textSecondary)))
-                  : GridView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.95,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 14,
-                      ),
-                      itemCount: state.categories.length,
-                      itemBuilder: (context, index) {
-                        final category = state.categories[index];
-                        return _buildPremiumCategoryCard(category: category, colors: colors, onTap: () {});
-                      },
+              child:
+                  state.status == HomeStatus.initial ||
+                      state.status == HomeStatus.loading
+                  ? const _CategoryGridShimmer()
+                  : RefreshIndicator(
+                      onRefresh: () => context.read<HomeCubit>().loadHome(),
+                      color: colors.brand,
+                      child: state.categories.isEmpty
+                          ? _scrollableCenter(
+                              Text(
+                                'No categories',
+                                style: TextStyle(color: colors.textSecondary),
+                              ),
+                            )
+                          : GridView.builder(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: EdgeInsets.fromLTRB(
+                                3.59.w,
+                                1.42.h,
+                                3.59.w,
+                                10.h,
+                              ),
+                              gridDelegate:
+                                  SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 46.15.w,
+                                    mainAxisExtent: 18.96.h,
+                                    mainAxisSpacing: 1.9.h,
+                                    crossAxisSpacing: 3.59.w,
+                                  ),
+                              itemCount: state.categories.length,
+                              itemBuilder: (context, index) {
+                                final category = state.categories[index];
+                                return _buildPremiumCategoryCard(
+                                  category: category,
+                                  colors: colors,
+                                  onTap: () {},
+                                );
+                              },
+                            ),
                     ),
             ),
           ],
@@ -1128,18 +1444,35 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           return Column(
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 24, 20, 16),
+                padding: EdgeInsets.fromLTRB(4.1.w, 2.84.h, 4.1.w, 1.9.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Top Brands', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                    SizedBox(height: 4),
-                    Text('Discover top brands', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                    Text(
+                      'Top Brands',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 0.47.h),
+                    Text(
+                      'Discover top brands',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colors.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Expanded(
-                child: _buildBrandsView(state, colors, m, context),
+                child: RefreshIndicator(
+                  onRefresh: () => _categoriesCubit.loadData(),
+                  color: colors.brand,
+                  child: _buildBrandsView(state, colors, m, context),
+                ),
               ),
             ],
           );
@@ -1148,38 +1481,46 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildBrandsView(CategoriesState state, AppThemeColors colors, CategoriesMetrics metrics, BuildContext context) {
+  Widget _buildBrandsView(
+    CategoriesState state,
+    AppThemeColors colors,
+    CategoriesMetrics metrics,
+    BuildContext context,
+  ) {
     if (state.isBrandsLoading) {
-      return GridView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 0.75,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 12,
-        ),
-        itemCount: 6,
-        itemBuilder: (_, _) => Container(
-          decoration: BoxDecoration(
-            color: colors.surfaceAlt,
-            borderRadius: BorderRadius.circular(12),
+      return AppShimmer(
+        backgroundColor: colors.background,
+        child: GridView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 3.59.w, vertical: 1.42.h),
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 30.77.w,
+            mainAxisExtent: 15.4.h,
+            mainAxisSpacing: 1.9.h,
+            crossAxisSpacing: 3.08.w,
           ),
+          itemCount: 6,
+          itemBuilder: (_, _) =>
+              ShimmerBox(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
 
     if (state.brandsError != null) {
-      return Center(
-        child: Padding(
+      return _scrollableCenter(
+        Padding(
           padding: EdgeInsets.all(metrics.pagePadding),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline_rounded, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
-              SizedBox(height: 16),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 58,
+                color: colors.textSecondary.withValues(alpha: 0.5),
+              ),
+              SizedBox(height: 1.9.h),
               Text(
                 'Failed to load brands',
-                style: TextStyle(color: colors.textSecondary, fontSize: 14),
+                style: TextStyle(color: colors.textSecondary, fontSize: 17),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -1189,15 +1530,19 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     }
 
     if (state.brands.isEmpty) {
-      return Center(
-        child: Column(
+      return _scrollableCenter(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.storefront_outlined, size: 48, color: colors.textSecondary.withValues(alpha: 0.5)),
-            SizedBox(height: 16),
+            Icon(
+              Icons.storefront_outlined,
+              size: 58,
+              color: colors.textSecondary.withValues(alpha: 0.5),
+            ),
+            SizedBox(height: 1.9.h),
             Text(
               'No brands available',
-              style: TextStyle(color: colors.textSecondary, fontSize: 14),
+              style: TextStyle(color: colors.textSecondary, fontSize: 17),
             ),
           ],
         ),
@@ -1205,12 +1550,13 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     }
 
     return GridView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.75,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 12,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: 3.59.w, vertical: 1.42.h),
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 30.77.w,
+        mainAxisExtent: 15.4.h,
+        mainAxisSpacing: 1.9.h,
+        crossAxisSpacing: 3.08.w,
       ),
       itemCount: state.brands.length,
       itemBuilder: (context, index) {
@@ -1245,7 +1591,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           children: [
             Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(4.1.w),
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(12),
@@ -1257,7 +1603,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.3,
                   color: colors.textPrimary,
@@ -1265,7 +1611,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 0.95.h),
             Flexible(
               child: Text(
                 brand.name,
@@ -1273,7 +1619,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: colors.textSecondary,
                 ),
@@ -1291,18 +1637,32 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
         return Column(
           children: [
             Padding(
-              padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
+              padding: EdgeInsets.fromLTRB(4.1.w, 2.84.h, 4.1.w, 2.37.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('My Orders', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textPrimary)),
-                  SizedBox(height: 4),
-                  Text('Track and manage all your orders', style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                  Text(
+                    'My Orders',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: colors.textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 0.47.h),
+                  Text(
+                    'Track and manage all your orders',
+                    style: TextStyle(fontSize: 16, color: colors.textSecondary),
+                  ),
                 ],
               ),
             ),
             Expanded(
-              child: _buildOrdersView(state, colors, context),
+              child: RefreshIndicator(
+                onRefresh: () => context.read<OrdersCubit>().loadOrders(),
+                color: colors.brand,
+                child: _buildOrdersView(state, colors, context),
+              ),
             ),
           ],
         );
@@ -1310,28 +1670,37 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildOrdersView(OrdersState state, AppThemeColors colors, BuildContext context) {
+  Widget _buildOrdersView(
+    OrdersState state,
+    AppThemeColors colors,
+    BuildContext context,
+  ) {
     if (state is OrdersLoading || state is OrdersInitial) {
-      return Center(
-        child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(colors.brand)),
-      );
+      return OrdersShimmer(metrics: OrdersMetrics.of(context));
     }
 
     if (state is OrdersError) {
-      return Center(
-        child: Text('Error: ${state.message}', style: TextStyle(color: colors.textSecondary)),
+      return _scrollableCenter(
+        Text(
+          'Error: ${state.message}',
+          style: TextStyle(color: colors.textSecondary),
+        ),
       );
     }
 
     if (state is OrdersLoaded) {
       if (state.all.isEmpty) {
-        return Center(
-          child: Text('No orders found', style: TextStyle(color: colors.textSecondary)),
+        return _scrollableCenter(
+          Text(
+            'No orders found',
+            style: TextStyle(color: colors.textSecondary),
+          ),
         );
       }
 
       return ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(20, 0, 20, 10.h),
         separatorBuilder: (_, _) => SizedBox(height: 12),
         itemCount: state.all.length,
         itemBuilder: (context, index) {
@@ -1346,12 +1715,17 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildRealOrderCard(OrderModel order, AppThemeColors colors, BuildContext context) {
-    final statusColor = order.orderStatus == 'Delivered' || order.orderStatus == 'DELIVERED'
-        ? Colors.green
+  Widget _buildRealOrderCard(
+    OrderModel order,
+    AppThemeColors colors,
+    BuildContext context,
+  ) {
+    final statusColor =
+        order.orderStatus == 'Delivered' || order.orderStatus == 'DELIVERED'
+        ? ThemeColors.green
         : order.orderStatus == 'Pending' || order.orderStatus == 'PENDING'
-            ? Colors.orange
-            : Colors.blue;
+        ? ThemeColors.orange
+        : ThemeColors.blue;
 
     final placedAtStr = _formatDateTime(order.placedAt);
 
@@ -1363,7 +1737,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: colors.border, width: 1),
         ),
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(3.08.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1374,50 +1748,104 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Order ID ${order.id}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-                      SizedBox(height: 2),
-                      Text(placedAtStr, style: TextStyle(fontSize: 10, color: colors.textSecondary)),
+                      Text(
+                        'Order ID ${order.id}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: 0.24.h),
+                      Text(
+                        placedAtStr,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 2.05.w,
+                    vertical: 0.36.h,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text(order.orderStatus, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: statusColor)),
+                  child: Text(
+                    order.orderStatus,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: statusColor,
+                    ),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            Text('Total: ₹${order.totalAmount.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.brand)),
-            SizedBox(height: 10),
+            SizedBox(height: 1.19.h),
+            Text(
+              'Total: ${order.formattedTotal}',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: colors.brand,
+              ),
+            ),
+            SizedBox(height: 1.19.h),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: EdgeInsets.symmetric(
+                horizontal: 2.05.w,
+                vertical: 0.71.h,
+              ),
               decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
+                color: ThemeColors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle_outline, size: 14, color: Colors.orange),
-                  SizedBox(width: 6),
-                  Text('Payment ${order.paymentStatus}', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Colors.orange)),
+                  Icon(
+                    Icons.check_circle_outline,
+                    size: 17,
+                    color: ThemeColors.orange,
+                  ),
+                  SizedBox(width: 1.54.w),
+                  Text(
+                    'Payment ${order.paymentStatus}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: ThemeColors.orange,
+                    ),
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 1.19.h),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => context.push(AppRoutes.orderDetail, extra: order),
+                onPressed: () =>
+                    context.push(AppRoutes.orderDetail, extra: order),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: colors.brand),
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  padding: EdgeInsets.symmetric(vertical: 0.95.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
-                child: Text('View Details', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.brand)),
+                child: Text(
+                  'View Details',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.brand,
+                  ),
+                ),
               ),
             ),
           ],
@@ -1435,10 +1863,22 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
       return 'Today at ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
 
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${dateTime.day} ${months[dateTime.month - 1]} ${dateTime.year} - ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
-
 
   Widget _buildPremiumCategoryCard({
     required CategoryModel category,
@@ -1464,8 +1904,8 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
             children: [
               // Circular icon/image container - fixed size
               SizedBox(
-                width: 76,
-                height: 76,
+                width: 19.49.w,
+                height: 19.49.w,
                 child: Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
@@ -1476,37 +1916,33 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                       ? ClipOval(
                           child: Image.network(
                             category.image!,
-                            width: 64,
-                            height: 64,
+                            width: 16.41.w,
+                            height: 16.41.w,
                             fit: BoxFit.contain,
                             errorBuilder: (_, _, _) => Icon(
                               category.icon,
-                              size: 32,
+                              size: 38,
                               color: colors.brand,
                             ),
                           ),
                         )
-                      : Icon(
-                          category.icon,
-                          size: 32,
-                          color: colors.brand,
-                        ),
+                      : Icon(category.icon, size: 38, color: colors.brand),
                 ),
               ),
-              SizedBox(height: 12),
+              SizedBox(height: 1.42.h),
               // Category name with fixed height
               SizedBox(
-                height: 44,
+                height: 5.21.h,
                 child: Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    padding: EdgeInsets.symmetric(horizontal: 1.54.w),
                     child: Text(
                       category.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: colors.textPrimary,
                         height: 1.2,
@@ -1522,56 +1958,123 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-
-
-  Widget _buildServiceCard({required String title, required String? imageUrl, required AppThemeColors colors, required VoidCallback onTap}) {
+  Widget _buildServiceCard({
+    required String title,
+    required String? imageUrl,
+    required String displayPrice,
+    required double averageRating,
+    required int totalReviews,
+    required AppThemeColors colors,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: colors.textPrimary.withValues(alpha: 0.1), blurRadius: 10, offset: Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: colors.textPrimary.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 90,
-              decoration: BoxDecoration(color: colors.brand.withValues(alpha: 0.08), borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
-              child: imageUrl != null && imageUrl.isNotEmpty
-                  ? ClipRRect(borderRadius: BorderRadius.vertical(top: Radius.circular(12)), child: Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, _, _) => Icon(Icons.image, color: colors.brand, size: 30)))
-                  : Center(child: Icon(Icons.miscellaneous_services_outlined, color: colors.brand, size: 30)),
+            Expanded(
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: colors.brand.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) =>
+                              Icon(Icons.image, color: colors.brand, size: 36),
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.miscellaneous_services_outlined,
+                          color: colors.brand,
+                          size: 36,
+                        ),
+                      ),
+              ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.textPrimary),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.star_rounded, size: 11, color: Colors.amber),
-                      SizedBox(width: 2),
-                      Text('4.5', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-                    ],
-                  ),
-                  SizedBox(height: 3),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: colors.brand.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(3),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.all(2.05.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    child: Text('From ₹299', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: colors.brand)),
-                  ),
-                ],
+                    SizedBox(height: 0.24.h),
+                    if (totalReviews > 0)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            size: 13,
+                            color: ThemeColors.amber,
+                          ),
+                          SizedBox(width: 0.51.w),
+                          Text(
+                            averageRating.toStringAsFixed(1),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: 0.36.h),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 1.28.w,
+                        vertical: 0.24.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.brand.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        displayPrice,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: colors.brand,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -1580,51 +2083,160 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
     );
   }
 
-  Widget _buildProductCard({required String title, required String? imageUrl, required String price, required AppThemeColors colors, required VoidCallback onTap}) {
+  Widget _buildProductCard({
+    required String title,
+    required String? imageUrl,
+    required String price,
+    required AppThemeColors colors,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: colors.surface,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: colors.textPrimary.withValues(alpha: 0.1), blurRadius: 10, offset: Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: colors.textPrimary.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 90,
-              decoration: BoxDecoration(color: colors.brand.withValues(alpha: 0.08), borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
-              child: imageUrl != null && imageUrl.isNotEmpty
-                  ? ClipRRect(borderRadius: BorderRadius.vertical(top: Radius.circular(12)), child: Image.network(imageUrl, fit: BoxFit.cover, errorBuilder: (_, _, _) => Icon(Icons.shopping_bag, color: colors.brand, size: 30)))
-                  : Center(child: Icon(Icons.shopping_bag_outlined, color: colors.brand, size: 30)),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(Icons.star_rounded, size: 11, color: Colors.amber),
-                      SizedBox(width: 2),
-                      Text('4.3', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-                    ],
-                  ),
-                  SizedBox(height: 3),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: colors.brand.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                    child: Text('₹$price', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: colors.brand)),
-                  ),
-                ],
+            Expanded(
+              flex: 3,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: colors.brand.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(12),
+                        ),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Icon(
+                            Icons.shopping_bag,
+                            color: colors.brand,
+                            size: 36,
+                          ),
+                        ),
+                      )
+                    : Center(
+                        child: Icon(
+                          Icons.shopping_bag_outlined,
+                          color: colors.brand,
+                          size: 36,
+                        ),
+                      ),
               ),
             ),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.all(2.05.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 0.24.h),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star_rounded,
+                          size: 13,
+                          color: ThemeColors.amber,
+                        ),
+                        SizedBox(width: 0.51.w),
+                        Text(
+                          '4.3',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 0.36.h),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 1.28.w,
+                        vertical: 0.24.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.brand.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: Text(
+                        '₹$price',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: colors.brand,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryGridShimmer extends StatelessWidget {
+  const _CategoryGridShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return AppShimmer(
+      backgroundColor: colors.background,
+      child: GridView.builder(
+        padding: EdgeInsets.fromLTRB(3.59.w, 1.42.h, 3.59.w, 10.h),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 46.15.w,
+          mainAxisExtent: 18.96.h,
+          mainAxisSpacing: 1.9.h,
+          crossAxisSpacing: 3.59.w,
+        ),
+        itemCount: 6,
+        itemBuilder: (_, _) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ShimmerBox(
+              width: 19.49.w,
+              height: 19.49.w,
+              borderRadius: BorderRadius.circular(19.49.w),
+            ),
+            SizedBox(height: 1.42.h),
+            ShimmerBox(width: 16.w, height: 13),
           ],
         ),
       ),

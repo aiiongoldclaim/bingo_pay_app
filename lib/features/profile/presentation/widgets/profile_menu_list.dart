@@ -206,6 +206,7 @@ class ProfileMenuItem {
       case 'cart':
         return Icons.shopping_cart_outlined;
       case 'orders':
+        return Icons.shopping_bag_outlined;
       case 'transactions':
         return Icons.receipt_long_outlined;
       case 'wishlist':
@@ -240,6 +241,12 @@ class ProfileMenuItem {
       subtitle: 'View and manage your cart',
       iconAsset: 'cart',
       route: AppRoutes.cart,
+    ),
+    ProfileMenuItem(
+      title: 'My Orders',
+      subtitle: 'Track and manage your orders',
+      iconAsset: 'orders',
+      route: AppRoutes.orders,
     ),
     ProfileMenuItem(
       title: 'Transactions',

@@ -3414,7 +3414,6 @@ class _BidPanelState extends State<_BidPanel> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.schedule_rounded,
@@ -3422,12 +3421,16 @@ class _BidPanelState extends State<_BidPanel> {
                             color: colors.textSecondary,
                           ),
                           SizedBox(width: 1.03.w),
-                          Text(
-                            'Auction closes in',
-                            style: TextStyle(
-                              color: colors.textSecondary,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
+                          Flexible(
+                            child: Text(
+                              'Auction closes in',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: colors.textSecondary,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -3455,14 +3458,14 @@ class _BidPanelState extends State<_BidPanel> {
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: currentBidBlock),
+                      Expanded(flex: 5, child: currentBidBlock),
                       Container(
                         width: 1,
                         height: 9.48.h,
                         margin: EdgeInsets.symmetric(horizontal: 3.08.w),
                         color: colors.border,
                       ),
-                      closesInBlock,
+                      Expanded(flex: 4, child: closesInBlock),
                     ],
                   );
                 },
@@ -3509,15 +3512,19 @@ class _BidPanelState extends State<_BidPanel> {
                       ),
                     ),
                     SizedBox(width: 2.w),
-                    Text(
-                      'Minimum bid is\n'
-                      '${auction.currency} ${auction.minimumNextBid}',
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
-                        height: 1.3,
+                    Flexible(
+                      child: Text(
+                        'Minimum bid is\n'
+                        '${auction.currency} ${auction.minimumNextBid}',
+                        textAlign: TextAlign.right,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: colors.textSecondary,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          height: 1.3,
+                        ),
                       ),
                     ),
                   ],
@@ -3876,15 +3883,14 @@ class _DetailCountdownState extends State<_DetailCountdown> {
     final seconds = duration.inSeconds % 60;
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        _CountdownBox(value: days, label: 'DAY'),
+        Expanded(child: _CountdownBox(value: days, label: 'DAY')),
         SizedBox(width: 0.9.w),
-        _CountdownBox(value: hours, label: 'HRS'),
+        Expanded(child: _CountdownBox(value: hours, label: 'HRS')),
         SizedBox(width: 0.9.w),
-        _CountdownBox(value: minutes, label: 'MIN'),
+        Expanded(child: _CountdownBox(value: minutes, label: 'MIN')),
         SizedBox(width: 0.9.w),
-        _CountdownBox(value: seconds, label: 'SEC'),
+        Expanded(child: _CountdownBox(value: seconds, label: 'SEC')),
       ],
     );
   }
@@ -3901,6 +3907,7 @@ class _CountdownBox extends StatelessWidget {
     final colors = context.colors;
 
     return Container(
+      width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 1.28.w, vertical: 0.6.h),
       decoration: BoxDecoration(
         color: colors.brandSoft,

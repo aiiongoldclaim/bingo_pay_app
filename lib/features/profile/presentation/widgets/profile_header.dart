@@ -57,7 +57,7 @@ class ProfileHeader extends StatelessWidget {
               _WalletCard(
                 formattedBalance: _formatBalance(profile.displayBigoldBalance),
                 metrics: m,
-                // onTap: onWalletTap,
+                onTap: onWalletTap,
               ),
             ],
           ),
@@ -219,7 +219,6 @@ class _AvatarRow extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );
@@ -229,11 +228,12 @@ class _AvatarRow extends StatelessWidget {
 class _WalletCard extends StatelessWidget {
   final String formattedBalance;
   final ProfileMetrics metrics;
-
+  final VoidCallback onTap;
 
   const _WalletCard({
     required this.formattedBalance,
     required this.metrics,
+    required this.onTap,
   });
 
   @override
@@ -244,90 +244,94 @@ class _WalletCard extends StatelessWidget {
     return Material(
       color: colors.brandSoft,
       borderRadius: BorderRadius.circular(m.walletRadius),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: m.walletHPad * 0.85,
-          vertical: m.walletVPad * 0.6,
-        ),
-        child: Row(
-          children: [
-            SvgPicture.asset(
-              AppSvgImages.wallet,
-              width: m.walletIconSize * 0.8,
-              height: m.walletIconSize * 0.8,
-              colorFilter: ColorFilter.mode(colors.brand, BlendMode.srcIn),
-            ),
-
-            SizedBox(width: m.walletGap * 0.8),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Bingold Wallet',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: colors.textPrimary,
-                      fontFamily: 'Inter',
-                      fontSize: m.walletLabelSize * 0.9,
-                      fontWeight: FontWeight.w500,
-                      height: 1.2,
-                    ),
-                  ),
-                  Text(
-                    '\$ $formattedBalance',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.titleMedium.copyWith(
-                      color: colors.brand,
-                      fontFamily: 'Inter',
-                      fontSize: m.walletBalanceSize * 0.9,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(m.walletRadius),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: m.walletHPad * 0.85,
+            vertical: m.walletVPad * 0.6,
+          ),
+          child: Row(
+            children: [
+              SvgPicture.asset(
+                AppSvgImages.wallet,
+                width: m.walletIconSize * 0.8,
+                height: m.walletIconSize * 0.8,
+                colorFilter: ColorFilter.mode(colors.brand, BlendMode.srcIn),
               ),
-            ),
 
-            SizedBox(width: m.walletGap * 0.5),
+              SizedBox(width: m.walletGap * 0.8),
 
-            Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: m.walletHPad * 0.6,
-                  vertical: m.gapXs * 1.4,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.brand,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.add_rounded,
-                      size: m.walletLabelSize,
-                      color: colors.onBrand,
-                    ),
-                    SizedBox(width: m.gapXs * 0.5),
                     Text(
-                      'ADD',
+                      'Bingold Wallet',
                       style: AppTextStyles.labelMedium.copyWith(
-                        color: colors.onBrand,
+                        color: colors.textPrimary,
                         fontFamily: 'Inter',
+                        fontSize: m.walletLabelSize * 0.9,
+                        fontWeight: FontWeight.w500,
+                        height: 1.2,
+                      ),
+                    ),
+                    Text(
+                      '\$ $formattedBalance',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: colors.brand,
+                        fontFamily: 'Inter',
+                        fontSize: m.walletBalanceSize * 0.9,
                         fontWeight: FontWeight.w700,
-                        fontSize: m.walletLabelSize * 0.85,
+                        height: 1.2,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              SizedBox(width: m.walletGap * 0.5),
+
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: m.walletHPad * 0.6,
+                    vertical: m.gapXs * 1.4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.brand,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add_rounded,
+                        size: m.walletLabelSize,
+                        color: colors.onBrand,
+                      ),
+                      SizedBox(width: m.gapXs * 0.5),
+                      Text(
+                        'ADD',
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: colors.onBrand,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: m.walletLabelSize * 0.85,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

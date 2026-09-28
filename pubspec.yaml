@@ -1,7 +1,7 @@
 name: bingo_pay
 description: "Bingo Pay — Multi-vendor marketplace app"
 publish_to: 'none'
-version: 1.0.0+10
+version: 1.0.0+11
 
 environment:
   sdk: ^3.10.8
@@ -122,11 +122,11 @@ flutter:
 
 flutter_native_splash:
   # ── Light mode ──
-  color: "#FFFFFF"                  # ThemeColors light scaffoldBackground ka hex
+  color: "#FFFFFF"
   image: assets/splash/logo.png
 
   # ── Dark mode ──
-  color_dark: "#0B0F1A"             # ThemeColors dark scaffoldBackground ka hex
+  color_dark: "#0B0F1A"
   image_dark: assets/splash/logo_dark.png
 
   # ── Android 12+ (alag section, mandatory) ──

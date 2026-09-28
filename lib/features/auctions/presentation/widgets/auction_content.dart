@@ -265,7 +265,7 @@ class AuctionContent extends StatelessWidget {
         if (liveAuctions.isNotEmpty) ...[
           SizedBox(height: 2.84.h),
           AuctionSection(
-            title: 'Live Auctions',
+            title: 'Live Auctions........',
             subtitle: 'Bidding open now',
             auctions: liveAuctions,
             onAuctionTap: onAuctionTap,
