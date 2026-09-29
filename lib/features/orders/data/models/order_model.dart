@@ -5,6 +5,7 @@ class OrderModel {
   final String uuid;
   final String orderNumber;
   final String? addressId;
+  final OrderAddressModel? address;
   final String paymentStatus;
   final String paymentMethod;
   final String orderStatus;
@@ -29,6 +30,7 @@ class OrderModel {
     required this.uuid,
     required this.orderNumber,
     this.addressId,
+    this.address,
     required this.paymentStatus,
     required this.paymentMethod,
     required this.orderStatus,
@@ -50,11 +52,19 @@ class OrderModel {
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final rawItems = json['items'] as List<dynamic>?;
     final trackingData = _asMap(json['tracking']);
+    final addressData =
+        _asMap(json['address']) ??
+        _asMap(json['shippingAddress']) ??
+        _asMap(json['deliveryAddress']) ??
+        _asMap(json['orderAddress']);
     return OrderModel(
       id: json['id']?.toString() ?? '',
-      uuid: json['uuid'] as String? ?? '',
+      uuid: (json['uuid'] ?? json['orderUuid'])?.toString() ?? '',
       orderNumber: json['orderNumber'] as String? ?? '',
       addressId: json['addressId']?.toString(),
+      address: addressData != null
+          ? OrderAddressModel.fromJson(addressData)
+          : null,
       paymentStatus: (json['paymentStatus'] as String?) ?? 'PENDING',
       paymentMethod: (json['paymentMethod'] as String?) ?? '',
       orderStatus: (json['orderStatus'] as String?) ?? 'PENDING',
@@ -112,6 +122,7 @@ class OrderModel {
     String? uuid,
     String? orderNumber,
     String? addressId,
+    OrderAddressModel? address,
     String? paymentStatus,
     String? paymentMethod,
     String? orderStatus,
@@ -134,6 +145,7 @@ class OrderModel {
       uuid: uuid ?? this.uuid,
       orderNumber: orderNumber ?? this.orderNumber,
       addressId: addressId ?? this.addressId,
+      address: address ?? this.address,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       orderStatus: orderStatus ?? this.orderStatus,
@@ -304,6 +316,62 @@ class OrderItemModel {
       if ((size ?? '').isNotEmpty) 'Size $size',
     ];
     return parts.join(' · ');
+  }
+}
+
+class OrderAddressModel {
+  final String? id;
+  final String? fullName;
+  final String? phone;
+  final String addressLine1;
+  final String? addressLine2;
+  final String city;
+  final String state;
+  final String? country;
+  final String postalCode;
+  final String? landmark;
+
+  const OrderAddressModel({
+    this.id,
+    this.fullName,
+    this.phone,
+    required this.addressLine1,
+    this.addressLine2,
+    required this.city,
+    required this.state,
+    this.country,
+    required this.postalCode,
+    this.landmark,
+  });
+
+  factory OrderAddressModel.fromJson(Map<String, dynamic> json) {
+    return OrderAddressModel(
+      id: json['id']?.toString(),
+      fullName: _firstString([json['fullName'], json['name']]),
+      phone: _firstString([json['phone'], json['phoneNumber']]),
+      addressLine1: (json['addressLine1'] as String?) ?? '',
+      addressLine2: json['addressLine2'] as String?,
+      city: (json['city'] as String?) ?? '',
+      state: (json['state'] as String?) ?? '',
+      country: json['country'] as String?,
+      postalCode:
+          _firstString([json['postalCode'], json['zipCode'], json['pincode']]) ??
+          '',
+      landmark: json['landmark'] as String?,
+    );
+  }
+
+  String get formattedAddress {
+    final cityLine = [
+      if (city.isNotEmpty) city,
+      '$state $postalCode'.trim(),
+    ].where((p) => p.isNotEmpty).join(', ');
+
+    return [
+      addressLine1,
+      if ((addressLine2 ?? '').isNotEmpty) addressLine2!,
+      cityLine,
+    ].where((line) => line.isNotEmpty).join('\n');
   }
 }
 

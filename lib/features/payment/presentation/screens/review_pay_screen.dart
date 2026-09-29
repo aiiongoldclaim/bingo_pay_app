@@ -1,5 +1,5 @@
-import 'package:bingo_pay/features/payment/presentation/screens/widgets/review_pay_metrics.dart';
-import 'package:bingo_pay/features/payment/presentation/screens/widgets/review_pay_widgets.dart';
+import 'package:bingo_pay/features/payment/presentation/widgets/review_pay_metrics.dart';
+import 'package:bingo_pay/features/payment/presentation/widgets/review_pay_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,13 +10,13 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
-import 'widgets/payment_method_picker.dart';
-import 'widgets/review_address_card.dart';
-import 'widgets/review_body.dart';
-import 'widgets/review_order_summary_card.dart';
-import 'widgets/review_pay_bar.dart';
-import 'widgets/review_paying_with_card.dart';
-import 'widgets/review_top_bar.dart';
+import '../widgets/payment_method_picker.dart';
+import '../widgets/review_address_card.dart';
+import '../widgets/review_body.dart';
+import '../widgets/review_order_summary_card.dart';
+import '../widgets/review_pay_bar.dart';
+import '../widgets/review_paying_with_card.dart';
+import '../widgets/review_top_bar.dart';
 
 class ReviewPayScreen extends StatelessWidget {
   final bool isCart;
@@ -69,20 +69,21 @@ class ReviewPayScreen extends StatelessWidget {
             total: state.formattedTotal,
           );
 
-          final offers = ReviewOffersCard(
-            metrics: m,
-            offers: const [
-              ReviewOffer(
-                title: '10% Instant Discount on Bank Cards',
-                subtitle: 'Min. spend \$50 | T&C',
-              ),
-              ReviewOffer(
-                title: 'Extra 5% off on Wallet',
-                subtitle: 'Max. discount \$10',
-              ),
-            ],
-            onViewAll: () {},
-          );
+          // final offers = ReviewOffersCard(
+          //   metrics: m,
+          //   offers: const [
+          //     ReviewOffer(
+          //       title: '10% Instant Discount on Bank Cards',
+          //       subtitle: 'Min. spend \$50 | T&C',
+          //     ),
+          //     ReviewOffer(
+          //       title: 'Extra 5% off on Wallet',
+          //       subtitle: 'Max. discount \$10',
+          //     ),
+          //   ],
+          //   onViewAll: () {},
+          // );
+          final offers = const SizedBox.shrink();
           final secure = ReviewInfoStrip(
             metrics: m,
             icon: Icons.verified_user_outlined,

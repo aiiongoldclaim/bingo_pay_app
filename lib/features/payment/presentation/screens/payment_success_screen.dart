@@ -1,21 +1,20 @@
-import 'package:bingo_pay/features/payment/presentation/screens/widgets/invoice_card.dart';
-import 'package:bingo_pay/features/payment/presentation/screens/widgets/payment_success_matrics.dart';
-import 'package:bingo_pay/features/payment/presentation/screens/widgets/success_header.dart';
+import 'package:bingo_pay/features/payment/presentation/widgets/invoice_card.dart';
+import 'package:bingo_pay/features/payment/presentation/widgets/payment_success_matrics.dart';
+import 'package:bingo_pay/features/payment/presentation/widgets/success_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
 import '../../../../core/utils/review_helper.dart';
 import '../../../bookings/data/datasources/booking_remote_datasources.dart';
-import '../../../orders/data/datasources/orders_remote_datasource.dart';
+import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
-import 'widgets/payment_success_action_bar.dart';
-import 'widgets/payment_success_body.dart';
+import '../widgets/payment_success_action_bar.dart';
+import '../widgets/payment_success_body.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   const PaymentSuccessScreen({super.key});

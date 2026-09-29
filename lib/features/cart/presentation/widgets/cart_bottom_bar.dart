@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../payment/presentation/screens/payment_args.dart';
@@ -62,7 +61,6 @@ class CartPayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.c;
     final m = CartMetrics.of(context);
 
     final totalStr = '\$${total.toStringAsFixed(2)}';
@@ -90,33 +88,6 @@ class CartPayButton extends StatelessWidget {
                   ),
                 )
               : null,
-        ),
-
-        SizedBox(height: m.gapSm * 0.7),
-
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.lock_outline_rounded,
-              size: m.payNoteSize + 3,
-              color: colors.textMuted,
-            ),
-            SizedBox(width: m.gapXs),
-            Flexible(
-              child: Text(
-                AppStrings.securePaymentsNote,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: colors.textMuted,
-                  fontFamily: 'Inter',
-                  fontSize: m.payNoteSize,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );

@@ -141,9 +141,10 @@ import 'package:bingo_pay/features/membershipNew/presentation/cubit/membership_c
     as _i359;
 import 'package:bingo_pay/features/on_boarding/presentation/cubit/onboarding_cubit.dart'
     as _i462;
-import 'package:bingo_pay/features/orders/cubit/orders_cubit.dart' as _i610;
-import 'package:bingo_pay/features/orders/data/datasources/orders_remote_datasource.dart'
-    as _i705;
+import 'package:bingo_pay/features/orders/data/datasource/orders_remote_datasource.dart'
+    as _i328;
+import 'package:bingo_pay/features/orders/presentation/cubit/orders_cubit.dart'
+    as _i724;
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart'
     as _i792;
 import 'package:bingo_pay/features/product_categories_details/data/repositories/product_listing_repository_impl.dart'
@@ -271,9 +272,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i105.BrandRepository>(
       () => _i755.BrandRepositoryImpl(gh<_i30.BrandRemoteDataSource>()),
     );
-    gh.factory<_i705.OrdersRemoteDataSource>(
-      () => _i705.OrdersRemoteDataSourceImpl(gh<_i541.ApiClient>()),
-    );
     gh.factory<_i570.ServiceRemoteDataSource>(
       () => _i570.ServiceRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -293,6 +291,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i828.MembershipRepositoryImpl(
         gh<_i578.MembershipRemoteDataSource>(),
       ),
+    );
+    gh.factory<_i328.OrdersRemoteDataSource>(
+      () => _i328.OrdersRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
     gh.factory<_i570.BookingRemoteDatasources>(
       () => _i570.BookingRemoteDatasources(gh<_i541.ApiClient>()),
@@ -326,6 +327,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i805.ProcessPaymentUseCase>(
       () => _i805.ProcessPaymentUseCase(gh<_i758.PaymentRepository>()),
+    );
+    gh.factory<_i724.OrderDetailCubit>(
+      () => _i724.OrderDetailCubit(
+        gh<_i328.OrdersRemoteDataSource>(),
+        gh<_i915.AddressRemoteDataSource>(),
+      ),
     );
     gh.factory<_i298.CategoryRepository>(
       () => _i611.CategoryRepositoryImpl(gh<_i298.CategoryRemoteDataSource>()),
@@ -369,17 +376,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i623.BookingRepository>(
       () => _i53.BookingRepositoryImpl(gh<_i570.BookingRemoteDatasources>()),
     );
-    gh.factory<_i610.OrdersCubit>(
-      () => _i610.OrdersCubit(gh<_i705.OrdersRemoteDataSource>()),
-    );
     gh.factory<_i507.GetCategoriesUseCase>(
       () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
     );
-    gh.factory<_i610.OrderDetailCubit>(
-      () => _i610.OrderDetailCubit(
-        gh<_i705.OrdersRemoteDataSource>(),
-        gh<_i915.AddressRemoteDataSource>(),
-      ),
+    gh.factory<_i724.OrdersCubit>(
+      () => _i724.OrdersCubit(gh<_i328.OrdersRemoteDataSource>()),
     );
     gh.factory<_i874.AddressRepository>(
       () => _i279.AddressRepositoryImpl(gh<_i915.AddressRemoteDataSource>()),

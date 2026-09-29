@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/services/product_share_service.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_benefits_strip.dart';
@@ -151,6 +152,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  Future<void> _shareProduct(
+      BuildContext context,
+      ProductDetailModel product,
+      ) async {
+    final productId = product.uuid;
+    if (productId == null || productId.isEmpty) {
+      AppSnackbar.showError(context, AppStrings.shareProductUnavailable);
+      return;
+    }
+
+    await ProductShareService.shareProduct(
+      productId: productId,
+      productName: product.productName,
+      productPrice: product.price,
+    );
+  }
+
   void _openImageViewer(
       BuildContext context,
       List<String> images,
@@ -272,22 +290,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
               // SizedBox(height: m.gapMd-3),
 
-              ProductOffersCard(
-                metrics: m,
-                offers: const [
-                  ProductOffer(
-                    title: AppStrings.offer1Title,
-                    subtitle: AppStrings.offer1Subtitle,
-                  ),
-                  ProductOffer(
-                    title: AppStrings.offer2Title,
-                    subtitle: AppStrings.offer2Subtitle,
-                  ),
-                ],
-                onViewAll: () {},
-              ),
-
-              SizedBox(height: m.gapMd),
+              // ProductOffersCard(
+              //   metrics: m,
+              //   offers: const [
+              //     ProductOffer(
+              //       title: AppStrings.offer1Title,
+              //       subtitle: AppStrings.offer1Subtitle,
+              //     ),
+              //     ProductOffer(
+              //       title: AppStrings.offer2Title,
+              //       subtitle: AppStrings.offer2Subtitle,
+              //     ),
+              //   ],
+              //   onViewAll: () {},
+              // ),
+              //
+              // SizedBox(height: m.gapMd),
 
               ProductHighlightsBlock(
                 metrics: m,
@@ -315,6 +333,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   onBack: () => context.canPop()
                       ? context.pop()
                       : context.go(AppRoutes.home),
+                  onShare: () => _shareProduct(context, product),
                   onWishlist: () => _toggleWishlist(context, product, isWishlisted),
                   onCart: () => context.push(AppRoutes.cart),
                 ),

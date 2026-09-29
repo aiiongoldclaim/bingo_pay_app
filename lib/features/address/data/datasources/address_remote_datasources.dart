@@ -33,12 +33,14 @@ class AddressRemoteDataSource {
 
   Future<AddressModel> getAddressDetails(String addressId) async {
     final response = await _client.dio.get(ApiEndpoints.addressDetail(addressId));
-    final data = response.data;
-    final addressJson = data is Map<String, dynamic> && data['data'] != null
-        ? data['data']
-        : data;
+    dynamic addressJson = response.data;
+    while (addressJson is Map &&
+        addressJson['id'] == null &&
+        addressJson['data'] != null) {
+      addressJson = addressJson['data'];
+    }
 
-    return AddressModel.fromJson(addressJson);
+    return AddressModel.fromJson(addressJson as Map<String, dynamic>);
   }
 
   Future<void> createAddress(AddressModel model) async {

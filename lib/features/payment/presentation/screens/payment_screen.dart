@@ -1,4 +1,4 @@
-import 'package:bingo_pay/features/payment/presentation/screens/widgets/payment_metrics.dart';
+import 'package:bingo_pay/features/payment/presentation/widgets/payment_metrics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -19,9 +19,9 @@ import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 
 import 'payment_flow_args.dart';
-import 'widgets/payment_body.dart';
-import 'widgets/payment_continue_bar.dart';
-import 'widgets/payment_order_summary_card.dart';
+import '../widgets/payment_body.dart';
+import '../widgets/payment_continue_bar.dart';
+import '../widgets/payment_order_summary_card.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String? vendorEmail;

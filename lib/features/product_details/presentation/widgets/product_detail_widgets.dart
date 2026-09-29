@@ -13,6 +13,7 @@ class ProductTopBar extends StatelessWidget {
   final int cartCount;
   final bool isWishlisted;
   final VoidCallback onBack;
+  final VoidCallback onShare;
   final VoidCallback onWishlist;
   final VoidCallback onCart;
 
@@ -22,6 +23,7 @@ class ProductTopBar extends StatelessWidget {
     required this.cartCount,
     this.isWishlisted = false,
     required this.onBack,
+    required this.onShare,
     required this.onWishlist,
     required this.onCart,
   });
@@ -61,6 +63,16 @@ class ProductTopBar extends StatelessWidget {
                   height: 1.1,
                 ),
               ),
+            ),
+          ),
+          IconButton(
+            onPressed: onShare,
+            tooltip: AppStrings.shareProductTooltip,
+            splashRadius: m.topIconSize * 1.2,
+            icon: Icon(
+              Icons.ios_share_rounded,
+              size: m.topIconSize,
+              color: colors.textPrimary,
             ),
           ),
           IconButton(
@@ -145,6 +157,24 @@ class ProductGallery extends StatefulWidget {
 
 class _ProductGalleryState extends State<ProductGallery> {
   int _index = 0;
+  late final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _goToIndex(int index) {
+    setState(() => _index = index);
+    if (_pageController.hasClients) {
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,16 +202,21 @@ class _ProductGalleryState extends State<ProductGallery> {
                 fit: StackFit.expand,
                 children: [
                   if (images.isNotEmpty)
-                    GestureDetector(
-                      onTap: () => widget.onImageTap(_index),
-                      child: Image.network(
-                        images[_index.clamp(0, images.length - 1)],
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Center(
-                          child: Icon(
-                            widget.fallbackIcon,
-                            size: m.floatBtnSize * 1.4,
-                            color: colors.textMuted,
+                    PageView.builder(
+                      controller: _pageController,
+                      itemCount: images.length,
+                      onPageChanged: (index) => setState(() => _index = index),
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () => widget.onImageTap(index),
+                        child: Image.network(
+                          images[index],
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Icon(
+                              widget.fallbackIcon,
+                              size: m.floatBtnSize * 1.4,
+                              color: colors.textMuted,
+                            ),
                           ),
                         ),
                       ),
@@ -266,10 +301,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                 final isSelected = i == _index;
 
                 return GestureDetector(
-                  onTap: () {
-                    setState(() => _index = i);
-                    widget.onImageTap(i);
-                  },
+                  onTap: () => _goToIndex(i),
                   child: Container(
                     width: m.thumbSize,
                     decoration: BoxDecoration(

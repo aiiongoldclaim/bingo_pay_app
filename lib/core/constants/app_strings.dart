@@ -70,8 +70,6 @@ class AppStrings {
   static const String shippingFee = 'Shipping Fee';
   static const String free = 'FREE';
   static const String totalAmount = 'Total Amount';
-  static const String securePaymentsNote =
-      'Secure Payments. Easy Returns. 100% Authentic.';
   static const String freeDeliveryUnlockedTitle =
       'Yay! You are getting free delivery';
   static const String freeDeliverySubtitle =
@@ -168,6 +166,9 @@ class AppStrings {
   static const String quantityLabel = 'Quantity';
   static const String decreaseQuantityTooltip = 'Decrease quantity';
   static const String increaseQuantityTooltip = 'Increase quantity';
+  static const String shareProductTooltip = 'Share this product';
+  static const String shareProductUnavailable =
+      'This product can\'t be shared right now';
   static const String offersForYou = 'Offers For You';
   static const String productDetailsTitle = 'Product Details';
   static const String colorLabel = 'Color';

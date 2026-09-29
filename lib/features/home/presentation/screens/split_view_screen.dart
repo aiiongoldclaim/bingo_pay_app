@@ -5,7 +5,7 @@ import '../../../services/presentation/cubit/services_cubit.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../profile/presentation/cubit/profile_cubit.dart';
-import '../../../orders/cubit/orders_cubit.dart';
+import '../../../orders/presentation/cubit/orders_cubit.dart';
 import '../../../../core/di/injection.dart';
 import '../widgets/split_view_navigation.dart';
 
