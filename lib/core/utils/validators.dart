@@ -24,6 +24,15 @@ class Validators {
     return null;
   }
 
+  static String? phone(String? value) {
+    final v = value?.trim() ?? '';
+    if (v.isEmpty) return 'Phone number is required';
+    if (!RegExp(r'^[0-9]{7,15}$').hasMatch(v)) {
+      return 'Enter a valid phone number';
+    }
+    return null;
+  }
+
   static String? confirmPassword(String? value, String original) {
     if (value == null || value.isEmpty) return 'Please confirm your password';
     if (value != original) return 'Passwords do not match';

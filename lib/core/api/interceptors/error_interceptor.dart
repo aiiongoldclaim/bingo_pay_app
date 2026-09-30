@@ -41,8 +41,12 @@ class ErrorInterceptor extends Interceptor {
 
   String? _extractMessage(dynamic data) {
     if (data is Map<String, dynamic>) {
-      final message = data['message'] as String?;
-      if (message != null && message.isNotEmpty) return message;
+      final message = data['message'];
+      if (message is String && message.isNotEmpty) return message;
+      if (message is List) {
+        final joined = message.whereType<String>().join(', ');
+        if (joined.isNotEmpty) return joined;
+      }
     }
     return null;
   }

@@ -1,58 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../chat/presentation/widgets/support_chat_fab.dart';
 import '../widgets/help_metrics.dart';
+import '../widgets/raise_ticket_sheet.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({super.key});
-
-  static const String _supportEmail = 'support@bingosg.com';
-
-  static const List<_Faq> _faqs = [
-    _Faq(
-      question: 'How do I reset my password?',
-      answer:
-      'Go to the login screen and tap "Forgot Password". Enter your '
-          'registered email and follow the instructions sent to you to '
-          'reset your password.',
-    ),
-    _Faq(
-      question: 'How can I track my order?',
-      answer:
-      'Open the Account tab and select "Transactions" to view the '
-          'status of all your recent orders and payments.',
-    ),
-    _Faq(
-      question: 'How do I add or update my payment method?',
-      answer:
-      'Payment methods can be managed from the Account section under '
-          '"Payment Methods". You can add, remove, or set a default option.',
-    ),
-    _Faq(
-      question: 'What should I do if a payment fails?',
-      answer:
-      'If a payment fails, any deducted amount is automatically refunded '
-          'within 3-5 business days. If you don\'t see a refund, please '
-          'contact our support team with your transaction details.',
-    ),
-    _Faq(
-      question: 'How do I contact customer support?',
-      answer:
-      'You can reach us anytime at support@bingosg.com and our team '
-          'will get back to you as soon as possible.',
-    ),
-  ];
-
-  void _copyEmail(BuildContext context) {
-    Clipboard.setData(const ClipboardData(text: _supportEmail));
-    AppSnackbar.showSuccess(context, 'Email address copied');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,132 +19,50 @@ class HelpSupportScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.background,
+      appBar: CustomAppBar(
+        title: 'Help & Support',
+        onBack: () =>
+            context.canPop() ? context.pop() : context.go(AppRoutes.profile),
+      ),
+      floatingActionButton: SupportChatFab(
+        onTap: () => context.push(AppRoutes.chatSession),
+      ),
       body: SafeArea(
         bottom: false,
         child: Builder(
           builder: (context) {
             final m = HelpMetrics.of(context);
 
-            final hero = _HeroCard(
-              metrics: m,
-              onContact: () => _copyEmail(context),
-            );
+            final hero = _HeroCard(metrics: m);
 
             final supportTiles = _SupportTiles(
               metrics: m,
-              onEmail: () => _copyEmail(context),
+              onContact: () => RaiseTicketSheet.show(context),
+              onChat: () => context.push(AppRoutes.chatSession),
+              onMyTicket: () => context.push(AppRoutes.myTickets),
             );
-
-            final faqSection = _FaqSection(metrics: m, faqs: _faqs);
 
             final footer = _FooterNote(metrics: m);
 
-            return Column(
-              children: [
-                _HelpTopBar(metrics: m),
-
-                Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-                      child: m.isLandscape
-                          ? _LandscapeBody(
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                child: m.isLandscape
+                    ? _LandscapeBody(
                         metrics: m,
                         hero: hero,
                         supportTiles: supportTiles,
-                        faqSection: faqSection,
                         footer: footer,
                       )
-                          : _PortraitBody(
+                    : _PortraitBody(
                         metrics: m,
                         hero: hero,
                         supportTiles: supportTiles,
-                        faqSection: faqSection,
                         footer: footer,
                       ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-// ── Top bar ────────────────────────────────────────────────────────────────
-class _HelpTopBar extends StatelessWidget {
-  final HelpMetrics metrics;
-
-  const _HelpTopBar({required this.metrics});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.background,
-        border: Border(bottom: BorderSide(color: colors.border, width: 1)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          m.pageHPad * 0.5,
-          m.pageVPad,
-          m.pageHPad,
-          m.pageVPad,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: () => context.canPop()
-                  ? context.pop()
-                  : context.go(AppRoutes.profile),
-              splashRadius: m.backIconSize * 1.2,
-              icon: Icon(
-                Icons.arrow_back_ios_rounded,
-                size: m.backIconSize,
-                color: colors.textPrimary,
-              ),
-            ),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Help & Support',
-                    style: AppTextStyles.headlineMedium.copyWith(
-                      color: colors.textPrimary,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: m.titleSize,
-                      letterSpacing: -0.3,
-                      height: 1.1,
-                    ),
-                  ),
-                  SizedBox(height: m.gapXs * 0.6),
-                  Text(
-                    'Get answers or reach our support team',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: colors.textSecondary,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w500,
-                      fontSize: m.tileSubSize,
-                      height: 1.2,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -197,14 +74,48 @@ class _PortraitBody extends StatelessWidget {
   final HelpMetrics metrics;
   final Widget hero;
   final Widget supportTiles;
-  final Widget faqSection;
   final Widget footer;
 
   const _PortraitBody({
     required this.metrics,
     required this.hero,
     required this.supportTiles,
-    required this.faqSection,
+    required this.footer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final m = metrics;
+
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(m.pageHPad, m.gapSm, m.pageHPad, m.gapLg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          hero,
+          SizedBox(height: m.gapLg),
+          _SectionHeading(metrics: m, title: 'Still Need Help?'),
+          SizedBox(height: m.gapMd),
+          supportTiles,
+          SizedBox(height: m.gapLg),
+          footer,
+        ],
+      ),
+    );
+  }
+}
+
+// ── Landscape ────────────────────────────────────────────────────────────
+class _LandscapeBody extends StatelessWidget {
+  final HelpMetrics metrics;
+  final Widget hero;
+  final Widget supportTiles;
+  final Widget footer;
+
+  const _LandscapeBody({
+    required this.metrics,
+    required this.hero,
+    required this.supportTiles,
     required this.footer,
   });
 
@@ -223,68 +134,7 @@ class _PortraitBody extends StatelessWidget {
           SizedBox(height: m.gapMd),
           supportTiles,
           SizedBox(height: m.gapLg),
-          faqSection,
-          SizedBox(height: m.gapLg),
           footer,
-        ],
-      ),
-    );
-  }
-}
-
-// ── Landscape: hero + tiles left, FAQ rail right ───────────────────────────
-class _LandscapeBody extends StatelessWidget {
-  final HelpMetrics metrics;
-  final Widget hero;
-  final Widget supportTiles;
-  final Widget faqSection;
-  final Widget footer;
-
-  const _LandscapeBody({
-    required this.metrics,
-    required this.hero,
-    required this.supportTiles,
-    required this.faqSection,
-    required this.footer,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final m = metrics;
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(m.pageHPad, m.gapSm, m.pageHPad, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: m.gapLg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  hero,
-                  SizedBox(height: m.gapLg),
-                  _SectionHeading(metrics: m, title: 'Still Need Help?'),
-                  SizedBox(height: m.gapMd),
-                  supportTiles,
-                  SizedBox(height: m.gapLg),
-                  footer,
-                ],
-              ),
-            ),
-          ),
-
-          SizedBox(width: m.gapLg),
-
-          Expanded(
-            flex: 4,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: m.gapLg),
-              child: faqSection,
-            ),
-          ),
         ],
       ),
     );
@@ -360,9 +210,8 @@ class _SectionHeading extends StatelessWidget {
 // ── Hero card ──────────────────────────────────────────────────────────────
 class _HeroCard extends StatelessWidget {
   final HelpMetrics metrics;
-  final VoidCallback onContact;
 
-  const _HeroCard({required this.metrics, required this.onContact});
+  const _HeroCard({required this.metrics});
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +225,7 @@ class _HeroCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(m.heroRadius),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
@@ -384,7 +233,7 @@ class _HeroCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Need Help?\nWe\u2019re here for you!',
+                  "Need Help?\nWe're here for you!",
                   style: AppTextStyles.titleLarge.copyWith(
                     color: colors.textPrimary,
                     fontFamily: 'Inter',
@@ -406,38 +255,6 @@ class _HeroCard extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: m.gapLg),
-
-                SizedBox(
-                  height: m.heroBtnHeight,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Material(
-                      color: colors.brand,
-                      borderRadius: BorderRadius.circular(10),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: (){},
-                        // onTap: onContact,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: m.heroPad * 0.9,
-                            vertical: m.gapSm * 1.2,
-                          ),
-                          child: Text(
-                            'Contact Support',
-                            style: AppTextStyles.buttonText.copyWith(
-                              color: colors.surface,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              fontSize: m.heroBtnFontSize,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -451,7 +268,7 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
-/// Headset illustration placeholder — SVG asset mile to swap kar denge
+
 class _HeadsetArt extends StatelessWidget {
   final HelpMetrics metrics;
 
@@ -511,49 +328,48 @@ class _HeadsetArt extends StatelessWidget {
 // ── Support tiles: Chat / Email / Call ─────────────────────────────────────
 class _SupportTiles extends StatelessWidget {
   final HelpMetrics metrics;
-  final VoidCallback onEmail;
+  final VoidCallback onContact;
+  final VoidCallback onChat;
+  final VoidCallback onMyTicket;
 
-  const _SupportTiles({required this.metrics, required this.onEmail});
+  const _SupportTiles({
+    required this.metrics,
+    required this.onContact,
+    required this.onChat,
+    required this.onMyTicket,
+  });
 
   @override
   Widget build(BuildContext context) {
     final m = metrics;
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: _SupportTile(
-              metrics: m,
-              icon: Icons.chat_bubble_outline_rounded,
-              title: 'Chat with Us',
-              subtitle: 'Get instant support',
-              onTap: null,
-            ),
-          ),
-          SizedBox(width: m.tileGap),
-          Expanded(
-            child: _SupportTile(
-              metrics: m,
-              icon: Icons.mail_outline_rounded,
-              title: 'Email Us',
-              subtitle: 'We\u2019ll respond within 24 hrs',
-              onTap: onEmail,
-            ),
-          ),
-          SizedBox(width: m.tileGap),
-          Expanded(
-            child: _SupportTile(
-              metrics: m,
-              icon: Icons.phone_outlined,
-              title: 'Call Us',
-              subtitle: 'Mon\u2013Sun 9 AM \u2013 9 PM',
-              onTap: null,
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SupportTile(
+          metrics: m,
+          icon: Icons.chat_bubble_outline_rounded,
+          title: 'Chat with Us',
+          subtitle: 'Get instant support',
+          onTap: onChat,
+        ),
+        SizedBox(height: m.tileGap),
+        _SupportTile(
+          metrics: m,
+          icon: Icons.support_agent_rounded,
+          title: 'Contact Support',
+          subtitle: 'Raise a support ticket',
+          onTap: onContact,
+        ),
+        SizedBox(height: m.tileGap),
+        _SupportTile(
+          metrics: m,
+          icon: Icons.confirmation_num_outlined,
+          title: 'My Ticket',
+          subtitle: 'Track your requests',
+          onTap: onMyTicket,
+        ),
+      ],
     );
   }
 }
@@ -586,15 +402,14 @@ class _SupportTile extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: m.tilePad * 0.7,
-            vertical: m.tilePad,
+            horizontal: m.tilePad * 0.8,
+            vertical: m.tilePad * 0.75,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(m.tileRadius),
             border: Border.all(color: colors.border, width: 1),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
             children: [
               Container(
                 width: m.tileIconBox,
@@ -607,158 +422,43 @@ class _SupportTile extends StatelessWidget {
                 child: Icon(icon, size: m.tileIconSize, color: colors.brand),
               ),
 
-              SizedBox(height: m.gapMd),
+              SizedBox(width: m.gapMd),
 
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.labelLarge.copyWith(
-                  color: colors.textPrimary,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: m.tileTitleSize,
-                  height: 1.25,
-                ),
-              ),
-
-              SizedBox(height: m.gapXs * 1.4),
-
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: colors.textSecondary,
-                  fontFamily: 'Inter',
-                  fontSize: m.tileSubSize,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── FAQ ────────────────────────────────────────────────────────────────────
-class _FaqSection extends StatelessWidget {
-  final HelpMetrics metrics;
-  final List<_Faq> faqs;
-
-  const _FaqSection({required this.metrics, required this.faqs});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _SectionHeading(metrics: m, title: 'Popular Questions'),
-
-        SizedBox(height: m.gapMd),
-
-        Container(
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(m.faqRadius),
-            border: Border.all(color: colors.border, width: 1),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: List.generate(faqs.length, (index) {
-              final isLast = index == faqs.length - 1;
-              return Column(
-                children: [
-                  _FaqTile(faq: faqs[index], metrics: m),
-                  if (!isLast)
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      indent: m.faqHPad,
-                      endIndent: m.faqHPad,
-                      color: colors.border,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: colors.textPrimary,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w700,
+                        fontSize: m.tileTitleSize,
+                        height: 1.25,
+                      ),
                     ),
-                ],
-              );
-            }),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Faq {
-  final String question;
-  final String answer;
-
-  const _Faq({required this.question, required this.answer});
-}
-
-class _FaqTile extends StatelessWidget {
-  final _Faq faq;
-  final HelpMetrics metrics;
-
-  const _FaqTile({required this.faq, required this.metrics});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-
-    return Theme(
-      data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-      ),
-      child: Material(
-  color: Colors.transparent,
-  child: Theme(
-    data: Theme.of(context).copyWith(
-      dividerColor: Colors.transparent,
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-    ),
-          child: ExpansionTile(
-            tilePadding: EdgeInsets.symmetric(
-              horizontal: m.faqHPad,
-              vertical: m.faqVPad,
-            ),
-            childrenPadding: EdgeInsets.fromLTRB(
-              m.faqHPad,
-              0,
-              m.faqHPad,
-              m.gapMd,
-            ),
-            expandedAlignment: Alignment.topLeft,
-            iconColor: colors.brand,
-            collapsedIconColor: colors.textSecondary,
-            backgroundColor: Colors.transparent,
-            collapsedBackgroundColor: Colors.transparent,
-            title: Text(
-              faq.question,
-              style: AppTextStyles.labelLarge.copyWith(
-                color: colors.textPrimary,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w500,
-                fontSize: m.faqQuestionSize,
-                height: 1.35,
-              ),
-            ),
-            trailing: Icon(Icons.keyboard_arrow_down_rounded, size: m.faqIconSize),
-            children: [
-              Text(
-                faq.answer,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: colors.textSecondary,
-                  fontFamily: 'Inter',
-                  fontSize: m.faqAnswerSize,
-                  height: 1.5,
+                    SizedBox(height: m.gapXs * 0.6),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: colors.textSecondary,
+                        fontFamily: 'Inter',
+                        fontSize: m.tileSubSize,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+
+              SizedBox(width: m.gapSm),
+
+              Icon(
+                Icons.chevron_right_rounded,
+                size: m.tileIconSize * 0.8,
+                color: colors.textMuted,
               ),
             ],
           ),

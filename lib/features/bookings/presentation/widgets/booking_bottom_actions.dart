@@ -29,6 +29,7 @@ class BookingBottomActions extends StatefulWidget {
 class _BookingBottomActionsState extends State<BookingBottomActions> {
   bool _isChangeTimeExpanded = false;
   late AvailabilityState _availabilityState;
+  final _slideController = BookingSlideToCancelController();
 
   @override
   void initState() {
@@ -148,6 +149,7 @@ class _BookingBottomActionsState extends State<BookingBottomActions> {
                         ? 0.65
                         : 1,
                     child: BookingSlideToCancel(
+                      controller: _slideController,
                       onCompleted: () {
                         _showCancelDialog(
                           context,
@@ -223,6 +225,7 @@ class _BookingBottomActionsState extends State<BookingBottomActions> {
     if (!context.mounted) return;
 
     if (reason == null || reason.trim().isEmpty) {
+      _slideController.reset();
       return;
     }
 

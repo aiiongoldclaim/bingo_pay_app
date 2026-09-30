@@ -121,10 +121,26 @@ import 'package:bingo_pay/features/categories/domain/usecases/get_categories_use
     as _i507;
 import 'package:bingo_pay/features/categories/presentation/cubit/categories_cubit.dart'
     as _i801;
+import 'package:bingo_pay/features/chat/data/datasources/chat_remote_datasource.dart'
+    as _i952;
+import 'package:bingo_pay/features/chat/data/repositories/chat_repository_impl.dart'
+    as _i818;
+import 'package:bingo_pay/features/chat/domain/repositories/chat_repository.dart'
+    as _i153;
+import 'package:bingo_pay/features/chat/presentation/cubit/chat_cubit.dart'
+    as _i212;
 import 'package:bingo_pay/features/customer/dashboard/presentation/cubit/buyer_dashboard_cubit.dart'
     as _i709;
 import 'package:bingo_pay/features/edit_profile/presentation/cubit/edit_profile_cubit.dart'
     as _i126;
+import 'package:bingo_pay/features/help_support/data/datasources/support_ticket_remote_datasource.dart'
+    as _i713;
+import 'package:bingo_pay/features/help_support/data/repositories/support_ticket_repository_impl.dart'
+    as _i335;
+import 'package:bingo_pay/features/help_support/domain/repositories/support_ticket_repository.dart'
+    as _i535;
+import 'package:bingo_pay/features/help_support/presentation/cubit/support_ticket_cubit.dart'
+    as _i204;
 import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart'
     as _i666;
 import 'package:bingo_pay/features/home/domain/repositories/product_repository_impl.dart'
@@ -307,6 +323,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i230.AuctionsRemoteDatasources>(
       () => _i230.AuctionsRemoteDatasources(gh<_i541.ApiClient>()),
     );
+    gh.factory<_i952.ChatRemoteDataSource>(
+      () => _i952.ChatRemoteDataSource(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i713.SupportTicketRemoteDataSource>(
+      () => _i713.SupportTicketRemoteDataSource(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -333,6 +355,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i328.OrdersRemoteDataSource>(),
         gh<_i915.AddressRemoteDataSource>(),
       ),
+    );
+    gh.factory<_i153.ChatRepository>(
+      () => _i818.ChatRepositoryImpl(gh<_i952.ChatRemoteDataSource>()),
     );
     gh.factory<_i298.CategoryRepository>(
       () => _i611.CategoryRepositoryImpl(gh<_i298.CategoryRemoteDataSource>()),
@@ -394,6 +419,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i805.ProcessPaymentUseCase>()),
     );
+    gh.factory<_i535.SupportTicketRepository>(
+      () => _i335.SupportTicketRepositoryImpl(
+        gh<_i713.SupportTicketRemoteDataSource>(),
+      ),
+    );
     gh.factory<_i917.AuthRepository>(
       () => _i1061.AuthRepositoryImpl(
         gh<_i495.AuthRemoteDataSource>(),
@@ -410,6 +440,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i254.GetServicesUseCase>(
       () => _i254.GetServicesUseCase(gh<_i570.ServiceRemoteDataSource>()),
+    );
+    gh.factory<_i204.SupportTicketCubit>(
+      () => _i204.SupportTicketCubit(gh<_i535.SupportTicketRepository>()),
     );
     gh.factory<_i729.TransactionsCubit>(
       () => _i729.TransactionsCubit(gh<_i97.TransactionsRemoteDataSource>()),
@@ -524,6 +557,12 @@ extension GetItInjectableX on _i174.GetIt {
         kycSelfie: gh<_i520.UploadKycSelfieUseCase>(),
         getKycStatus: gh<_i894.GetKycStatusUseCase>(),
         storage: gh<_i481.SecureStorageService>(),
+      ),
+    );
+    gh.factory<_i212.ChatCubit>(
+      () => _i212.ChatCubit(
+        gh<_i153.ChatRepository>(),
+        gh<_i1070.GetProfileUseCase>(),
       ),
     );
     return this;

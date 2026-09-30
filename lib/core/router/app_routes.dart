@@ -25,6 +25,10 @@ class AppRoutes {
   static const String buyerAddresses = '/buyer/addresses';
   static const String buyerPayments = '/buyer/payments';
   static const String help = '/help';
+  static const String chatSession = '/help/chat';
+  static const String myTickets = '/help/tickets';
+  static const String ticketDetail = '/help/tickets/:uuid';
+  static const String ticketDetailName = 'ticket-detail';
   static const String buyerCatalog = '/buyer/catalog';
   static const String allProducts = '/all-products';
   static const String categories = '/categories';
@@ -125,6 +129,9 @@ class AppRoutes {
 
   static String serviceDetailPath(String uuid) =>
       servicesDetails.replaceFirst(':uuid', uuid);
+
+  static String ticketDetailPath(String uuid) =>
+      ticketDetail.replaceFirst(':uuid', uuid);
 
   static String productListingPath(String categoryName) =>
       productListing.replaceFirst(

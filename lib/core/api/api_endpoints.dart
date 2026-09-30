@@ -34,21 +34,13 @@ class ApiEndpoints {
   static const String checkout = '/api/v1/checkout';
   static const String bigodIntent = '/api/v1/payments/bigod/intent';
   static const String bigodConfirm = '/api/v1/payments/bigod/confirm';
+  static const String bigodBalance = '/api/v1/payments/bigod/balance';
 
   static const String membership = '/api/v1/customer/membership';
   static const String membershipPlans = '/api/v1/customer/membership/plans';
   static const String membershipSubscribe = '/api/v1/customer/membership/subscribe';
-
-  static String membershipCancel(String uuid) =>
-      '/api/v1/customer/membership/$uuid/cancel';
-
-  static String membershipResume(String subscriptionUuid) =>
-      '/api/v1/customer/membership/$subscriptionUuid/resume';
-
-
-
-  static const String bigodBalance = '/api/v1/payments/bigod/balance';
-
+  static String membershipCancel(String uuid) => '/api/v1/customer/membership/$uuid/cancel';
+  static String membershipResume(String subscriptionUuid) => '/api/v1/customer/membership/$subscriptionUuid/resume';
 
   static const String services = '/api/v1/services';
   static const String brands = '/api/v1/brands';
@@ -61,6 +53,21 @@ class ApiEndpoints {
   static String addressDetail(String id) => '/api/v1/addresses/$id';
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
   static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';
+
+  //help and support
+  static const String supportTickets = '/api/v1/support/tickets';
+  static String supportTicketDetail(String uuid) =>
+      '/api/v1/support/tickets/$uuid';
+  static String supportTicketReply(String uuid) =>
+      '/api/v1/support/tickets/$uuid/reply';
+
+  //chat
+  static const String chatSessions = '/api/v1/chat/sessions';
+  static const String chatCurrentSession = '/api/v1/chat/sessions/current';
+  static String chatMessages(String sessionUuid) =>
+      '/api/v1/chat/sessions/$sessionUuid/messages';
+  static String chatSessionClose(String sessionUuid) =>
+      '/api/v1/chat/sessions/$sessionUuid/close';
 
   static const String myBookings = '/api/v1/bookings';
   static String bookingDetail(String uuid) => '/api/v1/bookings/$uuid';

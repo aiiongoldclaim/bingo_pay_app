@@ -8,7 +8,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
-import '../../data/datasources/booking_remote_datasources.dart';
+import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../../domain/entities/bookings_entity.dart';
 import 'icon_line.dart';
 import 'invoice_button.dart';
@@ -42,7 +42,7 @@ class _BookingCardState extends State<BookingCard> {
 
     setState(() => _generatingPdf = true);
     try {
-      final invoice = await GetIt.I<BookingRemoteDatasources>().downloadInvoice(
+      final invoice = await GetIt.I<OrdersRemoteDataSource>().downloadInvoice(
         widget.booking.order.uuid,
       );
       await openOrSharePdf(invoice.bytes, invoice.filename);

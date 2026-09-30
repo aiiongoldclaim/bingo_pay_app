@@ -72,7 +72,10 @@ import '../../features/transactions/presentation/screens/transactions_screen.dar
 import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
+import '../../features/chat/presentation/screens/chat_session_screen.dart';
 import '../../features/help_support/presentation/screens/help_support_screen.dart';
+import '../../features/help_support/presentation/screens/my_tickets_screen.dart';
+import '../../features/help_support/presentation/screens/ticket_detail_screen.dart';
 import '../di/injection.dart';
 import '../storage/preferences_service.dart';
 import 'app_routes.dart';
@@ -336,6 +339,22 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.help,
           builder: (_, _) => const HelpSupportScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.chatSession,
+          builder: (_, _) => const ChatSessionScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.myTickets,
+          builder: (_, _) => const MyTicketsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.ticketDetail,
+          name: AppRoutes.ticketDetailName,
+          builder: (context, state) {
+            final uuid = state.pathParameters['uuid'] ?? '';
+            return TicketDetailScreen(ticketId: uuid);
+          },
         ),
 
 

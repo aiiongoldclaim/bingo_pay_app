@@ -268,12 +268,7 @@ class _ProfileLoadedContent extends StatelessWidget {
                     ProfileHeader(
                       profile: profile,
                       onEdit: context.read<ProfileCubit>().onEditProfile,
-                      onWalletTap: () {
-                        launchUrl(
-                          Uri.parse('https://investor.bingold.to/wallets'),
-                          mode: LaunchMode.externalApplication,
-                        );
-                      },
+                      onWalletTap: () => _openWallet(context),
                     ),
 
                     SizedBox(height: m.gapMd),
@@ -355,5 +350,20 @@ class _ProfileLoadedContent extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _openWallet(BuildContext context) async {
+    final uri = Uri.parse('https://investor.bingold.to/wallets');
+
+    bool launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      launched = false;
+    }
+
+    if (!launched && context.mounted) {
+      AppSnackbar.showError(context, 'Could not open the wallet page.');
+    }
   }
 }

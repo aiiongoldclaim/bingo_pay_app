@@ -4,13 +4,29 @@ import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'booking_details_metrics.dart';
 
+class BookingSlideToCancelController {
+  VoidCallback? _resetCallback;
+
+  void _attach(VoidCallback resetCallback) {
+    _resetCallback = resetCallback;
+  }
+
+  void _detach() {
+    _resetCallback = null;
+  }
+
+  void reset() => _resetCallback?.call();
+}
+
 class BookingSlideToCancel extends StatefulWidget {
   const BookingSlideToCancel({
     super.key,
     required this.onCompleted,
+    this.controller,
   });
 
   final VoidCallback onCompleted;
+  final BookingSlideToCancelController? controller;
 
   @override
   State<BookingSlideToCancel> createState() =>
@@ -37,6 +53,17 @@ class _BookingSlideToCancelState
     );
 
     _resetController.addListener(_onResetAnimation);
+    widget.controller?._attach(_resetSlide);
+  }
+
+  void _resetSlide() {
+    if (!mounted) return;
+
+    setState(() {
+      _completed = false;
+    });
+
+    _animateBack();
   }
 
   void _onResetAnimation() {
@@ -53,6 +80,7 @@ class _BookingSlideToCancelState
 
   @override
   void dispose() {
+    widget.controller?._detach();
     _resetController
       ..removeListener(_onResetAnimation)
       ..dispose();
@@ -163,52 +191,55 @@ class _BookingSlideToCancelState
                     ),
                   ),
                 ),
-                Center(
-                  child: AnimatedOpacity(
-                    duration:
-                        const Duration(milliseconds: 100),
-                    opacity: (1 - progress * 2)
-                        .clamp(0.0, 1.0),
-                    child: Text(
-                      AppStrings.slideToCancel,
-                      style: TextStyle(
-                        color: colors.textSecondary,
-                        fontFamily: 'Inter',
-                        fontSize: m.slideTextSize,
-                        fontWeight:
-                            FontWeight.w700,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: m.slideChevronRightPad,
-                  child: IgnorePointer(
-                    child: Opacity(
-                      opacity:
-                          (1 - progress).clamp(
-                        0.0,
-                        1.0,
-                      ),
-                      child: Row(
-                        mainAxisSize:
-                            MainAxisSize.min,
-                        children: [
-                          BookingSlideChevron(
-                            color: colors.textMuted,
-                            opacity: 0.25,
+                IgnorePointer(
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Opacity(
+                          opacity: (1 - progress).clamp(
+                            0.0,
+                            1.0,
                           ),
-                          BookingSlideChevron(
-                            color: colors.textMuted,
-                            opacity: 0.45,
+                          child: Row(
+                            mainAxisSize:
+                                MainAxisSize.min,
+                            children: [
+                              BookingSlideChevron(
+                                color: colors.textMuted,
+                                opacity: 0.25,
+                              ),
+                              BookingSlideChevron(
+                                color: colors.textMuted,
+                                opacity: 0.45,
+                              ),
+                              BookingSlideChevron(
+                                color: colors.brand,
+                                opacity: 0.75,
+                              ),
+                            ],
                           ),
-                          BookingSlideChevron(
-                            color: colors.brand,
-                            opacity: 0.75,
+                        ),
+                        SizedBox(width: m.slideHintGapH),
+                        AnimatedOpacity(
+                          duration: const Duration(
+                            milliseconds: 100,
                           ),
-                        ],
-                      ),
+                          opacity: (1 - progress * 2)
+                              .clamp(0.0, 1.0),
+                          child: Text(
+                            AppStrings.slideToCancel,
+                            style: TextStyle(
+                              color: colors.textSecondary,
+                              fontFamily: 'Inter',
+                              fontSize: m.slideTextSize,
+                              fontWeight:
+                                  FontWeight.w700,
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -298,7 +329,7 @@ class _BookingSlideToCancelState
                               )
                             : Icon(
                                 Icons
-                                    .arrow_forward_rounded,
+                                    .arrow_forward_ios_rounded,
                                 key: const ValueKey(
                                   'arrow',
                                 ),
@@ -355,7 +386,7 @@ class BookingSlideChevron extends StatelessWidget {
     return Opacity(
       opacity: opacity,
       child: Icon(
-        Icons.chevron_right_rounded,
+        Icons.arrow_forward_ios_rounded,
         size: m.chevronIconSize,
         color: color,
       ),
