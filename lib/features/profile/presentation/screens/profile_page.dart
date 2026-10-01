@@ -325,6 +325,20 @@ class _ProfileLoadedContent extends StatelessWidget {
 
                             ProfileSectionHeading(
                               metrics: m,
+                              label: 'Sell with Us',
+                            ),
+
+                            SizedBox(height: m.sectionHeadingGap),
+
+                            ProfileMenuList(
+                              items: ProfileMenuItem.vendorItems,
+                              onTap: (item) => context.push(item.route),
+                            ),
+
+                            SizedBox(height: m.gapLg),
+
+                            ProfileSectionHeading(
+                              metrics: m,
                               label: 'Account & Support',
                             ),
 

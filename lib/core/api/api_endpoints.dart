@@ -54,6 +54,19 @@ class ApiEndpoints {
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
   static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';
 
+  //health
+  static const String health = '/api/v1/health';
+  static const String hello = '/api/v1/hello';
+
+  //settings
+  static const String publicSettings = '/api/v1/settings/public';
+
+  //notifications
+  static const String myNotifications = '/api/v1/notifications/me';
+  static const String notificationsReadAll = '/api/v1/notifications/read-all';
+  static String notificationRead(String uuid) =>
+      '/api/v1/notifications/$uuid/read';
+
   //help and support
   static const String supportTickets = '/api/v1/support/tickets';
   static String supportTicketDetail(String uuid) =>

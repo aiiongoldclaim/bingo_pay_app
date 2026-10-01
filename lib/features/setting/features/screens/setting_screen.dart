@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/app_snackbar.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../domain/entities/public_settings_entity.dart';
+import '../cubit/settings_cubit.dart';
+import '../cubit/settings_state.dart';
 import '../widgets/settings_metrics.dart';
 import '../widgets/settings_widgets.dart';
 
@@ -25,22 +25,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _orderAlerts = true;
   bool _biometric = false;
 
-  Future<void> _confirmLogout() async {
-    final authBloc = context.read<AuthBloc>();
+  @override
+  void initState() {
+    super.initState();
+    context.read<SettingsCubit>().loadPublicSettings();
+  }
 
-    final confirmed = await showAppConfirmDialog(
-      context: context,
-      title: 'Logout?',
-      message: 'Are you sure you want to logOut from your account',
-      confirmLabel: 'Logout',
-      cancelLabel: 'Cancel',
-      isDestructive: true,
-      icon: Icons.logout_rounded,
-      confirmColor: context.c.error,
+  Future<void> _launch(Uri uri, String errorMessage) async {
+    bool launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      launched = false;
+    }
+
+    if (!launched && mounted) {
+      AppSnackbar.showError(context, errorMessage);
+    }
+  }
+
+  void _openMap(CompanyInfoEntity company) {
+    final query = company.latitude != null && company.longitude != null
+        ? '${company.latitude},${company.longitude}'
+        : company.fullAddress;
+    _launch(
+      Uri.https('www.google.com', '/maps/search/', {'api': '1', 'query': query}),
+      'Could not open maps.',
     );
+  }
 
-    if (!confirmed) return;
-    authBloc.add(const LogoutRequested());
+  Widget _buildContactCard(SettingsMetrics m, SettingsState state) {
+    if (state is SettingsError) {
+      return SettingsCard(
+        metrics: m,
+        children: [
+          SettingsTile(
+            metrics: m,
+            icon: Icons.refresh_rounded,
+            title: 'Could not load contact details',
+            subtitle: 'Tap to retry',
+            onTap: () => context
+                .read<SettingsCubit>()
+                .loadPublicSettings(force: true),
+          ),
+        ],
+      );
+    }
+
+    if (state is! SettingsLoaded) {
+      return SettingsCard(
+        metrics: m,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(m.gapLg),
+            child: const Center(
+              child: SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final company = state.settings.company;
+
+    return SettingsCard(
+      metrics: m,
+      children: [
+        if (company.email.isNotEmpty)
+          SettingsTile(
+            metrics: m,
+            icon: Icons.mail_outline_rounded,
+            title: 'Email Us',
+            subtitle: company.email,
+            onTap: () => _launch(
+              Uri(scheme: 'mailto', path: company.email),
+              'Could not open email app.',
+            ),
+          ),
+        if (company.phone.isNotEmpty)
+          SettingsTile(
+            metrics: m,
+            icon: Icons.call_outlined,
+            title: 'Call Us',
+            subtitle: company.phone,
+            onTap: () => _launch(
+              Uri(scheme: 'tel', path: company.phone.replaceAll(' ', '')),
+              'Could not open dialer.',
+            ),
+          ),
+        if (company.website.isNotEmpty)
+          SettingsTile(
+            metrics: m,
+            icon: Icons.language_rounded,
+            title: 'Website',
+            subtitle: company.website,
+            onTap: () => _launch(
+              Uri.parse(company.website),
+              'Could not open the website.',
+            ),
+          ),
+        if (company.fullAddress.isNotEmpty)
+          SettingsTile(
+            metrics: m,
+            icon: Icons.location_city_outlined,
+            title: 'Our Office',
+            subtitle: company.fullAddress,
+            onTap: () => _openMap(company),
+          ),
+      ],
+    );
   }
 
   Future<void> _confirmDeleteAccount() async {
@@ -223,22 +320,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   metrics: m,
                                   icon: Icons.privacy_tip_outlined,
                                   title: 'Privacy Policy',
+                                  subtitle: 'How we handle your data',
                                   onTap: () {},
                                 ),
                                 SettingsTile(
                                   metrics: m,
                                   icon: Icons.description_outlined,
                                   title: 'Terms of Service',
+                                  subtitle: 'Rules for using the app',
                                   onTap: () {},
                                 ),
                                 SettingsTile(
                                   metrics: m,
                                   icon: Icons.info_outline_rounded,
                                   title: 'App Version',
+                                  subtitle: 'Current installed version',
                                   trailingValue: '1.0.0',
                                   onTap: () {},
                                 ),
                               ],
+                            ),
+
+                            SizedBox(height: m.gapLg),
+
+                            // ── Contact Us ────────────────────────────
+                            SettingsSectionHeading(
+                              metrics: m,
+                              label: 'Contact Us',
+                            ),
+                            SizedBox(height: m.sectionGap),
+                            BlocBuilder<SettingsCubit, SettingsState>(
+                              builder: (context, state) =>
+                                  _buildContactCard(m, state),
                             ),
 
                             SizedBox(height: m.gapLg),
@@ -249,13 +362,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               children: [
                                 SettingsTile(
                                   metrics: m,
-                                  icon: Icons.logout_rounded,
-                                  title: 'Logout',
-                                  subtitle: 'Sign out from your account',
-                                  onTap: _confirmLogout,
-                                ),
-                                SettingsTile(
-                                  metrics: m,
                                   icon: Icons.delete_outline_rounded,
                                   title: 'Delete Account',
                                   subtitle: 'Permanently remove your data',
@@ -263,19 +369,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   onTap: _confirmDeleteAccount,
                                 ),
                               ],
-                            ),
-
-                            SizedBox(height: m.gapLg),
-
-                            Center(
-                              child: Text(
-                                'TheVaults · v1.0.0',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: colors.textMuted,
-                                  fontFamily: 'Inter',
-                                  fontSize: m.tileSubSize,
-                                ),
-                              ),
                             ),
                           ],
                         ),

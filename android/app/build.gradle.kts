@@ -74,7 +74,10 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-val keystorePropertiesFile = rootProject.file("keystore.properties")
+// Standard Flutter location is android/key.properties; keystore.properties
+// is still accepted for older setups.
+val keystorePropertiesFile = rootProject.file("key.properties").takeIf { it.exists() }
+    ?: rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
@@ -133,6 +136,20 @@ android {
         release {
             signingConfig = signingConfigs.getByName("release")
         }
+    }
+}
+
+// Without keystore.properties every signing value is null and the release
+// build dies with a bare NullPointerException in signReleaseBundle. Fail
+// early with a clear message instead (debug builds are unaffected).
+gradle.taskGraph.whenReady {
+    val buildsRelease = allTasks.any { it.name.contains("Release") }
+    if (buildsRelease && !keystorePropertiesFile.exists()) {
+        throw GradleException(
+            "Release signing is not set up: ${keystorePropertiesFile.path} is missing.\n" +
+                "Add android/key.properties (storeFile, storePassword, keyAlias, " +
+                "keyPassword) and the upload keystore it points to."
+        )
     }
 }
 

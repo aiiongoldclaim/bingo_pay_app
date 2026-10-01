@@ -1,394 +1,217 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../setting/features/widgets/settings_metrics.dart';
 import '../../../setting/features/widgets/settings_widgets.dart';
+import '../../domain/entities/notification_entity.dart';
+import '../cubit/notification_cubit.dart';
+import '../cubit/notification_state.dart';
+import '../widgets/notification_widgets.dart';
 
-
-enum NotificationKind { order, offer, wallet, system }
-
-class AppNotification {
-  final String id;
-  final NotificationKind kind;
-  final String title;
-  final String body;
-  final String time;
-  final bool isRead;
-
-  const AppNotification({
-    required this.id,
-    required this.kind,
-    required this.title,
-    required this.body,
-    required this.time,
-    this.isRead = false,
-  });
-
-  AppNotification copyWith({bool? isRead}) => AppNotification(
-    id: id,
-    kind: kind,
-    title: title,
-    body: body,
-    time: time,
-    isRead: isRead ?? this.isRead,
-  );
-}
-
-class NotificationsScreen extends StatefulWidget {
+class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider<NotificationCubit>(
+      create: (_) => getIt<NotificationCubit>()..loadNotifications(),
+      child: const _NotificationsView(),
+    );
+  }
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
-  /// Placeholder data — koi notifications API abhi nahi hai
-  List<AppNotification> _items = const [];
+class _NotificationsView extends StatefulWidget {
+  const _NotificationsView();
 
+  @override
+  State<_NotificationsView> createState() => _NotificationsViewState();
+}
+
+class _NotificationsViewState extends State<_NotificationsView> {
   int _filterIndex = 0; // 0 = All, 1 = Unread
 
-  List<AppNotification> get _visible => _filterIndex == 0
-      ? _items
-      : _items.where((n) => !n.isRead).toList();
-
-  int get _unreadCount => _items.where((n) => !n.isRead).length;
-
-  void _markAllRead() {
-    if (_unreadCount == 0) return;
-    setState(() {
-      _items = _items.map((n) => n.copyWith(isRead: true)).toList();
-    });
-    AppSnackbar.showSuccess(context, 'All notifications marked as read');
-  }
-
-  void _openNotification(AppNotification n) {
-    setState(() {
-      _items = _items
-          .map((e) => e.id == n.id ? e.copyWith(isRead: true) : e)
-          .toList();
-    });
-
-    switch (n.kind) {
-      case NotificationKind.order:
-        context.push(AppRoutes.orders);
-      case NotificationKind.wallet:
-        context.push(AppRoutes.wallet);
-      case NotificationKind.offer:
-      case NotificationKind.system:
-        break;
+  Future<void> _markAllRead(int unreadCount) async {
+    if (unreadCount == 0) return;
+    final error = await context.read<NotificationCubit>().markAllAsRead();
+    if (!mounted) return;
+    if (error != null) {
+      AppSnackbar.showError(context, error);
+    } else {
+      AppSnackbar.showSuccess(context, 'All notifications marked as read');
     }
   }
+
+  void _openNotification(NotificationEntity n) {
+    context.read<NotificationCubit>().markAsRead(n.uuid).then((error) {
+      if (error != null && mounted) AppSnackbar.showError(context, error);
+    });
+
+    final type = n.type.toUpperCase();
+    if (type.startsWith('BOOKING')) {
+      context.push(AppRoutes.myBookings);
+    } else if (type.startsWith('AUCTION')) {
+      context.push(AppRoutes.myBids);
+    } else if (type.startsWith('ORDER')) {
+      context.push(AppRoutes.orders);
+    } else if (type.contains('WALLET')) {
+      context.push(AppRoutes.wallet);
+    }
+  }
+
+  Future<void> _refresh() =>
+      context.read<NotificationCubit>().loadNotifications(silent: true);
 
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      body: SafeArea(
-        bottom: false,
-        child: Builder(
-          builder: (context) {
-            final m = SettingsMetrics.of(context);
-            final items = _visible;
+    return BlocBuilder<NotificationCubit, NotificationState>(
+      builder: (context, state) {
+        final all = state is NotificationLoaded
+            ? state.items
+            : const <NotificationEntity>[];
+        final unreadCount =
+            state is NotificationLoaded ? state.unreadCount : 0;
+        final items = _filterIndex == 0
+            ? all
+            : all.where((n) => !n.isRead).toList();
 
-            return Column(
-              children: [
-                SettingsTopBar(
-                  metrics: m,
-                  title: 'Notifications',
-                  subtitle: _unreadCount > 0
-                      ? '$_unreadCount unread'
-                      : 'You are all caught up',
-                  onBack: () => context.canPop()
-                      ? context.pop()
-                      : context.go(AppRoutes.profile),
-                  action: _items.isEmpty
-                      ? null
-                      : IconButton(
-                    onPressed: _markAllRead,
-                    splashRadius: m.topIconSize * 1.2,
-                    tooltip: 'Mark all as read',
-                    icon: Icon(
-                      Icons.done_all_rounded,
-                      size: m.topIconSize,
-                      color: _unreadCount > 0 ? colors.brand : colors.textMuted,
-                    ),
-                  ),
-                ),
+        return Scaffold(
+          backgroundColor: colors.background,
+          body: SafeArea(
+            bottom: false,
+            child: Builder(
+              builder: (context) {
+                final m = SettingsMetrics.of(context);
 
-                if (_items.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      m.pageHPad,
-                      m.gapSm,
-                      m.pageHPad,
-                      m.gapSm,
+                return Column(
+                  children: [
+                    NotificationTopBar(
+                      metrics: m,
+                      subtitle: state is! NotificationLoaded
+                          ? null
+                          : unreadCount > 0
+                              ? '$unreadCount unread'
+                              : 'You are all caught up',
+                      onBack: () => context.canPop()
+                          ? context.pop()
+                          : context.go(AppRoutes.profile),
+                      onMarkAllRead: all.isEmpty
+                          ? null
+                          : () => _markAllRead(unreadCount),
+                      hasUnread: unreadCount > 0,
                     ),
-                    child: Row(
-                      children: [
-                        _FilterChip(
-                          metrics: m,
-                          label: 'All (${_items.length})',
-                          isSelected: _filterIndex == 0,
-                          onTap: () => setState(() => _filterIndex = 0),
-                        ),
-                        SizedBox(width: m.gapSm),
-                        _FilterChip(
-                          metrics: m,
-                          label: 'Unread ($_unreadCount)',
-                          isSelected: _filterIndex == 1,
-                          onTap: () => setState(() => _filterIndex = 1),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                Expanded(
-                  child: items.isEmpty
-                      ? SettingsEmptyView(
-                    metrics: m,
-                    icon: Icons.notifications_none_rounded,
-                    title: _items.isEmpty
-                        ? 'No notifications yet'
-                        : 'Nothing unread',
-                    subtitle: _items.isEmpty
-                        ? 'Order updates, offers and wallet activity\nwill show up here.'
-                        : 'You have read everything. Nice work.',
-                    actionLabel: _items.isEmpty ? 'START SHOPPING' : null,
-                    onAction: _items.isEmpty
-                        ? () => context.go(AppRoutes.home)
-                        : null,
-                  )
-                      : Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: m.maxContentWidth,
-                      ),
-                      child: ListView.separated(
+                    if (all.isNotEmpty)
+                      Padding(
                         padding: EdgeInsets.fromLTRB(
                           m.pageHPad,
                           m.gapSm,
                           m.pageHPad,
-                          m.gapLg * 2,
+                          m.gapSm,
                         ),
-                        itemCount: items.length,
-                        separatorBuilder: (_, __) =>
-                            SizedBox(height: m.gapSm),
-                        itemBuilder: (context, index) => _NotificationTile(
-                          metrics: m,
-                          item: items[index],
-                          onTap: () => _openNotification(items[index]),
+                        child: Row(
+                          children: [
+                            NotificationFilterChip(
+                              metrics: m,
+                              label: 'All (${all.length})',
+                              isSelected: _filterIndex == 0,
+                              onTap: () => setState(() => _filterIndex = 0),
+                            ),
+                            SizedBox(width: m.gapSm),
+                            NotificationFilterChip(
+                              metrics: m,
+                              label: 'Unread ($unreadCount)',
+                              isSelected: _filterIndex == 1,
+                              onTap: () => setState(() => _filterIndex = 1),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
 
-// ── Filter chip ────────────────────────────────────────────────────────────
-class _FilterChip extends StatelessWidget {
-  final SettingsMetrics metrics;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.metrics,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-
-    return Material(
-      color: isSelected ? colors.brand : colors.surface,
-      borderRadius: BorderRadius.circular(m.chipHeight),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: m.chipHeight,
-          padding: EdgeInsets.symmetric(horizontal: m.tileHPad * 0.9),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(m.chipHeight),
-            border: Border.all(
-              color: isSelected ? colors.brand : colors.border,
-              width: 1,
-            ),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: isSelected ? colors.surface : colors.textSecondary,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w600,
-              fontSize: m.chipFontSize,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Notification tile ──────────────────────────────────────────────────────
-class _NotificationTile extends StatelessWidget {
-  final SettingsMetrics metrics;
-  final AppNotification item;
-  final VoidCallback onTap;
-
-  const _NotificationTile({
-    required this.metrics,
-    required this.item,
-    required this.onTap,
-  });
-
-  IconData get _icon {
-    switch (item.kind) {
-      case NotificationKind.order:
-        return Icons.local_shipping_outlined;
-      case NotificationKind.offer:
-        return Icons.local_offer_outlined;
-      case NotificationKind.wallet:
-        return Icons.account_balance_wallet_outlined;
-      case NotificationKind.system:
-        return Icons.info_outline_rounded;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-
-    return Material(
-      color: item.isRead ? colors.surface : colors.brandSoft,
-      borderRadius: BorderRadius.circular(m.cardRadius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.all(m.tileHPad * 0.9),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(m.cardRadius),
-            border: Border.all(
-              color: item.isRead ? colors.border : colors.brand.withValues(alpha: 0.3),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: m.notifIconBox,
-                height: m.notifIconBox,
-                decoration: BoxDecoration(
-                  color: item.isRead
-                      ? colors.surfaceAlt
-                      : colors.surface.withValues(alpha: colors.isDark ? 0.10 : 0.8),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Icon(_icon, size: m.notifIconSize, color: colors.brand),
-              ),
-
-              SizedBox(width: m.tileHPad * 0.8),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: colors.textPrimary,
-                              fontFamily: 'Inter',
-                              fontWeight: item.isRead
-                                  ? FontWeight.w600
-                                  : FontWeight.w700,
-                              fontSize: m.notifTitleSize,
-                              height: 1.3,
-                            ),
-                          ),
-                        ),
-                        if (!item.isRead) ...[
-                          SizedBox(width: m.gapSm),
-                          Container(
-                            width: m.dotSize,
-                            height: m.dotSize,
-                            decoration: BoxDecoration(
-                              color: colors.brand,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-
-                    SizedBox(height: m.gapXs),
-
-                    Text(
-                      item.body,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: colors.textSecondary,
-                        fontFamily: 'Inter',
-                        fontSize: m.notifBodySize,
-                        height: 1.4,
-                      ),
-                    ),
-
-                    SizedBox(height: m.gapSm * 0.8),
-
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.schedule_rounded,
-                          size: m.notifTimeSize + 3,
-                          color: colors.textMuted,
-                        ),
-                        SizedBox(width: m.gapXs),
-                        Text(
-                          item.time,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: colors.textMuted,
-                            fontFamily: 'Inter',
-                            fontSize: m.notifTimeSize,
-                          ),
-                        ),
-                      ],
-                    ),
+                    Expanded(child: _buildBody(m, state, all, items)),
                   ],
-                ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(
+    SettingsMetrics m,
+    NotificationState state,
+    List<NotificationEntity> all,
+    List<NotificationEntity> items,
+  ) {
+    if (state is NotificationError) {
+      return SettingsEmptyView(
+        metrics: m,
+        icon: Icons.cloud_off_rounded,
+        title: 'Could not load notifications',
+        subtitle: state.errorMessage,
+        actionLabel: 'RETRY',
+        onAction: () => context.read<NotificationCubit>().loadNotifications(),
+      );
+    }
+
+    if (state is! NotificationLoaded) {
+      return NotificationListShimmer(metrics: m);
+    }
+
+    if (items.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refresh,
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: constraints.maxHeight,
+              child: SettingsEmptyView(
+                metrics: m,
+                icon: Icons.notifications_none_rounded,
+                title: all.isEmpty ? 'No notifications yet' : 'Nothing unread',
+                subtitle: all.isEmpty
+                    ? 'Order updates, bookings and auction activity\nwill show up here.'
+                    : 'You have read everything. Nice work.',
+                actionLabel: all.isEmpty ? 'START SHOPPING' : null,
+                onAction:
+                    all.isEmpty ? () => context.go(AppRoutes.home) : null,
               ),
-            ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+      child: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            m.pageHPad,
+            m.gapSm,
+            m.pageHPad,
+            m.gapLg * 2,
+          ),
+          itemCount: items.length,
+          separatorBuilder: (_, _) => SizedBox(height: m.gapSm),
+          itemBuilder: (context, index) => NotificationTile(
+            metrics: m,
+            item: items[index],
+            onTap: () => _openNotification(items[index]),
           ),
         ),
       ),
     );
   }
 }
+

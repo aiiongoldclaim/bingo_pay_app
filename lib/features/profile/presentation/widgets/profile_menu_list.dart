@@ -229,6 +229,8 @@ class ProfileMenuItem {
         return Icons.support_agent_outlined;
       case 'logout':
         return Icons.logout_rounded;
+      case 'vendor':
+        return Icons.storefront_outlined;
       default:
         return Icons.chevron_right_rounded;
     }
@@ -296,8 +298,19 @@ class ProfileMenuItem {
     ),
   ];
 
+  /// Group 3 — selling
+  static const List<ProfileMenuItem> vendorItems = [
+    ProfileMenuItem(
+      title: 'Become a Vendor',
+      subtitle: 'Apply to sell on TheVaults',
+      iconAsset: 'vendor',
+      route: AppRoutes.vendorApplication,
+    ),
+  ];
+
   static const List<ProfileMenuItem> items = [
     ...primaryItems,
     ...secondaryItems,
+    ...vendorItems,
   ];
 }

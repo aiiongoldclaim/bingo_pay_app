@@ -22,8 +22,12 @@ import '../features/address/presentation/cubit/address_cubit.dart';
 import '../features/bookings/presentation/cubit/booking_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
 import '../features/chat/presentation/cubit/chat_cubit.dart';
+import '../features/health/presentation/cubit/health_cubit.dart';
+import '../features/health/presentation/cubit/health_state.dart';
+import '../features/health/presentation/widgets/server_down_screen.dart';
 import '../features/help_support/presentation/cubit/support_ticket_cubit.dart';
 import '../features/services/presentation/cubit/services_cubit.dart';
+import '../features/setting/features/cubit/settings_cubit.dart';
 import '../features/wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../core/cubit/in_app_review_cubit.dart';
 
@@ -48,10 +52,29 @@ class _AppState extends State<App> {
   // widget tree, so `Intro.of(context)` can be resolved from any screen.
   final _introController = IntroController(stepCount: 6);
 
+  final _healthCubit = getIt<HealthCubit>();
+  StreamSubscription<bool>? _connectivitySub;
+
   @override
   void initState() {
     super.initState();
     _onboardingSeen = _prefs.isOnboardingSeen();
+
+    // Check the backend as soon as the app starts, and re-check whenever the
+    // device comes back online after a failed check.
+    _healthCubit.checkHealth();
+    _connectivitySub = _connectivity.isConnected.listen((connected) {
+      if (connected && _healthCubit.state is HealthDown) {
+        _healthCubit.checkHealth();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySub?.cancel();
+    _healthCubit.close();
+    super.dispose();
   }
 
   // void _onAuthStateChanged(BuildContext context, AuthState state) {
@@ -133,6 +156,8 @@ class _AppState extends State<App> {
         BlocProvider<InAppReviewCubit>(create: (_) => getIt<InAppReviewCubit>()),
         BlocProvider<ChatCubit>(create: (_) => getIt<ChatCubit>()),
         BlocProvider<SupportTicketCubit>(create: (_) => getIt<SupportTicketCubit>()),
+        BlocProvider<SettingsCubit>(create: (_) => getIt<SettingsCubit>()),
+        BlocProvider<HealthCubit>.value(value: _healthCubit),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         listener: _onAuthStateChanged,
@@ -179,6 +204,17 @@ class _AppState extends State<App> {
                     child: Stack(
                       children: [
                         child ?? const SizedBox.shrink(),
+                        // Below the no-internet overlay so being offline
+                        // takes priority over "server down".
+                        BlocBuilder<HealthCubit, HealthState>(
+                          builder: (context, state) {
+                            final showServerDown = state is HealthDown ||
+                                (state is HealthChecking && state.isRetry);
+                            return showServerDown
+                                ? const ServerDownScreen()
+                                : const SizedBox.shrink();
+                          },
+                        ),
                         StreamBuilder<bool>(
                           stream: _connectivity.isConnected,
                           builder: (context, snapshot) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import '../../core/router/app_router.dart';
 import '../../core/services/update_service.dart';
 
 class UpdateChecker extends StatefulWidget {
@@ -57,12 +58,24 @@ class _UpdateCheckerState extends State<UpdateChecker> {
     super.dispose();
   }
 
+  /// UpdateChecker sits in MaterialApp.router's `builder`, i.e. above the
+  /// Navigator, so its own context can't show dialogs or sheets. Use the
+  /// router's navigator context instead.
+  BuildContext? get _navigatorContext =>
+      GetIt.I<AppRouter>().router.routerDelegate.navigatorKey.currentContext;
+
   void _showUpdateBottomSheet(UpdateAvailable update) {
     debugPrint('🎯 _showUpdateBottomSheet: Showing bottom sheet for update');
 
+    final navContext = _navigatorContext;
+    if (navContext == null) {
+      debugPrint('🎯 _showUpdateBottomSheet: Navigator not ready, skipping');
+      return;
+    }
+
     // First show a test dialog to confirm update was detected
     showDialog(
-      context: context,
+      context: navContext,
       builder: (ctx) => AlertDialog(
         title: const Text('✅ Update Feature Working!'),
         content: const Text('The update detection is working correctly.\nTap OK to see the actual update prompt.'),
@@ -75,9 +88,10 @@ class _UpdateCheckerState extends State<UpdateChecker> {
       ),
     ).then((_) {
       // After dialog is dismissed, show the actual bottom sheet
-      if (mounted) {
+      final sheetContext = _navigatorContext;
+      if (mounted && sheetContext != null && sheetContext.mounted) {
         showModalBottomSheet(
-          context: context,
+          context: sheetContext,
           isDismissible: true,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

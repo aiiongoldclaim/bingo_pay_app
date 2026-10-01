@@ -59,7 +59,7 @@ class HelpSupportScreen extends StatelessWidget {
                         supportTiles: supportTiles,
                         footer: footer,
                       ),
-              ),
+              );
             
           },
         ),

@@ -21,6 +21,7 @@ import '../../features/membershipNew/presentation/screens/membership_screen.dart
 import '../../features/membershipNew/presentation/screens/membership_success_screen.dart';
 import '../../features/membershipNew/presentation/widgets/membership_checkout_args.dart';
 import '../../features/notification/presentation/screens/notification_screen.dart';
+import '../../features/vendor_application/presentation/screens/vendor_application_screen.dart';
 import '../../features/order_details/presentation/screens/order_details_screen.dart';
 import '../../features/orders/presentation/screens/my_orders_screen.dart';
 import '../../features/address/domain/repositories/address_respository.dart';
@@ -335,6 +336,10 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.buyerNotifications,
           builder: (_, _) => const NotificationsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.vendorApplication,
+          builder: (_, _) => const VendorApplicationScreen(),
         ),
         GoRoute(
           path: AppRoutes.help,

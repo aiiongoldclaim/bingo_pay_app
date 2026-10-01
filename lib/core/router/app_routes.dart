@@ -74,6 +74,8 @@ class AppRoutes {
   static const auctionScreen = '/auctions';
   static const String myBids = '/my-bids'; 
 
+  static const String vendorApplication = '/vendor-application';
+
   // Vendor shell
   static const String vendorHome = '/vendor/home';
   static const String vendorProducts = '/vendor/products';
