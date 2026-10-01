@@ -44,8 +44,7 @@ class HelpSupportScreen extends StatelessWidget {
 
             final footer = _FooterNote(metrics: m);
 
-            return Center(
-              child: ConstrainedBox(
+            return  ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: m.maxContentWidth),
                 child: m.isLandscape
                     ? _LandscapeBody(
@@ -61,7 +60,7 @@ class HelpSupportScreen extends StatelessWidget {
                         footer: footer,
                       ),
               ),
-            );
+            
           },
         ),
       ),
