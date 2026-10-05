@@ -5,6 +5,8 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../auctions/presentation/screens/auction_detail_screen.dart';
+import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../../../setting/features/widgets/settings_metrics.dart';
 import '../../../setting/features/widgets/settings_widgets.dart';
 import '../../domain/entities/notification_entity.dart';
@@ -50,15 +52,102 @@ class _NotificationsViewState extends State<_NotificationsView> {
       if (error != null && mounted) AppSnackbar.showError(context, error);
     });
 
+    debugPrint('Notification tapped: type=${n.type}, metadata=${n.metadata}');
+
+    // Detail screens (auction, booking, order, ticket, membership) live
+    // outside the main ShellRoute, so a plain push() works and keeps this
+    // screen in the back stack. List screens (my bids, my bookings, orders,
+    // wallet) are inside the ShellRoute: go_router 14 gives all pages of one
+    // ShellRoute the same key, so a plain push() from here throws
+    // "!keyReservation.contains(key)". pushReplacement() drops this screen
+    // first and lands the target inside the existing shell.
     final type = n.type.toUpperCase();
-    if (type.startsWith('BOOKING')) {
-      context.push(AppRoutes.myBookings);
-    } else if (type.startsWith('AUCTION')) {
-      context.push(AppRoutes.myBids);
+
+    if (type.startsWith('AUCTION')) {
+      final auctionUuid = _metaUuid(n, const [
+        'auctionUuid',
+        'auctionId',
+        'auction',
+      ]);
+      // Won / payment notifications go to My Bids, where "Pay now" lives.
+      final needsPayment = type.contains('WON') ||
+          type.contains('PAYMENT') ||
+          type.contains('ALLOTMENT');
+      if (auctionUuid != null && !needsPayment) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => AuctionDetailScreen(auctionId: auctionUuid),
+          ),
+        );
+      } else {
+        context.pushReplacement(AppRoutes.myBids);
+      }
+    } else if (type.startsWith('BOOKING')) {
+      final bookingUuid = _metaUuid(n, const [
+        'bookingUuid',
+        'bookingId',
+        'booking',
+      ]);
+      if (bookingUuid != null) {
+        context.pushNamed(
+          AppRoutes.bookingDetailName,
+          pathParameters: {'uuid': bookingUuid},
+        );
+      } else {
+        context.pushReplacement(AppRoutes.myBookings);
+      }
     } else if (type.startsWith('ORDER')) {
-      context.push(AppRoutes.orders);
-    } else if (type.contains('WALLET')) {
-      context.push(AppRoutes.wallet);
+      final orderUuid = _metaUuid(n, const ['orderUuid', 'orderId', 'order']);
+      if (orderUuid != null) {
+        _openOrder(orderUuid);
+      } else {
+        context.pushReplacement(AppRoutes.orders);
+      }
+    } else if (type.contains('TICKET') || type.contains('SUPPORT')) {
+      final ticketUuid = _metaUuid(n, const [
+        'ticketUuid',
+        'ticketId',
+        'ticket',
+      ]);
+      context.push(
+        ticketUuid != null
+            ? AppRoutes.ticketDetailPath(ticketUuid)
+            : AppRoutes.myTickets,
+      );
+    } else if (type.contains('MEMBERSHIP') || type.contains('SUBSCRIPTION')) {
+      context.push(AppRoutes.membership);
+    } else if (type.contains('WALLET') || type.contains('PAYMENT')) {
+      context.pushReplacement(AppRoutes.wallet);
+    }
+  }
+
+  /// Reads the target entity's uuid from the notification metadata.
+  /// Supports flat keys (`orderUuid`), nested objects (`order: {uuid}`)
+  /// and a generic `entityUuid` / `referenceUuid` fallback.
+  String? _metaUuid(NotificationEntity n, List<String> keys) {
+    final meta = n.metadata;
+    if (meta == null) return null;
+
+    for (final key in [...keys, 'entityUuid', 'referenceUuid', 'entityId']) {
+      final value = meta[key];
+      final uuid = value is Map ? value['uuid'] ?? value['id'] : value;
+      final text = uuid?.toString().trim() ?? '';
+      if (text.isNotEmpty) return text;
+    }
+    return null;
+  }
+
+  /// Order detail needs the full OrderModel, so fetch it first.
+  Future<void> _openOrder(String orderUuid) async {
+    try {
+      final order =
+          await getIt<OrdersRemoteDataSource>().getOrderDetail(orderUuid);
+      if (!mounted) return;
+      context.push(AppRoutes.orderDetail, extra: order);
+    } catch (e) {
+      debugPrint('Notification order fetch failed: $e');
+      if (!mounted) return;
+      context.pushReplacement(AppRoutes.orders);
     }
   }
 

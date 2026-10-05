@@ -10,6 +10,8 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
 import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../../domain/entities/bookings_entity.dart';
+import 'booking_change_time_sheet.dart';
+import 'change_time_button.dart';
 import 'icon_line.dart';
 import 'invoice_button.dart';
 import 'meta_block.dart';
@@ -58,6 +60,15 @@ class _BookingCardState extends State<BookingCard> {
     } finally {
       if (mounted) setState(() => _generatingPdf = false);
     }
+  }
+
+  // Same rule as the Change Time action on the Booking Details screen.
+  bool get _canChangeTime {
+    final status = widget.booking.status.toUpperCase();
+    return status != 'CANCELLED' &&
+        status != 'COMPLETED' &&
+        status != 'REJECTED' &&
+        status != 'RESCHEDULED';
   }
 
   void _openDetail() {
@@ -226,17 +237,37 @@ class _BookingCardState extends State<BookingCard> {
                       ],
                     );
 
-                    final action = SizedBox(
-                      width: stacked ? double.infinity : 43.08.w,
-                      child: InvoiceButton(
-                        loading: _generatingPdf,
-                        onTap: _generatingPdf ? null : _downloadInvoice,
-                      ),
+                    final invoice = InvoiceButton(
+                      loading: _generatingPdf,
+                      onTap: _generatingPdf ? null : _downloadInvoice,
                     );
 
-                    if (stacked) {
+                    final Widget action = _canChangeTime
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: ChangeTimeButton(
+                                  onTap: () => showBookingChangeTimeSheet(
+                                    context,
+                                    widget.booking,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 2.05.w),
+                              Expanded(child: invoice),
+                            ],
+                          )
+                        : invoice;
+
+                    // Two buttons side by side need the full card width, so
+                    // they always sit below the meta row in that case.
+                    if (stacked || _canChangeTime) {
                       return Column(
-                        children: [meta, SizedBox(height: 1.42.h), action],
+                        children: [
+                          meta,
+                          SizedBox(height: 1.42.h),
+                          SizedBox(width: double.infinity, child: action),
+                        ],
                       );
                     }
 
@@ -245,7 +276,7 @@ class _BookingCardState extends State<BookingCard> {
                       children: [
                         Expanded(child: meta),
                         SizedBox(width: 3.08.w),
-                        action,
+                        SizedBox(width: 43.08.w, child: action),
                       ],
                     );
                   },

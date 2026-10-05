@@ -92,7 +92,7 @@ class ProductTopBar extends StatelessWidget {
                 onPressed: onCart,
                 splashRadius: m.topIconSize * 1.2,
                 icon: Icon(
-                  Icons.shopping_bag_outlined,
+                  Icons.shopping_cart_outlined,
                   size: m.topIconSize,
                   color: colors.textPrimary,
                 ),

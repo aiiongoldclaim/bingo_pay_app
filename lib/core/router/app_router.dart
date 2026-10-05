@@ -12,6 +12,7 @@ import '../../features/bookings/presentation/screens/booking_details_screen.dart
 import '../../features/bookings/presentation/screens/my_booking_screen.dart';
 import '../../features/cart/presentation/screens/cart_screen.dart';
 import '../../features/categories/presentation/screens/categories_screen.dart';
+import '../../features/categories/presentation/screens/sub_categories_screen.dart';
 import '../../features/customer/shop/presentation/bloc/shop_bloc.dart';
 import '../../features/customer/shop/presentation/bloc/shop_event.dart';
 import '../../features/edit_profile/presentation/cubit/edit_profile_cubit.dart';
@@ -164,7 +165,6 @@ class AppRouter {
           builder: (_, _) => const KycSelfieScreen(),
         ),
 
-
         GoRoute(
           path: AppRoutes.orderDetail,
           builder: (context, state) =>
@@ -187,8 +187,8 @@ class AppRouter {
               SearchResultsScreen(query: state.extra as String),
           redirect: (context, state) =>
               state.extra is String && (state.extra as String).trim().isNotEmpty
-                  ? null
-                  : AppRoutes.home,
+              ? null
+              : AppRoutes.home,
         ),
 
         GoRoute(
@@ -271,7 +271,6 @@ class AppRouter {
               state.extra is ImageViewerArgs ? null : AppRoutes.home,
         ),
 
-
         GoRoute(
           path: '/products/:id',
           builder: (context, state) {
@@ -290,7 +289,6 @@ class AppRouter {
           path: AppRoutes.buyerWishlist,
           builder: (_, _) => const WishlistScreen(),
         ),
-
 
         GoRoute(
           path: AppRoutes.reviewPayment,
@@ -361,8 +359,6 @@ class AppRouter {
             return TicketDetailScreen(ticketId: uuid);
           },
         ),
-
-
 
         // ---------------- membership (ShellRoute ke BAHAR) ----------------
         GoRoute(
@@ -455,6 +451,14 @@ class AppRouter {
                 ),
                 categoryUuid: state.extra as String? ?? '',
                 isBrand: state.uri.queryParameters['isBrand'] == 'true',
+                isLeaf: state.uri.queryParameters['leaf'] == 'true',
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.subCategories,
+              builder: (context, state) => SubCategoriesScreen(
+                categoryUuid: state.pathParameters['uuid'] ?? '',
+                categoryName: state.extra as String?,
               ),
             ),
 

@@ -23,7 +23,7 @@ class CategoryEntity extends Equatable {
       case 'electronics':
         return Icons.devices_outlined;
       case 'fashion':
-        return Icons.shopping_bag_outlined;
+        return Icons.shopping_cart_outlined;
       case 'audio':
         return Icons.headphones_outlined;
       case 'home-kitchen':

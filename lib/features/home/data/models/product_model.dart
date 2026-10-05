@@ -60,7 +60,7 @@ class ProductModel {
         discount: _asInt(json['discount']) ?? 0,
         variantUuid: json['variantUuid'] as String?,
         stock: _asInt(json['stock']),
-        icon: Icons.shopping_bag_outlined,
+        icon: Icons.shopping_cart_outlined,
         images:
             (json['images'] as List<dynamic>?)?.cast<String>() ?? const [],
         listingLevel: json['listingLevel'] as String? ?? 'NORMAL',
@@ -119,7 +119,7 @@ class ProductModel {
       discount: discount,
       variantUuid: variantUuid,
       stock: stock,
-      icon: Icons.shopping_bag_outlined,
+      icon: Icons.shopping_cart_outlined,
       images: images,
       listingLevel: json['listingLevel'] as String? ?? 'NORMAL',
     );

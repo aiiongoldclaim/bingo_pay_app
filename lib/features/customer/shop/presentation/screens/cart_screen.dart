@@ -38,7 +38,7 @@
 //             ),
 //             child: state.cartItems.isEmpty
 //                 ? ShopEmptyState(
-//                     icon: Icons.shopping_bag_outlined,
+//                     icon: Icons.shopping_cart_outlined,
 //                     title: 'Your cart is empty',
 //                     message:
 //                         'Add products from the catalog or a product detail page to build your order.',

@@ -40,8 +40,13 @@ class AvailabilityDataModel {
 
 @JsonSerializable()
 class AvailabilityModel {
+  // The API can return only `{ "days": [] }` when the requested range has no
+  // slots, so these fields must tolerate missing keys.
+  @JsonKey(defaultValue: '')
   final String schedulingModel;
+  @JsonKey(defaultValue: 0)
   final int leadTimeMinutes;
+  @JsonKey(defaultValue: <DayModel>[])
   final List<DayModel> days;
 
   AvailabilityModel({

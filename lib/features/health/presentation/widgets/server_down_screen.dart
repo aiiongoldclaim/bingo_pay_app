@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../cubit/health_cubit.dart';
 import '../cubit/health_state.dart';
 
-/// Full-screen blocker shown app-wide when the startup health check says
-/// the backend can't serve requests. Mirrors [NoInternetScreen]'s look.
+
 class ServerDownScreen extends StatelessWidget {
   const ServerDownScreen({super.key});
 
@@ -18,7 +18,7 @@ class ServerDownScreen extends StatelessWidget {
         final isRetrying = state is HealthChecking;
         final message = state is HealthDown
             ? state.message
-            : "We couldn't reach our servers. Please try again in a few minutes.";
+            : AppStrings.serverDownMessage;
 
         return Material(
           color: ThemeColors.white,
@@ -44,7 +44,7 @@ class ServerDownScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 3.h),
                   Text(
-                    'Service Unavailable',
+                    AppStrings.serverDownTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 19.sp,

@@ -15,6 +15,10 @@ class ApiEndpoints {
   static const String products = '/products';
   static const String allProducts = '/api/v1/products';
   static const String categories = '/api/v1/categories';
+  static String categoryBreadcrumb(String uuid) =>
+      '/api/v1/categories/$uuid/breadcrumb';
+  static String categoryChildren(String uuid) =>
+      '/api/v1/categories/$uuid/children';
   static const String transactions = '/api/v1/transactions';
   static const String invoices = '/invoices';
   static const String referral = '/referral';
@@ -50,6 +54,8 @@ class ApiEndpoints {
 
   static String auctionDetail(String uuid) => '/api/v1/auctions/$uuid';
   static String auctionBids(String uuid) => '/api/v1/auctions/$uuid/bids';
+  static String auctionAllotmentPay(String uuid) =>
+      '/api/v1/auctions/allotments/$uuid/pay';
   static String addressDetail(String id) => '/api/v1/addresses/$id';
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
   static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';

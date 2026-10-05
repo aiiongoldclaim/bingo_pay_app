@@ -93,7 +93,7 @@ class AppProductCard extends StatelessWidget {
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Center(
                                 child: Icon(
-                                  Icons.shopping_bag_outlined,
+                                  Icons.shopping_cart_outlined,
                                   size: heartBox * 1.1,
                                   color: colors.textMuted,
                                 ),
@@ -101,7 +101,7 @@ class AppProductCard extends StatelessWidget {
                             )
                                 : Center(
                               child: Icon(
-                                Icons.shopping_bag_outlined,
+                                Icons.shopping_cart_outlined,
                                 size: heartBox * 1.1,
                                 color: colors.textMuted,
                               ),
@@ -318,7 +318,7 @@ class AppProductCard extends StatelessWidget {
                                     Icon(
                                       isOutOfStock
                                           ? Icons.remove_shopping_cart_outlined
-                                          : Icons.shopping_bag_outlined,
+                                          : Icons.shopping_cart_outlined,
                                       size: btnIcon,
                                       color: isOutOfStock
                                           ? colors.textMuted

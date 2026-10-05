@@ -206,7 +206,7 @@ class ProfileMenuItem {
       case 'cart':
         return Icons.shopping_cart_outlined;
       case 'orders':
-        return Icons.shopping_bag_outlined;
+        return Icons.shopping_cart_outlined;
       case 'transactions':
         return Icons.receipt_long_outlined;
       case 'wishlist':
@@ -231,6 +231,8 @@ class ProfileMenuItem {
         return Icons.logout_rounded;
       case 'vendor':
         return Icons.storefront_outlined;
+      case 'myBids':
+        return Icons.gavel_rounded;
       default:
         return Icons.chevron_right_rounded;
     }
@@ -308,8 +310,19 @@ class ProfileMenuItem {
     ),
   ];
 
+  /// Group 4 — auctions
+  static const List<ProfileMenuItem> auctionItems = [
+    ProfileMenuItem(
+      title: 'My Bids',
+      subtitle: 'Track your bids, wins & payments',
+      iconAsset: 'myBids',
+      route: AppRoutes.myBids,
+    ),
+  ];
+
   static const List<ProfileMenuItem> items = [
     ...primaryItems,
+    ...auctionItems,
     ...secondaryItems,
     ...vendorItems,
   ];

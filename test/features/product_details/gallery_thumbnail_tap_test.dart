@@ -20,7 +20,7 @@ void main() {
                 builder: (context) => ProductGallery(
                   metrics: ProductMetrics.of(context),
                   images: images,
-                  fallbackIcon: Icons.shopping_bag_outlined,
+                  fallbackIcon: Icons.shopping_cart_outlined,
                   onImageTap: (index) => openedIndexes.add(index),
                 ),
               ),

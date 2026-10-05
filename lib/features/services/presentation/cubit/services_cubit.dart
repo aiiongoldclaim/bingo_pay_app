@@ -109,6 +109,8 @@ class AvailabilityCubit extends Cubit<AvailabilityState> {
     required String serviceUuid,
     required String offeringUuid,
     int participants = 1,
+    String? from,
+    String? to,
   }) async {
     emit(state.copyWith(
       status: AvailabilityStatus.loading,
@@ -120,6 +122,8 @@ class AvailabilityCubit extends Cubit<AvailabilityState> {
         serviceUuid: serviceUuid,
         offeringUuid: offeringUuid,
         participants: participants,
+        from: from,
+        to: to,
       );
       emit(state.copyWith(
         status: AvailabilityStatus.loaded,

@@ -254,7 +254,7 @@ class ProductCard extends StatelessWidget {
                             : Icon(
                                 isOutOfStock
                                     ? Icons.remove_shopping_cart_outlined
-                                    : Icons.shopping_bag_outlined,
+                                    : Icons.shopping_cart_outlined,
                                 size: m.searchIconSize * 0.85,
                                 color: isOutOfStock
                                     ? (theme?.secondaryText ?? colors.textMuted)

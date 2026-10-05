@@ -1,9 +1,8 @@
-
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import 'package:bingo_pay/features/auctions/domain/entities/allotment_payment_entity.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/bid_entity.dart';
 import 'package:bingo_pay/features/auctions/domain/repositories/auction_repository.dart';
 
@@ -421,6 +420,127 @@ Future<void> getMyBids({
     emit(
       MyBidsError(message),
     );
+  }
+}
+
+// ==========================================================
+// PAY WON AUCTION (ALLOTMENT)
+// ==========================================================
+
+// The pay API only creates a BIGOD payment quote; the allotment stays
+// PENDING_PAYMENT until that quote's token is confirmed. So paying is two
+// steps: createAllotmentQuote() → user confirms → confirmAllotmentPayment().
+
+/// Step 1: creates a payment quote for the allotment.
+/// Returns the quote, or an error message.
+Future<({AllotmentPaymentEntity? quote, String? error})> createAllotmentQuote(
+  String allotmentUuid,
+) async {
+  final currentState = state;
+
+  if (currentState is! MyBidsLoaded) {
+    return (
+      quote: null,
+      error: 'Unable to process payment right now. Please try again.',
+    );
+  }
+
+  // Prevent duplicate taps while a payment is running.
+  if (currentState.payingAllotmentUuid != null) {
+    return (quote: null, error: null);
+  }
+
+  emit(currentState.copyWith(payingAllotmentUuid: allotmentUuid));
+
+  try {
+    final quote = await repository.payAllotment(
+      allotmentUuid: allotmentUuid,
+      idempotencyKey: IdempotencyKeyGenerator.generate(),
+    );
+
+    debugPrint(
+      'Allotment quote: ${quote.amount} ${quote.currency}, '
+      'expires ${quote.expiresAt}',
+    );
+
+    if (quote.token.isEmpty) {
+      return (
+        quote: null,
+        error: 'Payment token is missing. Please try again.',
+      );
+    }
+
+    return (quote: quote, error: null);
+  } catch (e) {
+    final message = _describe(
+      e,
+      'Unable to start payment. Please try again.',
+    );
+
+    debugPrint('createAllotmentQuote error: $message');
+
+    return (quote: null, error: message);
+  } finally {
+    _clearPayingAllotment();
+  }
+}
+
+/// Step 2: checks BIGOD balance and confirms the quote.
+/// Returns null on success, otherwise an error message.
+Future<String?> confirmAllotmentPayment(AllotmentPaymentEntity quote) async {
+  final currentState = state;
+
+  if (currentState is! MyBidsLoaded ||
+      currentState.payingAllotmentUuid != null) {
+    return null;
+  }
+
+  if (quote.isExpired) {
+    return 'Payment quote has expired. Please tap Pay now again.';
+  }
+
+  emit(currentState.copyWith(payingAllotmentUuid: quote.allotmentUuid));
+
+  try {
+    final balance = await repository.getBigodTokenBalance();
+
+    if (balance < quote.amount) {
+      _clearPayingAllotment();
+      return 'Insufficient ${quote.currency} balance. '
+          'Required: ${quote.amount} ${quote.currency}, '
+          'available: ${balance.toStringAsFixed(6)} ${quote.currency}';
+    }
+
+    await repository.confirmBigodPayment(quote.token);
+
+    debugPrint('Allotment payment confirmed: ${quote.allotmentUuid}');
+  } catch (e) {
+    final message = _describe(
+      e,
+      'Unable to complete payment. Please try again.',
+    );
+
+    debugPrint('confirmAllotmentPayment error: $message');
+
+    _clearPayingAllotment();
+    return message;
+  }
+
+  // Silent refresh so the paid item updates without the shimmer.
+  try {
+    final myBids = await repository.getMyBids();
+    emit(MyBidsLoaded(myBids: myBids));
+  } catch (_) {
+    _clearPayingAllotment();
+  }
+
+  return null;
+}
+
+void _clearPayingAllotment() {
+  final latestState = state;
+  if (latestState is MyBidsLoaded) {
+    emit(latestState.copyWith(clearPayingAllotment: true));
   }
 }
 }

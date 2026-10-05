@@ -43,7 +43,7 @@ class ListingProductModel {
         rating: (json['rating'] as num?)?.toDouble(),
         ratingCount: json['ratingCount'] as int?,
         badge: json['badge'] as String?,
-        icon: Icons.shopping_bag_outlined,
+        icon: Icons.shopping_cart_outlined,
         imageUrl: json['imageUrl'] as String?,
         isFavourite: json['isFavourite'] as bool? ?? false,
       );
@@ -83,7 +83,7 @@ class ListingProductModel {
       rating: (json['averageRating'] as num?)?.toDouble(),
       ratingCount: json['totalReviews'] as int?,
       badge: isFeatured ? 'FEATURED' : null,
-      icon: Icons.shopping_bag_outlined,
+      icon: Icons.shopping_cart_outlined,
       imageUrl: primary['url'] as String?,
     );
   }

@@ -1,5 +1,6 @@
 import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entity.dart';
 
+import '../entities/allotment_payment_entity.dart';
 import '../entities/auction_entity.dart';
 import '../entities/bid_entity.dart';
 import '../entities/my_bids_entity.dart';
@@ -27,6 +28,16 @@ Future<MyBidsEntity> getMyBids({
   int skip = 0,
   String? state,
 });
+
+/// Creates a BIGOD payment quote for a won auction's allotment.
+Future<AllotmentPaymentEntity> payAllotment({
+  required String allotmentUuid,
+  required String idempotencyKey,
+});
+
+Future<double> getBigodTokenBalance();
+
+Future<void> confirmBigodPayment(String token);
 
   // Future<void> updateExistingAuction(String auctionId, AuctionEntity auction);
 

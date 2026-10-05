@@ -23,7 +23,7 @@ List<ListingProductModel> _fakeProducts(int count, {required String prefix}) {
       brand: 'Brand',
       name: 'Product $prefix-$i',
       price: 100,
-      icon: Icons.shopping_bag_outlined,
+      icon: Icons.shopping_cart_outlined,
     ),
   );
 }
@@ -36,7 +36,7 @@ ListingProductModel _priced(String id, double price, {double? rating}) {
     name: 'Product $id',
     price: price,
     rating: rating,
-    icon: Icons.shopping_bag_outlined,
+    icon: Icons.shopping_cart_outlined,
   );
 }
 

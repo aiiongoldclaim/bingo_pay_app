@@ -23,7 +23,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _pushNotifications = true;
   bool _emailUpdates = true;
   bool _orderAlerts = true;
-  bool _biometric = false;
 
   @override
   void initState() {
@@ -278,15 +277,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             SettingsCard(
                               metrics: m,
                               children: [
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.fingerprint_rounded,
-                                  title: 'Biometric Login',
-                                  subtitle: 'Unlock with fingerprint or face',
-                                  switchValue: _biometric,
-                                  onSwitchChanged: (v) =>
-                                      setState(() => _biometric = v),
-                                ),
                                 SettingsTile(
                                   metrics: m,
                                   icon: Icons.lock_outline_rounded,

@@ -325,6 +325,20 @@ class _ProfileLoadedContent extends StatelessWidget {
 
                             ProfileSectionHeading(
                               metrics: m,
+                              label: 'My Auctions',
+                            ),
+
+                            SizedBox(height: m.sectionHeadingGap),
+
+                            ProfileMenuList(
+                              items: ProfileMenuItem.auctionItems,
+                              onTap: (item) => context.push(item.route),
+                            ),
+
+                            SizedBox(height: m.gapLg),
+
+                            ProfileSectionHeading(
+                              metrics: m,
                               label: 'Sell with Us',
                             ),
 

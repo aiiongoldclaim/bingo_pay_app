@@ -5,6 +5,7 @@ import '../../../../core/error/error_handler.dart';
 import '../../../../core/error/failures.dart';
 
 import '../../domain/entities/category_entity.dart';
+import '../../domain/entities/sub_category_entity.dart';
 import '../../domain/repositories/category_repository.dart';
 
 import '../datasources/category_remote_datasource.dart';
@@ -35,6 +36,28 @@ class CategoryRepositoryImpl implements CategoryRepository {
           .toList();
 
       return Right(categories);
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<CategoryBreadcrumbEntity>>> getBreadcrumb(
+    String categoryUuid,
+  ) async {
+    try {
+      return Right(await _remote.getBreadcrumb(categoryUuid));
+    } on Exception catch (e) {
+      return Left(ErrorHandler.mapExceptionToFailure(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<SubCategoryEntity>>> getSubCategories(
+    String categoryUuid,
+  ) async {
+    try {
+      return Right(await _remote.getSubCategories(categoryUuid));
     } on Exception catch (e) {
       return Left(ErrorHandler.mapExceptionToFailure(e));
     }

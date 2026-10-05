@@ -57,13 +57,13 @@ class ReviewOrderSummaryCard extends StatelessWidget {
                                 item.product.thumbnail!,
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, __, ___) => Icon(
-                                  Icons.shopping_bag_outlined,
+                                  Icons.shopping_cart_outlined,
                                   size: m.thumbSize * 0.4,
                                   color: colors.brand,
                                 ),
                               )
                             : Icon(
-                                Icons.shopping_bag_outlined,
+                                Icons.shopping_cart_outlined,
                                 size: m.thumbSize * 0.4,
                                 color: colors.brand,
                               ),

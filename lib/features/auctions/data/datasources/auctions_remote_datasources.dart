@@ -3,6 +3,8 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
+import '../../../membershipNew/data/models/membership_balance_model.dart';
+import '../models/allotment_payment_model.dart';
 import '../models/auction_detail_model.dart';
 import '../models/bid_model.dart';
 import '../models/my_bids_model.dart';
@@ -123,6 +125,49 @@ Future<MyBidsModel> getMyBids({
 
   return MyBidsModel.fromJson(
     myBidsJson as Map<String, dynamic>,
+  );
+}
+
+Future<AllotmentPaymentModel> payAllotment({
+  required String allotmentUuid,
+  required String idempotencyKey,
+}) async {
+  final response = await _client.dio.post(
+    ApiEndpoints.auctionAllotmentPay(allotmentUuid),
+    data: {
+      'idempotencyKey': idempotencyKey,
+    },
+  );
+
+  final data = response.data;
+
+  final paymentJson =
+      data is Map<String, dynamic> && data['data'] != null
+          ? data['data']
+          : data;
+
+  return AllotmentPaymentModel.fromJson(
+    paymentJson is Map<String, dynamic> ? paymentJson : {},
+  );
+}
+
+/// Available BIGOD token balance of the logged-in user.
+Future<double> getBigodTokenBalance() async {
+  final response = await _client.dio.get(ApiEndpoints.bigodBalance);
+
+  final data = response.data;
+  final outer = data is Map && data['data'] is Map ? data['data'] as Map : {};
+  final payload = outer['data'] is Map ? outer['data'] as Map : outer;
+
+  return BigodBalance.fromJson(Map<String, dynamic>.from(payload))
+      .tokenBalance;
+}
+
+/// Settles a payment quote (e.g. an allotment quote) with its token.
+Future<void> confirmBigodPayment(String token) async {
+  await _client.dio.post(
+    ApiEndpoints.bigodConfirm,
+    data: {'token': token},
   );
 }
 

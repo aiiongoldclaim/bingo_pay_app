@@ -1365,6 +1365,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../cubit/auction_cubit.dart';
 import '../cubit/auction_state.dart';
@@ -1644,6 +1645,9 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
   Widget _buildBidList(List<MyBidItemEntity> items) {
     final colors = context.colors;
+    final state = context.read<AuctionCubit>().state;
+    final payingUuid =
+        state is MyBidsLoaded ? state.payingAllotmentUuid : null;
 
     return Column(
       children: [
@@ -1653,6 +1657,8 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
             child: _MyBidCard(
               bid: item,
               onPayNow: _isPaymentDue(item) ? () => _payNow(item) : null,
+              isPaying:
+                  payingUuid != null && payingUuid == item.allotment?.uuid,
               onDetails: () => _showDetails(item),
             ),
           ),
@@ -1667,10 +1673,57 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     );
   }
 
-  void _payNow(MyBidItemEntity item) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Payment for ${item.title}')));
+  Future<void> _payNow(MyBidItemEntity item) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final allotment = item.allotment;
+
+    if (allotment == null || allotment.uuid.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Payment details are not available yet.'),
+        ),
+      );
+      return;
+    }
+
+    final cubit = context.read<AuctionCubit>();
+
+    // Step 1: get a BIGOD payment quote for this allotment.
+    final (:quote, :error) = await cubit.createAllotmentQuote(allotment.uuid);
+
+    if (!mounted) return;
+
+    if (quote == null) {
+      if (error != null) {
+        messenger.showSnackBar(SnackBar(content: Text(error)));
+      }
+      return;
+    }
+
+    final currency = item.currency.isEmpty ? 'US\$' : item.currency;
+    final priceUsd = quote.priceUsd ?? allotment.amount;
+
+    final confirmed = await showAppConfirmDialog(
+      context: context,
+      title: 'Confirm payment',
+      message: 'Pay ${quote.amount} ${quote.currency} '
+          '($currency $priceUsd) for "${item.title}"?',
+      confirmLabel: 'Pay now',
+      icon: Icons.payments_outlined,
+    );
+
+    if (!confirmed || !mounted) return;
+
+    // Step 2: check balance and confirm the quote.
+    final payError = await cubit.confirmAllotmentPayment(quote);
+
+    if (!mounted) return;
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(payError ?? 'Payment successful for ${item.title}'),
+      ),
+    );
   }
 
   void _showDetails(MyBidItemEntity item) {
@@ -1958,11 +2011,13 @@ class _StandingBadge extends StatelessWidget {
 class _MyBidCard extends StatelessWidget {
   final MyBidItemEntity bid;
   final VoidCallback? onPayNow;
+  final bool isPaying;
   final VoidCallback onDetails;
 
   const _MyBidCard({
     required this.bid,
     required this.onPayNow,
+    this.isPaying = false,
     required this.onDetails,
   });
 
@@ -2176,7 +2231,10 @@ class _MyBidCard extends StatelessWidget {
                             ),
                             SizedBox(width: 1.79.w),
                             onPayNow != null
-                                ? _PayButton(onPressed: onPayNow!)
+                                ? _PayButton(
+                                    onPressed: onPayNow!,
+                                    isLoading: isPaying,
+                                  )
                                 : _DetailsButton(onPressed: onDetails),
                           ],
                         ),
@@ -2410,8 +2468,9 @@ class _InfoColumn extends StatelessWidget {
 
 class _PayButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool isLoading;
 
-  const _PayButton({required this.onPressed});
+  const _PayButton({required this.onPressed, this.isLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -2427,12 +2486,23 @@ class _PayButton extends StatelessWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: onPressed,
+          onTap: isLoading ? null : onPressed,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 3.6.w, vertical: 1.07.h),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (isLoading) ...[
+                  SizedBox(
+                    width: 13.sp,
+                    height: 13.sp,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.onBrand,
+                    ),
+                  ),
+                  SizedBox(width: 1.5.w),
+                ],
                 Text(
                   'Pay now',
                   style: TextStyle(

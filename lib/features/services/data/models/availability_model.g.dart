@@ -37,11 +37,13 @@ Map<String, dynamic> _$AvailabilityDataModelToJson(
 
 AvailabilityModel _$AvailabilityModelFromJson(Map<String, dynamic> json) =>
     AvailabilityModel(
-      schedulingModel: json['schedulingModel'] as String,
-      leadTimeMinutes: (json['leadTimeMinutes'] as num).toInt(),
-      days: (json['days'] as List<dynamic>)
-          .map((e) => DayModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      schedulingModel: json['schedulingModel'] as String? ?? '',
+      leadTimeMinutes: (json['leadTimeMinutes'] as num?)?.toInt() ?? 0,
+      days:
+          (json['days'] as List<dynamic>?)
+              ?.map((e) => DayModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$AvailabilityModelToJson(AvailabilityModel instance) =>

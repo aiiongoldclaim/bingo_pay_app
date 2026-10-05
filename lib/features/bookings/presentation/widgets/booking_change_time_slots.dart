@@ -4,18 +4,15 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../services/presentation/cubit/services_state.dart';
-import '../../domain/entities/booking_details_entity.dart';
 import 'booking_details_metrics.dart';
 
 class BookingChangeTimeSlots extends StatelessWidget {
   const BookingChangeTimeSlots({
     super.key,
-    required this.booking,
     required this.availabilityState,
     required this.onSlotSelected,
   });
 
-  final BookingDetailsEntity booking;
   final AvailabilityState availabilityState;
   final Function(String, BuildContext) onSlotSelected;
 
@@ -152,7 +149,6 @@ class BookingChangeTimeSlots extends StatelessWidget {
 
                       return BookingDaySlots(
                         day: day,
-                        booking: booking,
                         onSlotSelected:
                             onSlotSelected,
                         isFirst: dayIndex == 0,
@@ -171,13 +167,11 @@ class BookingDaySlots extends StatelessWidget {
   const BookingDaySlots({
     super.key,
     required this.day,
-    required this.booking,
     required this.onSlotSelected,
     required this.isFirst,
   });
 
   final dynamic day;
-  final BookingDetailsEntity booking;
   final Function(String, BuildContext)
       onSlotSelected;
   final bool isFirst;

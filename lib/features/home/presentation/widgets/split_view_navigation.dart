@@ -34,7 +34,7 @@ import '../../../categories/data/models/categories_model.dart';
 enum NavigationSection {
   services('Services', Icons.miscellaneous_services_outlined),
   auctions('Auctions', Icons.local_activity_outlined),
-  products('Products', Icons.shopping_bag_outlined),
+  products('Products', Icons.shopping_cart_outlined),
   categories('Categories', Icons.category_outlined),
   brands('Brands', Icons.storefront_outlined),
   orders('Orders', Icons.receipt_outlined);
@@ -62,7 +62,8 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
   void initState() {
     super.initState();
     _servicesCubit = getIt<ServicesCubit>()..loadServices();
-    _auctionCubit = getIt<AuctionCubit>()..getAuctions();
+    // Auctions are fetched when the Auctions tab is opened (see _onSectionTap).
+    _auctionCubit = getIt<AuctionCubit>();
     _categoriesCubit = getIt<CategoriesCubit>()..loadData();
   }
 
@@ -108,7 +109,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                   section: section,
                   isSelected: isSelected,
                   colors: colors,
-                  onTap: () => setState(() => _selectedSection = section),
+                  onTap: () => _onSectionTap(section),
                 );
               },
             ),
@@ -117,6 +118,15 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
         ],
       ),
     );
+  }
+
+  void _onSectionTap(NavigationSection section) {
+    setState(() => _selectedSection = section);
+
+    if (section == NavigationSection.auctions &&
+        _auctionCubit.state is! AuctionLoading) {
+      _auctionCubit.getAuctions();
+    }
   }
 
   Widget _buildNavItem({
@@ -2132,7 +2142,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                       )
                     : Center(
                         child: Icon(
-                          Icons.shopping_bag_outlined,
+                          Icons.shopping_cart_outlined,
                           color: colors.brand,
                           size: 36,
                         ),

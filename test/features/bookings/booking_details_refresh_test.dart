@@ -33,6 +33,8 @@ class _FakeServiceRemoteDataSource implements ServiceRemoteDataSource {
     required String serviceUuid,
     required String offeringUuid,
     int participants = 1,
+    String? from,
+    String? to,
   }) => throw UnimplementedError();
 }
 

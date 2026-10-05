@@ -8,16 +8,14 @@ class CatHeader extends StatelessWidget {
   const CatHeader({
     super.key,
     required this.metrics,
-    required this.brandName,
-    required this.tagline,
+    required this.title,
     this.cartCount = 0,
     this.onWishlistTap,
     this.onCartTap,
   });
 
   final CategoriesMetrics metrics;
-  final String brandName;
-  final String tagline;
+  final String title;
   final int cartCount;
   final VoidCallback? onWishlistTap;
   final VoidCallback? onCartTap;
@@ -31,31 +29,15 @@ class CatHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                brandName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTextStyles.brandLogo.copyWith(
-                  fontSize: m.logoSize,
-                  color: colors.brand,
-                ),
-              ),
-              SizedBox(height: m.pagePadding * 0.15),
-              Text(
-                tagline,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: m.taglineSize,
-                  height: 1.2,
-                  color: colors.textSecondary,
-                ),
-              ),
-            ],
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.headlineMedium.copyWith(
+              fontSize: m.logoSize * 0.85,
+              height: 1.15,
+              color: colors.textPrimary,
+            ),
           ),
         ),
         _HeaderIcon(
@@ -66,7 +48,7 @@ class CatHeader extends StatelessWidget {
         ),
         SizedBox(width: m.pagePadding),
         _HeaderIcon(
-          icon: Icons.shopping_bag_outlined,
+          icon: Icons.shopping_cart_outlined,
           size: m.headerIconSize,
           color: colors.textPrimary,
           badgeCount: cartCount,

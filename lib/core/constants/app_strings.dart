@@ -162,6 +162,12 @@ class AppStrings {
   static const String goToCartTitleCase = 'Go to Cart';
   static const String addToCartLabel = 'Add to Cart';
   static const String somethingWentWrongLower = 'Something went wrong';
+
+  // Shown whenever the server can't be reached or is down.
+  static const String serverDownTitle = 'Something went wrong';
+  static const String serverDownMessage =
+      'We’re unable to connect to our server right now. '
+      'Please try again in a moment.';
   static const String inclusiveOfTaxes = 'Inclusive of all taxes';
   static const String quantityLabel = 'Quantity';
   static const String decreaseQuantityTooltip = 'Decrease quantity';

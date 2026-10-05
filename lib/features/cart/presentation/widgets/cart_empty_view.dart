@@ -60,7 +60,7 @@ class CartEmptyView extends StatelessWidget {
                     ),
                     alignment: Alignment.center,
                     child: Icon(
-                      Icons.shopping_bag_outlined,
+                      Icons.shopping_cart_outlined,
                       size: illustrationSize * 0.38,
                       color: colors.brand,
                     ),

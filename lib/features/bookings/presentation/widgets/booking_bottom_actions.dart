@@ -135,7 +135,6 @@ class _BookingBottomActionsState extends State<BookingBottomActions> {
               if (_isChangeTimeExpanded) ...[
                 SizedBox(height: m.actionsGap),
                 BookingChangeTimeSlots(
-                  booking: widget.booking,
                   availabilityState: _availabilityState,
                   onSlotSelected: _onSlotSelected,
                 ),

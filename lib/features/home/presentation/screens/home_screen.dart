@@ -228,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               width: m.pagePadding * 0.7,
                                             ),
                                             HeaderIconButton(
-                                              icon: Icons.shopping_bag_outlined,
+                                              icon: Icons.shopping_cart_outlined,
                                               size: m.headerIconSize,
                                               color: vaultTheme.cartHeartIcon,
                                               badgeCount: cartState.totalItems,

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../domain/entities/server_health_entity.dart';
 import '../../domain/repositories/health_repository.dart';
 import 'health_state.dart';
@@ -12,10 +13,8 @@ class HealthCubit extends Cubit<HealthState> {
 
   HealthCubit(this.repository) : super(HealthInitial());
 
-  static const _unreachableMessage =
-      "We couldn't reach our servers. Please try again in a few minutes.";
-  static const _unhealthyMessage =
-      'Our servers are having trouble right now. Please try again in a few minutes.';
+  static const _unreachableMessage = AppStrings.serverDownMessage;
+  static const _unhealthyMessage = AppStrings.serverDownMessage;
 
   /// Runs `/hello` (is the server reachable?) and `/health` (are its
   /// services up?) in parallel.

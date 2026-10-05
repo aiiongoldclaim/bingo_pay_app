@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_shimmer.dart';
+import 'categories_grid.dart';
 import 'categories_metrics.dart';
+import 'category_tile.dart';
 
 /// Categories screen ka loading skeleton — real layout se match karta hai.
 class CategoriesShimmer extends StatelessWidget {
@@ -31,22 +33,13 @@ class CategoriesShimmer extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _Block(
-                        width: metrics.pagePadding * 8,
-                        height: metrics.sectionTitleSize * 1.4,
-                        colors: colors,
-                      ),
-                      SizedBox(height: metrics.pagePadding * 0.4),
-                      _Block(
-                        width: metrics.pagePadding * 11,
-                        height: metrics.searchFontSize,
-                        colors: colors,
-                      ),
-                    ],
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: _Block(
+                      width: metrics.pagePadding * 9,
+                      height: metrics.logoSize,
+                      colors: colors,
+                    ),
                   ),
                 ),
                 _Block(
@@ -84,7 +77,7 @@ class CategoriesShimmer extends StatelessWidget {
           // ── Categories ────────────────────────────
           _SectionHeader(metrics: metrics, colors: colors),
           SizedBox(height: metrics.pagePadding * 0.9),
-          _CircleGrid(metrics: metrics, colors: colors),
+          CategoryGridSkeleton(metrics: metrics, colors: colors),
 
           SizedBox(height: metrics.sectionGap),
 
@@ -143,43 +136,86 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ── Categories: circle + label ─────────────────────────────────────────────
-class _CircleGrid extends StatelessWidget {
-  const _CircleGrid({required this.metrics, required this.colors});
+/// Sub-categories screen loading skeleton: "All products" tile, section
+/// title, then the same box cards as the grid.
+class SubCategoriesShimmer extends StatelessWidget {
+  const SubCategoriesShimmer({super.key, required this.metrics});
+
+  final CategoriesMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final m = metrics;
+
+    return AppShimmer(
+      backgroundColor: colors.background,
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        children: [
+          SizedBox(height: m.pagePadding * 0.5),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
+            child: _Block(
+              width: double.infinity,
+              height: m.searchHeight,
+              radius: m.searchRadius,
+              colors: colors,
+            ),
+          ),
+          SizedBox(height: m.sectionGap),
+          _SectionHeader(metrics: m, colors: colors),
+          SizedBox(height: m.pagePadding * 0.9),
+          CategoryGridSkeleton(metrics: m, colors: colors),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Categories: box cards, same layout as CategoriesSliverGrid ─────────────
+class CategoryGridSkeleton extends StatelessWidget {
+  const CategoryGridSkeleton({
+    super.key,
+    required this.metrics,
+    required this.colors,
+  });
 
   final CategoriesMetrics metrics;
   final AppThemeColors colors;
 
   @override
   Widget build(BuildContext context) {
-    final circleSize = metrics.pagePadding * 4;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth - metrics.pagePadding * 2;
+        final layout = CategoryGridLayout.forWidth(width);
+        final style = CategoryTileStyle.forWidth(layout.tileWidth);
+        final height = style.heightFor(
+          layout.tileWidth,
+          MediaQuery.textScalerOf(context),
+        );
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
-      child: Wrap(
-        spacing: metrics.pagePadding,
-        runSpacing: metrics.pagePadding,
-        children: List.generate(
-          8,
-              (index) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _Block(
-                width: circleSize,
-                height: circleSize,
-                radius: circleSize,
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
+          child: Wrap(
+            spacing: layout.spacing,
+            runSpacing: layout.spacing,
+            children: List.generate(
+              layout.columns * 2,
+              // Shaved slightly so float rounding can't push the last card
+              // of a row onto the next line.
+              (_) => _Block(
+                width: layout.tileWidth - 0.5,
+                height: height,
+                radius: style.radius,
                 colors: colors,
               ),
-              SizedBox(height: metrics.pagePadding * 0.4),
-              _Block(
-                width: circleSize * 0.8,
-                height: metrics.searchFontSize * 0.85,
-                colors: colors,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

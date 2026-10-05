@@ -339,7 +339,7 @@
 //             ),
 //             child: IconButton(
 //               onPressed: () => context.go(AppRoutes.buyerCart),
-//               icon: const Icon(Icons.shopping_bag_outlined),
+//               icon: const Icon(Icons.shopping_cart_outlined),
 //             ),
 //           ),
 //         ),
@@ -694,7 +694,7 @@
 //           onTap: onDealsTap,
 //         ),
 //         _ActionTile(
-//           icon: Icons.shopping_bag_outlined,
+//           icon: Icons.shopping_cart_outlined,
 //           label: 'Cart',
 //           onTap: onCartTap,
 //         ),

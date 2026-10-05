@@ -282,7 +282,7 @@
 //           label: Text('$cartCount'),
 //           child: IconButton(
 //             onPressed: onCart,
-//             icon: const Icon(Icons.shopping_bag_outlined),
+//             icon: const Icon(Icons.shopping_cart_outlined),
 //           ),
 //         ),
 //       ],

@@ -10,7 +10,7 @@ const _product = ListingProductModel(
   brand: 'Bingo Jewels',
   name: 'Gold Necklace',
   price: 4500,
-  icon: Icons.shopping_bag_outlined,
+  icon: Icons.shopping_cart_outlined,
 );
 
 void main() {

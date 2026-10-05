@@ -119,8 +119,12 @@ import 'package:bingo_pay/features/categories/domain/usecases/get_brands_usecase
     as _i152;
 import 'package:bingo_pay/features/categories/domain/usecases/get_categories_usecase.dart'
     as _i507;
+import 'package:bingo_pay/features/categories/domain/usecases/get_sub_categories_usecase.dart'
+    as _i382;
 import 'package:bingo_pay/features/categories/presentation/cubit/categories_cubit.dart'
     as _i801;
+import 'package:bingo_pay/features/categories/presentation/cubit/sub_categories_cubit.dart'
+    as _i967;
 import 'package:bingo_pay/features/chat/data/datasources/chat_remote_datasource.dart'
     as _i952;
 import 'package:bingo_pay/features/chat/data/repositories/chat_repository_impl.dart'
@@ -451,6 +455,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i507.GetCategoriesUseCase>(
       () => _i507.GetCategoriesUseCase(gh<_i298.CategoryRepository>()),
     );
+    gh.factory<_i382.GetCategoryBreadcrumbUseCase>(
+      () => _i382.GetCategoryBreadcrumbUseCase(gh<_i298.CategoryRepository>()),
+    );
+    gh.factory<_i382.GetSubCategoriesUseCase>(
+      () => _i382.GetSubCategoriesUseCase(gh<_i298.CategoryRepository>()),
+    );
     gh.factory<_i724.OrdersCubit>(
       () => _i724.OrdersCubit(gh<_i328.OrdersRemoteDataSource>()),
     );
@@ -511,6 +521,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i903.SettingsCubit>(
       () => _i903.SettingsCubit(gh<_i458.SettingsRepository>()),
+    );
+    gh.factory<_i967.SubCategoriesCubit>(
+      () => _i967.SubCategoriesCubit(
+        gh<_i382.GetCategoryBreadcrumbUseCase>(),
+        gh<_i382.GetSubCategoriesUseCase>(),
+      ),
     );
     gh.factory<_i456.AddressCubit>(
       () => _i456.AddressCubit(gh<_i874.AddressRepository>()),

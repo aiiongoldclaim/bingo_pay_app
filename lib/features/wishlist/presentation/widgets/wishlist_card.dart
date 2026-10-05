@@ -600,7 +600,7 @@ class WishlistCard extends StatelessWidget {
                                         )
                                       else
                                         Icon(
-                                          Icons.shopping_bag_outlined,
+                                          Icons.shopping_cart_outlined,
                                           size: m.actionIconSize,
                                           color: item.inStock
                                               ? colors.brand

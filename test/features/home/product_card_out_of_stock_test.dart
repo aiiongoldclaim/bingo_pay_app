@@ -84,7 +84,7 @@ void main() {
 
       expect(find.text('Out of Stock'), findsNothing);
 
-      await tester.tap(find.byIcon(Icons.shopping_bag_outlined));
+      await tester.tap(find.byIcon(Icons.shopping_cart_outlined));
       await tester.pumpAndSettle();
 
       expect(tapped, isTrue,

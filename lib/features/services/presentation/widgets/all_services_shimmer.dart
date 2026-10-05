@@ -46,40 +46,58 @@ class _ServiceCardSkeleton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ShimmerBox(
-            width: double.infinity,
-            height: 13.h,
-            borderRadius: BorderRadius.zero,
-          ),
-          Padding(
-            padding: EdgeInsets.all(2.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ShimmerBox(width: double.infinity, height: 13.sp),
-                SizedBox(height: 0.6.h),
-                ShimmerBox(width: 24.w, height: 13.sp),
-                SizedBox(height: 1.h),
-                ShimmerBox(width: 16.w, height: 12.sp),
-                SizedBox(height: 1.2.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ShimmerBox(width: 14.w, height: 14.sp),
-                    ShimmerBox(
-                      width: 10.w,
-                      height: 4.h,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ],
+      // Sized from the cell's own constraints so the skeleton fits both the
+      // full-width grid and the narrow split-view pane without overflowing.
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final cellWidth = constraints.maxWidth;
+          final cellHeight = constraints.maxHeight;
+          final padding = cellWidth * 0.07;
+          final contentHeight = cellHeight * 0.45 - padding * 2;
+          final lineHeight = (contentHeight / 6).clamp(4.0, 13.sp).toDouble();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Expanded(
+                child: ShimmerBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  borderRadius: BorderRadius.zero,
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+              SizedBox(
+                height: cellHeight * 0.45,
+                child: Padding(
+                  padding: EdgeInsets.all(padding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ShimmerBox(width: double.infinity, height: lineHeight),
+                      ShimmerBox(width: cellWidth * 0.6, height: lineHeight),
+                      ShimmerBox(width: cellWidth * 0.4, height: lineHeight),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ShimmerBox(
+                            width: cellWidth * 0.35,
+                            height: lineHeight,
+                          ),
+                          ShimmerBox(
+                            width: cellWidth * 0.25,
+                            height: lineHeight * 1.6,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -5,6 +5,7 @@ class AppTextStyles {
 
   static const String fontBody = 'Inter'; // NEW
   static const String fontDisplay = 'CormorantGaramond'; // NEW
+  static const String fontCategory = 'Poppins'; // Category names
 
   /// Brand logo — "TheVaults"  (NEW, spec §1)
   static const TextStyle brandLogo = TextStyle(

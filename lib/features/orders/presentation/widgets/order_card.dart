@@ -336,13 +336,13 @@ class _Thumb extends StatelessWidget {
                 imageUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Icon(
-                  Icons.shopping_bag_outlined,
+                  Icons.shopping_cart_outlined,
                   size: m.thumbSize * 0.35,
                   color: colors.brand,
                 ),
               )
             : Icon(
-                Icons.shopping_bag_outlined,
+                Icons.shopping_cart_outlined,
                 size: m.thumbSize * 0.35,
                 color: colors.brand,
               ),

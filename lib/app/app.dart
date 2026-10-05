@@ -13,7 +13,6 @@ import '../core/storage/preferences_service.dart';
 import '../core/theme/app_theme.dart';
 import '../core/utils/responsive_utils.dart';
 import '../core/widgets/no_internet_screen.dart';
-import 'widgets/update_checker.dart';
 import '../features/auctions/presentation/cubit/auction_cubit.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/bloc/auth_event.dart';
@@ -198,34 +197,32 @@ class _AppState extends State<App> {
               debugShowCheckedModeBanner: false,
               routerConfig: _router.router,
               builder: (context, child) {
-                return UpdateChecker(
-                  child: Intro(
-                    controller: _introController,
-                    child: Stack(
-                      children: [
-                        child ?? const SizedBox.shrink(),
-                        // Below the no-internet overlay so being offline
-                        // takes priority over "server down".
-                        BlocBuilder<HealthCubit, HealthState>(
-                          builder: (context, state) {
-                            final showServerDown = state is HealthDown ||
-                                (state is HealthChecking && state.isRetry);
-                            return showServerDown
-                                ? const ServerDownScreen()
-                                : const SizedBox.shrink();
-                          },
-                        ),
-                        StreamBuilder<bool>(
-                          stream: _connectivity.isConnected,
-                          builder: (context, snapshot) {
-                            final isConnected = snapshot.data ?? true;
-                            return isConnected
-                                ? const SizedBox.shrink()
-                                : const NoInternetScreen();
-                          },
-                        ),
-                      ],
-                    ),
+                return Intro(
+                  controller: _introController,
+                  child: Stack(
+                    children: [
+                      child ?? const SizedBox.shrink(),
+                      // Below the no-internet overlay so being offline
+                      // takes priority over "server down".
+                      BlocBuilder<HealthCubit, HealthState>(
+                        builder: (context, state) {
+                          final showServerDown = state is HealthDown ||
+                              (state is HealthChecking && state.isRetry);
+                          return showServerDown
+                              ? const ServerDownScreen()
+                              : const SizedBox.shrink();
+                        },
+                      ),
+                      StreamBuilder<bool>(
+                        stream: _connectivity.isConnected,
+                        builder: (context, snapshot) {
+                          final isConnected = snapshot.data ?? true;
+                          return isConnected
+                              ? const SizedBox.shrink()
+                              : const NoInternetScreen();
+                        },
+                      ),
+                    ],
                   ),
                 );
               },

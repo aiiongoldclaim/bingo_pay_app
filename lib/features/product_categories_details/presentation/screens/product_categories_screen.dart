@@ -42,11 +42,16 @@ class ProductListingScreen extends StatelessWidget {
   final String categoryUuid;
   final bool isBrand;
 
+  /// The category has no sub-categories (opened from the sub-categories
+  /// grid), so only its own products are fetched.
+  final bool isLeaf;
+
   const ProductListingScreen({
     super.key,
     required this.categoryName,
     required this.categoryUuid,
     this.isBrand = false,
+    this.isLeaf = false,
   });
 
   @override
@@ -56,7 +61,7 @@ class ProductListingScreen extends StatelessWidget {
         final cubit = getIt<ProductListingCubit>();
         isBrand
             ? cubit.loadBrand(categoryName, categoryUuid)
-            : cubit.loadCategory(categoryName, categoryUuid);
+            : cubit.loadCategory(categoryName, categoryUuid, isLeaf: isLeaf);
         return cubit;
       },
       child: _ProductListingView(categoryName: categoryName),

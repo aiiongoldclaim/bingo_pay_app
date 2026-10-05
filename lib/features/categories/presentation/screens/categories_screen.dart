@@ -1,89 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:sizer/sizer.dart';
-//
-// import '../../../../core/di/injection.dart';
-// import '../../../../core/router/app_routes.dart';
-// import '../../../../core/theme/theme_colors.dart';
-// import '../../../../core/widgets/custom_app_bar.dart';
-// import '../cubit/categories_cubit.dart';
-// import '../cubit/categories_state.dart';
-// import '../widgets/brand_grid.dart';
-// import '../widgets/categories_grid.dart';
-// import '../widgets/curated_collection_list.dart';
-// import '../widgets/section_header.dart';
-//
-// class CategoriesScreen extends StatelessWidget {
-//   const CategoriesScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocProvider(
-//       create: (_) => getIt<CategoriesCubit>()..loadData(),
-//       child: BlocBuilder<CategoriesCubit, CategoriesState>(
-//         builder: (context, state) {
-//           return AnnotatedRegion<SystemUiOverlayStyle>(
-//             value: const SystemUiOverlayStyle(
-//               statusBarColor: Colors.transparent,
-//               statusBarIconBrightness: Brightness.light,
-//               statusBarBrightness: Brightness.dark,
-//             ),
-//             child: Scaffold(
-//               backgroundColor: ThemeColors.background,
-//               appBar: CustomAppBar(
-//                 title: 'Categories',
-//                 actionIcon1: Icons.search_rounded,
-//                 onAction1: () {
-//                   context.push(AppRoutes.search);
-//                 },
-//               ),
-//               body: SafeArea(
-//                 top: false,
-//                 child: state.isLoading
-//                     ? const Center(child: CircularProgressIndicator())
-//                     : SingleChildScrollView(
-//                         padding: EdgeInsets.all(4.w),
-//                         child: Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             if (state.categories.isNotEmpty) ...[
-//                               const SectionTitle(title: 'Categories'),
-//                               SizedBox(height: 2.h),
-//                               CategoriesGrid(categories: state.categories),
-//                               SizedBox(height: 2.h),
-//                             ],
-//
-//                             const SectionTitle(title: 'Top brands'),
-//                             SizedBox(height: 2.h),
-//                             BrandsGrid(
-//                               brands: state.brands,
-//                               isLoading: state.isBrandsLoading,
-//                               error: state.brandsError,
-//                             ),
-//
-//                             SizedBox(height: 2.h),
-//
-//                             const SectionTitle(title: 'Curated collections'),
-//                             SizedBox(height: 2.h),
-//                             CuratedCollectionsList(
-//                               collections: state.collections,
-//                             ),
-//
-//                             SizedBox(height: 2.h),
-//                           ],
-//                         ),
-//                       ),
-//               ),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -157,8 +71,7 @@ class _CategoriesView extends StatelessWidget {
                             buildWhen: (a, b) => a.uniqueItems != b.uniqueItems,
                             builder: (context, cartState) => CatHeader(
                               metrics: m,
-                              brandName: 'TheVaults',
-                              tagline: 'Style. Curated for You.',
+                              title: 'Categories',
                               cartCount: cartState.uniqueItems,
                               onWishlistTap: () =>
                                   context.push(AppRoutes.buyerWishlist),
@@ -189,35 +102,40 @@ class _CategoriesView extends StatelessWidget {
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
                       // ── Categories ────────────────────────────
-                      // Header + grid always render, even when categories
-                      // comes back empty — CategoriesGrid shows its own
-                      // "No categories available" message in that case
-                      // instead of the section silently vanishing.
-                      SliverToBoxAdapter(
-                        child: CatSectionHeader(
-                          metrics: m,
-                          title: 'Categories',
-                          actionText: '',
-                          onActionTap: () =>
-                              context.push(AppRoutes.allProducts),
+                      // Every category the API returns, as box cards. With
+                      // none to show, an error or empty message (both with
+                      // a retry) takes the grid's place.
+                      if (state.categories.isEmpty)
+                        SliverToBoxAdapter(
+                          child: CategoriesStateMessage(
+                            metrics: m,
+                            isError: state.error != null,
+                            onRetry: () =>
+                                context.read<CategoriesCubit>().loadData(),
+                          ),
+                        )
+                      else ...[
+                        SliverToBoxAdapter(
+                          child: CatSectionHeader(
+                            metrics: m,
+                            title: 'Shop by Category',
+                          ),
                         ),
-                      ),
-                      SliverToBoxAdapter(
-                        child: SizedBox(height: m.pagePadding * 0.9),
-                      ),
-                      SliverToBoxAdapter(
-                        child: CategoriesGrid(
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: m.pagePadding * 0.9),
+                        ),
+                        CategoriesSliverGrid(
                           metrics: m,
                           categories: state.categories,
                           onCategoryTap: (category) {
                             if (category.uuid.isEmpty) return;
                             context.push(
-                              AppRoutes.productListingPath(category.name),
-                              extra: category.uuid,
+                              AppRoutes.subCategoriesPath(category.uuid),
+                              extra: category.name,
                             );
                           },
                         ),
-                      ),
+                      ],
                       SliverToBoxAdapter(child: SizedBox(height: m.sectionGap)),
 
                       // ── Top Brands ────────────────────────────

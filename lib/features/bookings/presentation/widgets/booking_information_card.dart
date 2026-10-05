@@ -26,7 +26,7 @@ class BookingInformationCard extends StatelessWidget {
           ),
           const BookingDetailDivider(),
           BookingDetailRow(
-            icon: Icons.shopping_bag_outlined,
+            icon: Icons.shopping_cart_outlined,
             label: AppStrings.orderNumberLabel,
             value:
                 booking.order.orderNumber.isNotEmpty

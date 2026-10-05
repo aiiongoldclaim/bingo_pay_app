@@ -348,7 +348,7 @@ class _Thumbnail extends StatelessWidget {
     final thumbnail = item.product.thumbnail;
 
     final fallback = Icon(
-      Icons.shopping_bag_outlined,
+      Icons.shopping_cart_outlined,
       color: colors.brand,
       size: m.thumbSize * 0.36,
     );

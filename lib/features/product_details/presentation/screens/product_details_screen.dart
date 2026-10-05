@@ -408,7 +408,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     secondaryLabel: isInCart
                         ? AppStrings.goToCartTitleCase
                         : AppStrings.addToCartLabel,
-                    secondaryIcon: Icons.shopping_bag_outlined,
+                    secondaryIcon: Icons.shopping_cart_outlined,
                     secondaryLoading: cartState.isAddingItem || _isAddingToCart,
                     onSecondaryPressed: isOutOfStock || _isAddingToCart
                         ? null

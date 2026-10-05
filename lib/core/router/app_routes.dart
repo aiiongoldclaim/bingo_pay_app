@@ -32,6 +32,7 @@ class AppRoutes {
   static const String buyerCatalog = '/buyer/catalog';
   static const String allProducts = '/all-products';
   static const String categories = '/categories';
+  static const String subCategories = '/sub-categories/:uuid';
   static const String cart = '/cart';
   static const String orderDetail = '/orders/detail';
   static const String orders = '/orders';
@@ -135,6 +136,9 @@ class AppRoutes {
   static String ticketDetailPath(String uuid) =>
       ticketDetail.replaceFirst(':uuid', uuid);
 
+  static String subCategoriesPath(String uuid) =>
+      subCategories.replaceFirst(':uuid', uuid);
+
   static String productListingPath(String categoryName) =>
       productListing.replaceFirst(
         ':categoryName',
@@ -145,5 +149,11 @@ class AppRoutes {
   /// filter by brand (via loadBrand) instead of by category.
   static String brandListingPath(String brandName) =>
       '${productListingPath(brandName)}?isBrand=true';
+
+  /// Same product-listing route for a category with no sub-categories, so
+  /// products load by its uuid alone without first fetching the category
+  /// list to look for descendants.
+  static String leafCategoryListingPath(String categoryName) =>
+      '${productListingPath(categoryName)}?leaf=true';
 
 }

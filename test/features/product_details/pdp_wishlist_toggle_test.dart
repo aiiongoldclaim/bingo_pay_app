@@ -40,7 +40,7 @@ ProductDetailModel _product() => ProductDetailModel(
       brand: 'Bingo Jewels',
       rating: '4.6',
       reviewCount: '1.2k',
-      icon: Icons.shopping_bag_outlined,
+      icon: Icons.shopping_cart_outlined,
       images: const ['https://cdn.example.com/img1.jpg'],
       variants: [
         ProductVariant(
@@ -123,7 +123,7 @@ void main() {
         oldPrice: '\$1,500',
         rating: '4.2',
         discount: 20,
-        icon: Icons.shopping_bag_outlined,
+        icon: Icons.shopping_cart_outlined,
         images: const ['https://cdn.example.com/bracelet.jpg'],
       );
 

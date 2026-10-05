@@ -31,7 +31,7 @@ IconData categoryIconFor(String slug) {
     'beauty' => Icons.spa,
     'sports' => Icons.fitness_center,
     'grocery' => Icons.local_grocery_store,
-    _ => Icons.shopping_bag_outlined,
+    _ => Icons.shopping_cart_outlined,
   };
 }
 

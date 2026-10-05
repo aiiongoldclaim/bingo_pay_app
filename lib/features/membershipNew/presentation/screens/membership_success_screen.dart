@@ -515,7 +515,7 @@ class _WhatsNext extends StatelessWidget {
 
     final items = <_NextItem>[
       _NextItem(
-        icon: Icons.shopping_bag_outlined,
+        icon: Icons.shopping_cart_outlined,
         title: 'Start Shopping',
         subtitle: 'Shop now and enjoy exclusive offers',
         route: AppRoutes.home,

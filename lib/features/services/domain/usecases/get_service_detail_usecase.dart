@@ -59,11 +59,15 @@ class GetServiceAvailabilityUseCase {
     required String serviceUuid,
     required String offeringUuid,
     int participants = 1,
+    String? from,
+    String? to,
   }) async {
     final response = await _dataSource.getServiceAvailability(
       serviceUuid: serviceUuid,
       offeringUuid: offeringUuid,
       participants: participants,
+      from: from,
+      to: to,
     );
 
     return AvailabilityEntity(

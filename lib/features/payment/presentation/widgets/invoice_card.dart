@@ -76,7 +76,7 @@ class InvoiceCard extends StatelessWidget {
 
                 _InfoRow(
                   metrics: m,
-                  icon: Icons.shopping_bag_outlined,
+                  icon: Icons.shopping_cart_outlined,
                   title: productName,
                   subtitle: 'Qty 1 • incl. GST',
                   trailing: totalAmount,

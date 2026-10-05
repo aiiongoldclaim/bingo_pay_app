@@ -43,7 +43,7 @@ class _ImageFallback extends StatelessWidget {
       color: ThemeColors.surface2,
       alignment: Alignment.center,
       child: Icon(
-        Icons.shopping_bag_outlined,
+        Icons.shopping_cart_outlined,
         size: 32,
         color: ThemeColors.inkDim,
       ),

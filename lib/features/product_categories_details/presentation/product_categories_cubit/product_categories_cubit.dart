@@ -1,5 +1,4 @@
 import 'dart:math' show min;
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -32,7 +31,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
   String? _lastCategoryUuid;
 
   bool _isBrandFilter = false;
-
+  bool _isLeafCategory = false;
 
   String? _currentRequestId;
   int _requestCounter = 0;
@@ -48,13 +47,18 @@ class ProductListingCubit extends Cubit<ProductListingState> {
 
   bool _isCurrent(String requestId) => !isClosed && _currentRequestId == requestId;
 
-  Future<void> loadCategory(String categoryName, String categoryUuid) async {
+  Future<void> loadCategory(
+    String categoryName,
+    String categoryUuid, {
+    bool isLeaf = false,
+  }) async {
 
     if (_isLoading && _lastCategoryUuid == categoryUuid) {
       return;
     }
 
     _isBrandFilter = false;
+    _isLeafCategory = isLeaf;
     _lastCategoryName = categoryName;
     _lastCategoryUuid = categoryUuid;
 
@@ -69,6 +73,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
     }
 
     _isBrandFilter = true;
+    _isLeafCategory = false;
     _lastCategoryName = brandName;
     _lastCategoryUuid = brandUuid;
 
@@ -123,7 +128,7 @@ class ProductListingCubit extends Cubit<ProductListingState> {
       RateLimitFailure? rateLimitError;
       List<String> categoryUuids = [];
 
-      if (_isBrandFilter) {
+      if (_isBrandFilter || _isLeafCategory) {
 
         categoryUuids = [categoryUuid];
       } else {

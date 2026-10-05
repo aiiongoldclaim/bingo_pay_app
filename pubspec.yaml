@@ -1,7 +1,7 @@
 name: bingo_pay
 description: "Bingo Pay — Multi-vendor marketplace app"
 publish_to: 'none'
-version: 1.0.0+16
+version: 1.0.0+17
 
 environment:
   sdk: ^3.10.8
@@ -118,6 +118,12 @@ flutter:
         - asset: assets/fonts_new/CormorantGaramond-Medium.ttf
           weight: 500
         - asset: assets/fonts_new/CormorantGaramond-SemiBold.ttf
+          weight: 600
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts_new/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts_new/Poppins-SemiBold.ttf
           weight: 600
 
 flutter_native_splash:

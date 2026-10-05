@@ -236,7 +236,7 @@
 //           label: Text('$cartCount'),
 //           child: IconButton(
 //             onPressed: onOpenCart,
-//             icon: const Icon(Icons.shopping_bag_outlined),
+//             icon: const Icon(Icons.shopping_cart_outlined),
 //           ),
 //         ),
 //         IconButton(

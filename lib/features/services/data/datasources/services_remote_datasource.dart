@@ -18,6 +18,8 @@ abstract class ServiceRemoteDataSource {
     required String serviceUuid,
     required String offeringUuid,
     int participants = 1,
+    String? from,
+    String? to,
   });
 }
 
@@ -63,12 +65,16 @@ class ServiceRemoteDataSourceImpl implements ServiceRemoteDataSource {
     required String serviceUuid,
     required String offeringUuid,
     int participants = 1,
+    String? from,
+    String? to,
   }) async {
     final response = await _client.dio.get(
       ApiEndpoints.serviceAvailability(serviceUuid),
       queryParameters: {
         'offeringUuid': offeringUuid,
         'participants': participants,
+        'from': ?from,
+        'to': ?to,
       },
     );
 

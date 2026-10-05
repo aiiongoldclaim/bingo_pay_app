@@ -171,7 +171,7 @@ class ProductDetailModel {
       reviewCount: totalReviews >= 1000
           ? '${(totalReviews / 1000).toStringAsFixed(1)}k'
           : '$totalReviews',
-      icon: Icons.shopping_bag_outlined,
+      icon: Icons.shopping_cart_outlined,
       images: images,
       coinsEarned: 0,
       highlights: highlights,

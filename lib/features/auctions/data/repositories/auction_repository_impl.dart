@@ -1,6 +1,7 @@
 import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entity.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/auction_entity.dart';
 
+import '../../domain/entities/allotment_payment_entity.dart';
 import '../../domain/entities/bid_entity.dart';
 import '../../domain/entities/my_bids_entity.dart';
 import '../../domain/entities/place_bid_entity.dart';
@@ -74,4 +75,29 @@ Future<MyBidsEntity> getMyBids({
 
   return model.toEntity();
 }
+
+  // ============================================================
+  // PAY WON AUCTION (ALLOTMENT)
+  // ============================================================
+
+  @override
+  Future<AllotmentPaymentEntity> payAllotment({
+    required String allotmentUuid,
+    required String idempotencyKey,
+  }) async {
+    final model = await remoteDataSource.payAllotment(
+      allotmentUuid: allotmentUuid,
+      idempotencyKey: idempotencyKey,
+    );
+
+    return model.toEntity();
+  }
+
+  @override
+  Future<double> getBigodTokenBalance() =>
+      remoteDataSource.getBigodTokenBalance();
+
+  @override
+  Future<void> confirmBigodPayment(String token) =>
+      remoteDataSource.confirmBigodPayment(token);
 }

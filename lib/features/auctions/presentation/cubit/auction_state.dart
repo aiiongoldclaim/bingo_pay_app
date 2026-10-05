@@ -362,12 +362,29 @@ class MyBidsLoading extends AuctionState {}
 class MyBidsLoaded extends AuctionState {
   final MyBidsEntity myBids;
 
+  /// Allotment uuid whose payment is in progress (null when idle).
+  final String? payingAllotmentUuid;
+
   const MyBidsLoaded({
     required this.myBids,
+    this.payingAllotmentUuid,
   });
 
+  MyBidsLoaded copyWith({
+    MyBidsEntity? myBids,
+    String? payingAllotmentUuid,
+    bool clearPayingAllotment = false,
+  }) {
+    return MyBidsLoaded(
+      myBids: myBids ?? this.myBids,
+      payingAllotmentUuid: clearPayingAllotment
+          ? null
+          : payingAllotmentUuid ?? this.payingAllotmentUuid,
+    );
+  }
+
   @override
-  List<Object?> get props => [myBids];
+  List<Object?> get props => [myBids, payingAllotmentUuid];
 }
 
 // ============================================================
