@@ -265,7 +265,7 @@ class ProductVariantsSection extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.zero,
             itemCount: variants.length,
-            separatorBuilder: (_, __) => SizedBox(width: metrics.gapSm),
+            separatorBuilder: (_, _) => SizedBox(width: metrics.gapSm),
             itemBuilder: (context, index) => VariantCard(
               metrics: metrics,
               variant: variants[index],

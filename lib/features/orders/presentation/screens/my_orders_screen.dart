@@ -147,7 +147,7 @@ class _LoadedView extends StatelessWidget {
                     ),
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: orders.length, // CHANGED
-                    separatorBuilder: (_, __) => SizedBox(height: m.sectionGap),
+                    separatorBuilder: (_, _) => SizedBox(height: m.sectionGap),
                     itemBuilder: (context, index) {
                       final order = orders[index]; // CHANGED
                       return OrderCard(

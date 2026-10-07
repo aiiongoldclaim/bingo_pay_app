@@ -107,7 +107,7 @@ class CategoryItem extends StatelessWidget {
                         width: metrics.categoryIconSize,
                         height: metrics.categoryIconSize,
                         fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Icon(
+                        errorBuilder: (_, _, _) => Icon(
                           category.icon,
                           size: metrics.categoryIconSize,
                           color: fg,

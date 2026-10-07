@@ -193,7 +193,7 @@ class OdTrackingCard extends StatelessWidget {
                   child: Image.asset(
                     illustrationAsset,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
                   ),
                 ),
               ),

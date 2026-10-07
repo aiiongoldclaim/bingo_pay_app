@@ -2957,7 +2957,7 @@ class _HeroSectionState extends State<_HeroSection> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: images.length,
-              separatorBuilder: (_, __) => SizedBox(width: 2.05.w),
+              separatorBuilder: (_, _) => SizedBox(width: 2.05.w),
               itemBuilder: (context, index) {
                 final selected = index == _currentIndex;
 
@@ -2977,7 +2977,7 @@ class _HeroSectionState extends State<_HeroSection> {
                     child: Image.network(
                       images[index],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (_, _, _) => Container(
                         color: colors.surfaceAlt,
                         child: Icon(
                           Icons.image_outlined,
@@ -3019,7 +3019,7 @@ class _HeroSectionState extends State<_HeroSection> {
                     return Image.network(
                       images[index],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _imagePlaceholder(colors),
+                      errorBuilder: (_, _, _) => _imagePlaceholder(colors),
                       loadingBuilder: (context, child, progress) {
                         if (progress == null) return child;
 
@@ -4536,7 +4536,7 @@ class _ModernSectionHeader extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

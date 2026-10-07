@@ -55,7 +55,7 @@ class HomeCategoryTabs extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
             itemCount: itemCount,
-            separatorBuilder: (_, __) => SizedBox(width: metrics.tabGap),
+            separatorBuilder: (_, _) => SizedBox(width: metrics.tabGap),
             itemBuilder: (context, i) {
               final selected = i == selectedIndex;
               final targetColor =

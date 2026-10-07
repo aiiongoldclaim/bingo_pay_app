@@ -266,7 +266,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                           m.gapLg,
                         ),
                         itemCount: addresses.length + 1,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (_, _) =>
                             SizedBox(height: m.gapMd),
                         itemBuilder: (context, index) {
                           if (index == addresses.length) {

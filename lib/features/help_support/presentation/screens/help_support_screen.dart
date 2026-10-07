@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -149,8 +148,7 @@ class _SectionHeading extends StatelessWidget {
   const _SectionHeading({
     required this.metrics,
     required this.title,
-    this.onViewAll,
-  });
+  }) : onViewAll = null;
 
   @override
   Widget build(BuildContext context) {

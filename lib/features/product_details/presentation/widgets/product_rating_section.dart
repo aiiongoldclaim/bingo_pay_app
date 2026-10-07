@@ -134,7 +134,6 @@
 // }
 import 'package:bingo_pay/features/product_details/presentation/widgets/product_detail_widgets.dart';
 import 'package:bingo_pay/features/product_details/presentation/widgets/product_metrics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_strings.dart';

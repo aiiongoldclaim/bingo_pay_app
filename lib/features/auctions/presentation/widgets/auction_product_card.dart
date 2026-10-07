@@ -62,7 +62,7 @@ class AuctionProductCard extends StatelessWidget {
                         ? Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _placeholder(colors),
+                            errorBuilder: (_, _, _) => _placeholder(colors),
                           )
                         : _placeholder(colors),
                   ),

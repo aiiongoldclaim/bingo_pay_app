@@ -21,9 +21,8 @@ class BuyerDashboardState extends Equatable {
         data = null,
         errorMessage = null;
 
-  const BuyerDashboardState.loaded(BuyerDashboardData data)
+  const BuyerDashboardState.loaded(BuyerDashboardData this.data)
       : isLoading = false,
-        data = data,
         errorMessage = null;
 
   const BuyerDashboardState.error(String message)

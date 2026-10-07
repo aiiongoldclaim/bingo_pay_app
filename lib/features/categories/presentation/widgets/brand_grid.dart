@@ -146,8 +146,8 @@ class BrandsGrid extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
           itemCount: 5,
-          separatorBuilder: (_, __) => SizedBox(width: m.gridGap),
-          itemBuilder: (_, __) => Container(
+          separatorBuilder: (_, _) => SizedBox(width: m.gridGap),
+          itemBuilder: (_, _) => Container(
             width: m.brandTileWidth,
             height: m.brandTileHeight,
             decoration: BoxDecoration(
@@ -183,7 +183,7 @@ class BrandsGrid extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
         itemCount: brands.length,
-        separatorBuilder: (_, __) => SizedBox(width: m.gridGap),
+        separatorBuilder: (_, _) => SizedBox(width: m.gridGap),
         itemBuilder: (_, i) => BrandChip(
           metrics: m,
           brand: brands[i],

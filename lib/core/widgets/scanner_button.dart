@@ -5,7 +5,7 @@ import '../theme/app_dimensions.dart';
 
 class ScanButton extends StatelessWidget {
   final VoidCallback onTap;
-  const ScanButton({required this.onTap});
+  const ScanButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class ScanButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.40),
+              color: AppColors.primary.withValues(alpha: 0.40),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

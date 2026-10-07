@@ -548,7 +548,7 @@ class _WideLayout extends StatelessWidget {
 }
 
 class _FitPane extends StatelessWidget {
-  const _FitPane({required this.child, this.minScale = 0.85});
+  const _FitPane({required this.child}) : minScale = 0.85;
 
   final Widget child;
   final double minScale;

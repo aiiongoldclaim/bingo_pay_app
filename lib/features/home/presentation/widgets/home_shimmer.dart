@@ -222,8 +222,8 @@ class HomeShimmer extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
                     itemCount: 6,
-                    separatorBuilder: (_, __) => SizedBox(width: m.tabGap),
-                    itemBuilder: (_, __) => Center(
+                    separatorBuilder: (_, _) => SizedBox(width: m.tabGap),
+                    itemBuilder: (_, _) => Center(
                       child: ShimmerBox(
                         width: m.tabFontSize * 4,
                         height: m.tabFontSize,
@@ -254,9 +254,9 @@ class HomeShimmer extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
                     itemCount: 7,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         SizedBox(width: m.pagePadding * 0.7),
-                    itemBuilder: (_, __) => Column(
+                    itemBuilder: (_, _) => Column(
                       children: [
                         ShimmerBox(
                           width: m.categoryCircle,
@@ -303,9 +303,9 @@ class HomeShimmer extends StatelessWidget {
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
                     itemCount: 4,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         SizedBox(width: m.pagePadding * 0.7),
-                    itemBuilder: (_, __) => SizedBox(
+                    itemBuilder: (_, _) => SizedBox(
                       width: m.productCardWidth,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

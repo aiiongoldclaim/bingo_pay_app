@@ -83,7 +83,7 @@ class BrandChip extends StatelessWidget {
                       fit: BoxFit.contain,
                       // Dark mode me black logos gayab ho jaate hain
                       color: colors.isDark ? colors.textPrimary : null,
-                      errorBuilder: (_, __, ___) =>
+                      errorBuilder: (_, _, _) =>
                           _NameFallback(metrics: m, name: brand.name),
                     )
                   : _NameFallback(metrics: m, name: brand.name),

@@ -254,7 +254,7 @@ class _ServicesRow extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.zero,
             itemCount: cards.length,
-            separatorBuilder: (_, __) => SizedBox(width: gap),
+            separatorBuilder: (_, _) => SizedBox(width: gap),
             itemBuilder: (_, index) => cards[index],
           )
               : Row(
@@ -428,7 +428,7 @@ class _CardImage extends StatelessWidget {
               : Image.network(
             imageUrl,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Icon(
+            errorBuilder: (_, _, _) => Icon(
               Icons.design_services_outlined,
               size: placeholderSize,
               color: theme?.secondaryText ?? colors.textMuted,

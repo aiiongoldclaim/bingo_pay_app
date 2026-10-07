@@ -917,7 +917,7 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                         ? Image.network(
                             auction.images!.first,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) {
+                            errorBuilder: (_, _, _) {
                               return _placeholderImage(colors);
                             },
                           )

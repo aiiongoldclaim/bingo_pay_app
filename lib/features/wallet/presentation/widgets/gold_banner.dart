@@ -39,7 +39,7 @@ class GoldInvestBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? ThemeColors.accentSoft,
         borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: ThemeColors.accent.withOpacity(0.25)),
+        border: Border.all(color: ThemeColors.accent.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -60,7 +60,7 @@ class GoldInvestBanner extends StatelessWidget {
                 Text(
                   subtitle,
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: ThemeColors.accentInk.withOpacity(0.75),
+                    color: ThemeColors.accentInk.withValues(alpha: 0.75),
                   ),
                 ),
               ],
@@ -85,7 +85,7 @@ class _DefaultGoldIcon extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: ThemeColors.accent.withOpacity(0.18),
+        color: ThemeColors.accent.withValues(alpha: 0.18),
         shape: BoxShape.circle,
       ),
       child: const Center(

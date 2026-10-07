@@ -78,7 +78,7 @@ class SettingsTopBar extends StatelessWidget {
               ],
             ),
           ),
-          if (action != null) action!,
+          ?action,
         ],
       ),
     );
@@ -271,7 +271,7 @@ class SettingsTile extends StatelessWidget {
                 Switch(
                   value: switchValue!,
                   onChanged: onSwitchChanged,
-                  activeColor: colors.surface,
+                  activeThumbColor: colors.surface,
                   activeTrackColor: colors.brand,
                   inactiveThumbColor: colors.surface,
                   inactiveTrackColor: colors.border,

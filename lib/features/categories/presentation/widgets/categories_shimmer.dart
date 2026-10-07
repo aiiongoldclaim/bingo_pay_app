@@ -275,7 +275,7 @@ class _CollectionRail extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
         itemCount: 3,
-        separatorBuilder: (_, __) => SizedBox(width: metrics.pagePadding * 0.7),
+        separatorBuilder: (_, _) => SizedBox(width: metrics.pagePadding * 0.7),
         itemBuilder: (_, index) => _Block(
           width: cardWidth,
           height: cardHeight,

@@ -188,7 +188,7 @@ class _HeroImagePaneState extends State<_HeroImagePane> {
                     return Image.network(
                       images[index],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _placeholder(colors),
+                      errorBuilder: (_, _, _) => _placeholder(colors),
                       loadingBuilder: (context, child, progress) {
                         if (progress == null) return child;
                         return Center(

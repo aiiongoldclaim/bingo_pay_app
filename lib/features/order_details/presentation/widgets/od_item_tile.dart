@@ -47,7 +47,7 @@ class OdItemTile extends StatelessWidget {
                   ? Image.network(
                       item.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorBuilder: (_, _, _) => Icon(
                         Icons.inventory_2_outlined,
                         size: m.itemThumbWidth * 0.35,
                         color: colors.brand,

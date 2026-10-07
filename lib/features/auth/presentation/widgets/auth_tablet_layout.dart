@@ -243,7 +243,7 @@ class _FitPane extends StatelessWidget {
   final Widget child;
   final Alignment alignment;
 
-  const _FitPane({required this.child, this.alignment = Alignment.center});
+  const _FitPane({required this.child}) : alignment = Alignment.center;
 
   @override
   Widget build(BuildContext context) {
@@ -466,7 +466,7 @@ class _HeroImage extends StatelessWidget {
         child: Image.asset(
           isDark ? AppImages.dashboardDark : AppImages.dashboardLight,
           fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          errorBuilder: (_, _, _) => const SizedBox.shrink(),
         ),
       ),
     );

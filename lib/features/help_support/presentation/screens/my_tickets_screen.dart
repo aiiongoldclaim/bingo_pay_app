@@ -128,7 +128,12 @@ class _MyTicketsScreenState extends State<MyTicketsScreen> {
           children: [
             const _TopBar(),
             Expanded(
-              child: BlocBuilder<SupportTicketCubit, SupportTicketState>(
+              child: BlocConsumer<SupportTicketCubit, SupportTicketState>(
+                // RaiseTicketSheet resets this shared cubit after submitting,
+                // so reload the list or it stays stuck on the shimmer.
+                listenWhen: (_, state) => state is SupportTicketSubmitted,
+                listener: (context, _) =>
+                    context.read<SupportTicketCubit>().loadMyTickets(),
                 builder: (context, state) {
                   if (state is SupportTicketError) {
                     return _ErrorView(

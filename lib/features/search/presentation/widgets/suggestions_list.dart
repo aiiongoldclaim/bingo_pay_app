@@ -37,7 +37,7 @@ class SuggestionsList extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: suggestions.length,
-        separatorBuilder: (_, __) =>
+        separatorBuilder: (_, _) =>
             Divider(color: ThemeColors.line, height: 1),
         itemBuilder: (context, index) {
           final suggestion = suggestions[index];

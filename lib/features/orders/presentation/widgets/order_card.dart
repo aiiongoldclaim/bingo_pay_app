@@ -335,7 +335,7 @@ class _Thumb extends StatelessWidget {
             ? Image.network(
                 imageUrl!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(
+                errorBuilder: (_, _, _) => Icon(
                   Icons.shopping_cart_outlined,
                   size: m.thumbSize * 0.35,
                   color: colors.brand,

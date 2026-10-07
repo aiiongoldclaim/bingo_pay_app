@@ -33,14 +33,14 @@ class AuctionsRemoteDatasources {
         'take': take,
         // 'skip': skip,
         // if(skip != null) 'skip': skip,
-        if (sort != null && sort.isNotEmpty) 'sort': sort,
+        if (sort.isNotEmpty) 'sort': sort,
         if (search != null && search.isNotEmpty) 'search': search,
         if (maxPrice != null && maxPrice.isNotEmpty) 'maxPrice': maxPrice,
         if (minPrice != null && minPrice.isNotEmpty) 'minPrice': minPrice,
         if (listingLevel != null && listingLevel.isNotEmpty)
           'listingLevel': listingLevel,
-        if (categoryId != null) 'categoryId': categoryId,
-        if (status != null && status.isNotEmpty) 'status': status,
+        'categoryId': ?categoryId,
+        if (status.isNotEmpty) 'status': status,
       },
     );
     final data = response.data;

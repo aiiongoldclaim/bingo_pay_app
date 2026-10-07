@@ -140,7 +140,7 @@ class ShopArtwork extends StatelessWidget {
         boxShadow: elevated
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
+                  color: AppColors.primary.withValues(alpha: 0.2),
                   blurRadius: 24,
                   offset: const Offset(0, 14),
                 ),
@@ -156,7 +156,7 @@ class ShopArtwork extends StatelessWidget {
               width: boxSize * 0.42,
               height: boxSize * 0.42,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
+                color: Colors.white.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
             ),
@@ -168,7 +168,7 @@ class ShopArtwork extends StatelessWidget {
               width: boxSize * 0.3,
               height: boxSize * 0.3,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -249,7 +249,7 @@ class ShopRatingBadge extends StatelessWidget {
         vertical: AppDimensions.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.success.withOpacity(0.12),
+        color: AppColors.success.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDimensions.radiusCircular),
       ),
       child: Row(
@@ -415,7 +415,7 @@ class ShopProductCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(
                               AppDimensions.radiusCircular,
                             ),
@@ -466,7 +466,7 @@ class ShopProductCard extends StatelessWidget {
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -500,12 +500,12 @@ class ShopProductCard extends StatelessWidget {
                       if (!product.inStock)
                         _Badge(
                           label: 'Out of stock',
-                          background: AppColors.error.withOpacity(0.88),
+                          background: AppColors.error.withValues(alpha: 0.88),
                         ),
                       if (product.discountPercent != null)
                         _Badge(
                           label: '${product.discountPercent}% off',
-                          background: AppColors.secondary.withOpacity(0.88),
+                          background: AppColors.secondary.withValues(alpha: 0.88),
                         ),
                     ],
                   ),
@@ -611,7 +611,7 @@ class ShopEmptyState extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(AppDimensions.lg),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.08),
+                        color: AppColors.primary.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(icon, size: 42, color: AppColors.primary),

@@ -211,7 +211,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                         child: Image.network(
                           images[index],
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Center(
+                          errorBuilder: (_, _, _) => Center(
                             child: Icon(
                               widget.fallbackIcon,
                               size: m.floatBtnSize * 1.4,
@@ -270,7 +270,7 @@ class _ProductGalleryState extends State<ProductGallery> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: extra > 0 ? visibleCount + 1 : visibleCount,
-              separatorBuilder: (_, __) => SizedBox(width: m.thumbGap),
+              separatorBuilder: (_, _) => SizedBox(width: m.thumbGap),
               itemBuilder: (context, i) {
                 // Last slot = "+N More"
                 if (extra > 0 && i == visibleCount) {
@@ -316,7 +316,7 @@ class _ProductGalleryState extends State<ProductGallery> {
                     child: Image.network(
                       images[i],
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorBuilder: (_, _, _) => Icon(
                         widget.fallbackIcon,
                         size: m.thumbSize * 0.34,
                         color: colors.textMuted,

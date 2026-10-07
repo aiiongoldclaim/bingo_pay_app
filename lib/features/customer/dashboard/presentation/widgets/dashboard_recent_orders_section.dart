@@ -40,7 +40,7 @@ class DashboardRecentOrdersSection extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: recentOrders.length,
-          separatorBuilder: (_, __) => const SizedBox(height: AppDimensions.sm),
+          separatorBuilder: (_, _) => const SizedBox(height: AppDimensions.sm),
           itemBuilder: (context, index) {
             final order = recentOrders[index];
             return _RecentOrderTile(order: order, onTap: () => onOrderTap(order.id));

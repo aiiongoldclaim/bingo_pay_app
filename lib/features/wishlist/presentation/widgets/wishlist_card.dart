@@ -394,7 +394,7 @@ class WishlistCard extends StatelessWidget {
                                 ? Image.network(
                               item.imageUrl!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
+                              errorBuilder: (_, _, _) =>
                                   _PlaceholderIcon(metrics: m),
                             )
                                 : _PlaceholderIcon(metrics: m),

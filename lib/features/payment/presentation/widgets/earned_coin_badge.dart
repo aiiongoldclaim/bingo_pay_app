@@ -13,7 +13,7 @@ class EarnedCoinBadge extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.15),
+        color: Colors.white.withValues(alpha: .15),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Row(

@@ -80,7 +80,7 @@ class WalletCard extends StatelessWidget {
           Text(
             subTitle,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: ThemeColors.white.withOpacity(0.8),
+              color: ThemeColors.white.withValues(alpha: 0.8),
             ),
           ),
 
