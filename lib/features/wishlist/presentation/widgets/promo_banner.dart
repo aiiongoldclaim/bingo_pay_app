@@ -106,7 +106,7 @@ class AppPromoBanner extends StatelessWidget {
             child: Image.asset(
               imagePath,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Icon(
+              errorBuilder: (_, _, _) => Icon(
                 fallbackIcon,
                 size: illustrationSize * 0.5,
                 color: colors.brand,

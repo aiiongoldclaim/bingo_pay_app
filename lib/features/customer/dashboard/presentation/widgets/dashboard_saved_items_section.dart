@@ -50,7 +50,7 @@ class DashboardSavedItemsSection extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: savedItems.length,
-            separatorBuilder: (_, __) => const SizedBox(width: AppDimensions.md),
+            separatorBuilder: (_, _) => const SizedBox(width: AppDimensions.md),
             itemBuilder: (context, index) {
               final item = savedItems[index];
               return _SavedItemCard(item: item);

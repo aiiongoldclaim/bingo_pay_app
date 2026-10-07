@@ -325,7 +325,7 @@ class _AvatarBlock extends StatelessWidget {
             width: m.avatarSize,
             height: m.avatarSize,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) =>
+            errorBuilder: (_, _, _) =>
                 _Initials(metrics: m, profile: profile),
           ),
         );

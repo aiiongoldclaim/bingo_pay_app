@@ -1292,7 +1292,7 @@ class _DefaultSwitchCard extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: colors.surface,
+            activeThumbColor: colors.surface,
             activeTrackColor: colors.brand,
             inactiveThumbColor: colors.surface,
             inactiveTrackColor: colors.border,

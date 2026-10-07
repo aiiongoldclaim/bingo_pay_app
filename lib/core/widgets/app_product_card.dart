@@ -91,7 +91,7 @@ class AppProductCard extends StatelessWidget {
                                 ? Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Center(
+                              errorBuilder: (_, _, _) => Center(
                                 child: Icon(
                                   Icons.shopping_cart_outlined,
                                   size: heartBox * 1.1,

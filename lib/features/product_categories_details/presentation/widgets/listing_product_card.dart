@@ -369,7 +369,7 @@ class ListingProductCard extends StatelessWidget {
                         child: Image.network(
                           product.imageUrl!,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) =>
+                          errorBuilder: (_, _, _) =>
                               _Fallback(icon: product.icon),
                           loadingBuilder: (_, child, progress) =>
                           progress == null

@@ -59,7 +59,7 @@ class BookingsLoadedView extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(4.1.w, 1.71.h, 4.1.w, 4.74.h),
               sliver: SliverList.separated(
                 itemCount: visible.length,
-                separatorBuilder: (_, __) {
+                separatorBuilder: (_, _) {
                   return SizedBox(height: 1.66.h);
                 },
                 itemBuilder: (context, index) {

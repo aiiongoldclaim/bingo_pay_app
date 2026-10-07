@@ -79,7 +79,7 @@ class MembershipHeroCard extends StatelessWidget {
                 imageAsset,
                 fit: BoxFit.contain,
                 alignment: Alignment.topRight,
-                errorBuilder: (_, __, ___) =>
+                errorBuilder: (_, _, _) =>
                 const SizedBox.shrink(),
               ),
             ),

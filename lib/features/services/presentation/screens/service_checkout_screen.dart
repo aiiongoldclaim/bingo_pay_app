@@ -1096,7 +1096,7 @@ class _ServiceImage extends StatelessWidget {
             ? Image.network(
                 imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (_, _, _) {
                   return Icon(
                     Icons.home_repair_service_outlined,
                     color: colors.brand,

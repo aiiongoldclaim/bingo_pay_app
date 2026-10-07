@@ -357,7 +357,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       autofocus: true,
       keyboardType: TextInputType.number,
       forceErrorState: hasError,
-      errorBuilder: (_, __) => const SizedBox.shrink(),
+      errorBuilder: (_, _) => const SizedBox.shrink(),
       onCompleted: (_) => _submit(),
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
 

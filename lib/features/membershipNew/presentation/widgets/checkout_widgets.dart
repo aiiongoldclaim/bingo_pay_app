@@ -155,7 +155,7 @@ class CheckoutHeroCard extends StatelessWidget {
                 artworkAsset!,
                 fit: BoxFit.contain,
                 alignment: Alignment.centerRight,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
               ),
             ),
 
@@ -587,7 +587,7 @@ class _QrExpansion extends StatelessWidget {
                 height: m.iconCircle * 3,
                 fit: BoxFit.contain,
                 gaplessPlayback: true,
-                errorBuilder: (_, __, ___) => Icon(
+                errorBuilder: (_, _, _) => Icon(
                   Icons.qr_code_2_rounded,
                   size: m.iconCircle * 1.6,
                   color: ThemeColors.textMuted,

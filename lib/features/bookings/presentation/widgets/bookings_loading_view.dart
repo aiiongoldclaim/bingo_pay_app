@@ -46,8 +46,8 @@ class BookingsLoadingView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 4.1.w),
           sliver: SliverList.separated(
             itemCount: 4,
-            separatorBuilder: (_, __) => SizedBox(height: 1.66.h),
-            itemBuilder: (_, __) {
+            separatorBuilder: (_, _) => SizedBox(height: 1.66.h),
+            itemBuilder: (_, _) {
               return Container(
                 height: 23.22.h,
                 decoration: BoxDecoration(

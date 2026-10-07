@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
 
@@ -14,7 +13,7 @@ Future<void> openOrSharePdf(List<int> bytes, String filename) async {
         await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/$filename');
     await file.writeAsBytes(pdfBytes, flush: true);
-    await OpenFilex.open(file.path);
+    await OpenFile.open(file.path);
   } else {
     await Printing.sharePdf(bytes: pdfBytes, filename: filename);
   }

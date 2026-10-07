@@ -40,7 +40,7 @@ class TrendingSearchesSection extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: m.pagePadding),
             itemCount: items.length,
-            separatorBuilder: (_, __) => SizedBox(width: m.pagePadding * 0.6),
+            separatorBuilder: (_, _) => SizedBox(width: m.pagePadding * 0.6),
             itemBuilder: (_, i) => _TrendingTile(
               metrics: m,
               data: items[i],
@@ -82,7 +82,7 @@ class _TrendingTile extends StatelessWidget {
                 child: Image.asset(
                   data.imageAsset,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Icon(
+                  errorBuilder: (_, _, _) => Icon(
                     Icons.image_outlined,
                     size: m.inputIconSize,
                     color: colors.textMuted,

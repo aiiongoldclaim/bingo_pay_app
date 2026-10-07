@@ -2069,7 +2069,7 @@ class _MyBidCard extends StatelessWidget {
                           ? Image.network(
                               imageUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
+                              errorBuilder: (_, _, _) =>
                                   _imagePlaceholder(colors),
                             )
                           : _imagePlaceholder(colors),

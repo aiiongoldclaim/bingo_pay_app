@@ -57,7 +57,7 @@ class ReviewOrderSummaryCard extends StatelessWidget {
                             ? Image.network(
                                 item.product.thumbnail!,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Icon(
+                                errorBuilder: (_, _, _) => Icon(
                                   Icons.shopping_cart_outlined,
                                   size: m.thumbSize * 0.4,
                                   color: colors.brand,

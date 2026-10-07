@@ -79,7 +79,7 @@ class TransactionFilterTabs extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _filters.length,
-        separatorBuilder: (_, __) => SizedBox(width: m.gapSm),
+        separatorBuilder: (_, _) => SizedBox(width: m.gapSm),
         itemBuilder: (context, index) {
           final filter = _filters[index];
           final isActive = filter == activeFilter;

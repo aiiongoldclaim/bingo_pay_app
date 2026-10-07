@@ -164,7 +164,7 @@ void main() {
       await wishlistCubit.toggle(noVariantItem, wasWishlisted: false);
     });
 
-    ProductVariant _variant(String uuid, int stock) => ProductVariant(
+    ProductVariant variant(String uuid, int stock) => ProductVariant(
           uuid: uuid,
           title: uuid,
           variantName: uuid,
@@ -175,7 +175,7 @@ void main() {
           attributes: const [],
         );
 
-    ProductDetailModel _productWith(List<ProductVariant> variants) =>
+    ProductDetailModel productWith(List<ProductVariant> variants) =>
         ProductDetailModel(
           id: 'prod-multi',
           uuid: 'prod-multi',
@@ -207,7 +207,7 @@ void main() {
       'product page instead of silently adding an arbitrary variant',
       () async {
         when(() => repository.getProductDetail('prod-multi')).thenAnswer(
-          (_) async => _productWith([_variant('small', 3), _variant('large', 5)]),
+          (_) async => productWith([variant('small', 3), variant('large', 5)]),
         );
 
         final product = await repository.getProductDetail('prod-multi');
@@ -234,10 +234,10 @@ void main() {
       'that single purchasable variant is chosen unambiguously',
       () async {
         when(() => repository.getProductDetail('prod-multi')).thenAnswer(
-          (_) async => _productWith([
-            _variant('small', 0), // out of stock
-            _variant('medium', 4), // the only one in stock
-            _variant('large', 0), // out of stock
+          (_) async => productWith([
+            variant('small', 0), // out of stock
+            variant('medium', 4), // the only one in stock
+            variant('large', 0), // out of stock
           ]),
         );
 
@@ -257,7 +257,7 @@ void main() {
       () async {
         when(() => repository.getProductDetail('prod-multi')).thenAnswer(
           (_) async =>
-              _productWith([_variant('small', 0), _variant('large', 0)]),
+              productWith([variant('small', 0), variant('large', 0)]),
         );
 
         final product = await repository.getProductDetail('prod-multi');

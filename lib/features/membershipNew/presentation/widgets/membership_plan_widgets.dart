@@ -803,7 +803,7 @@ class MembershipPlansHero extends StatelessWidget {
         width: double.infinity,
         height: heroHeight,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           height: heroHeight,
           decoration: BoxDecoration(
             gradient: colors.isDark

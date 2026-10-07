@@ -92,7 +92,7 @@ class _ProductCardState extends State<ProductCard> {
               borderRadius: BorderRadius.circular(AppSizes.radiusMd),
               boxShadow: [
                 BoxShadow(
-                  color: ThemeColors.black.withOpacity(.05),
+                  color: ThemeColors.black.withValues(alpha: .05),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -141,7 +141,7 @@ class _ProductCardState extends State<ProductCard> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(.1),
+                                color: Colors.black.withValues(alpha: .1),
                                 blurRadius: 4,
                               ),
                             ],

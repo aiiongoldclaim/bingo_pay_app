@@ -35,7 +35,7 @@ class AppIconContainer extends StatelessWidget {
         width: containerSize,
         height: containerSize,
         decoration: BoxDecoration(
-          color: backgroundColor ?? ThemeColors.white.withOpacity(.35),
+          color: backgroundColor ?? ThemeColors.white.withValues(alpha: .35),
           borderRadius: BorderRadius.circular(AppSizes.radiusMd),
         ),
         child: Center(

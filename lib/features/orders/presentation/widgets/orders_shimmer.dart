@@ -32,7 +32,7 @@ class OrdersShimmer extends StatelessWidget {
                 metrics.sectionGap,
               ),
               itemCount: 4,
-              separatorBuilder: (_, __) => SizedBox(height: metrics.sectionGap),
+              separatorBuilder: (_, _) => SizedBox(height: metrics.sectionGap),
               itemBuilder: (_, index) =>
                   _OrderCardSkeleton(metrics: metrics, colors: colors),
             ),
@@ -59,7 +59,7 @@ class _FilterTabsSkeleton extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
         itemCount: 5,
-        separatorBuilder: (_, __) => SizedBox(width: metrics.pagePadding * 0.5),
+        separatorBuilder: (_, _) => SizedBox(width: metrics.pagePadding * 0.5),
         itemBuilder: (_, index) => _Block(
           width: metrics.pagePadding * (index == 0 ? 4 : 5.5),
           height: metrics.ctaHeight,

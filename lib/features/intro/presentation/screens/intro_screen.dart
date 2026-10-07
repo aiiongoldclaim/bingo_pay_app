@@ -110,7 +110,7 @@ class _IntroScreenState extends State<IntroScreen> {
             height: 150,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
             ),
             child: Icon(Icons.shopping_bag, size: 80, color: color),
           ),

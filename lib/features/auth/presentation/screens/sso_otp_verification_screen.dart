@@ -53,9 +53,8 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
 
   @override
   void dispose() {
-    _otpController.dispose();
-    _otpFocusNode.dispose();
     _cooldownTimer?.cancel();
+    _otpController.dispose();
     _otpFocusNode.dispose();
     super.dispose();
   }

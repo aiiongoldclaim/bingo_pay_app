@@ -136,7 +136,7 @@ class CategoryCard extends StatelessWidget {
                       width: m.categoryIconSize,
                       height: m.categoryIconSize,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Icon(
+                      errorBuilder: (_, _, _) => Icon(
                         category.icon,
                         size: m.categoryIconSize,
                         color: colors.brand,

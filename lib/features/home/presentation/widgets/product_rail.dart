@@ -72,7 +72,7 @@ class ProductRail extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
                 itemCount: products.length,
-                separatorBuilder: (_, __) =>
+                separatorBuilder: (_, _) =>
                     SizedBox(width: metrics.pagePadding * 0.7),
                 itemBuilder: (_, i) {
                   final p = products[i];

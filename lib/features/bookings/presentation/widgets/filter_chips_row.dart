@@ -27,7 +27,7 @@ class FilterChipsRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.fromLTRB(4.1.w, 0, 4.1.w, 0),
         itemCount: _labels.length,
-        separatorBuilder: (_, __) => SizedBox(width: 2.31.w),
+        separatorBuilder: (_, _) => SizedBox(width: 2.31.w),
         itemBuilder: (context, index) {
           final entry = _labels.entries.elementAt(index);
 

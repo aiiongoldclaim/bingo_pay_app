@@ -351,7 +351,7 @@ class _LoadedView extends StatelessWidget {
                         ),
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: state.filtered.length,
-                        separatorBuilder: (_, __) =>
+                        separatorBuilder: (_, _) =>
                             SizedBox(height: m.gridSpacing),
                         itemBuilder: (context, index) {
                           final transaction = state.filtered[index];

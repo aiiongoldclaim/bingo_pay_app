@@ -29,7 +29,7 @@ class QrFab extends StatelessWidget {
               spreadRadius: 3,
             ),
             BoxShadow(
-              color: ThemeColors.blue.withOpacity(selected ? 0.55 : 0.30),
+              color: ThemeColors.blue.withValues(alpha: selected ? 0.55 : 0.30),
               blurRadius: selected ? 24 : 14,
               spreadRadius: selected ? 2 : 0,
               offset: const Offset(0, 4),

@@ -55,7 +55,7 @@ class PromoBanner extends StatelessWidget {
                 fit: BoxFit.fill,
                 width: double.infinity,
                 height: double.infinity,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   color: fallbackBackgroundColor ?? colors.surfaceAlt,
                   alignment: Alignment.center,
                   child: Icon(
@@ -125,7 +125,7 @@ class _ImageRatioBuilderState extends State<ImageRatioBuilder> {
           setState(() => _ratio = ratio);
         }
       },
-      onError: (_, __) {
+      onError: (_, _) {
         if (mounted) setState(() => _ratio = widget.fallbackRatio);
       },
     );

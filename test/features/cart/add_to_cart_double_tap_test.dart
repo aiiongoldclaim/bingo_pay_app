@@ -72,7 +72,7 @@ class _AddToCartHarnessState extends State<_AddToCartHarness> {
 
 void main() {
   Future<(CartCubit, MockAddCartItemUseCase, Completer<Either<Failure, CartEntity>>, List<int>)>
-      _setUp() async {
+      setUp() async {
     final addItemUseCase = MockAddCartItemUseCase();
     final cartCubit = CartCubit(
       MockGetCartUseCase(),
@@ -95,7 +95,7 @@ void main() {
     'BEFORE the fix: relying only on cartState.isAddingItem to disable the '
     'button, two rapid taps (no pump in between) fire addItem() twice',
     (tester) async {
-      final (cartCubit, _, gate, calls) = await _setUp();
+      final (cartCubit, _, gate, calls) = await setUp();
       addTearDown(cartCubit.close);
 
       await tester.pumpWidget(
@@ -128,7 +128,7 @@ void main() {
     'AFTER the fix: the synchronous _isAddingToCart guard (mirroring '
     "_isBuyingNow) ensures two rapid taps still fire addItem() exactly once",
     (tester) async {
-      final (cartCubit, _, gate, calls) = await _setUp();
+      final (cartCubit, _, gate, calls) = await setUp();
       addTearDown(cartCubit.close);
 
       await tester.pumpWidget(

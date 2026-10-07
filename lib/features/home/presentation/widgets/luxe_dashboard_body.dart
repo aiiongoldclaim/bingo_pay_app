@@ -439,9 +439,9 @@ class _LuxeContentShimmer extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
               itemCount: 4,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, _) =>
                   SizedBox(width: metrics.pagePadding * 0.7),
-              itemBuilder: (_, __) => SizedBox(
+              itemBuilder: (_, _) => SizedBox(
                 width: metrics.productCardWidth,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,8 +492,8 @@ class LuxeCategoryShimmer extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
           itemCount: 6,
-          separatorBuilder: (_, __) => SizedBox(width: metrics.tabGap),
-          itemBuilder: (_, __) => Center(
+          separatorBuilder: (_, _) => SizedBox(width: metrics.tabGap),
+          itemBuilder: (_, _) => Center(
             child: ShimmerBox(
               width: metrics.tabFontSize * 4,
               height: metrics.tabFontSize,

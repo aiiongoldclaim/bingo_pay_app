@@ -48,7 +48,7 @@ class OrderFilterTabs extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: m.pagePadding * 0.3),
         itemCount: filters.length,
-        separatorBuilder: (_, __) => SizedBox(width: m.tabGap),
+        separatorBuilder: (_, _) => SizedBox(width: m.tabGap),
         itemBuilder: (context, i) {
           final filter = filters[i];
           return _FilterTab(

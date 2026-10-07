@@ -99,7 +99,7 @@ class _TransactionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSizes.radius2Xl),
         boxShadow: [
           BoxShadow(
-            color: ThemeColors.ink.withOpacity(0.04),
+            color: ThemeColors.ink.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -109,7 +109,7 @@ class _TransactionCard extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: transactions.length,
-        separatorBuilder: (_, __) => Divider(
+        separatorBuilder: (_, _) => Divider(
           height: 1,
           indent: 64,
           endIndent: 16,

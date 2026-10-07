@@ -37,7 +37,7 @@ class PopularProductsSection extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 4.w),
             itemCount: products.length,
-            separatorBuilder: (_, __) => SizedBox(width: 3.w),
+            separatorBuilder: (_, _) => SizedBox(width: 3.w),
             itemBuilder: (_, i) => _PopularProductCard(
               product: products[i],
               onTap: () => onProductTap(products[i]),

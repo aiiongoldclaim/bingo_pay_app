@@ -75,6 +75,7 @@ import '../../features/wallet/presentation/cubit/wallet_cubit.dart';
 import '../../features/wallet/presentation/screens/wallet_screens.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
 import '../../features/chat/presentation/screens/chat_session_screen.dart';
+import '../../features/help_support/presentation/cubit/support_ticket_cubit.dart';
 import '../../features/help_support/presentation/screens/help_support_screen.dart';
 import '../../features/help_support/presentation/screens/my_tickets_screen.dart';
 import '../../features/help_support/presentation/screens/ticket_detail_screen.dart';
