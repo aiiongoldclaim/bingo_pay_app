@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/di/injection.dart';
+import '../../../../core/notifications/local_notification_service.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
@@ -20,14 +22,26 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _pushNotifications = true;
-  bool _emailUpdates = true;
-  bool _orderAlerts = true;
+  final _localNotifications = getIt<LocalNotificationService>();
+  late bool _pushNotifications = _localNotifications.isEnabled;
 
   @override
   void initState() {
     super.initState();
     context.read<SettingsCubit>().loadPublicSettings();
+  }
+
+  Future<void> _onPushNotificationsChanged(bool value) async {
+    setState(() => _pushNotifications = value);
+    final enabled = await _localNotifications.setEnabled(value);
+    if (!mounted) return;
+    setState(() => _pushNotifications = enabled);
+    if (value && !enabled) {
+      AppSnackbar.showError(
+        context,
+        'Notification permission denied. Allow it from phone settings.',
+      );
+    }
   }
 
   Future<void> _launch(Uri uri, String errorMessage) async {
@@ -213,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   title: 'Saved Addresses',
                                   subtitle: 'Manage delivery addresses',
                                   onTap: () =>
-                                      context.go(AppRoutes.buyerAddresses),
+                                      context.push(AppRoutes.buyerAddresses),
                                 ),
                                 SettingsTile(
                                   metrics: m,
@@ -242,26 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   title: 'Push Notifications',
                                   subtitle: 'Offers, updates and more',
                                   switchValue: _pushNotifications,
-                                  onSwitchChanged: (v) =>
-                                      setState(() => _pushNotifications = v),
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.local_shipping_outlined,
-                                  title: 'Order Alerts',
-                                  subtitle: 'Shipping and delivery updates',
-                                  switchValue: _orderAlerts,
-                                  onSwitchChanged: (v) =>
-                                      setState(() => _orderAlerts = v),
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.mail_outline_rounded,
-                                  title: 'Email Updates',
-                                  subtitle: 'Newsletters and promotions',
-                                  switchValue: _emailUpdates,
-                                  onSwitchChanged: (v) =>
-                                      setState(() => _emailUpdates = v),
+                                  onSwitchChanged: _onPushNotificationsChanged,
                                 ),
                               ],
                             ),

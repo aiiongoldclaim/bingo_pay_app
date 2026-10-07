@@ -1402,7 +1402,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      appBar: const CustomAppBar(title: 'My Bids', centerTitle: true),
+      appBar: const CustomAppBar(title: 'My Bids'),
       body: SafeArea(
         top: false,
         child: BlocBuilder<AuctionCubit, AuctionState>(
@@ -1481,7 +1481,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
           child: _SummaryCard(
             icon: Icons.gavel_rounded,
             title: 'Outbid',
-            value: summary.outbid,
+            value: summary.outbid + summary.lost,
             iconColor: colors.statusWarning,
             iconBg: colors.statusWarningSoft,
           ),
@@ -1663,12 +1663,7 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
             ),
           ),
         ),
-        SizedBox(height: 0.47.h),
-        Text(
-          'Select a row for the full bidding history, who won, and any payment owed.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 12.5.sp, color: colors.textSecondary),
-        ),
+
       ],
     );
   }
@@ -1688,7 +1683,6 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
 
     final cubit = context.read<AuctionCubit>();
 
-    // Step 1: get a BIGOD payment quote for this allotment.
     final (:quote, :error) = await cubit.createAllotmentQuote(allotment.uuid);
 
     if (!mounted) return;

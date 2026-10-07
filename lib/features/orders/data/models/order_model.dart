@@ -1,3 +1,5 @@
+import '../../../../core/widgets/price_formatter.dart';
+
 // lib/features/orders/data/models/order_model.dart
 
 class OrderModel {
@@ -452,14 +454,7 @@ String formatDateTime(DateTime date) {
   return '${_formatDate(date)} · $hour:$minute $period';
 }
 
-String _formatPrice(double price) {
-  return price
-      .toStringAsFixed(0)
-      .replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (m) => '${m[1]},',
-      );
-}
+String _formatPrice(double price) => formatGroupedAmount(price);
 
 // ── JSON parsing helpers ────────────────────────────────────────────────────
 // The API sometimes returns numeric fields as JSON numbers and sometimes as

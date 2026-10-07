@@ -1,5 +1,7 @@
 import 'package:intl/intl.dart';
 
+import '../../../../core/widgets/price_formatter.dart';
+
 DateTime? parseApiDate(String? value) {
   if (value == null || value.trim().isEmpty) {
     return null;
@@ -73,9 +75,7 @@ String formatBookingPrice(
     return value.isEmpty ? '-' : value;
   }
 
-  final formatted = NumberFormat(
-    '#,##0.##',
-  ).format(amount);
+  final formatted = formatGroupedAmount(amount);
 
   switch (currency.toUpperCase()) {
     case 'INR':

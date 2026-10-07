@@ -6,6 +6,7 @@ import 'package:bingo_pay/features/home/data/models/product_model.dart';
 import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart';
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart';
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_state.dart';
+import 'fake_membership_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -47,7 +48,12 @@ void main() {
       () => productRepository.getAllProducts(page: 1, limit: 20),
     ).thenAnswer((_) async => [ProductModel.fromJson(_fakeProductJson('p1'))]);
 
-    final cubit = HomeCubit(categoryDataSource, getProfile, productRepository);
+    final cubit = HomeCubit(
+      categoryDataSource,
+      getProfile,
+      productRepository,
+      fullAccessMembershipRepository(),
+    );
     addTearDown(cubit.close);
 
     await cubit.loadHome();

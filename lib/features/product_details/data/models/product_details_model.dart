@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/price_formatter.dart';
+
 class ProductVariant {
   final String uuid;
   final String title;
@@ -208,17 +210,7 @@ class ProductDetailModel {
     );
   }
 
-  static String _fmt(double v) {
-    final s = v.truncate().toString();
-    final buf = StringBuffer();
-    for (int i = 0; i < s.length; i++) {
-      final fromEnd = s.length - i;
-      buf.write(s[i]);
-      final rem = fromEnd - 1;
-      if (rem == 3 || (rem > 3 && (rem - 3) % 2 == 0)) buf.write(',');
-    }
-    return buf.toString();
-  }
+  static String _fmt(double v) => formatPrice(v);
 }
 
 class ProductColorOption {

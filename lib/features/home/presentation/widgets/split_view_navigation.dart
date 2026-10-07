@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/widgets/app_shimmer.dart';
+import '../../../../core/widgets/price_formatter.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
 import '../../../services/presentation/cubit/services_state.dart';
@@ -855,10 +856,10 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
 
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
-    if (price is num) return price.toStringAsFixed(0);
+    if (price is num) return formatExactAmount(price);
     if (price is String) {
       try {
-        return double.parse(price).toStringAsFixed(0);
+        return formatExactAmount(double.parse(price));
       } catch (e) {
         return price;
       }
@@ -1432,7 +1433,15 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                                 return _buildPremiumCategoryCard(
                                   category: category,
                                   colors: colors,
-                                  onTap: () {},
+                                  onTap: () {
+                                    if (category.uuid.isEmpty) return;
+                                    context.push(
+                                      AppRoutes.subCategoriesPath(
+                                        category.uuid,
+                                      ),
+                                      extra: category.name,
+                                    );
+                                  },
                                 );
                               },
                             ),
@@ -2118,7 +2127,6 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -2149,67 +2157,63 @@ class _SplitViewNavigationState extends State<SplitViewNavigation> {
                       ),
               ),
             ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.all(2.05.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
+            Padding(
+              padding: EdgeInsets.all(2.05.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: colors.textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 0.24.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star_rounded,
+                        size: 13,
+                        color: ThemeColors.amber,
+                      ),
+                      SizedBox(width: 0.51.w),
+                      Text(
+                        '4.3',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 0.36.h),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 1.28.w,
+                      vertical: 0.24.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.brand.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: Text(
+                      '₹$price',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: colors.textPrimary,
+                        color: colors.brand,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 0.24.h),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star_rounded,
-                          size: 13,
-                          color: ThemeColors.amber,
-                        ),
-                        SizedBox(width: 0.51.w),
-                        Text(
-                          '4.3',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: colors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 0.36.h),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 1.28.w,
-                        vertical: 0.24.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.brand.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      child: Text(
-                        '₹$price',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: colors.brand,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

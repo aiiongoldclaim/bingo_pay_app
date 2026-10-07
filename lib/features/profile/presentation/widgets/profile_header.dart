@@ -269,7 +269,7 @@ class _WalletCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Bingold Wallet',
+                      'BinGod Wallet',
                       style: AppTextStyles.labelMedium.copyWith(
                         color: colors.textPrimary,
                         fontFamily: 'Inter',

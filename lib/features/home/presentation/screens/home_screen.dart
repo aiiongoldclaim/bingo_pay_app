@@ -444,6 +444,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   AppRoutes.allProducts,
                                   extra: state.selectedVaultSection,
                                 ),
+                                isLocked: state.isSelectedSectionLocked,
+                                onSubscribe: () async {
+                                  final cubit = context.read<HomeCubit>();
+                                  await context.push(
+                                    AppRoutes.membershipPlans,
+                                  );
+                                  if (!cubit.isClosed) cubit.loadHome();
+                                },
                               ),
                             ),
                           SliverToBoxAdapter(

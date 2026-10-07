@@ -20,6 +20,8 @@ class HomeState {
   final List<ProductModel> recommended;
   final VaultSection selectedVaultSection;
   final VaultContentStatus vaultContentStatus;
+  final bool hasLuxeAccess;
+  final bool hasUltraLuxeAccess;
 
   final String? errorMessage;
 
@@ -32,8 +34,18 @@ class HomeState {
     this.recommended = const [],
     this.selectedVaultSection = VaultSection.theVaults,
     this.vaultContentStatus = VaultContentStatus.loaded,
+    this.hasLuxeAccess = false,
+    this.hasUltraLuxeAccess = false,
     this.errorMessage,
   });
+
+  bool hasAccessTo(VaultSection section) => switch (section) {
+    VaultSection.theVaults => true,
+    VaultSection.vaultsLuxe => hasLuxeAccess,
+    VaultSection.ultraLuxe => hasUltraLuxeAccess,
+  };
+
+  bool get isSelectedSectionLocked => !hasAccessTo(selectedVaultSection);
 
   String get formattedBigoldBalance {
     if (bigoldBalance <= 0) return '0.00 Bigod';
@@ -65,6 +77,8 @@ class HomeState {
     List<ProductModel>? recommended,
     VaultSection? selectedVaultSection,
     VaultContentStatus? vaultContentStatus,
+    bool? hasLuxeAccess,
+    bool? hasUltraLuxeAccess,
     String? errorMessage,
   }) {
     return HomeState(
@@ -76,6 +90,8 @@ class HomeState {
       recommended: recommended ?? this.recommended,
       selectedVaultSection: selectedVaultSection ?? this.selectedVaultSection,
       vaultContentStatus: vaultContentStatus ?? this.vaultContentStatus,
+      hasLuxeAccess: hasLuxeAccess ?? this.hasLuxeAccess,
+      hasUltraLuxeAccess: hasUltraLuxeAccess ?? this.hasUltraLuxeAccess,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }

@@ -6,6 +6,8 @@ class AppConstants {
   static const String localeKey = 'locale';
   static const String onboardingSeenKey = 'onboarding_seen';
   static const String recentSearchesKey = 'recent_searches';
+  static const String pushNotificationsEnabledKey = 'push_notifications_enabled';
+  static const String notifiedNotificationIdsKey = 'notified_notification_ids';
 
   static const String next = 'NEXT';
 

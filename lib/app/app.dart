@@ -7,6 +7,7 @@ import 'package:sizer/sizer.dart';
 
 import '../core/di/injection.dart';
 import '../core/network/connectivity_service.dart';
+import '../core/notifications/local_notification_service.dart';
 import '../core/router/app_router.dart';
 import '../core/router/route_guard.dart';
 import '../core/storage/preferences_service.dart';
@@ -42,6 +43,7 @@ class _AppState extends State<App> {
   final _connectivity = getIt<ConnectivityService>();
   final _cartCubit = getIt<CartCubit>();
   final _wishlistCubit = getIt<WishlistCubit>();
+  final _localNotifications = getIt<LocalNotificationService>();
   bool _authDetermined = false;
 
   final _prefs = getIt<PreferencesService>();
@@ -119,6 +121,7 @@ class _AppState extends State<App> {
         ),
       );
       _cartCubit.loadCart();
+      unawaited(_localNotifications.onSignedIn());
     } else if (state is SsoSetPasswordRequired) {
       _authDetermined = true;
       unawaited(
@@ -130,6 +133,7 @@ class _AppState extends State<App> {
       _authDetermined = true;
       _wishlistCubit.clearForLogout();
       _cartCubit.clearForLogout();
+      unawaited(_localNotifications.onSignedOut());
       unawaited(
         _router.updateAuthState(
           RouteAuthState.unauthenticated(hasSeenOnboarding: _onboardingSeen),

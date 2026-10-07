@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
+import '../../../../../core/widgets/price_formatter.dart';
 import '../cubit/buyer_dashboard_state.dart';
 
 /// Section displaying shortcuts to common account resources.
@@ -175,7 +176,7 @@ class _RewardsCard extends StatelessWidget {
             children: [
               _RewardItem(
                 label: 'Wallet Balance',
-                value: '\$${rewards.walletBalance.toStringAsFixed(0)}',
+                value: '\$${formatExactAmount(rewards.walletBalance)}',
               ),
               _RewardItem(
                 label: 'Reward Points',

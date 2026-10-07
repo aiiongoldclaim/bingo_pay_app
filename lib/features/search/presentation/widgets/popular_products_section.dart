@@ -3,6 +3,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/widgets/price_formatter.dart';
 import '../../data/models/search_models.dart';
 
 class PopularProductsSection extends StatelessWidget {
@@ -310,7 +311,7 @@ class _PriceRow extends StatelessWidget {
       runSpacing: .2.h,
       children: [
         Text(
-          '\$${price.toInt()}',
+          '\$${formatExactAmount(price)}',
           style: AppTextStyles.titleMedium.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 15.sp,

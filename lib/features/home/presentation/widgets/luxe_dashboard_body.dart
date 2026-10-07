@@ -23,6 +23,8 @@ class LuxeDashboardBody extends StatelessWidget {
     required this.onAddToCart,
     required this.addingIds,
     required this.onViewAll,
+    required this.isLocked,
+    required this.onSubscribe,
   }) : assert(
          section != VaultSection.theVaults,
          'LuxeDashboardBody is only for Vaults Luxe / Ultra Luxe',
@@ -38,6 +40,9 @@ class LuxeDashboardBody extends StatelessWidget {
   final ValueChanged<ProductModel> onAddToCart;
   final Set<String> addingIds;
   final VoidCallback onViewAll;
+
+  final bool isLocked;
+  final VoidCallback onSubscribe;
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +78,19 @@ class LuxeDashboardBody extends StatelessWidget {
                   activeTheme: activeTheme,
                   title: tier.eyebrow,
                   subtitle: tier.tagline,
-                  onTap: onViewAll,
+                  onTap: isLocked ? onSubscribe : onViewAll,
                 )
               : _LuxeTierBanner(metrics: metrics, tier: tier),
         ),
         SizedBox(height: metrics.sectionGap),
-        if (flashDeals.isEmpty && recommended.isEmpty)
+        if (isLocked)
+          _LuxeLockedState(
+            metrics: metrics,
+            activeTheme: activeTheme,
+            section: section,
+            onSubscribe: onSubscribe,
+          )
+        else if (flashDeals.isEmpty && recommended.isEmpty)
           _LuxeEmptyState(metrics: metrics, activeTheme: activeTheme)
         else ...[
           if (flashDeals.isNotEmpty) ...[
@@ -242,6 +254,102 @@ class _LuxeTierBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LuxeLockedState extends StatelessWidget {
+  const _LuxeLockedState({
+    required this.metrics,
+    required this.activeTheme,
+    required this.section,
+    required this.onSubscribe,
+  });
+
+  final HomeMetrics metrics;
+  final VaultThemeColors activeTheme;
+  final VaultSection section;
+  final VoidCallback onSubscribe;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = section.label;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: metrics.pagePadding),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: metrics.pagePadding * 1.2,
+          vertical: metrics.sectionGap,
+        ),
+        decoration: BoxDecoration(
+          color: activeTheme.sectionBackground,
+          borderRadius: BorderRadius.circular(metrics.heroRadius),
+          border: Border.all(color: activeTheme.border),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(metrics.pagePadding * 0.8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: activeTheme.primary.withValues(alpha: 0.15),
+              ),
+              child: Icon(
+                Icons.lock_outline_rounded,
+                color: activeTheme.primary,
+                size: metrics.headerIconSize * 1.3,
+              ),
+            ),
+            SizedBox(height: metrics.pagePadding),
+            Text(
+              '$label Members Only',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: metrics.sectionTitleSize * 1.1,
+                fontWeight: FontWeight.w700,
+                color: activeTheme.text,
+              ),
+            ),
+            SizedBox(height: metrics.pagePadding * 0.5),
+            Text(
+              'Subscribe to the $label membership to unlock and shop '
+              'these exclusive products.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: metrics.heroBodySize,
+                height: 1.55,
+                color: activeTheme.secondaryText,
+              ),
+            ),
+            SizedBox(height: metrics.pagePadding * 1.2),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: onSubscribe,
+                icon: const Icon(Icons.workspace_premium_outlined),
+                label: Text('Get $label Membership'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: activeTheme.primary,
+                  foregroundColor: activeTheme.buttonText,
+                  elevation: 0,
+                  padding: EdgeInsets.symmetric(
+                    vertical: metrics.pagePadding * 0.8,
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: metrics.heroBodySize,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(metrics.heroRadius),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

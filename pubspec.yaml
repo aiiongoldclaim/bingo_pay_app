@@ -1,7 +1,7 @@
 name: bingo_pay
 description: "Bingo Pay — Multi-vendor marketplace app"
 publish_to: 'none'
-version: 1.0.0+17
+version: 1.0.0+18
 
 environment:
   sdk: ^3.10.8
@@ -74,6 +74,7 @@ dependencies:
   carousel_slider: ^5.1.2
   bloc_concurrency: ^0.2.5
   google_maps_flutter_ios_sdk9: ^2.18.12
+  flutter_local_notifications: ^22.3.1
 
 dev_dependencies:
   flutter_test:

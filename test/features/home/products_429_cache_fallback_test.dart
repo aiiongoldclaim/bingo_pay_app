@@ -10,6 +10,7 @@ import 'package:bingo_pay/features/home/domain/repositories/product_repository_i
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart';
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_state.dart';
 import 'package:dio/dio.dart';
+import 'fake_membership_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -229,6 +230,7 @@ void main() {
           categoryDataSource,
           getProfile,
           productRepository,
+          fullAccessMembershipRepository(),
         );
         addTearDown(cubit.close);
 
@@ -280,6 +282,7 @@ void main() {
           categoryDataSource,
           getProfile,
           productRepository,
+          fullAccessMembershipRepository(),
         );
         addTearDown(cubit.close);
 
@@ -330,6 +333,7 @@ void main() {
           categoryDataSource,
           getProfile,
           productRepository,
+          fullAccessMembershipRepository(),
         );
         addTearDown(cubit.close);
 

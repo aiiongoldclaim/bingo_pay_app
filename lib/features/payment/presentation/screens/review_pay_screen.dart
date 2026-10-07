@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/price_formatter.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 import '../widgets/payment_method_picker.dart';
@@ -57,15 +58,15 @@ class ReviewPayScreen extends StatelessWidget {
             productName: state.isCartFlow ? '' : state.productName,
             cartItems: state.cartItems,
             itemTotal: state.itemTotal > 0
-                ? '\$${state.itemTotal.toStringAsFixed(0)}'
+                ? '\$${formatExactAmount(state.itemTotal)}'
                 : 'N/A',
             savings: state.savings > 0
-                ? '- \$${state.savings.toStringAsFixed(0)}'
+                ? '- \$${formatExactAmount(state.savings)}'
                 : '\$0',
             delivery: state.deliveryCharge == 0
                 ? '\$0'
-                : '\$${state.deliveryCharge}',
-            tax: '\$${state.taxes.toStringAsFixed(0)}',
+                : '\$${formatExactAmount(state.deliveryCharge)}',
+            tax: '\$${formatExactAmount(state.taxes)}',
             total: state.formattedTotal,
           );
 

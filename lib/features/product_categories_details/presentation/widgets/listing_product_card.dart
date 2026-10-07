@@ -304,6 +304,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../../../core/constants/app_strings.dart';
+import '../../../../../core/widgets/price_formatter.dart';
 import '../../../../../core/theme/app_text_styles.dart';
 import '../../../../../core/theme/app_theme_colors.dart';
 import '../../data/models/product_categories_model.dart';
@@ -320,19 +321,7 @@ class ListingProductCard extends StatelessWidget {
     this.onFavouriteTap,
   });
 
-  String _formatPrice(double value) {
-    final digits = value.truncate().toString();
-    final buffer = StringBuffer();
-    for (int index = 0; index < digits.length; index++) {
-      final fromEnd = digits.length - index;
-      buffer.write(digits[index]);
-      final remaining = fromEnd - 1;
-      if (remaining == 3 || (remaining > 3 && (remaining - 3) % 2 == 0)) {
-        buffer.write(',');
-      }
-    }
-    return buffer.toString();
-  }
+  String _formatPrice(double value) => formatPrice(value);
 
   @override
   Widget build(BuildContext context) {

@@ -75,6 +75,21 @@ class MembershipModel extends Equatable {
   /// na member hai na pending -> free plan
   bool get isGuest => subscription == null && pending == null;
 
+  bool _hasEntitlement(String key) => entitlements.values.any(
+    (e) => e.key.toUpperCase() == key && e.enabled,
+  );
+
+  String get _planTag => '${plan?.code ?? ''} ${plan?.name ?? ''}'.toUpperCase();
+
+  bool get hasUltraLuxeAccess =>
+      isActive &&
+      (_hasEntitlement('ULTRA_LUXE_EARLY_ACCESS') || _planTag.contains('ULTRA'));
+
+  bool get hasLuxeAccess =>
+      hasUltraLuxeAccess ||
+      (isActive &&
+          (_hasEntitlement('LUXE_EARLY_ACCESS') || _planTag.contains('LUXE')));
+
   List<MembershipEntitlement> _group(String group) {
     final list = entitlements.values
         .where((e) => e.group.toUpperCase() == group)

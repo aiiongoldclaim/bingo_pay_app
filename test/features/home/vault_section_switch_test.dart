@@ -5,8 +5,11 @@ import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart';
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_state.dart';
 import 'package:bingo_pay/features/home/presentation/models/vault_section.dart';
+import 'package:bingo_pay/features/membershipNew/data/models/member_ship_model.dart';
+import 'package:bingo_pay/features/membershipNew/domain/repositories/membership_repository.dart';
 import 'package:bingo_pay/features/profile/domain/enities/profile_entity.dart';
 import 'package:bingo_pay/features/profile/domain/usecase/get_profile_usecase.dart';
+import 'fake_membership_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -43,16 +46,11 @@ const _profile = ProfileEntity(
 /// queries return [luxeJsons] / [ultraLuxeJsons] respectively — mirroring
 /// that these are genuinely separate backend calls, not a local filter over
 /// the regular catalogue.
-Future<
-  ({
-    HomeCubit cubit,
-    MockProductRepository productRepository,
-  })
->
-_setUp({
+Future<({HomeCubit cubit, MockProductRepository productRepository})> _setUp({
   List<Map<String, dynamic>> productJsons = const [],
   List<Map<String, dynamic>> luxeJsons = const [],
   List<Map<String, dynamic>> ultraLuxeJsons = const [],
+  MembershipRepository? membershipRepository,
 }) async {
   final categoryDataSource = MockCategoryRemoteDataSource();
   final getProfile = MockGetProfileUseCase();
@@ -62,9 +60,9 @@ _setUp({
     (_) async => const CategoryResponseModel(success: true, data: []),
   );
   when(() => getProfile()).thenAnswer((_) async => const Right(_profile));
-  when(() => productRepository.getAllProducts(page: 1, limit: 20)).thenAnswer(
-    (_) async => productJsons.map(ProductModel.fromJson).toList(),
-  );
+  when(
+    () => productRepository.getAllProducts(page: 1, limit: 20),
+  ).thenAnswer((_) async => productJsons.map(ProductModel.fromJson).toList());
   when(
     () => productRepository.getAllProducts(
       page: 1,
@@ -78,17 +76,46 @@ _setUp({
       limit: 20,
       listingLevel: 'ULTRA_LUXE',
     ),
-  ).thenAnswer(
-    (_) async => ultraLuxeJsons.map(ProductModel.fromJson).toList(),
-  );
+  ).thenAnswer((_) async => ultraLuxeJsons.map(ProductModel.fromJson).toList());
 
-  final cubit = HomeCubit(categoryDataSource, getProfile, productRepository);
+  final cubit = HomeCubit(
+    categoryDataSource,
+    getProfile,
+    productRepository,
+    membershipRepository ?? fullAccessMembershipRepository(),
+  );
   await cubit.loadHome();
   return (cubit: cubit, productRepository: productRepository);
 }
 
 void main() {
   group('HomeCubit.selectVaultSection', () {
+    test('a user without a Luxe subscription sees the section locked and '
+        'no tier products are fetched', () async {
+      final membershipRepository = MockMembershipRepository();
+      when(
+        membershipRepository.getMembership,
+      ).thenAnswer((_) async => const MembershipModel());
+      final env = await _setUp(
+        luxeJsons: [_productJson('luxe-item', listingLevel: 'LUXE')],
+        membershipRepository: membershipRepository,
+      );
+      addTearDown(env.cubit.close);
+
+      await env.cubit.selectVaultSection(VaultSection.vaultsLuxe);
+
+      expect(env.cubit.state.isSelectedSectionLocked, isTrue);
+      expect(env.cubit.state.flashDeals, isEmpty);
+      expect(env.cubit.state.recommended, isEmpty);
+      verifyNever(
+        () => env.productRepository.getAllProducts(
+          page: 1,
+          limit: 20,
+          listingLevel: 'LUXE',
+        ),
+      );
+    });
+
     test(
       'TheVaults stays the default section with content already loaded',
       () async {
@@ -137,7 +164,9 @@ void main() {
       'selecting Ultra Luxe fetches the ULTRA_LUXE tier from the backend',
       () async {
         final env = await _setUp(
-          ultraLuxeJsons: [_productJson('ultra-item', listingLevel: 'ULTRA_LUXE')],
+          ultraLuxeJsons: [
+            _productJson('ultra-item', listingLevel: 'ULTRA_LUXE'),
+          ],
         );
         addTearDown(env.cubit.close);
 
@@ -158,62 +187,55 @@ void main() {
       },
     );
 
-    test(
-      'a tier the backend returns nothing for shows an empty result, not '
-      'the regular catalogue',
-      () async {
-        final env = await _setUp(
-          productJsons: [_productJson('regular-1'), _productJson('regular-2')],
-        );
-        addTearDown(env.cubit.close);
+    test('a tier the backend returns nothing for shows an empty result, not '
+        'the regular catalogue', () async {
+      final env = await _setUp(
+        productJsons: [_productJson('regular-1'), _productJson('regular-2')],
+      );
+      addTearDown(env.cubit.close);
 
-        await env.cubit.selectVaultSection(VaultSection.ultraLuxe);
+      await env.cubit.selectVaultSection(VaultSection.ultraLuxe);
 
-        expect(env.cubit.state.flashDeals, isEmpty);
-        expect(env.cubit.state.recommended, isEmpty);
-      },
-    );
+      expect(env.cubit.state.flashDeals, isEmpty);
+      expect(env.cubit.state.recommended, isEmpty);
+    });
 
-    test(
-      'if the tier fetch fails, the section is left with an empty (not '
-      'stale/wrong) result rather than throwing',
-      () async {
-        final categoryDataSource = MockCategoryRemoteDataSource();
-        final getProfile = MockGetProfileUseCase();
-        final productRepository = MockProductRepository();
+    test('if the tier fetch fails, the section is left with an empty (not '
+        'stale/wrong) result rather than throwing', () async {
+      final categoryDataSource = MockCategoryRemoteDataSource();
+      final getProfile = MockGetProfileUseCase();
+      final productRepository = MockProductRepository();
 
-        when(() => categoryDataSource.getCategories()).thenAnswer(
-          (_) async => const CategoryResponseModel(success: true, data: []),
-        );
-        when(
-          () => getProfile(),
-        ).thenAnswer((_) async => const Right(_profile));
-        when(
-          () => productRepository.getAllProducts(page: 1, limit: 20),
-        ).thenAnswer((_) async => []);
-        when(
-          () => productRepository.getAllProducts(
-            page: 1,
-            limit: 20,
-            listingLevel: 'ULTRA_LUXE',
-          ),
-        ).thenThrow(Exception('network error'));
+      when(() => categoryDataSource.getCategories()).thenAnswer(
+        (_) async => const CategoryResponseModel(success: true, data: []),
+      );
+      when(() => getProfile()).thenAnswer((_) async => const Right(_profile));
+      when(
+        () => productRepository.getAllProducts(page: 1, limit: 20),
+      ).thenAnswer((_) async => []);
+      when(
+        () => productRepository.getAllProducts(
+          page: 1,
+          limit: 20,
+          listingLevel: 'ULTRA_LUXE',
+        ),
+      ).thenThrow(Exception('network error'));
 
-        final cubit = HomeCubit(
-          categoryDataSource,
-          getProfile,
-          productRepository,
-        );
-        addTearDown(cubit.close);
-        await cubit.loadHome();
+      final cubit = HomeCubit(
+        categoryDataSource,
+        getProfile,
+        productRepository,
+        fullAccessMembershipRepository(),
+      );
+      addTearDown(cubit.close);
+      await cubit.loadHome();
 
-        await cubit.selectVaultSection(VaultSection.ultraLuxe);
+      await cubit.selectVaultSection(VaultSection.ultraLuxe);
 
-        expect(cubit.state.vaultContentStatus, VaultContentStatus.loaded);
-        expect(cubit.state.flashDeals, isEmpty);
-        expect(cubit.state.recommended, isEmpty);
-      },
-    );
+      expect(cubit.state.vaultContentStatus, VaultContentStatus.loaded);
+      expect(cubit.state.flashDeals, isEmpty);
+      expect(cubit.state.recommended, isEmpty);
+    });
 
     test(
       'switching sections again mid-load abandons the stale in-flight result',

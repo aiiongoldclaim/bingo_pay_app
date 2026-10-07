@@ -1,14 +1,24 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../profile/domain/usecase/get_profile_usecase.dart';
 import '../../data/model/wallet_model.dart';
 import 'wallet_state.dart';
 
 class WalletCubit extends Cubit<WalletState> {
-  WalletCubit() : super(const WalletLoading());
+  WalletCubit(this._getProfile) : super(const WalletLoading());
+
+  final GetProfileUseCase _getProfile;
 
   Future<void> loadWallet() async {
     try {
       emit(const WalletLoading());
-      await Future.delayed(const Duration(milliseconds: 350));
+
+      final profileResult = await _getProfile();
+      if (isClosed) return;
+      final profile = profileResult.fold((failure) => null, (p) => p);
+      if (profile == null) {
+        emit(const WalletError('Could not load wallet balance'));
+        return;
+      }
 
       final now = DateTime.now();
 
@@ -19,6 +29,7 @@ class WalletCubit extends Cubit<WalletState> {
             goldGrams: 1.84,
             coins: 480,
           ),
+          bigoldBalance: profile.bigoldBalance,
           goldRate: const GoldRateModel(
             karat: '24K',
             pricePerGram: 6842,

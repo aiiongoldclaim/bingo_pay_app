@@ -17,6 +17,8 @@ import 'package:bingo_pay/core/router/app_router.dart' as _i14;
 import 'package:bingo_pay/core/services/in_app_review_service.dart' as _i1020;
 import 'package:bingo_pay/core/services/product_cache_service.dart' as _i734;
 import 'package:bingo_pay/core/services/update_service.dart' as _i153;
+import 'package:bingo_pay/core/notifications/local_notification_service.dart'
+    as _i7001;
 import 'package:bingo_pay/core/storage/preferences_service.dart' as _i356;
 import 'package:bingo_pay/core/storage/secure_storage_service.dart' as _i481;
 import 'package:bingo_pay/features/address/data/datasources/address_remote_datasources.dart'
@@ -596,6 +598,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i298.CategoryRemoteDataSource>(),
         gh<_i1070.GetProfileUseCase>(),
         gh<_i666.ProductRepository>(),
+        gh<_i389.MembershipRepository>(),
       ),
     );
     gh.factory<_i996.ProfileCubit>(
@@ -632,6 +635,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i212.ChatCubit(
         gh<_i153.ChatRepository>(),
         gh<_i1070.GetProfileUseCase>(),
+      ),
+    );
+    gh.lazySingleton<_i7001.LocalNotificationService>(
+      () => _i7001.LocalNotificationService(
+        gh<_i979.NotificationRepository>(),
+        gh<_i356.PreferencesService>(),
       ),
     );
     return this;

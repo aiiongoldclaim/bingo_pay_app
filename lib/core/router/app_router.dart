@@ -79,6 +79,8 @@ import '../../features/help_support/presentation/screens/help_support_screen.dar
 import '../../features/help_support/presentation/screens/my_tickets_screen.dart';
 import '../../features/help_support/presentation/screens/ticket_detail_screen.dart';
 import '../di/injection.dart';
+import '../../features/profile/domain/usecase/get_profile_usecase.dart';
+import '../../features/help_support/presentation/cubit/support_ticket_cubit.dart';
 import '../storage/preferences_service.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
@@ -332,6 +334,13 @@ class AppRouter {
           builder: (_, _) => const SettingsScreen(),
         ),
         GoRoute(
+          path: AppRoutes.buyerAddresses,
+          builder: (context, state) => BlocProvider(
+            create: (_) => AddressCubit(getIt<AddressRepository>()),
+            child: const AddressListScreen(isSelectionMode: false),
+          ),
+        ),
+        GoRoute(
           path: AppRoutes.buyerNotifications,
           builder: (_, _) => const NotificationsScreen(),
         ),
@@ -356,7 +365,10 @@ class AppRouter {
           name: AppRoutes.ticketDetailName,
           builder: (context, state) {
             final uuid = state.pathParameters['uuid'] ?? '';
-            return TicketDetailScreen(ticketId: uuid);
+            return BlocProvider(
+              create: (_) => getIt<SupportTicketCubit>(),
+              child: TicketDetailScreen(ticketId: uuid),
+            );
           },
         ),
 
@@ -485,7 +497,7 @@ class AppRouter {
             GoRoute(
               path: AppRoutes.wallet,
               builder: (context, state) => BlocProvider(
-                create: (_) => WalletCubit()..loadWallet(),
+                create: (_) => WalletCubit(getIt<GetProfileUseCase>()),
                 child: const WalletScreen(),
               ),
             ),
@@ -545,13 +557,6 @@ class AppRouter {
             //   name: 'membership',
             //   builder: (context, state) => const MembershipScreen(),
             // ),
-            GoRoute(
-              path: AppRoutes.buyerAddresses,
-              builder: (context, state) => BlocProvider(
-                create: (_) => AddressCubit(getIt<AddressRepository>()),
-                child: const AddressListScreen(),
-              ),
-            ),
             GoRoute(
               path: AppRoutes.buyerPayments,
               builder: (_, _) => const _PlaceholderPage('Payment Methods'),

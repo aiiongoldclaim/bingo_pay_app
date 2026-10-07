@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../../domain/entities/support_ticket_entity.dart';
 import '../cubit/support_ticket_cubit.dart';
 import '../cubit/support_ticket_state.dart';
@@ -59,13 +60,92 @@ class _TicketDetailScreenState extends State<TicketDetailScreen> {
                     return _TicketBody(ticket: state.ticket);
                   }
 
-                  return const Center(child: CircularProgressIndicator());
+                  return const _TicketDetailShimmer();
                 },
               ),
             ),
             _ReplyComposer(ticketId: widget.ticketId),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TicketDetailShimmer extends StatelessWidget {
+  const _TicketDetailShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.c;
+    final pill = BorderRadius.circular(20);
+
+    Widget bubble({required bool alignRight, required double width}) {
+      return Align(
+        alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
+        child: ShimmerBox(
+          width: width,
+          height: 9.h,
+          borderRadius: BorderRadius.circular(16),
+        ),
+      );
+    }
+
+    return ShimmerLoading(
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(4.w, 2.h, 4.w, 4.h),
+        children: [
+          Container(
+            padding: EdgeInsets.all(4.w),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colors.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    ShimmerBox(width: 30.w, height: 2.4.h),
+                    const Spacer(),
+                    ShimmerBox(width: 20.w, height: 3.h, borderRadius: pill),
+                  ],
+                ),
+                SizedBox(height: 1.6.h),
+                ShimmerBox(width: 60.w, height: 2.2.h),
+                SizedBox(height: 1.h),
+                ShimmerBox(width: double.infinity, height: 1.8.h),
+                SizedBox(height: 0.8.h),
+                ShimmerBox(width: 50.w, height: 1.8.h),
+                SizedBox(height: 1.8.h),
+                Row(
+                  children: [
+                    ShimmerBox(width: 18.w, height: 3.h),
+                    SizedBox(width: 2.w),
+                    ShimmerBox(width: 16.w, height: 3.h),
+                  ],
+                ),
+                SizedBox(height: 1.8.h),
+                ShimmerBox(width: 45.w, height: 1.6.h),
+              ],
+            ),
+          ),
+          SizedBox(height: 2.4.h),
+          ShimmerBox(width: 32.w, height: 2.6.h),
+          SizedBox(height: 1.4.h),
+          ShimmerBox(
+            width: double.infinity,
+            height: 6.h,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          SizedBox(height: 1.6.h),
+          bubble(alignRight: false, width: 70.w),
+          SizedBox(height: 1.4.h),
+          bubble(alignRight: true, width: 60.w),
+          SizedBox(height: 1.4.h),
+          bubble(alignRight: false, width: 75.w),
+        ],
       ),
     );
   }

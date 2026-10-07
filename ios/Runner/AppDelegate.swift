@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 import GoogleMaps
 
 @main
@@ -9,6 +10,7 @@ import GoogleMaps
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GMSServices.provideAPIKey("AIzaSyAxsCahMywG27JQz76amLWLHEUXr7a5MyI") // 👈 ADDED THIS
+    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

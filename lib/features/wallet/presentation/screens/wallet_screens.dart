@@ -77,7 +77,7 @@ class _WalletBody extends StatelessWidget {
         // ── Balance card ────────────────────────────────────────────────────
         WalletCard(
           walletName: 'BINGOLD Wallet',
-          balance: '\$12,480',
+          balance: state.formattedBigoldBalance,
           subTitle: '≈ 1.84 g digital gold · 480 coins',
           onAddMoney: () {
             debugPrint('Add Money');

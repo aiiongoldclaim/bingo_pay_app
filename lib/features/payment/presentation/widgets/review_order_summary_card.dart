@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/price_formatter.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
 import 'review_pay_metrics.dart';
 import 'review_pay_widgets.dart';
@@ -101,7 +102,7 @@ class ReviewOrderSummaryCard extends StatelessWidget {
                     ),
                     SizedBox(width: m.gapSm),
                     Text(
-                      '\$${item.totalPrice.toStringAsFixed(0)}',
+                      '\$${formatExactAmount(item.totalPrice)}',
                       style: AppTextStyles.titleMedium.copyWith(
                         color: colors.textPrimary,
                         fontFamily: 'Inter',

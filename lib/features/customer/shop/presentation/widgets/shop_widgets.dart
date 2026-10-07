@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_dimensions.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_text_field.dart';
+import '../../../../../core/widgets/price_formatter.dart'
+    show formatGroupedAmount;
 import '../../domain/entities/shop_category.dart';
 import '../../domain/entities/shop_product.dart';
 import '../bloc/shop_bloc.dart';
 import '../bloc/shop_event.dart';
 import '../bloc/shop_state.dart';
 
-String formatCurrency(num value) =>
-    NumberFormat.currency(symbol: '\$', decimalDigits: 0).format(value);
+String formatCurrency(num value) => '\$${formatGroupedAmount(value)}';
 
 String categoryLabelFor(String slug) {
   return slug

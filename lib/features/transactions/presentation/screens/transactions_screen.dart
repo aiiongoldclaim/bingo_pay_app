@@ -7,6 +7,7 @@ import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../../../orders/data/models/order_model.dart';
 import '../../cubit/transactions_cubit.dart';
 import '../../cubit/transactions_state.dart';
@@ -52,9 +53,7 @@ class _TransactionsView extends StatelessWidget {
                   child:
                       state is TransactionsLoading ||
                           state is TransactionsInitial
-                      ? Center(
-                          child: CircularProgressIndicator(color: colors.brand),
-                        )
+                      ? _TransactionsShimmer(metrics: m)
                       : state is TransactionsError
                       ? _ErrorView(metrics: m, message: state.message)
                       : state is TransactionsLoaded
@@ -64,6 +63,124 @@ class _TransactionsView extends StatelessWidget {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _TransactionsShimmer extends StatelessWidget {
+  final TransactionsMetrics metrics;
+
+  const _TransactionsShimmer({required this.metrics});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.c;
+    final m = metrics;
+    const itemCount = 6;
+
+    Widget card() {
+      return Container(
+        padding: EdgeInsets.all(m.cardPad),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(m.cardRadius),
+          border: Border.all(color: colors.border),
+        ),
+        child: Row(
+          children: [
+            ShimmerBox(
+              width: m.iconBox,
+              height: m.iconBox,
+              borderRadius: BorderRadius.circular(m.iconBox),
+            ),
+            SizedBox(width: m.cardPad * 0.7),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShimmerBox(width: m.gatewaySize * 7, height: m.gatewaySize),
+                  SizedBox(height: m.gapXs * 1.2),
+                  ShimmerBox(width: m.metaSize * 10, height: m.metaSize),
+                ],
+              ),
+            ),
+            SizedBox(width: m.gapSm),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ShimmerBox(width: m.amountSize * 4, height: m.amountSize),
+                SizedBox(height: m.gapXs * 1.2),
+                ShimmerBox(
+                  width: m.badgeFontSize * 6,
+                  height: m.badgeHeight,
+                  borderRadius: BorderRadius.circular(m.badgeHeight),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    final listPadding = EdgeInsets.fromLTRB(m.pageHPad, 0, m.pageHPad, m.gapLg);
+
+    return ShimmerLoading(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  m.pageHPad,
+                  m.gapSm,
+                  m.pageHPad,
+                  m.gapMd,
+                ),
+                child: SizedBox(
+                  height: m.chipHeight,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < 4; i++) ...[
+                        if (i > 0) SizedBox(width: m.gapSm),
+                        ShimmerBox(
+                          width: m.chipFontSize * (i == 0 ? 3 : 5),
+                          height: m.chipHeight,
+                          borderRadius: BorderRadius.circular(m.chipRadius),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: m.crossAxisCount > 1
+                    ? GridView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: listPadding,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: m.crossAxisCount,
+                          crossAxisSpacing: m.gridSpacing,
+                          mainAxisSpacing: m.gridSpacing,
+                          mainAxisExtent: m.iconBox + m.cardPad * 2.6,
+                        ),
+                        itemCount: itemCount,
+                        itemBuilder: (_, _) => card(),
+                      )
+                    : ListView.separated(
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: listPadding,
+                        itemCount: itemCount,
+                        separatorBuilder: (_, _) =>
+                            SizedBox(height: m.gridSpacing),
+                        itemBuilder: (_, _) => card(),
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import 'package:bingo_pay/features/categories/data/models/categories_response_mo
 import 'package:bingo_pay/features/home/data/models/product_model.dart';
 import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart';
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart';
+import 'fake_membership_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
@@ -65,7 +66,12 @@ void main() {
       },
     );
 
-    final cubit = HomeCubit(categoryDataSource, getProfile, productRepository);
+    final cubit = HomeCubit(
+      categoryDataSource,
+      getProfile,
+      productRepository,
+      fullAccessMembershipRepository(),
+    );
     addTearDown(cubit.close);
 
     // Trigger refresh twice quickly, exactly like a user double-pulling

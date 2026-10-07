@@ -121,7 +121,7 @@ class ProfileEntity extends Equatable {
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
   }
 
-  double get displayBigoldBalance => bigoldBalance / 1e8;
+  double get displayBigoldBalance => bigoldBalance;
 
   @override
   List<Object?> get props => [id, uuid, email, kycStatus];

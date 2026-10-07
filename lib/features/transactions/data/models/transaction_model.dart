@@ -1,3 +1,5 @@
+import '../../../../core/widgets/price_formatter.dart';
+
 // lib/features/transactions/data/models/transaction_model.dart
 
 class TransactionModel {
@@ -133,11 +135,7 @@ String _formatDateTime(DateTime date) {
   return '${_formatDate(date)} · $hour:$minute $period';
 }
 
-String _formatPrice(double price) {
-  return price
-      .toStringAsFixed(0)
-      .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
-}
+String _formatPrice(double price) => formatGroupedAmount(price);
 
 double _asDouble(dynamic value) {
   if (value == null) return 0.0;

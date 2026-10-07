@@ -331,6 +331,7 @@ class AppSheetShell extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Center(
+        heightFactor: 1,
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: m.maxWidth,

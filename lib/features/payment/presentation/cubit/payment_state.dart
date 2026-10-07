@@ -1,3 +1,4 @@
+import '../../../../core/widgets/price_formatter.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
 
 enum PaymentStatus { initial, loading, success, failure }
@@ -34,7 +35,7 @@ class PaymentMethodState {
   // Wallet & financials (from profile API)
   final double walletBalance; // kept for remaining-amount calc (usdtBalance)
   final double usdtBalance;
-  final double bigoldBalance; // displayBigoldBalance (already divided by 1e8)
+  final double bigoldBalance;
   final double itemTotal;
   final double savings;
   final double deliveryCharge;
@@ -217,7 +218,7 @@ class PaymentMethodState {
   double get remainingAmount => totalAmount - walletBalance;
 
   String get formattedTotal =>
-      totalAmount > 0 ? '\$${totalAmount.toStringAsFixed(0)}' : 'N/A';
+      totalAmount > 0 ? '\$${formatExactAmount(totalAmount)}' : 'N/A';
 
   String get formattedWalletBalance =>
       usdtBalance > 0 ? usdtBalance.toStringAsFixed(2) : '—';
@@ -230,7 +231,7 @@ class PaymentMethodState {
     return '$s Bigod';
   }
 
-  String get formattedRemaining => '\$${remainingAmount.toStringAsFixed(0)}';
+  String get formattedRemaining => '\$${formatExactAmount(remainingAmount)}';
 
   String get methodDisplayName {
     switch (selectedMethod) {

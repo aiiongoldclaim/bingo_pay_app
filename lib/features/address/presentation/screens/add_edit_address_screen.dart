@@ -540,9 +540,54 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
+import '../../../../core/widgets/bottom_action_bar.dart';
 import '../../domain/entities/address_entity.dart';
 import '../cubit/address_cubit.dart';
 import '../widgets/add_address_metrics.dart';
+
+abstract final class _AddressRules {
+  static String? phone(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return 'Phone number is required';
+    if (value.length != 10) return 'Enter a valid 10 digit number';
+    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
+      return 'Enter a valid mobile number';
+    }
+    return null;
+  }
+
+  static String? address(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return 'Address is required';
+    if (value.length < 5) return 'Enter a complete address';
+    return null;
+  }
+
+  static String? city(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return 'City is required';
+    if (RegExp(r'[0-9]').hasMatch(value)) return 'City cannot contain numbers';
+    return null;
+  }
+
+  static String? state(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return 'State is required';
+    if (RegExp(r'[0-9]').hasMatch(value)) {
+      return 'State cannot contain numbers';
+    }
+    return null;
+  }
+
+  static String? pinCode(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.isEmpty) return 'PIN code is required';
+    if (value.length != 6 || value.startsWith('0')) {
+      return 'Enter a valid 6 digit PIN code';
+    }
+    return null;
+  }
+}
 
 class AddEditAddressScreen extends StatefulWidget {
   final AddressEntity? existingAddress;
@@ -578,7 +623,30 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
     stateCtrl = TextEditingController(text: data?.state);
     postalCtrl = TextEditingController(text: data?.postalCode);
     isDefault = data?.isDefaultAddress ?? false;
+
+    for (final c in _controllers) {
+      c.addListener(_onFieldChanged);
+    }
   }
+
+  List<TextEditingController> get _controllers => [
+    nameCtrl,
+    phoneCtrl,
+    addressCtrl,
+    cityCtrl,
+    stateCtrl,
+    postalCtrl,
+  ];
+
+  void _onFieldChanged() => setState(() {});
+
+  bool get _isFormValid =>
+      Validators.name(nameCtrl.text) == null &&
+      _AddressRules.phone(phoneCtrl.text) == null &&
+      _AddressRules.address(addressCtrl.text) == null &&
+      _AddressRules.city(cityCtrl.text) == null &&
+      _AddressRules.state(stateCtrl.text) == null &&
+      _AddressRules.pinCode(postalCtrl.text) == null;
 
   @override
   void dispose() {
@@ -725,7 +793,11 @@ class _AddEditAddressScreenState extends State<AddEditAddressScreen> {
                   ),
                 ),
 
-                _SaveBar(metrics: m, isEdit: isEdit, onSave: _submit),
+                AppBottomActionBar(
+                  primaryLabel: isEdit ? 'UPDATE ADDRESS' : 'SAVE ADDRESS',
+                  onPrimaryPressed: _isFormValid ? _submit : null,
+                  buttonFontSize: m.btnFontSize,
+                ),
               ],
             ),
           ),
@@ -909,15 +981,7 @@ class _ContactSection extends StatelessWidget {
           keyboardType: TextInputType.phone,
           maxLength: 10,
           digitsOnly: true,
-          validator: (v) {
-            final value = v?.trim() ?? '';
-            if (value.isEmpty) return 'Phone number is required';
-            if (value.length != 10) return 'Enter a valid 10 digit number';
-            if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
-              return 'Enter a valid mobile number';
-            }
-            return null;
-          },
+          validator: _AddressRules.phone,
         ),
       ],
     );
@@ -957,12 +1021,7 @@ class _AddressSection extends StatelessWidget {
           icon: Icons.home_outlined,
           maxLines: 2,
           textCapitalization: TextCapitalization.words,
-          validator: (v) {
-            final value = v?.trim() ?? '';
-            if (value.isEmpty) return 'Address is required';
-            if (value.length < 5) return 'Enter a complete address';
-            return null;
-          },
+          validator: _AddressRules.address,
         ),
 
         SizedBox(height: m.gapMd),
@@ -979,14 +1038,7 @@ class _AddressSection extends StatelessWidget {
                 icon: Icons.location_city_rounded,
                 lettersOnly: true,
                 textCapitalization: TextCapitalization.words,
-                validator: (v) {
-                  final value = v?.trim() ?? '';
-                  if (value.isEmpty) return 'City is required';
-                  if (RegExp(r'[0-9]').hasMatch(value)) {
-                    return 'City cannot contain numbers';
-                  }
-                  return null;
-                },
+                validator: _AddressRules.city,
               ),
             ),
             SizedBox(width: m.gapSm * 1.2),
@@ -999,14 +1051,7 @@ class _AddressSection extends StatelessWidget {
                 icon: Icons.map_outlined,
                 lettersOnly: true,
                 textCapitalization: TextCapitalization.words,
-                validator: (v) {
-                  final value = v?.trim() ?? '';
-                  if (value.isEmpty) return 'State is required';
-                  if (RegExp(r'[0-9]').hasMatch(value)) {
-                    return 'State cannot contain numbers';
-                  }
-                  return null;
-                },
+                validator: _AddressRules.state,
               ),
             ),
           ],
@@ -1023,15 +1068,7 @@ class _AddressSection extends StatelessWidget {
           keyboardType: TextInputType.number,
           maxLength: 6,
           digitsOnly: true,
-          validator: (v) {
-            final value = v?.trim() ?? '';
-            if (value.isEmpty) return 'PIN code is required';
-            if (value.length != 6) return 'Enter a valid 6 digit PIN code';
-            if (value.startsWith('0')) {
-              return 'Enter a valid 6 digit PIN code';
-            }
-            return null;
-          },
+          validator: _AddressRules.pinCode,
         ),
       ],
     );
@@ -1266,66 +1303,3 @@ class _DefaultSwitchCard extends StatelessWidget {
   }
 }
 
-// ── Save bar ───────────────────────────────────────────────────────────────
-class _SaveBar extends StatelessWidget {
-  final AddAddressMetrics metrics;
-  final bool isEdit;
-  final VoidCallback onSave;
-
-  const _SaveBar({
-    required this.metrics,
-    required this.isEdit,
-    required this.onSave,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        m.pageHPad,
-        m.gapSm,
-        m.pageHPad,
-        m.gapSm * 0.5,
-      ),
-      decoration: BoxDecoration(
-        color: colors.background,
-        border: Border(top: BorderSide(color: colors.border, width: 1)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-            child: SizedBox(
-              height: m.btnHeight,
-              width: double.infinity,
-              child: Material(
-                color: colors.brand,
-                borderRadius: BorderRadius.circular(12),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: onSave,
-                  child: Center(
-                    child: Text(
-                      isEdit ? 'UPDATE ADDRESS' : 'SAVE ADDRESS',
-                      style: AppTextStyles.buttonText.copyWith(
-                        color: colors.surface,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: m.btnFontSize,
-                        letterSpacing: 0.4,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

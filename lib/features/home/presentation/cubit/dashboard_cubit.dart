@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../membershipNew/domain/repositories/membership_repository.dart';
 import '../../../profile/domain/usecase/get_profile_usecase.dart';
 import '../../../categories/data/datasources/category_remote_datasource.dart';
 import '../../../categories/data/models/categories_model.dart';
@@ -15,9 +16,14 @@ class HomeCubit extends Cubit<HomeState> {
   final CategoryRemoteDataSource _categoryDataSource;
   final GetProfileUseCase _getProfile;
   final ProductRepository _productRepository;
+  final MembershipRepository _membershipRepository;
 
-  HomeCubit(this._categoryDataSource, this._getProfile, this._productRepository)
-    : super(const HomeState());
+  HomeCubit(
+    this._categoryDataSource,
+    this._getProfile,
+    this._productRepository,
+    this._membershipRepository,
+  ) : super(const HomeState());
 
   String? _currentRequestId;
   int _requestCounter = 0;
@@ -80,6 +86,16 @@ class HomeCubit extends Cubit<HomeState> {
       productsFailed = true;
     }
 
+    bool? hasLuxeAccess;
+    bool? hasUltraLuxeAccess;
+    try {
+      final membership = await _membershipRepository.getMembership();
+      hasLuxeAccess = membership.hasLuxeAccess;
+      hasUltraLuxeAccess = membership.hasUltraLuxeAccess;
+    } catch (e) {
+      debugPrint('✗ Failed to load membership for vault access: $e');
+    }
+
     if (isClosed || _currentRequestId != requestId) return;
 
     if (categoriesFailed && profileFailed && productsFailed) {
@@ -106,6 +122,8 @@ class HomeCubit extends Cubit<HomeState> {
           bigoldBalance: bigoldBalance,
           categories: categories,
           vaultContentStatus: VaultContentStatus.loading,
+          hasLuxeAccess: hasLuxeAccess,
+          hasUltraLuxeAccess: hasUltraLuxeAccess,
         ),
       );
       await _loadSectionProducts(currentSection);
@@ -122,6 +140,8 @@ class HomeCubit extends Cubit<HomeState> {
         flashDeals: split.flashDeals,
         recommended: split.recommended,
         vaultContentStatus: VaultContentStatus.loaded,
+        hasLuxeAccess: hasLuxeAccess,
+        hasUltraLuxeAccess: hasUltraLuxeAccess,
       ),
     );
   }
@@ -173,6 +193,17 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> _loadSectionProducts(VaultSection section) async {
     final requestId = ++_sectionRequestCounter;
     _currentSectionRequestId = requestId;
+
+    if (!state.hasAccessTo(section)) {
+      emit(
+        state.copyWith(
+          vaultContentStatus: VaultContentStatus.loaded,
+          flashDeals: const [],
+          recommended: const [],
+        ),
+      );
+      return;
+    }
 
     List<ProductModel> tierProducts = [];
     try {

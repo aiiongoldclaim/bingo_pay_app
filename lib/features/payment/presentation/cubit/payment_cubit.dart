@@ -107,7 +107,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
       emit(
         state.copyWith(
           usdtBalance: usdt,
-          bigoldBalance: profileResponse.profile.bigoldBalance / 1e8,
+          bigoldBalance: profileResponse.profile.bigoldBalance,
           walletBalance: usdt,
         ),
       );
