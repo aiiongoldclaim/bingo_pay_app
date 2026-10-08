@@ -68,6 +68,11 @@ class RouteGuard {
       return AppRoutes.registerKyc;
     }
 
+    // Logged-in users open this from Settings → Change Password. Redirecting it
+    // to /home (a ShellRoute) on top of Settings would push a second shell page
+    // with the same key → '!keyReservation.contains(key)' assertion.
+    if (location == AppRoutes.forgotPassword) return null;
+
     // Already logged in — redirect away from auth screens (but not from KYC if still pending)
     if (isPublic && location != AppRoutes.splash) {
       if (authState.isKycPending) return null;

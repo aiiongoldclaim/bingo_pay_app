@@ -81,7 +81,6 @@ import '../../features/help_support/presentation/screens/my_tickets_screen.dart'
 import '../../features/help_support/presentation/screens/ticket_detail_screen.dart';
 import '../di/injection.dart';
 import '../../features/profile/domain/usecase/get_profile_usecase.dart';
-import '../../features/help_support/presentation/cubit/support_ticket_cubit.dart';
 import '../storage/preferences_service.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
@@ -334,6 +333,22 @@ class AppRouter {
           path: AppRoutes.buyerSettings,
           builder: (_, _) => const SettingsScreen(),
         ),
+        // ShellRoute ke BAHAR: Settings (top-level) se push hone par
+        // duplicate shell Navigator GlobalKey error na aaye.
+        GoRoute(
+          path: AppRoutes.editProfile,
+          builder: (context, state) => BlocProvider(
+            create: (_) => getIt<EditProfileCubit>(),
+            child: const EditProfileScreen(),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.wallet,
+          builder: (context, state) => BlocProvider(
+            create: (_) => WalletCubit(getIt<GetProfileUseCase>()),
+            child: const WalletScreen(),
+          ),
+        ),
         GoRoute(
           path: AppRoutes.buyerAddresses,
           builder: (context, state) => BlocProvider(
@@ -425,14 +440,6 @@ class AppRouter {
             ),
 
             GoRoute(
-              path: AppRoutes.editProfile,
-              builder: (context, state) => BlocProvider(
-                create: (_) => getIt<EditProfileCubit>(),
-                child: const EditProfileScreen(),
-              ),
-            ),
-
-            GoRoute(
               path: AppRoutes.categories,
               builder: (_, _) => const CategoriesScreen(),
             ),
@@ -495,13 +502,6 @@ class AppRouter {
               builder: (_, _) => const SplitViewScreen(),
             ),
 
-            GoRoute(
-              path: AppRoutes.wallet,
-              builder: (context, state) => BlocProvider(
-                create: (_) => WalletCubit(getIt<GetProfileUseCase>()),
-                child: const WalletScreen(),
-              ),
-            ),
 
             // GoRoute(
             //   path: AppRoutes.buyerCatalog,

@@ -269,7 +269,7 @@ class _WalletCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'BinGod Wallet',
+                      'BiGod Wallet',
                       style: AppTextStyles.labelMedium.copyWith(
                         color: colors.textPrimary,
                         fontFamily: 'Inter',
@@ -279,7 +279,7 @@ class _WalletCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '\$ $formattedBalance',
+                      formattedBalance,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.titleMedium.copyWith(

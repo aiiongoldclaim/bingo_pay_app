@@ -193,170 +193,168 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
 
                 Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: m.maxContentWidth),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.only(
-                          top: m.gapMd,
-                          bottom: m.gapLg * 2,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // ── Account ───────────────────────────────
-                            SettingsSectionHeading(
-                              metrics: m,
-                              label: 'Account',
-                            ),
-                            SizedBox(height: m.sectionGap),
-                            SettingsCard(
-                              metrics: m,
-                              children: [
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.person_outline_rounded,
-                                  title: 'Edit Profile',
-                                  subtitle: 'Update your personal details',
-                                  onTap: () =>
-                                      context.go(AppRoutes.editProfile),
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.location_on_outlined,
-                                  title: 'Saved Addresses',
-                                  subtitle: 'Manage delivery addresses',
-                                  onTap: () =>
-                                      context.push(AppRoutes.buyerAddresses),
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.account_balance_wallet_outlined,
-                                  title: 'Bingold Wallet',
-                                  subtitle: 'Balance and transactions',
-                                  onTap: () => context.go(AppRoutes.wallet),
-                                ),
-                              ],
-                            ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        top: m.gapMd,
+                        bottom: m.gapLg * 2,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // ── Account ───────────────────────────────
+                          SettingsSectionHeading(
+                            metrics: m,
+                            label: 'Account',
+                          ),
+                          SizedBox(height: m.sectionGap),
+                          SettingsCard(
+                            metrics: m,
+                            children: [
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.person_outline_rounded,
+                                title: 'Edit Profile',
+                                subtitle: 'Update your personal details',
+                                onTap: () =>
+                                    context.push(AppRoutes.editProfile),
+                              ),
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.location_on_outlined,
+                                title: 'Saved Addresses',
+                                subtitle: 'Manage delivery addresses',
+                                onTap: () =>
+                                    context.push(AppRoutes.buyerAddresses),
+                              ),
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.account_balance_wallet_outlined,
+                                title: 'BiGod Wallet',
+                                subtitle: 'Balance and transactions',
+                                onTap: () => context.push(AppRoutes.wallet),
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: m.gapLg),
+                          SizedBox(height: m.gapLg),
 
-                            // ── Notifications ─────────────────────────
-                            SettingsSectionHeading(
-                              metrics: m,
-                              label: 'Notifications',
-                            ),
-                            SizedBox(height: m.sectionGap),
-                            SettingsCard(
-                              metrics: m,
-                              children: [
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.notifications_outlined,
-                                  title: 'Push Notifications',
-                                  subtitle: 'Offers, updates and more',
-                                  switchValue: _pushNotifications,
-                                  onSwitchChanged: _onPushNotificationsChanged,
-                                ),
-                              ],
-                            ),
+                          // ── Notifications ─────────────────────────
+                          SettingsSectionHeading(
+                            metrics: m,
+                            label: 'Notifications',
+                          ),
+                          SizedBox(height: m.sectionGap),
+                          SettingsCard(
+                            metrics: m,
+                            children: [
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.notifications_outlined,
+                                title: 'Push Notifications',
+                                subtitle: 'Offers, updates and more',
+                                switchValue: _pushNotifications,
+                                onSwitchChanged: _onPushNotificationsChanged,
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: m.gapLg),
+                          SizedBox(height: m.gapLg),
 
-                            // ── Security ──────────────────────────────
-                            SettingsSectionHeading(
-                              metrics: m,
-                              label: 'Security',
-                            ),
-                            SizedBox(height: m.sectionGap),
-                            SettingsCard(
-                              metrics: m,
-                              children: [
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.lock_outline_rounded,
-                                  title: 'Change Password',
-                                  subtitle: 'Update your login password',
-                                  onTap: () =>
-                                      context.go(AppRoutes.forgotPassword),
-                                ),
-                              ],
-                            ),
+                          // ── Security ──────────────────────────────
+                          SettingsSectionHeading(
+                            metrics: m,
+                            label: 'Security',
+                          ),
+                          SizedBox(height: m.sectionGap),
+                          SettingsCard(
+                            metrics: m,
+                            children: [
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.lock_outline_rounded,
+                                title: 'Change Password',
+                                subtitle: 'Update your login password',
+                                onTap: () =>
+                                    context.push(AppRoutes.forgotPassword),
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: m.gapLg),
+                          SizedBox(height: m.gapLg),
 
-                            // ── Support & About ───────────────────────
-                            SettingsSectionHeading(
-                              metrics: m,
-                              label: 'Support & About',
-                            ),
-                            SizedBox(height: m.sectionGap),
-                            SettingsCard(
-                              metrics: m,
-                              children: [
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.headset_mic_outlined,
-                                  title: 'Help & Support',
-                                  subtitle: 'FAQs and contact us',
-                                  onTap: () => context.go(AppRoutes.help),
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.privacy_tip_outlined,
-                                  title: 'Privacy Policy',
-                                  subtitle: 'How we handle your data',
-                                  onTap: () {},
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.description_outlined,
-                                  title: 'Terms of Service',
-                                  subtitle: 'Rules for using the app',
-                                  onTap: () {},
-                                ),
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.info_outline_rounded,
-                                  title: 'App Version',
-                                  subtitle: 'Current installed version',
-                                  trailingValue: '1.0.0',
-                                  onTap: () {},
-                                ),
-                              ],
-                            ),
+                          // ── Support & About ───────────────────────
+                          SettingsSectionHeading(
+                            metrics: m,
+                            label: 'Support & About',
+                          ),
+                          SizedBox(height: m.sectionGap),
+                          SettingsCard(
+                            metrics: m,
+                            children: [
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.headset_mic_outlined,
+                                title: 'Help & Support',
+                                subtitle: 'FAQs and contact us',
+                                onTap: () => context.push(AppRoutes.help),
+                              ),
+                              // SettingsTile(
+                              //   metrics: m,
+                              //   icon: Icons.privacy_tip_outlined,
+                              //   title: 'Privacy Policy',
+                              //   subtitle: 'How we handle your data',
+                              //   onTap: () {},
+                              // ),
+                              // SettingsTile(
+                              //   metrics: m,
+                              //   icon: Icons.description_outlined,
+                              //   title: 'Terms of Service',
+                              //   subtitle: 'Rules for using the app',
+                              //   onTap: () {},
+                              // ),
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.info_outline_rounded,
+                                title: 'App Version',
+                                subtitle: 'Current installed version',
+                                trailingValue: '1.0.0',
+                                onTap: () {},
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: m.gapLg),
+                          SizedBox(height: m.gapLg),
 
-                            // ── Contact Us ────────────────────────────
-                            SettingsSectionHeading(
-                              metrics: m,
-                              label: 'Contact Us',
-                            ),
-                            SizedBox(height: m.sectionGap),
-                            BlocBuilder<SettingsCubit, SettingsState>(
-                              builder: (context, state) =>
-                                  _buildContactCard(m, state),
-                            ),
+                          // ── Contact Us ────────────────────────────
+                          SettingsSectionHeading(
+                            metrics: m,
+                            label: 'Contact Us',
+                          ),
+                          SizedBox(height: m.sectionGap),
+                          BlocBuilder<SettingsCubit, SettingsState>(
+                            builder: (context, state) =>
+                                _buildContactCard(m, state),
+                          ),
 
-                            SizedBox(height: m.gapLg),
+                          SizedBox(height: m.gapLg),
 
-                            // ── Danger zone ───────────────────────────
-                            SettingsCard(
-                              metrics: m,
-                              children: [
-                                SettingsTile(
-                                  metrics: m,
-                                  icon: Icons.delete_outline_rounded,
-                                  title: 'Delete Account',
-                                  subtitle: 'Permanently remove your data',
-                                  isDestructive: true,
-                                  onTap: _confirmDeleteAccount,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          // ── Danger zone ───────────────────────────
+                          SettingsCard(
+                            metrics: m,
+                            children: [
+                              SettingsTile(
+                                metrics: m,
+                                icon: Icons.delete_outline_rounded,
+                                title: 'Delete Account',
+                                subtitle: 'Permanently remove your data',
+                                isDestructive: true,
+                                onTap: _confirmDeleteAccount,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),

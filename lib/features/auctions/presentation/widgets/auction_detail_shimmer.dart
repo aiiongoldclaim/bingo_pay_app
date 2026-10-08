@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/core/widgets/app_shimmer.dart';
 
-/// Loading skeleton for the Auction Details screen — mirrors the hero
-/// card + thumbnail strip, the Current Bid panel, Bid activity rows, the
-/// Auction details grid, and the About this lot card.
 class AuctionDetailShimmer extends StatelessWidget {
   const AuctionDetailShimmer({super.key});
 

@@ -13,11 +13,8 @@ import '../cubit/booking_state.dart';
 import 'booking_change_time_slots.dart';
 import 'booking_details_metrics.dart';
 
-/// Number of days (including today) fetched from the availability API.
 const int _availabilityWindowDays = 7;
 
-/// Opens a bottom sheet that loads the service availability for [booking]
-/// and reschedules it to the slot the user picks.
 Future<void> showBookingChangeTimeSheet(
   BuildContext context,
   BookingEntity booking,

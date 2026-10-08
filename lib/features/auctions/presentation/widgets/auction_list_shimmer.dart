@@ -4,8 +4,7 @@ import 'package:sizer/sizer.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/core/widgets/app_shimmer.dart';
 
-/// Loading skeleton for the Auctions list screen — mirrors the hero card,
-/// the two CTA buttons, and a few "Live Auctions" row cards.
+
 class AuctionListShimmer extends StatelessWidget {
   const AuctionListShimmer({super.key});
 

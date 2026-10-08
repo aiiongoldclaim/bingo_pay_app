@@ -3,11 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'booking_details_metrics.dart';
 
-/// Text-only status pill used on the Booking Details screen.
-///
-/// Distinct from [StatusBadge] (widgets/status_badge.dart), which is used on
-/// the booking list card and always shows an icon with fixed, non-responsive
-/// sizing — the two have different visual specs and are not interchangeable.
 class BookingStatusPill extends StatelessWidget {
   const BookingStatusPill({
     super.key,

@@ -106,10 +106,7 @@ class _BookingDetailsViewState
                 onPressed: () async {
                   Navigator.of(context).pop(); // Close dialog
 
-                  // Refresh bookings list before navigating back
                   context.read<BookingCubit>().fetchBookings();
-
-                  // Wait for the data to load
                   await Future.delayed(const Duration(milliseconds: 800));
 
                   if (context.mounted) {

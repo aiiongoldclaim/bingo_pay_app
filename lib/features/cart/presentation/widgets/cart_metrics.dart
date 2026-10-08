@@ -3,8 +3,7 @@ import 'package:sizer/sizer.dart';
 
 double _cl(double v, double lo, double hi) => v.clamp(lo, hi).toDouble();
 
-/// Phone  -> Sizer units
-/// Tablet -> fixed dp with clamp() (no Sizer oversizing)
+
 class CartMetrics {
   final bool isTablet;
   final bool isLandscape;
