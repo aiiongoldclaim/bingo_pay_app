@@ -5,6 +5,11 @@ import 'review_coupon_notes_card.dart';
 import 'review_pay_metrics.dart';
 import 'review_pay_widgets.dart';
 
+// Only a Buy Now order paid on delivery sends these; the wallet and card
+// payments have nowhere to put them.
+bool _takesCouponAndNotes(PaymentMethodState state) =>
+    !state.isCartFlow && state.selectedMethod == PaymentMethod.cashOnDelivery;
+
 // ── Portrait ───────────────────────────────────────────────────────────────
 class ReviewPortraitBody extends StatelessWidget {
   final ReviewPayMetrics metrics;
@@ -42,7 +47,7 @@ class ReviewPortraitBody extends StatelessWidget {
           wallet,
           SizedBox(height: m.gapLg),
 
-          if (!state.isCartFlow) ...[
+          if (_takesCouponAndNotes(state)) ...[
             ReviewCouponNotesCard(metrics: m),
             SizedBox(height: m.gapMd),
           ],
@@ -103,7 +108,7 @@ class ReviewLandscapeBody extends StatelessWidget {
                   SizedBox(height: m.gapLg),
                   if (address != null) ...[address!, SizedBox(height: m.gapMd)],
                   wallet,
-                  if (!state.isCartFlow) ...[
+                  if (_takesCouponAndNotes(state)) ...[
                     SizedBox(height: m.gapMd),
                     ReviewCouponNotesCard(metrics: m),
                   ],

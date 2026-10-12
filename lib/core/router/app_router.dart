@@ -29,7 +29,9 @@ import '../../features/address/domain/repositories/address_respository.dart';
 import '../../features/address/presentation/cubit/address_cubit.dart';
 import '../../features/address/presentation/screens/add_edit_address_screen.dart';
 import '../../features/address/presentation/screens/address_list_screen.dart';
+import '../../features/payment/presentation/cubit/card_payment_cubit.dart';
 import '../../features/payment/presentation/cubit/payment_cubit.dart';
+import '../../features/payment/presentation/screens/card_payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_args.dart';
 import '../../features/payment/presentation/screens/payment_flow_args.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
@@ -232,6 +234,24 @@ class AppRouter {
           },
           redirect: (context, state) =>
               state.extra is ReviewPayArgs ? null : AppRoutes.home,
+        ),
+
+        GoRoute(
+          path: AppRoutes.paymentCard,
+          builder: (context, state) {
+            final args = state.extra as CardPaymentArgs;
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: args.cubit),
+                BlocProvider(
+                  create: (_) => CardPaymentCubit(intent: args.intent),
+                ),
+              ],
+              child: const CardPaymentScreen(),
+            );
+          },
+          redirect: (context, state) =>
+              state.extra is CardPaymentArgs ? null : AppRoutes.home,
         ),
 
         GoRoute(

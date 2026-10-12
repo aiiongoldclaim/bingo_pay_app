@@ -11,13 +11,13 @@ import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/price_formatter.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
-import '../widgets/payment_method_picker.dart';
+import '../widgets/payment_method_option.dart';
 import '../widgets/review_address_card.dart';
 import '../widgets/review_body.dart';
 import '../widgets/review_order_summary_card.dart';
 import '../widgets/review_pay_bar.dart';
-import '../widgets/review_paying_with_card.dart';
 import '../widgets/review_top_bar.dart';
+import 'payment_flow_args.dart';
 
 class ReviewPayScreen extends StatelessWidget {
   final bool isCart;
@@ -42,15 +42,44 @@ class ReviewPayScreen extends StatelessWidget {
               ? null
               : ReviewAddressCard(metrics: m, state: state);
 
-          final wallet = ReviewPayingWithCard(
-            metrics: m,
-            methodName: state.methodDisplayName,
-            bigoldBalance: state.formattedBigoldBalance,
-            selectedMethod: state.selectedMethod ?? PaymentMethod.wallet,
-            onChangeTap: () => showPaymentMethodPicker(
-              context,
-              state.selectedMethod ?? PaymentMethod.wallet,
-            ),
+          final selected = state.selectedMethod ?? PaymentMethod.wallet;
+          final wallet = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ReviewSectionLabel(metrics: m, label: 'Payment Method'),
+              for (final (method, icon, title, subtitle) in [
+                (
+                  PaymentMethod.wallet,
+                  Icons.account_balance_wallet_outlined,
+                  'Bingold Wallet',
+                  'Balance: ${state.formattedBigoldBalance}',
+                ),
+                if (state.cardAvailable)
+                  (
+                    PaymentMethod.card,
+                    Icons.credit_card_outlined,
+                    'Credit / Debit Card',
+                    "Pay on Stripe's secure page",
+                  ),
+                (
+                  PaymentMethod.cashOnDelivery,
+                  Icons.payments_outlined,
+                  'Cash on Delivery',
+                  'Pay with cash when your order arrives',
+                ),
+              ]) ...[
+                SizedBox(height: m.gapSm),
+                PaymentMethodCard(
+                  title: title,
+                  subtitle: subtitle,
+                  icon: icon,
+                  isSelected: selected == method,
+                  onTap: () => context
+                      .read<PaymentMethodCubit>()
+                      .selectPaymentMethod(method),
+                ),
+              ],
+            ],
           );
 
           final summary = ReviewOrderSummaryCard(
@@ -63,11 +92,17 @@ class ReviewPayScreen extends StatelessWidget {
             savings: state.savings > 0
                 ? '- \$${formatExactAmount(state.savings)}'
                 : '\$0',
-            delivery: state.deliveryCharge == 0
+            // Tax, delivery and the total are the server's figures; until it
+            // has answered there is nothing honest to put here.
+            delivery: !state.isQuoted
+                ? 'At payment'
+                : state.deliveryCharge == 0
                 ? '\$0'
                 : '\$${formatExactAmount(state.deliveryCharge)}',
-            tax: '\$${formatExactAmount(state.taxes)}',
-            total: state.formattedTotal,
+            tax: state.isQuoted
+                ? '\$${formatExactAmount(state.taxes)}'
+                : 'At payment',
+            total: state.isQuoted ? state.formattedTotal : 'At payment',
           );
 
           // final offers = ReviewOffersCard(
@@ -94,10 +129,12 @@ class ReviewPayScreen extends StatelessWidget {
 
           final payBar = ReviewPayBar(
             metrics: m,
-            amount: state.formattedTotal,
-            label: state.selectedMethod == PaymentMethod.cashOnDelivery
-                ? 'PLACE ORDER'
-                : 'PAY NOW',
+            amount: state.isQuoted ? state.formattedTotal : '',
+            label: switch (state.selectedMethod) {
+              PaymentMethod.cashOnDelivery => 'PLACE ORDER',
+              PaymentMethod.card => 'CONTINUE TO CARD PAYMENT',
+              _ => 'PAY NOW',
+            },
             isLoading: state.isProcessing,
             onPay: () => _onPay(context),
           );
@@ -164,9 +201,32 @@ class ReviewPayScreen extends StatelessWidget {
     );
   }
 
-  // ── Payment logic — unchanged ─────────────────────────────────────────
+  // ── Payment logic ─────────────────────────────────────────────────────
   Future<void> _onPay(BuildContext context) async {
     final cubit = context.read<PaymentMethodCubit>();
+
+    // Card payments finish on Stripe's page, not here: the card screen takes
+    // over and moves on to the success screen once the server reports PAID.
+    if (cubit.state.selectedMethod == PaymentMethod.card) {
+      final intent = await cubit.startCardPayment();
+
+      if (!context.mounted) return;
+
+      if (intent == null) {
+        AppSnackbar.showError(
+          context,
+          cubit.state.errorMessage ?? 'Payment failed. Please try again.',
+        );
+        return;
+      }
+
+      context.push(
+        AppRoutes.paymentCard,
+        extra: CardPaymentArgs(cubit: cubit, intent: intent),
+      );
+      return;
+    }
+
     await cubit.makePayment();
 
     if (!context.mounted) return;

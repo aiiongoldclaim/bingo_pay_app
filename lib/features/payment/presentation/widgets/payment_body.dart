@@ -5,7 +5,6 @@ import '../cubit/payment_state.dart';
 import 'payment_address_section.dart';
 import 'payment_metrics.dart';
 import 'payment_progress_stepper.dart';
-import 'payment_wallet_card.dart';
 
 // ── Portrait ───────────────────────────────────────────────────────────────
 class PaymentPortraitBody extends StatelessWidget {
@@ -40,8 +39,10 @@ class PaymentPortraitBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const PaymentProgressStepper(currentStep: 3),
-          SizedBox(height: m.gapLg),
+          if (state.isCartFlow) ...[
+            const PaymentProgressStepper(currentStep: 2),
+            SizedBox(height: m.gapLg),
+          ],
           PaymentAddressSection(
             metrics: m,
             selectedAddressId: selectedAddressId,
@@ -49,8 +50,6 @@ class PaymentPortraitBody extends StatelessWidget {
             onDeleted: onDeleted,
             showError: submitted && selectedAddress == null,
           ),
-          SizedBox(height: m.gapMd),
-          PaymentWalletCard(state: state, metrics: m),
           SizedBox(height: m.gapMd),
           summary,
         ],
@@ -99,8 +98,10 @@ class PaymentLandscapeBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const PaymentProgressStepper(currentStep: 3),
-                  SizedBox(height: m.gapLg),
+                  if (state.isCartFlow) ...[
+                    const PaymentProgressStepper(currentStep: 2),
+                    SizedBox(height: m.gapLg),
+                  ],
                   PaymentAddressSection(
                     metrics: m,
                     selectedAddressId: selectedAddressId,
@@ -108,8 +109,6 @@ class PaymentLandscapeBody extends StatelessWidget {
                     onDeleted: onDeleted,
                     showError: submitted && selectedAddress == null,
                   ),
-                  SizedBox(height: m.gapMd),
-                  PaymentWalletCard(state: state, metrics: m),
                 ],
               ),
             ),

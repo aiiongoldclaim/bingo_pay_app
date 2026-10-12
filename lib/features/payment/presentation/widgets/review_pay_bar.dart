@@ -25,7 +25,7 @@ class ReviewPayBar extends StatelessWidget {
     final m = metrics;
 
     return AppButton(
-      label: '$label  $amount',
+      label: '$label  $amount'.trimRight(),
       prefixIcon: Icons.lock_outline_rounded,
       isLoading: isLoading,
       onPressed: isLoading ? null : onPay,

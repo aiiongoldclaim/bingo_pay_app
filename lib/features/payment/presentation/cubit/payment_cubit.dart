@@ -6,6 +6,8 @@ import 'package:bingo_pay/features/profile/data/profile_model/profile_response.d
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
+import 'package:bingo_pay/features/payment/data/models/stripe_intent_response.dart';
+import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,9 +26,11 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     String? slotUuid, // NEW
     int? participants, // NEW
     BigodPaymentDataSource? bigodPaymentDataSource,
+    StripePaymentDataSource? stripePaymentDataSource,
     ClearCartUseCase? clearCartUseCase,
   }) : _bigodPaymentDataSource =
            bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
+       _stripePaymentDataSourceOverride = stripePaymentDataSource,
        _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
        super(
          PaymentMethodState.initial(
@@ -45,7 +49,12 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
        );
 
   final BigodPaymentDataSource _bigodPaymentDataSource;
+  final StripePaymentDataSource? _stripePaymentDataSourceOverride;
   final ClearCartUseCase _clearCartUseCase;
+
+  // Looked up on first use: only the card rail needs it.
+  late final StripePaymentDataSource _stripePaymentDataSource =
+      _stripePaymentDataSourceOverride ?? GetIt.I<StripePaymentDataSource>();
 
   Future<void> _clearCartIfNeeded() async {
     if (!state.isCartFlow) return;
@@ -113,6 +122,41 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
       );
     } catch (_) {
       // balance stays at 0 — display will show '—'
+    }
+  }
+
+  Future<void> loadPaymentMethods() async {
+    try {
+      final cardAvailable = await _stripePaymentDataSource.isCardAvailable();
+      emit(state.copyWith(cardAvailable: cardAvailable));
+    } catch (_) {
+      // card option stays hidden
+    }
+  }
+
+  Future<void> loadQuote() async {
+    try {
+      final quote = await _stripePaymentDataSource.getQuote(
+        addressId: state.deliveryAddressId,
+        variantUuid: state.isCartFlow ? null : state.variantUuid,
+        quantity: state.isCartFlow ? null : state.quantity,
+
+        offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
+        slotUuid: state.isServiceBooking ? state.slotUuid : null,
+        participants: state.isServiceBooking ? state.participants : null,
+      );
+      emit(
+        state.copyWith(
+          itemTotal: quote.subtotal,
+          savings: quote.discount,
+          taxes: quote.tax,
+          deliveryCharge: quote.shipping,
+          totalAmount: quote.total,
+          isQuoted: true,
+        ),
+      );
+    } catch (_) {
+      // stays unquoted — the server's figures are then shown at payment
     }
   }
 
@@ -196,6 +240,12 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
           isProcessing: false,
           orderId: confirmation.order.orderNumber,
           orderUuid: confirmation.order.uuid,
+          itemTotal: intent.breakdown.subtotal,
+          savings: intent.breakdown.discount,
+          taxes: intent.breakdown.tax,
+          deliveryCharge: intent.breakdown.shipping,
+          totalAmount: intent.breakdown.total,
+          isQuoted: true,
         ),
       );
     } on DioException catch (e) {
@@ -215,6 +265,80 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         ),
       );
     }
+  }
+
+  // Card rail, step 1: ask the server for a Stripe checkout page. Nothing is
+  // charged and no order exists yet — the caller sends the customer to
+  // `checkoutUrl`, and the order appears once Stripe confirms the payment.
+  Future<StripeIntentResponse?> startCardPayment() async {
+    emit(state.copyWith(status: PaymentStatus.loading, isProcessing: true));
+
+    try {
+      final intent = await _stripePaymentDataSource.createIntent(
+        addressId: state.deliveryAddressId,
+        variantUuid: state.isCartFlow ? null : state.variantUuid,
+        quantity: state.isCartFlow ? null : state.quantity,
+
+        offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
+        slotUuid: state.isServiceBooking ? state.slotUuid : null,
+        participants: state.isServiceBooking ? state.participants : null,
+      );
+
+      // Only ever follow a Stripe Checkout url — never an arbitrary one.
+      if (!intent.checkoutUrl.startsWith('https://checkout.stripe.com/')) {
+        throw const FormatException('No checkout url returned');
+      }
+
+      // The server's quote is what the card is charged, so it replaces the
+      // locally computed totals from here on.
+      final breakdown = intent.breakdown;
+      emit(
+        state.copyWith(
+          status: PaymentStatus.initial,
+          isProcessing: false,
+          totalAmount: intent.amount,
+          itemTotal: breakdown?.subtotal,
+          savings: breakdown?.discount,
+          taxes: breakdown?.tax,
+          deliveryCharge: breakdown?.shipping,
+          isQuoted: breakdown != null,
+        ),
+      );
+      return intent;
+    } on DioException catch (e) {
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage: _messageFor(e),
+          isProcessing: false,
+        ),
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage: 'Could not start the card payment. Please try again.',
+          isProcessing: false,
+        ),
+      );
+    }
+    return null;
+  }
+
+  // Card rail, last step: the server reported the payment PAID and placed
+  // the order. It closed the cart too, so there is nothing to clear here.
+  void completeCardPayment({
+    required String orderNumber,
+    required String orderUuid,
+  }) {
+    emit(
+      state.copyWith(
+        status: PaymentStatus.success,
+        isProcessing: false,
+        orderId: orderNumber,
+        orderUuid: orderUuid,
+      ),
+    );
   }
 
   String _messageFor(DioException e) {
