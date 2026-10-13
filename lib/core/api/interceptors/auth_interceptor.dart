@@ -38,7 +38,15 @@ class AuthInterceptor extends Interceptor {
       ApiEndpoints.refresh,
     );
 
-    if (statusCode != 401 || alreadyRetried || isRefreshRequest) {
+    // A 401 carrying a `code` (e.g. the wallet's PIN_REQUIRED / PIN_INVALID)
+    // is a refusal, not an expired session: refreshing would log the user out.
+    final body = err.response?.data;
+    final isDomainRefusal = body is Map && body['code'] is String;
+
+    if (statusCode != 401 ||
+        alreadyRetried ||
+        isRefreshRequest ||
+        isDomainRefusal) {
       handler.next(err);
       return;
     }

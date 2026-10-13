@@ -47,6 +47,7 @@ class AppRoutes {
   static const String transferSuccess = "/transferSuccess";
   static const String paymentSuccess = '/payment-Success';
   static const String reviewPayment = '/review-Payment';
+  static const String walletKyc = '/tvs-wallet/verify';
   static const String productDetails = '/productDetails';
   static const String productListing = '/product-listing/:categoryName';
   static const String buyerSearch = '/buyer/search';

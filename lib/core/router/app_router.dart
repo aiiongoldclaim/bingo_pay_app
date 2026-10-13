@@ -39,6 +39,7 @@ import '../../features/payment/presentation/screens/review_pay_screen.dart';
 import '../../features/product_details/presentation/screens/product_image_viewer_screen.dart';
 import '../../features/product_details/presentation/widgets/image_viewer_args.dart';
 import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
+import '../../features/scanner/presentation/screens/wallet_kyc_screen.dart';
 import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
 import '../../features/setting/features/screens/setting_screen.dart';
 import '../config/app_config.dart';
@@ -320,14 +321,17 @@ class AppRouter {
           builder: (context, state) {
             final data = state.extra as Map<String, dynamic>? ?? const {};
 
+            final token = data['token'] as String? ?? '';
             return BlocProvider(
-              create: (_) => getIt<PaymentCubit>(),
-              child: ReviewPaymentScreen(
-                merchantName: data['merchantName'] ?? '',
-                merchantEmail: data['merchantEmail'] ?? '',
-              ),
+              create: (_) => getIt<PaymentCubit>()..resolve(token),
+              child: const ReviewPaymentScreen(),
             );
           },
+        ),
+
+        GoRoute(
+          path: AppRoutes.walletKyc,
+          builder: (_, _) => const WalletKycScreen(),
         ),
 
         GoRoute(

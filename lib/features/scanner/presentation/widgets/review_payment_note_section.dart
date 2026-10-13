@@ -10,12 +10,22 @@ class ReviewPaymentNoteSection extends StatelessWidget {
   final ReviewPaymentMetrics metrics;
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final int maxLength;
+  final TextCapitalization capitalization;
 
   const ReviewPaymentNoteSection({
     super.key,
     required this.metrics,
     required this.controller,
     required this.onChanged,
+    this.label = 'ADD NOTE (OPTIONAL)',
+    this.hint = 'What is this payment for?',
+    this.icon = Icons.sticky_note_2_outlined,
+    this.maxLength = 50,
+    this.capitalization = TextCapitalization.sentences,
   });
 
   @override
@@ -27,7 +37,7 @@ class ReviewPaymentNoteSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        ReviewPaymentSectionLabel(metrics: m, label: 'ADD NOTE (OPTIONAL)'),
+        ReviewPaymentSectionLabel(metrics: m, label: label),
 
         SizedBox(height: m.gapSm),
 
@@ -42,7 +52,7 @@ class ReviewPaymentNoteSection extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                Icons.sticky_note_2_outlined,
+                icon,
                 size: m.methodIconSize * 0.85,
                 color: colors.textSecondary,
               ),
@@ -53,15 +63,15 @@ class ReviewPaymentNoteSection extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   onChanged: onChanged,
-                  maxLength: 50,
-                  textCapitalization: TextCapitalization.sentences,
+                  maxLength: maxLength,
+                  textCapitalization: capitalization,
                   style: AppTextStyles.bodyMedium.copyWith(
                     color: colors.textPrimary,
                     fontFamily: 'Inter',
                     fontSize: m.methodTitleSize,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'What is this payment for?',
+                    hintText: hint,
                     hintStyle: AppTextStyles.bodyMedium.copyWith(
                       color: colors.textMuted,
                       fontFamily: 'Inter',
@@ -80,7 +90,7 @@ class ReviewPaymentNoteSection extends StatelessWidget {
               SizedBox(width: m.gapSm),
 
               Text(
-                '${controller.text.length}/50',
+                '${controller.text.length}/$maxLength',
                 style: AppTextStyles.bodySmall.copyWith(
                   color: colors.textMuted,
                   fontFamily: 'Inter',

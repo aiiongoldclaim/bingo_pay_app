@@ -8,7 +8,7 @@ class ReviewPaymentPortraitBody extends StatelessWidget {
   final Widget banner;
   final Widget merchant;
   final Widget amount;
-  final Widget convert;
+  final Widget summary;
   final Widget note;
   final Widget method;
 
@@ -18,7 +18,7 @@ class ReviewPaymentPortraitBody extends StatelessWidget {
     required this.banner,
     required this.merchant,
     required this.amount,
-    required this.convert,
+    required this.summary,
     required this.note,
     required this.method,
   });
@@ -38,7 +38,7 @@ class ReviewPaymentPortraitBody extends StatelessWidget {
           SizedBox(height: m.gapLg),
           amount,
           SizedBox(height: m.gapMd),
-          convert,
+          summary,
           SizedBox(height: m.gapLg),
           note,
           SizedBox(height: m.gapLg),
@@ -55,7 +55,7 @@ class ReviewPaymentLandscapeBody extends StatelessWidget {
   final Widget banner;
   final Widget merchant;
   final Widget amount;
-  final Widget convert;
+  final Widget summary;
   final Widget note;
   final Widget method;
   final Widget payBar;
@@ -66,7 +66,7 @@ class ReviewPaymentLandscapeBody extends StatelessWidget {
     required this.banner,
     required this.merchant,
     required this.amount,
-    required this.convert,
+    required this.summary,
     required this.note,
     required this.method,
     required this.payBar,
@@ -93,7 +93,7 @@ class ReviewPaymentLandscapeBody extends StatelessWidget {
                   SizedBox(height: m.gapLg),
                   amount,
                   SizedBox(height: m.gapMd),
-                  convert,
+                  summary,
                 ],
               ),
             ),
