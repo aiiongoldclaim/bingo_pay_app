@@ -8,14 +8,14 @@ import 'review_payment_metrics.dart';
 class ReviewPaymentMerchantCard extends StatelessWidget {
   final ReviewPaymentMetrics metrics;
   final String name;
-  final String email;
+  final String subtitle;
   final String initials;
 
   const ReviewPaymentMerchantCard({
     super.key,
     required this.metrics,
     required this.name,
-    required this.email,
+    required this.subtitle,
     required this.initials,
   });
 
@@ -78,7 +78,7 @@ class ReviewPaymentMerchantCard extends StatelessWidget {
                     ),
                     SizedBox(height: m.gapXs),
                     Text(
-                      email,
+                      subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.bodyMedium.copyWith(

@@ -1,33 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/injection.dart';
+import '../../../../core/error/error_handler.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/storage/secure_storage_service.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../data/tvs_qr_datasource.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 import '../widgets/review_payment_amount_section.dart';
 import '../widgets/review_payment_banner.dart';
 import '../widgets/review_payment_body.dart';
-import '../widgets/review_payment_convert_card.dart';
 import '../widgets/review_payment_merchant_card.dart';
 import '../widgets/review_payment_method_section.dart';
 import '../widgets/review_payment_metrics.dart';
 import '../widgets/review_payment_note_section.dart';
 import '../widgets/review_payment_pay_bar.dart';
+import '../widgets/review_payment_quote_card.dart';
 
+// Shop QR payment with TVS Coins. The cubit was asked to resolve the scanned
+// token when this screen was pushed.
 class ReviewPaymentScreen extends StatefulWidget {
-  final String? merchantName;
-  final String merchantEmail;
-
-  const ReviewPaymentScreen({
-    super.key,
-    required this.merchantName,
-    required this.merchantEmail,
-  });
+  const ReviewPaymentScreen({super.key});
 
   @override
   State<ReviewPaymentScreen> createState() => _ReviewPaymentScreenState();
@@ -35,60 +33,23 @@ class ReviewPaymentScreen extends StatefulWidget {
 
 class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
-
-  double _paymentAmount = 0;
-  String _reference = "";
-
-  static const double _maxAmount = 100000;
-  static const double _minAmount = 1;
-
-  static const double _usdToBigod = 0.00001772;
-  String _selectedCurrency = "USD";
-
-  ScanPayMethod _selectedMethod = ScanPayMethod.bigod;
 
   @override
   void dispose() {
     _amountController.dispose();
+    _codeController.dispose();
     _noteController.dispose();
     super.dispose();
   }
 
-  void _changeCurrency(String? value) {
-    if (value == null || value == _selectedCurrency) return;
-
-    double amount = double.tryParse(_amountController.text) ?? 0;
-
-    if (_selectedCurrency == "USD" && value == "BIGOD") {
-      amount *= _usdToBigod;
-    } else if (_selectedCurrency == "BIGOD" && value == "USD") {
-      amount /= _usdToBigod;
-    }
-
-    setState(() {
-      _selectedCurrency = value;
-      _amountController.text = amount.toStringAsFixed(value == "USD" ? 2 : 8);
-    });
-  }
-
-  String get _displayName {
-    final name = widget.merchantName;
-    if (name != null && name.trim().isNotEmpty) return name.trim();
-    return _deriveNameFromEmail(widget.merchantEmail);
-  }
-
-  String _deriveNameFromEmail(String email) {
-    final namePart = email.split('@').first;
-    final words = namePart
-        .replaceAll(RegExp(r'[._\-0-9]+'), ' ')
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((w) => w.isNotEmpty);
-    if (words.isEmpty) return email;
-    return words
-        .map((w) => w[0].toUpperCase() + w.substring(1).toLowerCase())
-        .join(' ');
+  void _onInputChanged(String _) {
+    setState(() {}); // field counters
+    context.read<PaymentCubit>().inputChanged(
+      _amountController.text,
+      _codeController.text,
+    );
   }
 
   String _initials(String name) {
@@ -104,196 +65,270 @@ class _ReviewPaymentScreenState extends State<ReviewPaymentScreen> {
     return (parts[0][0] + parts[1][0]).toUpperCase();
   }
 
-  Future<void> _pay() async {
-    final customerEmail = await getIt<SecureStorageService>().getEmail();
-    if (!mounted) return;
-
-    if (customerEmail == null) {
-      AppSnackbar.showError(context, "Customer email not found");
-      return;
+  Future<void> _pay({String? pin}) async {
+    final cubit = context.read<PaymentCubit>();
+    try {
+      final receipt = await cubit.pay(
+        pin: pin,
+        note: _noteController.text.trim(),
+      );
+      if (!mounted) return;
+      AppSnackbar.showSuccess(context, 'Payment successful');
+      context.push(
+        AppRoutes.transferSuccess,
+        extra: {
+          'merchantName': cubit.state.shop?['shop']?['name'],
+          'amount': receipt['paid'],
+          'currency': receipt['currency'],
+          'reference': receipt['transactionUuid'],
+        },
+      );
+    } on TvsQrException catch (e) {
+      if (!mounted) return;
+      switch (e.code) {
+        case 'PIN_REQUIRED' || 'PIN_INVALID':
+          final pin = await _askPin(e);
+          if (pin != null && mounted) await _pay(pin: pin);
+        case 'QUOTE_CHANGED' || 'INSUFFICIENT_FUNDS':
+          // Show the new price / shortfall; the user confirms again.
+          AppSnackbar.showError(context, e.message);
+          cubit.requote();
+        default:
+          AppSnackbar.showError(context, e.message);
+      }
+    } catch (e) {
+      // Network drop or timeout: the idempotency key is kept, so tapping Pay
+      // again retries this same payment and can't charge twice.
+      if (mounted) {
+        AppSnackbar.showError(
+          context,
+          ErrorHandler.mapObjectToFailure(e).message,
+        );
+      }
     }
+  }
 
-    final paymentAmount = double.tryParse(_amountController.text);
-
-    if (paymentAmount == null) {
-      AppSnackbar.showError(context, "Please enter a valid amount");
-      return;
+  // Asks for the wallet PIN, creating one first if the user has none.
+  Future<String?> _askPin(TvsQrException e) async {
+    final cubit = context.read<PaymentCubit>();
+    var isSet = true;
+    if (e.code == 'PIN_REQUIRED') {
+      try {
+        isSet = await cubit.pinIsSet();
+      } catch (_) {}
     }
+    if (!mounted) return null;
 
-    if (paymentAmount < _minAmount) {
-      AppSnackbar.showError(context, "Minimum payment amount is \$1");
-      return;
-    }
-
-    if (paymentAmount > _maxAmount) {
-      AppSnackbar.showError(context, "Maximum payment amount is \$100,000");
-      return;
-    }
-
-    _paymentAmount = paymentAmount;
-    _reference = DateTime.now().millisecondsSinceEpoch.toString();
-
-    context.read<PaymentCubit>().pay(
-      customerEmail: customerEmail,
-      merchantEmail: widget.merchantEmail,
-      amount: _paymentAmount,
-      reference: _reference,
+    final pin = await _pinDialog(
+      title: isSet ? 'Enter wallet PIN' : 'Create a wallet PIN',
+      message: isSet
+          ? e.message
+          : 'Larger payments need a wallet PIN. Choose 4 to 6 digits.',
     );
+    if (pin == null || isSet) return pin;
+
+    try {
+      await cubit.setPin(pin);
+      return pin;
+    } catch (err) {
+      if (mounted) {
+        AppSnackbar.showError(
+          context,
+          ErrorHandler.mapObjectToFailure(err).message,
+        );
+      }
+      return null;
+    }
   }
 
-  bool get _isOverLimit {
-    final amount = double.tryParse(_amountController.text) ?? 0;
-    return amount > _maxAmount;
-  }
-
-  double get _usdValue {
-    final amount = double.tryParse(_amountController.text) ?? 0;
-    return _selectedCurrency == "USD" ? amount : amount / _usdToBigod;
-  }
-
-  double get _bigodValue {
-    final amount = double.tryParse(_amountController.text) ?? 0;
-    return _selectedCurrency == "USD" ? amount * _usdToBigod : amount;
+  Future<String?> _pinDialog({required String title, required String message}) {
+    var pin = '';
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message),
+            TextField(
+              autofocus: true,
+              obscureText: true,
+              maxLength: 6,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (v) => pin = v,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (pin.length >= 4) Navigator.of(dialogContext).pop(pin);
+            },
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
 
-    return BlocListener<PaymentCubit, PaymentState>(
-      listener: (context, state) {
-        if (state is PaymentSuccess) {
-          AppSnackbar.showSuccess(context, "Payment Successful");
-          context.push(
-            AppRoutes.transferSuccess,
-            extra: {
-              "merchantName": _displayName,
-              "amount": double.parse(_amountController.text),
-              "reference": DateTime.now().millisecondsSinceEpoch.toString(),
-            },
-          );
-        }
-
-        if (state is PaymentFailure) {
-          AppSnackbar.showError(context, state.message);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: colors.background,
-        resizeToAvoidBottomInset: true,
-        appBar: const CustomAppBar(title: 'Scan & Pay'),
-        body: SafeArea(
-          bottom: false,
-          child: Builder(
-            builder: (context) {
-              final m = ReviewPaymentMetrics.of(context);
-
-              final banner = ReviewPaymentSecureBanner(metrics: m);
-
-              final merchant = ReviewPaymentMerchantCard(
-                metrics: m,
-                name: _displayName,
-                email: widget.merchantEmail,
-                initials: _initials(_displayName),
-              );
-
-              final amount = ReviewPaymentAmountSection(
-                metrics: m,
-                controller: _amountController,
-                currency: _selectedCurrency,
-                isOverLimit: _isOverLimit,
-                maxAmount: _maxAmount,
-                onChanged: (_) => setState(() {}),
-                onToggleCurrency: () => _changeCurrency(
-                  _selectedCurrency == "USD" ? "BIGOD" : "USD",
+    return Scaffold(
+      backgroundColor: colors.background,
+      resizeToAvoidBottomInset: true,
+      appBar: const CustomAppBar(title: 'Scan & Pay'),
+      body: SafeArea(
+        bottom: false,
+        child: BlocBuilder<PaymentCubit, PaymentState>(
+          builder: (context, state) {
+            final resolved = state.shop;
+            if (resolved == null) {
+              if (state.error == null) return const AppLoader();
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(state.error!, textAlign: TextAlign.center),
                 ),
               );
+            }
 
-              final convert = ReviewPaymentConvertCard(
-                metrics: m,
-                usdValue: _usdValue,
-                bigodValue: _bigodValue,
-                onSwap: () => _changeCurrency(
-                  _selectedCurrency == "USD" ? "BIGOD" : "USD",
+            final m = ReviewPaymentMetrics.of(context);
+            final shopName = '${resolved['shop']?['name'] ?? 'Shop'}';
+            final currency = '${resolved['currency']}';
+            final reason = state.canPay ? null : '${resolved['reason']}';
+
+            final banner = ReviewPaymentSecureBanner(metrics: m);
+
+            final merchant = ReviewPaymentMerchantCard(
+              metrics: m,
+              name: shopName,
+              subtitle: 'Accepts TVS Coins · $currency',
+              initials: _initials(shopName),
+            );
+
+            final amount = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ReviewPaymentAmountSection(
+                  metrics: m,
+                  controller: _amountController,
+                  currency: currency,
+                  error: reason ?? state.error,
+                  onChanged: _onInputChanged,
                 ),
-              );
+                if (resolved['reasonCode'] == 'KYC_REQUIRED') ...[
+                  SizedBox(height: m.gapSm),
+                  AppButton(
+                    label: 'Verify identity',
+                    variant: AppButtonVariant.outlined,
+                    prefixIcon: Icons.shield_outlined,
+                    onPressed: () {
+                      final cubit = context.read<PaymentCubit>();
+                      context
+                          .push(AppRoutes.walletKyc)
+                          .then((_) => cubit.reload());
+                    },
+                  ),
+                ],
+                SizedBox(height: m.gapMd),
+                ReviewPaymentNoteSection(
+                  metrics: m,
+                  controller: _codeController,
+                  onChanged: _onInputChanged,
+                  label: 'COUPON CODE (OPTIONAL)',
+                  hint: 'Enter a coupon',
+                  icon: Icons.local_offer_outlined,
+                  maxLength: 40,
+                  capitalization: TextCapitalization.characters,
+                ),
+              ],
+            );
 
-              final note = ReviewPaymentNoteSection(
-                metrics: m,
-                controller: _noteController,
-                onChanged: (_) => setState(() {}),
-              );
+            final summary = ReviewPaymentQuoteCard(
+              metrics: m,
+              quote: state.quote,
+              quoting: state.quoting,
+            );
 
-              final method = ReviewPaymentMethodSection(
-                metrics: m,
-                selected: _selectedMethod,
-                onSelect: (v) => setState(() => _selectedMethod = v),
-              );
+            final note = ReviewPaymentNoteSection(
+              metrics: m,
+              controller: _noteController,
+              onChanged: (_) => setState(() {}),
+            );
 
-              final payBar = BlocBuilder<PaymentCubit, PaymentState>(
-                builder: (context, state) {
-                  final loading = state is PaymentLoading;
-                  return ReviewPaymentPayBar(
-                    metrics: m,
-                    isLoading: loading,
-                    isEnabled: !loading && !_isOverLimit,
-                    onPay: _pay,
-                  );
-                },
-              );
+            final wallet = resolved['wallet'] as Map<String, dynamic>?;
+            final method = ReviewPaymentMethodSection(
+              metrics: m,
+              enabled: state.canPay,
+              subtitle:
+                  reason ??
+                  'Balance: ${wallet?['spendable'] ?? '0.00'} ${wallet?['currency'] ?? currency}',
+            );
 
-              return Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: m.maxContentWidth,
-                        ),
-                        child: m.isLandscape
-                            ? ReviewPaymentLandscapeBody(
-                                metrics: m,
-                                banner: banner,
-                                merchant: merchant,
-                                amount: amount,
-                                convert: convert,
-                                note: note,
-                                method: method,
-                                payBar: payBar,
-                              )
-                            : ReviewPaymentPortraitBody(
-                                metrics: m,
-                                banner: banner,
-                                merchant: merchant,
-                                amount: amount,
-                                convert: convert,
-                                note: note,
-                                method: method,
-                              ),
-                      ),
+            final payBar = ReviewPaymentPayBar(
+              metrics: m,
+              isLoading: state.paying,
+              isEnabled: state.canSubmit,
+              onPay: _pay,
+            );
+
+            return Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: m.maxContentWidth),
+                      child: m.isLandscape
+                          ? ReviewPaymentLandscapeBody(
+                              metrics: m,
+                              banner: banner,
+                              merchant: merchant,
+                              amount: amount,
+                              summary: summary,
+                              note: note,
+                              method: method,
+                              payBar: payBar,
+                            )
+                          : ReviewPaymentPortraitBody(
+                              metrics: m,
+                              banner: banner,
+                              merchant: merchant,
+                              amount: amount,
+                              summary: summary,
+                              note: note,
+                              method: method,
+                            ),
                     ),
                   ),
+                ),
 
-                  if (!m.isLandscape)
-                    Container(
-                      padding: EdgeInsets.fromLTRB(
-                        m.pageHPad,
-                        m.gapSm,
-                        m.pageHPad,
-                        m.gapSm * 0.5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.background,
-                        border: Border(
-                          top: BorderSide(color: colors.border, width: 1),
-                        ),
-                      ),
-                      child: SafeArea(top: false, child: payBar),
+                if (!m.isLandscape)
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      m.pageHPad,
+                      m.gapSm,
+                      m.pageHPad,
+                      m.gapSm * 0.5,
                     ),
-                ],
-              );
-            },
-          ),
+                    decoration: BoxDecoration(
+                      color: colors.background,
+                      border: Border(
+                        top: BorderSide(color: colors.border, width: 1),
+                      ),
+                    ),
+                    child: SafeArea(top: false, child: payBar),
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );
