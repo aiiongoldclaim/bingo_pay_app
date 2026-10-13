@@ -38,6 +38,28 @@ void main() {
     expect(stripeReturnOutcome('https://stripe.com/legal?from=success'), isNull);
   });
 
+  test('never treats one of NOWPayments\' own pages as the return', () {
+    expect(
+      stripeReturnOutcome('https://nowpayments.io/payment/?iid=1&from=success'),
+      isNull,
+    );
+    expect(
+      stripeReturnOutcome('https://sandbox.nowpayments.io/payment/?from=cancelled'),
+      isNull,
+    );
+  });
+
+  test('hands wallet and app links to the phone, and keeps pages in the WebView', () {
+    expect(opensOutsideWebView('bitcoin:bc1qxy2k?amount=0.01'), isTrue);
+    expect(opensOutsideWebView('ethereum:0xabc@1?value=1e18'), isTrue);
+    expect(opensOutsideWebView('wc:7f6e504b@2?relay-protocol=irn'), isTrue);
+
+    expect(opensOutsideWebView('https://nowpayments.io/payment/?iid=1'), isFalse);
+    expect(opensOutsideWebView('https://checkout.stripe.com/c/pay/cs_1'), isFalse);
+    expect(opensOutsideWebView('about:blank'), isFalse);
+    expect(opensOutsideWebView(''), isFalse);
+  });
+
   test('ignores bank and other pages along the way', () {
     expect(stripeReturnOutcome('https://acs.bank.example/3ds?id=1'), isNull);
     expect(stripeReturnOutcome('$returnUrl?from=successful'), isNull);

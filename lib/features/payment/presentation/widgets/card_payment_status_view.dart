@@ -8,11 +8,26 @@ import '../../data/models/stripe_status_response.dart';
 import '../cubit/card_payment_state.dart';
 import 'review_pay_metrics.dart';
 
+// What a crypto payment is doing, in words a customer can act on. `confirmed`
+// is deliberately not phrased as done: only the server calls a payment paid.
+const _cryptoProgress = {
+  'confirming': 'Your payment is on the network and is being confirmed.',
+  'confirmed':
+      'The network has confirmed your payment. Finalising it now — this is '
+      'the last step.',
+  'sending': 'Your payment is being settled.',
+  'partially_paid':
+      'We received part of the amount. Our team will be in touch — please do '
+      'not send another payment.',
+};
+
 // What the customer sees once Stripe's page is out of the way: the payment
 // being confirmed, or how it ended.
 class CardPaymentStatusView extends StatelessWidget {
   final CardPaymentState state;
   final VoidCallback onCheckAgain;
+  // Crypto only: reopen the invoice page.
+  final VoidCallback onResumeCheckout;
   final VoidCallback onBackToCheckout;
   final VoidCallback onGoHome;
 
@@ -20,6 +35,7 @@ class CardPaymentStatusView extends StatelessWidget {
     super.key,
     required this.state,
     required this.onCheckAgain,
+    required this.onResumeCheckout,
     required this.onBackToCheckout,
     required this.onGoHome,
   });
@@ -106,20 +122,50 @@ class CardPaymentStatusView extends StatelessWidget {
                   color: colors.statusWarning,
                 )
               : const _StatusSpinner(),
-          _title(context, m, 'Confirming your payment'),
+          _title(
+            context,
+            m,
+            state.isAwaitingCrypto
+                ? 'Waiting for your payment'
+                : 'Confirming your payment',
+          ),
           _message(
             context,
             m,
-            'This usually takes a few seconds. Your order is placed the '
-            'moment the payment is confirmed, and will appear in My Orders.',
+            !state.isCrypto
+                ? 'This usually takes a few seconds. Your order is placed the '
+                      'moment the payment is confirmed, and will appear in My '
+                      'Orders.'
+                : state.isAwaitingCrypto
+                ? 'We have not seen your payment yet. It can take a few '
+                      'minutes to show up after you send it. If you have '
+                      'already sent it, stay here — do not pay again.'
+                : _cryptoProgress[state.payment?.gatewayStatus] ??
+                      'Your order is placed the moment the payment is '
+                          'confirmed, and will appear in My Orders.',
           ),
-          if (state.gaveUp) ...[
+          if (state.gaveUp)
             _message(
               context,
               m,
               'We have stopped checking automatically. Your payment is still '
               'being watched on our side.',
             ),
+          if (state.isAwaitingCrypto) ...[
+            SizedBox(height: m.gapLg),
+            _button(
+              m,
+              label: 'Back to payment page',
+              onPressed: onResumeCheckout,
+            ),
+            SizedBox(height: m.gapSm),
+            _button(
+              m,
+              label: 'Pay another way',
+              onPressed: onBackToCheckout,
+              outlined: true,
+            ),
+          ] else if (state.gaveUp) ...[
             SizedBox(height: m.gapLg),
             _button(m, label: 'Check again', onPressed: onCheckAgain),
             SizedBox(height: m.gapSm),
@@ -184,6 +230,10 @@ class CardPaymentStatusView extends StatelessWidget {
                       'order could be placed, so the full amount has been '
                       'refunded. It can take 5–10 days to appear on your '
                       'statement.'
+                : state.isCrypto
+                ? 'No order was placed. If you sent a payment for it, '
+                      'contact support and we will sort it out. Your items '
+                      'are still available to buy.'
                 : 'No order was placed and nothing has been charged. Your '
                       'items are still available to buy.',
           ),
@@ -202,7 +252,8 @@ class CardPaymentStatusView extends StatelessWidget {
             context,
             m,
             'We are reviewing it before confirming your order. Our team has '
-            'been notified — you will not be charged twice.',
+            'been notified — ${state.isCrypto ? 'please do not send another '
+                      'payment' : 'you will not be charged twice'}.',
           ),
           SizedBox(height: m.gapLg),
           _button(m, label: 'Back to home', onPressed: onGoHome),

@@ -12,15 +12,17 @@ class StripePaymentDataSource {
 
   const StripePaymentDataSource(this._client);
 
-  // The server only offers the card rail when Stripe is switched on and
-  // configured, so the option is asked for rather than hardcoded.
-  Future<bool> isCardAvailable() async {
+  // The codes of the rails the server can offer right now (`STRIPE`,
+  // `NOWPAYMENTS`…). A rail is only offered when it is switched on and
+  // configured, so the options are asked for rather than hardcoded.
+  Future<Set<String>> availableMethods() async {
     final response = await _client.dio.get(ApiEndpoints.paymentMethods);
     final inner = unwrapEnvelope(response.data);
     final methods = inner['methods'] as List<dynamic>? ?? const [];
-    return methods.any(
-      (m) => m is Map && m['code'] == 'STRIPE' && m['available'] == true,
-    );
+    return {
+      for (final m in methods)
+        if (m is Map && m['available'] == true) '${m['code']}',
+    };
   }
 
   // What the server would charge for this basket. Tax and delivery are the

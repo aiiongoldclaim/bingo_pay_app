@@ -44,6 +44,9 @@ class StripeStatusResponse {
   final String currency;
   // Null until the payment is settled.
   final StripeOrderRef? order;
+  // The gateway's own word for where the payment is. Only read on the crypto
+  // rail: `waiting`, `confirming`, `confirmed`, `sending`, `partially_paid`…
+  final String? gatewayStatus;
 
   const StripeStatusResponse({
     required this.status,
@@ -51,6 +54,7 @@ class StripeStatusResponse {
     required this.amount,
     required this.currency,
     this.order,
+    this.gatewayStatus,
   });
 
   // API shape: { success, statusCode, message, data: { message, data: {
@@ -71,6 +75,7 @@ class StripeStatusResponse {
       order: order is Map<String, dynamic>
           ? StripeOrderRef.fromJson(order)
           : null,
+      gatewayStatus: inner['gatewayStatus'] as String?,
     );
   }
 }

@@ -35,7 +35,7 @@ class CardPaymentScreen extends StatelessWidget {
             backgroundColor: colors.background,
             // A close button, not a back arrow: Stripe's page has its own.
             appBar: CustomAppBar(
-              title: 'Card Payment',
+              title: state.isCrypto ? 'Crypto Payment' : 'Card Payment',
               showBackButton: false,
               actionIcon1: Icons.close_rounded,
               onAction1: () => _onClose(context, state),
@@ -54,6 +54,7 @@ class CardPaymentScreen extends StatelessWidget {
                       onCheckAgain: state.phase == CardPaymentPhase.backedOut
                           ? cubit.onCheckoutLeft
                           : cubit.checkAgain,
+                      onResumeCheckout: cubit.resumeCheckout,
                       onBackToCheckout: () => context.pop(),
                       onGoHome: () => context.go(AppRoutes.home),
                     ),
@@ -78,8 +79,10 @@ class CardPaymentScreen extends StatelessWidget {
     }
 
     // Backed out and nothing was charged: straight back to the checkout,
-    // with no screen in between.
-    if (state.phase == CardPaymentPhase.closed &&
+    // with no screen in between. Never for crypto, where coins may have been
+    // sent to an invoice that was then closed.
+    if (!state.isCrypto &&
+        state.phase == CardPaymentPhase.closed &&
         state.payment?.status == StripePaymentStatus.cancelled &&
         !state.isRefunded) {
       AppSnackbar.showWarning(
@@ -100,7 +103,9 @@ class CardPaymentScreen extends StatelessWidget {
         context.pop();
       // The card may already have been charged, so there is no checkout to
       // go back to — the order turns up in My Orders once it is confirmed.
+      // A crypto invoice nobody has paid into yet is the exception.
       case CardPaymentPhase.confirming:
+        state.isAwaitingCrypto ? context.pop() : context.go(AppRoutes.home);
       case CardPaymentPhase.reconciling:
         context.go(AppRoutes.home);
       case CardPaymentPhase.paid:

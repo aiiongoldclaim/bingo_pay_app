@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bingo_pay/features/payment/data/models/stripe_intent_response.dart';
 import 'package:bingo_pay/features/payment/data/models/stripe_status_response.dart';
+import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/card_payment_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,25 +12,45 @@ import 'package:get_it/get_it.dart';
 //
 // The app never marks a payment paid: Stripe's webhook tells the server, the
 // server places the order, and this cubit polls /status until it says so.
+//
+// A crypto checkout (NOWPayments) is followed the same way, with two
+// differences: it is watched from the moment its page opens, because the
+// customer pays from a wallet outside that page, and it cannot be cancelled.
 class CardPaymentCubit extends Cubit<CardPaymentState> {
   CardPaymentCubit({
     required StripeIntentResponse intent,
+    bool isCrypto = false,
     StripePaymentDataSource? stripePaymentDataSource,
-  }) : _stripePaymentDataSource =
-           stripePaymentDataSource ?? GetIt.I<StripePaymentDataSource>(),
+    NowPaymentsDataSource? nowPaymentsDataSource,
+  }) : _stripePaymentDataSource = isCrypto
+           ? null
+           : stripePaymentDataSource ?? GetIt.I<StripePaymentDataSource>(),
+       _nowPaymentsDataSource = isCrypto
+           ? nowPaymentsDataSource ?? GetIt.I<NowPaymentsDataSource>()
+           : null,
        super(
          CardPaymentState(
            paymentUuid: intent.paymentUuid,
            checkoutUrl: intent.checkoutUrl,
+           isCrypto: isCrypto,
          ),
-       );
+       ) {
+    if (isCrypto) _startPolling();
+  }
 
   // Every 3s for the first ten checks, then every 10s: about ten minutes of
-  // checking before the screen stops asking on its own.
+  // checking before the screen stops asking on its own. Twenty for crypto,
+  // which waits on the network to confirm the transfer.
   static const _fastPolls = 10;
-  static const _maxPolls = 67;
+  late final int _maxPolls = state.isCrypto ? 127 : 67;
 
-  final StripePaymentDataSource _stripePaymentDataSource;
+  // Exactly one of the two is set.
+  final StripePaymentDataSource? _stripePaymentDataSource;
+  final NowPaymentsDataSource? _nowPaymentsDataSource;
+
+  Future<StripeStatusResponse> _getStatus() =>
+      _nowPaymentsDataSource?.getStatus(state.paymentUuid) ??
+      _stripePaymentDataSource!.getStatus(state.paymentUuid);
 
   Timer? _timer;
   int _pollsLeft = 0;
@@ -55,6 +76,13 @@ class CardPaymentCubit extends Cubit<CardPaymentState> {
   // card had in fact been charged, the server settles the order instead and
   // answers PAID.
   Future<void> onCheckoutLeft() async {
+    // A crypto invoice cannot be closed, and the coins may already be on
+    // their way: leaving its page only moves on to waiting for them.
+    if (state.isCrypto) {
+      onPaymentSubmitted();
+      return;
+    }
+
     _stopPolling();
     // A fresh state, so `payment` stays null if this call fails: without an
     // answer nobody knows whether the card was charged.
@@ -68,13 +96,26 @@ class CardPaymentCubit extends Cubit<CardPaymentState> {
     );
 
     try {
-      final payment = await _stripePaymentDataSource.cancel(state.paymentUuid);
+      final payment = await _stripePaymentDataSource!.cancel(state.paymentUuid);
       if (isClosed) return;
       _apply(payment);
     } catch (_) {
       if (isClosed) return;
       emit(state.copyWith(isChecking: false));
     }
+  }
+
+  // Crypto only: the invoice stays payable until it expires, so its page can
+  // be opened again.
+  void resumeCheckout() {
+    emit(
+      state.copyWith(
+        phase: CardPaymentPhase.checkout,
+        gaveUp: false,
+        clearError: true,
+      ),
+    );
+    _startPolling();
   }
 
   void checkAgain() {
@@ -91,10 +132,15 @@ class CardPaymentCubit extends Cubit<CardPaymentState> {
       StripePaymentStatus.failed ||
       StripePaymentStatus.expired ||
       StripePaymentStatus.cancelled => CardPaymentPhase.closed,
-      // Charged with the order being placed, or still open because the server
-      // would not cancel a payment that is clearing: keep watching either way.
-      StripePaymentStatus.processing ||
-      StripePaymentStatus.pending => CardPaymentPhase.confirming,
+      // Charged, with the order being placed.
+      StripePaymentStatus.processing => CardPaymentPhase.confirming,
+      // Still open because the server would not cancel a payment that is
+      // clearing: keep watching. A crypto invoice is also pending the whole
+      // time its page is open, which is no reason to take the page away.
+      StripePaymentStatus.pending =>
+        state.phase == CardPaymentPhase.checkout
+            ? CardPaymentPhase.checkout
+            : CardPaymentPhase.confirming,
     };
 
     emit(
@@ -126,9 +172,7 @@ class CardPaymentCubit extends Cubit<CardPaymentState> {
     if (isClosed || run != _pollRun) return;
 
     try {
-      final payment = await _stripePaymentDataSource.getStatus(
-        state.paymentUuid,
-      );
+      final payment = await _getStatus();
       if (isClosed || run != _pollRun) return;
       _apply(payment);
     } catch (_) {
@@ -140,7 +184,13 @@ class CardPaymentCubit extends Cubit<CardPaymentState> {
       );
     }
 
-    if (state.phase != CardPaymentPhase.confirming) return;
+    // A crypto checkout is watched while its page is open too.
+    final watching =
+        state.phase == CardPaymentPhase.confirming ||
+        (state.isCrypto && state.phase == CardPaymentPhase.checkout);
+    // `run != _pollRun`: applying the answer restarted polling, so the new
+    // run schedules the next check, not this one.
+    if (!watching || run != _pollRun) return;
 
     if (--_pollsLeft <= 0) {
       emit(state.copyWith(gaveUp: true));

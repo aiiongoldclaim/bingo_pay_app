@@ -61,6 +61,13 @@ class ReviewPayScreen extends StatelessWidget {
                     'Credit / Debit Card',
                     "Pay on Stripe's secure page",
                   ),
+                if (state.cryptoAvailable)
+                  (
+                    PaymentMethod.crypto,
+                    Icons.currency_bitcoin,
+                    'Pay with Crypto',
+                    'BTC, ETH, USDT and more — priced in USD',
+                  ),
                 (
                   PaymentMethod.cashOnDelivery,
                   Icons.payments_outlined,
@@ -133,6 +140,7 @@ class ReviewPayScreen extends StatelessWidget {
             label: switch (state.selectedMethod) {
               PaymentMethod.cashOnDelivery => 'PLACE ORDER',
               PaymentMethod.card => 'CONTINUE TO CARD PAYMENT',
+              PaymentMethod.crypto => 'CONTINUE TO CRYPTO PAYMENT',
               _ => 'PAY NOW',
             },
             isLoading: state.isProcessing,
@@ -207,8 +215,13 @@ class ReviewPayScreen extends StatelessWidget {
 
     // Card payments finish on Stripe's page, not here: the card screen takes
     // over and moves on to the success screen once the server reports PAID.
-    if (cubit.state.selectedMethod == PaymentMethod.card) {
-      final intent = await cubit.startCardPayment();
+    // Crypto payments do the same on NOWPayments' page.
+    final method = cubit.state.selectedMethod;
+    if (method == PaymentMethod.card || method == PaymentMethod.crypto) {
+      final isCrypto = method == PaymentMethod.crypto;
+      final intent = isCrypto
+          ? await cubit.startCryptoPayment()
+          : await cubit.startCardPayment();
 
       if (!context.mounted) return;
 
@@ -222,7 +235,11 @@ class ReviewPayScreen extends StatelessWidget {
 
       context.push(
         AppRoutes.paymentCard,
-        extra: CardPaymentArgs(cubit: cubit, intent: intent),
+        extra: CardPaymentArgs(
+          cubit: cubit,
+          intent: intent,
+          isCrypto: isCrypto,
+        ),
       );
       return;
     }

@@ -11,6 +11,7 @@ enum PaymentMethod {
   cashOnDelivery,
   card,
   wallet,
+  crypto,
 }
 
 class PaymentMethodState {
@@ -65,6 +66,8 @@ class PaymentMethodState {
 
   // Whether the server is offering card payments (GET /payments/methods)
   final bool cardAvailable;
+  // …and crypto payments, from the same call.
+  final bool cryptoAvailable;
 
   // Whether tax, delivery and the total are the server's figures. Until they
   // are, the app only knows the item total and must not show the rest.
@@ -106,6 +109,7 @@ class PaymentMethodState {
     this.slotUuid,
     this.participants,
     this.cardAvailable = false,
+    this.cryptoAvailable = false,
     this.isQuoted = false,
   }) : itemTotal = itemTotal ?? productPriceValue,
        totalAmount = totalAmount ?? productPriceValue;
@@ -178,6 +182,7 @@ class PaymentMethodState {
     String? slotUuid,
     int? participants,
     bool? cardAvailable,
+    bool? cryptoAvailable,
     bool? isQuoted,
   }) {
     return PaymentMethodState(
@@ -218,6 +223,7 @@ class PaymentMethodState {
       slotUuid: slotUuid ?? this.slotUuid,
       participants: participants ?? this.participants,
       cardAvailable: cardAvailable ?? this.cardAvailable,
+      cryptoAvailable: cryptoAvailable ?? this.cryptoAvailable,
       isQuoted: isQuoted ?? this.isQuoted,
     );
   }

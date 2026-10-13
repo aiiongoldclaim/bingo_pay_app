@@ -244,7 +244,10 @@ class AppRouter {
               providers: [
                 BlocProvider.value(value: args.cubit),
                 BlocProvider(
-                  create: (_) => CardPaymentCubit(intent: args.intent),
+                  create: (_) => CardPaymentCubit(
+                    intent: args.intent,
+                    isCrypto: args.isCrypto,
+                  ),
                 ),
               ],
               child: const CardPaymentScreen(),

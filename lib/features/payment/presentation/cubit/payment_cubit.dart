@@ -7,6 +7,7 @@ import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/models/stripe_intent_response.dart';
+import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:dio/dio.dart';
@@ -27,10 +28,12 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     int? participants, // NEW
     BigodPaymentDataSource? bigodPaymentDataSource,
     StripePaymentDataSource? stripePaymentDataSource,
+    NowPaymentsDataSource? nowPaymentsDataSource,
     ClearCartUseCase? clearCartUseCase,
   }) : _bigodPaymentDataSource =
            bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
        _stripePaymentDataSourceOverride = stripePaymentDataSource,
+       _nowPaymentsDataSourceOverride = nowPaymentsDataSource,
        _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
        super(
          PaymentMethodState.initial(
@@ -50,11 +53,16 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
 
   final BigodPaymentDataSource _bigodPaymentDataSource;
   final StripePaymentDataSource? _stripePaymentDataSourceOverride;
+  final NowPaymentsDataSource? _nowPaymentsDataSourceOverride;
   final ClearCartUseCase _clearCartUseCase;
 
   // Looked up on first use: only the card rail needs it.
   late final StripePaymentDataSource _stripePaymentDataSource =
       _stripePaymentDataSourceOverride ?? GetIt.I<StripePaymentDataSource>();
+
+  // Likewise, for the crypto rail.
+  late final NowPaymentsDataSource _nowPaymentsDataSource =
+      _nowPaymentsDataSourceOverride ?? GetIt.I<NowPaymentsDataSource>();
 
   Future<void> _clearCartIfNeeded() async {
     if (!state.isCartFlow) return;
@@ -127,10 +135,15 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
 
   Future<void> loadPaymentMethods() async {
     try {
-      final cardAvailable = await _stripePaymentDataSource.isCardAvailable();
-      emit(state.copyWith(cardAvailable: cardAvailable));
+      final available = await _stripePaymentDataSource.availableMethods();
+      emit(
+        state.copyWith(
+          cardAvailable: available.contains('STRIPE'),
+          cryptoAvailable: available.contains('NOWPAYMENTS'),
+        ),
+      );
     } catch (_) {
-      // card option stays hidden
+      // card and crypto options stay hidden
     }
   }
 
@@ -270,11 +283,25 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   // Card rail, step 1: ask the server for a Stripe checkout page. Nothing is
   // charged and no order exists yet — the caller sends the customer to
   // `checkoutUrl`, and the order appears once Stripe confirms the payment.
-  Future<StripeIntentResponse?> startCardPayment() async {
+  Future<StripeIntentResponse?> startCardPayment() =>
+      _startHostedPayment(crypto: false);
+
+  // Crypto rail, step 1: the same, for a NOWPayments invoice page. Nothing
+  // is owed until the customer sends the coins, and the order appears once
+  // NOWPayments confirms they arrived.
+  Future<StripeIntentResponse?> startCryptoPayment() =>
+      _startHostedPayment(crypto: true);
+
+  Future<StripeIntentResponse?> _startHostedPayment({
+    required bool crypto,
+  }) async {
     emit(state.copyWith(status: PaymentStatus.loading, isProcessing: true));
 
     try {
-      final intent = await _stripePaymentDataSource.createIntent(
+      final createIntent = crypto
+          ? _nowPaymentsDataSource.createIntent
+          : _stripePaymentDataSource.createIntent;
+      final intent = await createIntent(
         addressId: state.deliveryAddressId,
         variantUuid: state.isCartFlow ? null : state.variantUuid,
         quantity: state.isCartFlow ? null : state.quantity,
@@ -284,13 +311,20 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         participants: state.isServiceBooking ? state.participants : null,
       );
 
-      // Only ever follow a Stripe Checkout url — never an arbitrary one.
-      if (!intent.checkoutUrl.startsWith('https://checkout.stripe.com/')) {
+      // Only ever follow the gateway's own page — never an arbitrary url.
+      final url = Uri.tryParse(intent.checkoutUrl);
+      final isGatewayPage = crypto
+          ? url != null &&
+                url.isScheme('https') &&
+                (url.host == 'nowpayments.io' ||
+                    url.host.endsWith('.nowpayments.io'))
+          : intent.checkoutUrl.startsWith('https://checkout.stripe.com/');
+      if (!isGatewayPage) {
         throw const FormatException('No checkout url returned');
       }
 
-      // The server's quote is what the card is charged, so it replaces the
-      // locally computed totals from here on.
+      // The server's quote is what the customer is charged, so it replaces
+      // the locally computed totals from here on.
       final breakdown = intent.breakdown;
       emit(
         state.copyWith(
@@ -317,7 +351,9 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
       emit(
         state.copyWith(
           status: PaymentStatus.failure,
-          errorMessage: 'Could not start the card payment. Please try again.',
+          errorMessage:
+              'Could not start the ${crypto ? 'crypto' : 'card'} payment. '
+              'Please try again.',
           isProcessing: false,
         ),
       );
@@ -325,8 +361,9 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     return null;
   }
 
-  // Card rail, last step: the server reported the payment PAID and placed
-  // the order. It closed the cart too, so there is nothing to clear here.
+  // Card and crypto rails, last step: the server reported the payment PAID
+  // and placed the order. It closed the cart too, so there is nothing to
+  // clear here.
   void completeCardPayment({
     required String orderNumber,
     required String orderUuid,

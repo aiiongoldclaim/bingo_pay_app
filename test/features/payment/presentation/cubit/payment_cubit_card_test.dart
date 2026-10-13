@@ -3,6 +3,7 @@ import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart'
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/models/bigod_intent_response.dart';
 import 'package:bingo_pay/features/payment/data/models/stripe_intent_response.dart';
+import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
@@ -15,6 +16,8 @@ class MockBigodPaymentDataSource extends Mock implements BigodPaymentDataSource 
 
 class MockStripePaymentDataSource extends Mock
     implements StripePaymentDataSource {}
+
+class MockNowPaymentsDataSource extends Mock implements NowPaymentsDataSource {}
 
 class MockClearCartUseCase extends Mock implements ClearCartUseCase {}
 
@@ -34,11 +37,13 @@ const _intent = StripeIntentResponse(
 void main() {
   late MockBigodPaymentDataSource mockBigod;
   late MockStripePaymentDataSource mockStripe;
+  late MockNowPaymentsDataSource mockNowPayments;
   late MockClearCartUseCase mockClearCart;
 
   setUp(() {
     mockBigod = MockBigodPaymentDataSource();
     mockStripe = MockStripePaymentDataSource();
+    mockNowPayments = MockNowPaymentsDataSource();
     mockClearCart = MockClearCartUseCase();
     when(() => mockClearCart()).thenAnswer((_) async => const Right('cleared'));
   });
@@ -52,6 +57,7 @@ void main() {
       cartItems: cartItems,
       bigodPaymentDataSource: mockBigod,
       stripePaymentDataSource: mockStripe,
+      nowPaymentsDataSource: mockNowPayments,
       clearCartUseCase: mockClearCart,
     )
       ..selectPaymentMethod(PaymentMethod.card)
@@ -216,24 +222,112 @@ void main() {
   blocTest<PaymentMethodCubit, PaymentMethodState>(
     'loadPaymentMethods offers the card option when the server does',
     build: () {
-      when(() => mockStripe.isCardAvailable()).thenAnswer((_) async => true);
+      when(() => mockStripe.availableMethods())
+          .thenAnswer((_) async => {'BIGOD', 'STRIPE'});
       return buildCubit();
     },
     act: (cubit) => cubit.loadPaymentMethods(),
     expect: () => [
       isA<PaymentMethodState>()
-          .having((s) => s.cardAvailable, 'cardAvailable', true),
+          .having((s) => s.cardAvailable, 'cardAvailable', true)
+          .having((s) => s.cryptoAvailable, 'cryptoAvailable', false),
     ],
   );
 
   blocTest<PaymentMethodCubit, PaymentMethodState>(
-    'loadPaymentMethods keeps the card option hidden when the request fails',
+    'loadPaymentMethods offers the crypto option when the server does',
     build: () {
-      when(() => mockStripe.isCardAvailable()).thenThrow(Exception('offline'));
+      when(() => mockStripe.availableMethods())
+          .thenAnswer((_) async => {'BIGOD', 'NOWPAYMENTS'});
+      return buildCubit();
+    },
+    act: (cubit) => cubit.loadPaymentMethods(),
+    expect: () => [
+      isA<PaymentMethodState>()
+          .having((s) => s.cardAvailable, 'cardAvailable', false)
+          .having((s) => s.cryptoAvailable, 'cryptoAvailable', true),
+    ],
+  );
+
+  blocTest<PaymentMethodCubit, PaymentMethodState>(
+    'loadPaymentMethods keeps the card and crypto options hidden when the request fails',
+    build: () {
+      when(() => mockStripe.availableMethods()).thenThrow(Exception('offline'));
       return buildCubit();
     },
     act: (cubit) => cubit.loadPaymentMethods(),
     expect: () => <PaymentMethodState>[],
-    verify: (cubit) => expect(cubit.state.cardAvailable, isFalse),
+    verify: (cubit) {
+      expect(cubit.state.cardAvailable, isFalse);
+      expect(cubit.state.cryptoAvailable, isFalse);
+    },
   );
+
+  group('crypto', () {
+    void stubCryptoIntent(String invoiceUrl) {
+      when(() => mockNowPayments.createIntent(
+            addressId: '12',
+            variantUuid: 'variant-1',
+            quantity: 1,
+          )).thenAnswer(
+        (_) async => StripeIntentResponse(
+          paymentUuid: 'c-1',
+          checkoutUrl: invoiceUrl,
+          amount: 118,
+          breakdown: _intent.breakdown,
+        ),
+      );
+    }
+
+    test('startCryptoPayment hands back the invoice to open and adopts the server quote', () async {
+      stubCryptoIntent('https://nowpayments.io/payment/?iid=4977544823');
+      final cubit = buildCubit();
+      addTearDown(cubit.close);
+
+      final intent = await cubit.startCryptoPayment();
+
+      expect(intent?.paymentUuid, 'c-1');
+      // Not success: nothing is paid until the server says so.
+      expect(cubit.state.status, PaymentStatus.initial);
+      expect(cubit.state.totalAmount, 118);
+      expect(cubit.state.isQuoted, isTrue);
+      // The crypto rail never touches the card or wallet rails, or the cart.
+      verifyNever(() => mockStripe.createIntent(
+            addressId: any(named: 'addressId'),
+            variantUuid: any(named: 'variantUuid'),
+            quantity: any(named: 'quantity'),
+          ));
+      verifyNever(() => mockBigod.confirmPayment(any()));
+      verifyNever(() => mockClearCart());
+    });
+
+    test('startCryptoPayment follows the NOWPayments sandbox page too', () async {
+      stubCryptoIntent('https://sandbox.nowpayments.io/payment/?iid=1');
+      final cubit = buildCubit();
+      addTearDown(cubit.close);
+
+      expect(await cubit.startCryptoPayment(), isNotNull);
+    });
+
+    for (final url in [
+      'https://evil.example.com/payment/?iid=1',
+      'https://nowpayments.io.evil.example.com/payment/?iid=1',
+      'https://evilnowpayments.io/payment/?iid=1',
+      'http://nowpayments.io/payment/?iid=1',
+      // Stripe's page is not this rail's either.
+      'https://checkout.stripe.com/c/pay/cs_test_123',
+    ]) {
+      test('startCryptoPayment refuses $url', () async {
+        stubCryptoIntent(url);
+        final cubit = buildCubit();
+        addTearDown(cubit.close);
+
+        final intent = await cubit.startCryptoPayment();
+
+        expect(intent, isNull);
+        expect(cubit.state.status, PaymentStatus.failure);
+        expect(cubit.state.isProcessing, isFalse);
+      });
+    }
+  });
 }

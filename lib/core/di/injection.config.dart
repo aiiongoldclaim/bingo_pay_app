@@ -185,6 +185,8 @@ import 'package:bingo_pay/features/orders/presentation/cubit/orders_cubit.dart'
     as _i724;
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart'
     as _i792;
+import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.dart'
+    as _i777;
 import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart'
     as _i971;
 import 'package:bingo_pay/features/product_categories_details/data/repositories/product_listing_repository_impl.dart'
@@ -348,6 +350,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i792.BigodPaymentDataSource>(
       () => _i792.BigodPaymentDataSource(gh<_i541.ApiClient>()),
+    );
+    gh.singleton<_i777.NowPaymentsDataSource>(
+      () => _i777.NowPaymentsDataSource(gh<_i541.ApiClient>()),
     );
     gh.singleton<_i971.StripePaymentDataSource>(
       () => _i971.StripePaymentDataSource(gh<_i541.ApiClient>()),

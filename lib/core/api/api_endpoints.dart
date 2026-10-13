@@ -49,6 +49,11 @@ class ApiEndpoints {
   static String stripeCancel(String paymentUuid) =>
       '/api/v1/payments/stripe/cancel/$paymentUuid';
 
+  // Crypto payments (NOWPayments hosted invoice)
+  static const String nowPaymentsIntent = '/api/v1/payments/nowpayments/intent';
+  static String nowPaymentsStatus(String paymentUuid) =>
+      '/api/v1/payments/nowpayments/status/$paymentUuid';
+
   static const String membership = '/api/v1/customer/membership';
   static const String membershipPlans = '/api/v1/customer/membership/plans';
   static const String membershipSubscribe = '/api/v1/customer/membership/subscribe';

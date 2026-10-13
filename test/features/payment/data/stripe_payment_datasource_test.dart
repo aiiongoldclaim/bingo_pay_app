@@ -216,28 +216,34 @@ void main() {
     verify(() => mockDio.post(ApiEndpoints.stripeCancel('p-1'))).called(1);
   });
 
-  group('isCardAvailable', () {
-    void stubMethods(bool stripeAvailable) {
+  group('availableMethods', () {
+    void stubMethods({required bool stripe, required bool crypto}) {
       when(() => mockDio.get(ApiEndpoints.paymentMethods)).thenAnswer(
         (_) async => _reply(ApiEndpoints.paymentMethods, {
           'currency': 'USD',
           'methods': [
             {'code': 'BIGOD', 'flow': 'SYNCHRONOUS', 'available': true},
-            {'code': 'NOWPAYMENTS', 'flow': 'REDIRECT', 'available': true},
-            {'code': 'STRIPE', 'flow': 'REDIRECT', 'available': stripeAvailable},
+            {'code': 'NOWPAYMENTS', 'flow': 'REDIRECT', 'available': crypto},
+            {'code': 'STRIPE', 'flow': 'REDIRECT', 'available': stripe},
           ],
         }),
       );
     }
 
-    test('is true when the server offers the STRIPE rail', () async {
-      stubMethods(true);
-      expect(await dataSource.isCardAvailable(), isTrue);
+    test('lists every rail the server offers', () async {
+      stubMethods(stripe: true, crypto: true);
+      expect(
+        await dataSource.availableMethods(),
+        {'BIGOD', 'NOWPAYMENTS', 'STRIPE'},
+      );
     });
 
-    test('is false when Stripe is switched off or not configured', () async {
-      stubMethods(false);
-      expect(await dataSource.isCardAvailable(), isFalse);
+    test('leaves out a rail that is switched off or not configured', () async {
+      stubMethods(stripe: false, crypto: true);
+      expect(await dataSource.availableMethods(), {'BIGOD', 'NOWPAYMENTS'});
+
+      stubMethods(stripe: true, crypto: false);
+      expect(await dataSource.availableMethods(), {'BIGOD', 'STRIPE'});
     });
   });
 }

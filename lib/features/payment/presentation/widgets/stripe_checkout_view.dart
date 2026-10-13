@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../core/theme/app_text_styles.dart';
@@ -11,9 +12,12 @@ enum StripeCheckoutReturn { success, cancelled }
 final _returnMarker = RegExp(r'[?&]from=(success|cancelled)(?:[&#]|$)');
 
 // Null unless `url` is the storefront page Stripe sends the customer back to.
+// NOWPayments' crypto invoice page returns the same way.
 StripeCheckoutReturn? stripeReturnOutcome(String url) {
   final host = Uri.tryParse(url)?.host ?? '';
-  if (host == 'stripe.com' || host.endsWith('.stripe.com')) return null;
+  for (final gateway in const ['stripe.com', 'nowpayments.io']) {
+    if (host == gateway || host.endsWith('.$gateway')) return null;
+  }
 
   return switch (_returnMarker.firstMatch(url)?.group(1)) {
     'success' => StripeCheckoutReturn.success,
@@ -22,7 +26,17 @@ StripeCheckoutReturn? stripeReturnOutcome(String url) {
   };
 }
 
-// Stripe's hosted checkout page, shown inside the app.
+// Wallet and bank-app links (`bitcoin:`, `ethereum:`, `wc:`…) are not pages:
+// the WebView cannot open them, the phone can.
+bool opensOutsideWebView(String url) {
+  final uri = Uri.tryParse(url);
+  return uri != null &&
+      uri.hasScheme &&
+      !const {'http', 'https', 'about', 'data', 'blob'}.contains(uri.scheme);
+}
+
+// Stripe's hosted checkout page, or NOWPayments' invoice page, shown inside
+// the app.
 class StripeCheckoutView extends StatefulWidget {
   final String checkoutUrl;
   final ValueChanged<StripeCheckoutReturn> onReturn;
@@ -51,9 +65,17 @@ class _StripeCheckoutViewState extends State<StripeCheckoutView> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onNavigationRequest: (request) => _isReturn(request.url)
-              ? NavigationDecision.prevent
-              : NavigationDecision.navigate,
+          onNavigationRequest: (request) {
+            if (_isReturn(request.url)) return NavigationDecision.prevent;
+            if (opensOutsideWebView(request.url)) {
+              launchUrl(
+                Uri.parse(request.url),
+                mode: LaunchMode.externalApplication,
+              ).ignore();
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
           // Not every redirect goes through onNavigationRequest on every
           // platform, so the same check runs on these too.
           onPageStarted: _isReturn,

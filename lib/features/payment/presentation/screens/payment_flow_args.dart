@@ -14,8 +14,14 @@ class ReviewPayArgs {
 class CardPaymentArgs {
   final PaymentMethodCubit cubit;
   final StripeIntentResponse intent;
+  // A NOWPayments invoice rather than a Stripe checkout.
+  final bool isCrypto;
 
-  const CardPaymentArgs({required this.cubit, required this.intent});
+  const CardPaymentArgs({
+    required this.cubit,
+    required this.intent,
+    this.isCrypto = false,
+  });
 }
 
 class AddEditAddressArgs {
