@@ -6,6 +6,9 @@ import 'package:bingo_pay/features/profile/data/profile_model/profile_response.d
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
+import 'package:bingo_pay/features/payment/data/models/stripe_intent_response.dart';
+import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.dart';
+import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,9 +27,13 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     String? slotUuid, // NEW
     int? participants, // NEW
     BigodPaymentDataSource? bigodPaymentDataSource,
+    StripePaymentDataSource? stripePaymentDataSource,
+    NowPaymentsDataSource? nowPaymentsDataSource,
     ClearCartUseCase? clearCartUseCase,
   }) : _bigodPaymentDataSource =
            bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
+       _stripePaymentDataSourceOverride = stripePaymentDataSource,
+       _nowPaymentsDataSourceOverride = nowPaymentsDataSource,
        _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
        super(
          PaymentMethodState.initial(
@@ -45,7 +52,17 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
        );
 
   final BigodPaymentDataSource _bigodPaymentDataSource;
+  final StripePaymentDataSource? _stripePaymentDataSourceOverride;
+  final NowPaymentsDataSource? _nowPaymentsDataSourceOverride;
   final ClearCartUseCase _clearCartUseCase;
+
+  // Looked up on first use: only the card rail needs it.
+  late final StripePaymentDataSource _stripePaymentDataSource =
+      _stripePaymentDataSourceOverride ?? GetIt.I<StripePaymentDataSource>();
+
+  // Likewise, for the crypto rail.
+  late final NowPaymentsDataSource _nowPaymentsDataSource =
+      _nowPaymentsDataSourceOverride ?? GetIt.I<NowPaymentsDataSource>();
 
   Future<void> _clearCartIfNeeded() async {
     if (!state.isCartFlow) return;
@@ -113,6 +130,46 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
       );
     } catch (_) {
       // balance stays at 0 — display will show '—'
+    }
+  }
+
+  Future<void> loadPaymentMethods() async {
+    try {
+      final available = await _stripePaymentDataSource.availableMethods();
+      emit(
+        state.copyWith(
+          cardAvailable: available.contains('STRIPE'),
+          cryptoAvailable: available.contains('NOWPAYMENTS'),
+        ),
+      );
+    } catch (_) {
+      // card and crypto options stay hidden
+    }
+  }
+
+  Future<void> loadQuote() async {
+    try {
+      final quote = await _stripePaymentDataSource.getQuote(
+        addressId: state.deliveryAddressId,
+        variantUuid: state.isCartFlow ? null : state.variantUuid,
+        quantity: state.isCartFlow ? null : state.quantity,
+
+        offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
+        slotUuid: state.isServiceBooking ? state.slotUuid : null,
+        participants: state.isServiceBooking ? state.participants : null,
+      );
+      emit(
+        state.copyWith(
+          itemTotal: quote.subtotal,
+          savings: quote.discount,
+          taxes: quote.tax,
+          deliveryCharge: quote.shipping,
+          totalAmount: quote.total,
+          isQuoted: true,
+        ),
+      );
+    } catch (_) {
+      // stays unquoted — the server's figures are then shown at payment
     }
   }
 
@@ -196,6 +253,12 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
           isProcessing: false,
           orderId: confirmation.order.orderNumber,
           orderUuid: confirmation.order.uuid,
+          itemTotal: intent.breakdown.subtotal,
+          savings: intent.breakdown.discount,
+          taxes: intent.breakdown.tax,
+          deliveryCharge: intent.breakdown.shipping,
+          totalAmount: intent.breakdown.total,
+          isQuoted: true,
         ),
       );
     } on DioException catch (e) {
@@ -215,6 +278,104 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         ),
       );
     }
+  }
+
+  // Card rail, step 1: ask the server for a Stripe checkout page. Nothing is
+  // charged and no order exists yet — the caller sends the customer to
+  // `checkoutUrl`, and the order appears once Stripe confirms the payment.
+  Future<StripeIntentResponse?> startCardPayment() =>
+      _startHostedPayment(crypto: false);
+
+  // Crypto rail, step 1: the same, for a NOWPayments invoice page. Nothing
+  // is owed until the customer sends the coins, and the order appears once
+  // NOWPayments confirms they arrived.
+  Future<StripeIntentResponse?> startCryptoPayment() =>
+      _startHostedPayment(crypto: true);
+
+  Future<StripeIntentResponse?> _startHostedPayment({
+    required bool crypto,
+  }) async {
+    emit(state.copyWith(status: PaymentStatus.loading, isProcessing: true));
+
+    try {
+      final createIntent = crypto
+          ? _nowPaymentsDataSource.createIntent
+          : _stripePaymentDataSource.createIntent;
+      final intent = await createIntent(
+        addressId: state.deliveryAddressId,
+        variantUuid: state.isCartFlow ? null : state.variantUuid,
+        quantity: state.isCartFlow ? null : state.quantity,
+
+        offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
+        slotUuid: state.isServiceBooking ? state.slotUuid : null,
+        participants: state.isServiceBooking ? state.participants : null,
+      );
+
+      // Only ever follow the gateway's own page — never an arbitrary url.
+      final url = Uri.tryParse(intent.checkoutUrl);
+      final isGatewayPage = crypto
+          ? url != null &&
+                url.isScheme('https') &&
+                (url.host == 'nowpayments.io' ||
+                    url.host.endsWith('.nowpayments.io'))
+          : intent.checkoutUrl.startsWith('https://checkout.stripe.com/');
+      if (!isGatewayPage) {
+        throw const FormatException('No checkout url returned');
+      }
+
+      // The server's quote is what the customer is charged, so it replaces
+      // the locally computed totals from here on.
+      final breakdown = intent.breakdown;
+      emit(
+        state.copyWith(
+          status: PaymentStatus.initial,
+          isProcessing: false,
+          totalAmount: intent.amount,
+          itemTotal: breakdown?.subtotal,
+          savings: breakdown?.discount,
+          taxes: breakdown?.tax,
+          deliveryCharge: breakdown?.shipping,
+          isQuoted: breakdown != null,
+        ),
+      );
+      return intent;
+    } on DioException catch (e) {
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage: _messageFor(e),
+          isProcessing: false,
+        ),
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failure,
+          errorMessage:
+              'Could not start the ${crypto ? 'crypto' : 'card'} payment. '
+              'Please try again.',
+          isProcessing: false,
+        ),
+      );
+    }
+    return null;
+  }
+
+  // Card and crypto rails, last step: the server reported the payment PAID
+  // and placed the order. It closed the cart too, so there is nothing to
+  // clear here.
+  void completeCardPayment({
+    required String orderNumber,
+    required String orderUuid,
+  }) {
+    emit(
+      state.copyWith(
+        status: PaymentStatus.success,
+        isProcessing: false,
+        orderId: orderNumber,
+        orderUuid: orderUuid,
+      ),
+    );
   }
 
   String _messageFor(DioException e) {

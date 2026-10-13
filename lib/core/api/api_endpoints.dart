@@ -40,6 +40,20 @@ class ApiEndpoints {
   static const String bigodConfirm = '/api/v1/payments/bigod/confirm';
   static const String bigodBalance = '/api/v1/payments/bigod/balance';
 
+  // Card payments (Stripe hosted checkout)
+  static const String paymentMethods = '/api/v1/payments/methods';
+  static const String paymentQuote = '/api/v1/payments/quote';
+  static const String stripeIntent = '/api/v1/payments/stripe/intent';
+  static String stripeStatus(String paymentUuid) =>
+      '/api/v1/payments/stripe/status/$paymentUuid';
+  static String stripeCancel(String paymentUuid) =>
+      '/api/v1/payments/stripe/cancel/$paymentUuid';
+
+  // Crypto payments (NOWPayments hosted invoice)
+  static const String nowPaymentsIntent = '/api/v1/payments/nowpayments/intent';
+  static String nowPaymentsStatus(String paymentUuid) =>
+      '/api/v1/payments/nowpayments/status/$paymentUuid';
+
   static const String membership = '/api/v1/customer/membership';
   static const String membershipPlans = '/api/v1/customer/membership/plans';
   static const String membershipSubscribe = '/api/v1/customer/membership/subscribe';

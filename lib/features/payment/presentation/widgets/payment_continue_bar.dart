@@ -7,14 +7,12 @@ import 'payment_metrics.dart';
 class PaymentContinueBar extends StatelessWidget {
   final PaymentMetrics metrics;
   final bool isEnabled;
-  final double total;
   final VoidCallback onPressed;
 
   const PaymentContinueBar({
     super.key,
     required this.metrics,
     required this.isEnabled,
-    required this.total,
     required this.onPressed,
   });
 
@@ -23,7 +21,7 @@ class PaymentContinueBar extends StatelessWidget {
     final m = metrics;
 
     return AppButton(
-      label: 'CONTINUE TO PAY  •  \$${total.toStringAsFixed(2)}',
+      label: 'CONTINUE',
       height: m.payHeight,
       fontSize: m.payFontSize,
       onPressed: isEnabled ? onPressed : null,

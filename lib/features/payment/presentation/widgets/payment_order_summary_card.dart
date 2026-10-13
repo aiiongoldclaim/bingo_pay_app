@@ -122,49 +122,6 @@ class PaymentOrderSummaryCard extends StatelessWidget {
             ),
 
           Padding(
-            padding: EdgeInsets.only(bottom: m.gapSm),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          'Shipping Fee',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: colors.textSecondary,
-                            fontFamily: 'Inter',
-                            fontSize: m.summaryLabelSize,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: m.gapXs),
-                      Icon(
-                        Icons.info_outline_rounded,
-                        size: m.summaryLabelSize + 2,
-                        color: colors.textMuted,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: m.gapSm),
-                Text(
-                  'FREE',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: colors.statusSuccess,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600,
-                    fontSize: m.summaryValueSize,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapSm * 0.6),
             child: Divider(height: 1, thickness: 1, color: colors.border),
           ),
@@ -173,7 +130,7 @@ class PaymentOrderSummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Total Amount',
+                  'Item Total',
                   style: AppTextStyles.titleMedium.copyWith(
                     color: colors.textPrimary,
                     fontFamily: 'Inter',

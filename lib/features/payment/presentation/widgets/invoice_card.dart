@@ -9,6 +9,9 @@ class InvoiceCard extends StatelessWidget {
   final String orderId;
   final String totalAmount;
   final String productName;
+  final String quantityLabel;
+  final String itemAmount;
+  final String tax;
   final String deliveryCharge;
   final String customerName;
   final String customerAddress;
@@ -18,6 +21,9 @@ class InvoiceCard extends StatelessWidget {
     required this.orderId,
     required this.totalAmount,
     required this.productName,
+    required this.quantityLabel,
+    required this.itemAmount,
+    required this.tax,
     required this.deliveryCharge,
     required this.customerName,
     required this.customerAddress,
@@ -78,19 +84,25 @@ class InvoiceCard extends StatelessWidget {
                   metrics: m,
                   icon: Icons.shopping_cart_outlined,
                   title: productName,
-                  subtitle: 'Qty 1 • incl. GST',
-                  trailing: totalAmount,
+                  subtitle: quantityLabel,
+                  trailing: itemAmount,
                 ),
 
-                if (deliveryCharge.isNotEmpty) ...[
-                  _Sep(metrics: m),
-                  _InfoRow(
-                    metrics: m,
-                    icon: Icons.local_shipping_outlined,
-                    title: 'Delivery',
-                    trailing: "Free",
-                  ),
-                ],
+                _Sep(metrics: m),
+                _InfoRow(
+                  metrics: m,
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Taxes & Fees',
+                  trailing: tax,
+                ),
+
+                _Sep(metrics: m),
+                _InfoRow(
+                  metrics: m,
+                  icon: Icons.local_shipping_outlined,
+                  title: 'Delivery',
+                  trailing: deliveryCharge,
+                ),
 
                 _Sep(metrics: m),
 

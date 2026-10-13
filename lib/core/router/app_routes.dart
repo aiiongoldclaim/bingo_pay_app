@@ -67,6 +67,7 @@ class AppRoutes {
 
   static const String payment = '/payment';
   static const String paymentReview = '/payment/review';
+  static const String paymentCard = '/payment/card';
   static const String addressList = '/address/list';
   static const String addEditAddress = '/address/edit';
   static const String productImageViewer = '/product-images';

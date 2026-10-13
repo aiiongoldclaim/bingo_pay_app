@@ -11,6 +11,7 @@ enum PaymentMethod {
   cashOnDelivery,
   card,
   wallet,
+  crypto,
 }
 
 class PaymentMethodState {
@@ -63,6 +64,15 @@ class PaymentMethodState {
   final String? slotUuid;       // NEW
   final int? participants;      // NEW
 
+  // Whether the server is offering card payments (GET /payments/methods)
+  final bool cardAvailable;
+  // …and crypto payments, from the same call.
+  final bool cryptoAvailable;
+
+  // Whether tax, delivery and the total are the server's figures. Until they
+  // are, the app only knows the item total and must not show the rest.
+  final bool isQuoted;
+
   PaymentMethodState({
     this.selectedMethod,
     this.status = PaymentStatus.initial,
@@ -98,6 +108,9 @@ class PaymentMethodState {
     this.offeringUuid,
     this.slotUuid,
     this.participants,
+    this.cardAvailable = false,
+    this.cryptoAvailable = false,
+    this.isQuoted = false,
   }) : itemTotal = itemTotal ?? productPriceValue,
        totalAmount = totalAmount ?? productPriceValue;
 
@@ -168,6 +181,9 @@ class PaymentMethodState {
     String? offeringUuid,
     String? slotUuid,
     int? participants,
+    bool? cardAvailable,
+    bool? cryptoAvailable,
+    bool? isQuoted,
   }) {
     return PaymentMethodState(
       selectedMethod: clearSelectedMethod
@@ -206,6 +222,9 @@ class PaymentMethodState {
       offeringUuid: offeringUuid ?? this.offeringUuid,
       slotUuid: slotUuid ?? this.slotUuid,
       participants: participants ?? this.participants,
+      cardAvailable: cardAvailable ?? this.cardAvailable,
+      cryptoAvailable: cryptoAvailable ?? this.cryptoAvailable,
+      isQuoted: isQuoted ?? this.isQuoted,
     );
   }
 
@@ -233,24 +252,6 @@ class PaymentMethodState {
 
   String get formattedRemaining => '\$${formatExactAmount(remainingAmount)}';
 
-  String get methodDisplayName {
-    switch (selectedMethod) {
-      case PaymentMethod.wallet:
-      case PaymentMethod.bingoldWallet:
-        return 'Bingold Wallet';
-      case PaymentMethod.card:
-      case PaymentMethod.creditDebit:
-        return 'Credit / Debit Card';
-      case PaymentMethod.upi:
-        return 'UPI';
-      case PaymentMethod.payLater:
-        return 'Pay Later';
-      case PaymentMethod.cashOnDelivery:
-        return 'Cash on Delivery';
-      case null:
-        return 'Not selected';
-    }
-  }
   // add this — mirrors isCartFlow, used to branch the payload in the cubit
   bool get isServiceBooking => slotUuid != null && slotUuid!.isNotEmpty;
 }

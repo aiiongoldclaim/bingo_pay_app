@@ -146,7 +146,7 @@ class ReviewOrderSummaryCard extends StatelessWidget {
             metrics: m,
             label: 'Delivery',
             value: delivery,
-            valueColor: colors.statusSuccess,
+            valueColor: delivery == '\$0' ? colors.statusSuccess : null,
           ),
           SizedBox(height: m.gapSm),
           ReviewRow(metrics: m, label: 'Taxes & Fees', value: tax),
