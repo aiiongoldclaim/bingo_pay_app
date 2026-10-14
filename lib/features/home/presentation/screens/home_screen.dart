@@ -25,9 +25,9 @@ import '../widgets/home_shimmer.dart';
 import '../widgets/luxe_dashboard_body.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../services/presentation/cubit/services_state.dart';
+// import '../../../services/presentation/cubit/services_state.dart';
 
-import '../widgets/book_services_section.dart';
+// import '../widgets/book_services_section.dart';
 import '../widgets/home_category_tabs.dart';
 import '../widgets/home_metrics.dart';
 import '../widgets/home_search_field.dart';
@@ -313,44 +313,45 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: SizedBox(height: m.sectionGap),
                             ),
 
-                            SliverToBoxAdapter(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: m.pagePadding,
-                                ),
-                                child: _buildStep4(
-                                  BlocBuilder<ServicesCubit, ServicesState>(
-                                    buildWhen: (previous, current) =>
-                                        previous.services != current.services,
-                                    builder: (context, servicesState) {
-                                      return BookServicesSection(
-                                        metrics: m,
-                                        title: AppStrings.bookService,
-                                        subtitle:
-                                            AppStrings.bookServiceSubtitle,
-                                        buttonText: AppStrings.bookNow,
-                                        services: servicesState.services,
-                                        activeTheme: vaultTheme,
-                                        onViewAll: () =>
-                                            context.push(AppRoutes.services),
-                                        onServiceTap: (service) {
-                                          if (service.uuid.isEmpty) return;
-                                          context.push(
-                                            AppRoutes.serviceDetailPath(
-                                              service.uuid,
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // ── Book Service section (temporarily disabled) ──
+                            // SliverToBoxAdapter(
+                              // child: Padding(
+                                // padding: EdgeInsets.symmetric(
+                                  // horizontal: m.pagePadding,
+                                // ),
+                                // child: _buildStep4(
+                                  // BlocBuilder<ServicesCubit, ServicesState>(
+                                    // buildWhen: (previous, current) =>
+                                        // previous.services != current.services,
+                                    // builder: (context, servicesState) {
+                                      // return BookServicesSection(
+                                        // metrics: m,
+                                        // title: AppStrings.bookService,
+                                        // subtitle:
+                                            // AppStrings.bookServiceSubtitle,
+                                        // buttonText: AppStrings.bookNow,
+                                        // services: servicesState.services,
+                                        // activeTheme: vaultTheme,
+                                        // onViewAll: () =>
+                                            // context.push(AppRoutes.services),
+                                        // onServiceTap: (service) {
+                                          // if (service.uuid.isEmpty) return;
+                                          // context.push(
+                                            // AppRoutes.serviceDetailPath(
+                                              // service.uuid,
+                                            // ),
+                                          // );
+                                        // },
+                                      // );
+                                    // },
+                                  // ),
+                                // ),
+                              // ),
+                            // ),
 
-                            SliverToBoxAdapter(
-                              child: SizedBox(height: m.sectionGap),
-                            ),
+                            // SliverToBoxAdapter(
+                              // child: SizedBox(height: m.sectionGap),
+                            // ),
 
                             // ── Flash Deals / Recommended / Empty ────
                             if (state.flashDeals.isEmpty &&
@@ -510,15 +511,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStep4(Widget child) {
-    return IntroStepTarget(
-      step: 4,
-      controller: controller,
-      cardContents: const TextSpan(text: AppStrings.introStep4),
-      onStepWillActivate: (fromStep) => _scrollToTarget(step: 4),
-      child: child,
-    );
-  }
+  // Widget _buildStep4(Widget child) {
+    // return IntroStepTarget(
+      // step: 4,
+      // controller: controller,
+      // cardContents: const TextSpan(text: AppStrings.introStep4),
+      // onStepWillActivate: (fromStep) => _scrollToTarget(step: 4),
+      // child: child,
+    // );
+  // }
 
   Widget _buildStep5(Widget child) {
     return IntroStepTarget(

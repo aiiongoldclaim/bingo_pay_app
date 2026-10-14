@@ -62,7 +62,7 @@ class AuthFooterLink extends StatelessWidget {
                 fontFamily: 'Inter',
                 fontSize: size,
                 fontWeight: FontWeight.w700,
-                color: ThemeColors.primaryPurple,
+                color: isDark ? ThemeColors.lavender : ThemeColors.primaryPurple,
               ),
             ),
           ),

@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
+import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
-import '../../../../core/utils/validators.dart'; // <- apne path ke hisaab se
+import '../../../../core/theme/theme_colors.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/custom_footer_section.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
@@ -18,7 +21,6 @@ import '../bloc/auth_state.dart';
 import '../../data/services/login_form_manager.dart';
 import '../widgets/auth_metrics.dart';
 import '../widgets/auth_tablet_layout.dart';
-import '../widgets/auth_terms_text.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
@@ -159,7 +161,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               child: AuthResponsiveLayout(
                 title: 'Verify Your Email',
                 subtitle:
-                'Enter the $_otpLength-digit code we sent to\n${widget.email},',
+                'Enter the $_otpLength-digit code we sent to\n${widget.email}',
+                centeredHero: true,
+                heroIllustration: const _OtpIllustration(),
+                centeredImageGap: 16,
+                centeredBrandOnTop: true,
                 topActionLabel: 'Sign In',
                 onTopAction: _backToLogin,
                 features: const [
@@ -195,7 +201,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        /// LABEL + required *
         Text.rich(
           TextSpan(
             children: [
@@ -214,7 +219,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   fontFamily: 'Inter',
                   fontSize: m.footerText + 1,
                   fontWeight: FontWeight.w700,
-                  // color: colors.statusWarning,
                   color: colors.error,
                 ),
               ),
@@ -262,13 +266,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             label: 'Verify Code',
             onPressed: _submit,
             isLoading: state is AuthLoading,
+            suffixIcon: Icons.arrow_forward_rounded,
+            gradient: ThemeColors.authCtaGradient,
           ),
         ),
 
         SizedBox(height: m.blockGap * 0.7),
 
         /// 🔁 RESEND
-        Row(
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
@@ -293,38 +301,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             ),
           ],
         ),
-
-        SizedBox(height: m.blockGap * 0.7),
-
-        /// OR DIVIDER
-        Row(
-          children: [
-            Expanded(child: Divider(color: colors.border)),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
-              child: Text(
-                'or',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  fontSize: m.footerText,
-                  color: colors.textSecondary,
-                ),
-              ),
-            ),
-            Expanded(child: Divider(color: colors.border)),
-          ],
         ),
 
-        SizedBox(height: m.blockGap * 0.7),
+        SizedBox(height: m.blockGap * 0.5),
 
-        AppButton(
-          label: 'Back to Login',
-          variant: AppButtonVariant.outlined,
-          onPressed: _backToLogin,
+        /// BACK TO LOGIN
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: AuthFooterLink(
+            prefix: AppStrings.wrongEmail,
+            action: AppStrings.backToLogin,
+            onTap: _backToLogin,
+          ),
         ),
-
-        SizedBox(height: m.blockGap * 0.8),
-
-        AuthTermsText(m: m),
       ],
     );
   }
@@ -406,6 +395,51 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         // colors.statusWarning,
         colors.error, // CHANGE HERE
          width: 1.5),
+      ),
+    );
+  }
+}
+
+class _OtpIllustration extends StatelessWidget {
+  const _OtpIllustration();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final halo = isDark
+        ? ThemeColors.mediumPurple.withValues(alpha: 0.18)
+        : ThemeColors.lavenderMist;
+
+    return Center(
+      heightFactor: 1,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Container(
+          width: 128,
+          height: 128,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: halo, shape: BoxShape.circle),
+          child: Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              gradient: ThemeColors.authCtaGradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: ThemeColors.authPurpleDeep.withValues(alpha: 0.30),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.mark_email_unread_rounded,
+              size: 40,
+              color: ThemeColors.white,
+            ),
+          ),
+        ),
       ),
     );
   }

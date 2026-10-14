@@ -3,10 +3,6 @@ class AppImages {
 
   // Images
   static const String base = "assets/images";
-  static const String logo = 'assets/images/logo.png';
-
-  // Icons
-  static const String logoIcon = 'assets/icons/logo_icon.png';
 
   //onBoarding
   // Numbering intentionally offset from the asset filenames — slide 1 uses
@@ -22,6 +18,10 @@ class AppImages {
   static const String dashboardDark = '$base/dashboard_dark.png';
   static const String dashboardLight = '$base/dashboard_light.png';
 
+  // Auth
+  static const String loginBag = '$base/login_bag.png';
+  static const String lock = '$base/lock.png';
+
   static const String ultraLuxeBanner1 = '$base/ultra_luxe_banner_1.png';
   static const String ultraLuxeBanner2 = '$base/ultra_luxe_banner_1.png';
   static const String ultraLuxeBanner3 = '$base/ultra_luxe_banner_1.png';
@@ -30,7 +30,6 @@ class AppImages {
   static const String help = '$base/help.png';
   static const String membership = '$base/membership.png';
   static const String membershipCard = '$base/card.png';
-  static const String membershipProfileCard = '$base/profile_card.png';
   static const String profileMembershipCard = '$base/profile_membership_card.png';
   static const String wishlistImg = '$base/wishlist_img.png';
 }

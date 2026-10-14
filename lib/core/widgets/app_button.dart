@@ -14,6 +14,9 @@ class AppButton extends StatelessWidget {
   final Color? textColor;
   final Color? iconColor;
 
+  /// Primary variant ka gradient override (default: theme gradient).
+  final Gradient? gradient;
+
   /// Optional overrides — screen ke Metrics se pass kar sakti ho
   final double? height;
   final double? fontSize;
@@ -28,6 +31,7 @@ class AppButton extends StatelessWidget {
     this.suffixIcon,
     this.textColor,
     this.iconColor,
+    this.gradient,
     this.height,
     this.fontSize,
   });
@@ -53,7 +57,7 @@ class AppButton extends StatelessWidget {
         height: buttonHeight,
         child: Container(
           decoration: BoxDecoration(
-            gradient: colors.buttonPrimaryGradient,
+            gradient: gradient ?? colors.buttonPrimaryGradient,
             borderRadius: BorderRadius.circular(metrics.radius),
           ),
           child: ElevatedButton(
@@ -140,7 +144,7 @@ class AppButton extends StatelessWidget {
           height: buttonHeight,
           child: Container(
             decoration: BoxDecoration(
-              gradient: isDisabled ? null : colors.buttonPrimaryGradient,
+              gradient: isDisabled ? null : (gradient ?? colors.buttonPrimaryGradient),
               color: isDisabled ? disabledFill : null,
               borderRadius: BorderRadius.circular(metrics.radius),
               boxShadow: isDisabled

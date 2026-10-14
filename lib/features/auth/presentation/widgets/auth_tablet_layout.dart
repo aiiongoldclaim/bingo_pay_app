@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -25,6 +26,25 @@ class AuthResponsiveLayout extends StatelessWidget {
   final String title;
   final String subtitle;
 
+  /// Portrait: brand → image → title, sab center mein (stacked).
+  final bool centeredHero;
+
+  /// [centeredHero] mein image ki minimum height (lambe forms ke liye badhao).
+  final double centeredImageMinHeight;
+
+  /// Default dashboard image ki jagah custom image asset (optional).
+  final String? heroImageAsset;
+
+  /// Image ki jagah custom widget (e.g. icon illustration); [heroImageAsset]
+  /// se priority zyada.
+  final Widget? heroIllustration;
+
+  /// [centeredHero] mein image ke upar/neeche ka gap (default: fieldGap * 0.6).
+  final double? centeredImageGap;
+
+  /// [centeredHero] mein brand upar fixed, baaki content neeche center.
+  final bool centeredBrandOnTop;
+
   final String? topActionLabel;
   final VoidCallback? onTopAction;
 
@@ -34,8 +54,14 @@ class AuthResponsiveLayout extends StatelessWidget {
   const AuthResponsiveLayout({
     super.key,
     required this.title,
-    required this.subtitle,
+    this.subtitle = '',
     required this.formBuilder,
+    this.centeredHero = false,
+    this.centeredImageMinHeight = 56,
+    this.heroImageAsset,
+    this.heroIllustration,
+    this.centeredImageGap,
+    this.centeredBrandOnTop = false,
     this.brandFirst = 'The',
     this.brandSecond = 'Vaults',
     this.brandTagline = 'YOUR EVERYDAY STORE',
@@ -91,6 +117,8 @@ class AuthResponsiveLayout extends StatelessWidget {
   Widget _buildPortrait(BuildContext context, AuthMetrics m) {
     final tabletPortrait = m.isTablet;
 
+    if (centeredHero) return _buildCenteredPortrait(context, m);
+
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: m.pagePadH,
@@ -124,6 +152,7 @@ class AuthResponsiveLayout extends StatelessWidget {
                   Expanded(
                     flex: tabletPortrait ? 6 : 4,
                     child: _HeroImage(
+                      asset: heroImageAsset,
                       maxWidth: m.heroImageMax,
                       maxHeight: m.heroImageMaxH,
                     ),
@@ -141,6 +170,41 @@ class AuthResponsiveLayout extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCenteredPortrait(BuildContext context, AuthMetrics m) {
+    return _CenteredPortrait(
+      m: m,
+      imageMinHeight: centeredImageMinHeight,
+      imageGap: centeredImageGap,
+      brandOnTop: centeredBrandOnTop,
+      header: _StylishBrand(
+        m: m,
+        brandFirst: brandFirst,
+        brandSecond: brandSecond,
+        tagline: brandTagline,
+      ),
+      image:
+          heroIllustration ??
+          _HeroImage(
+            asset: heroImageAsset,
+            maxWidth: m.heroImageMax * 1.6,
+            maxHeight: m.heroImageMaxH * 1.2,
+          ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _HeroText(m: m, title: title, subtitle: subtitle, center: true),
+          SizedBox(height: m.blockGap),
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: m.formMaxWidth),
+              child: formBuilder(context, m),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -180,7 +244,12 @@ class AuthResponsiveLayout extends StatelessWidget {
                         padding: EdgeInsets.symmetric(
                           vertical: m.blockGap * 0.6,
                         ),
-                        child: _HeroImage(maxWidth: m.heroImageMax * 0.80),
+                        child:
+                            heroIllustration ??
+                            _HeroImage(
+                              asset: heroImageAsset,
+                              maxWidth: m.heroImageMax * 0.80,
+                            ),
                       ),
                     ),
 
@@ -222,7 +291,7 @@ class AuthResponsiveLayout extends StatelessWidget {
                         title: title,
                         subtitle: subtitle,
                         center: true,
-                       ),
+                      ),
                       SizedBox(height: m.blockGap * 0.8),
                     ],
                     formBuilder(context, m),
@@ -237,6 +306,148 @@ class AuthResponsiveLayout extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Ek screen mein fit hota hai (image bachi jagah le leti hai), scroll tabhi
+/// jab keyboard khulne pe content viewport se bada ho jaye.
+class _CenteredPortrait extends StatefulWidget {
+  final AuthMetrics m;
+  final Widget header;
+  final Widget image;
+  final Widget body;
+  final double imageMinHeight;
+  final double? imageGap;
+  final bool brandOnTop;
+
+  const _CenteredPortrait({
+    required this.m,
+    required this.imageMinHeight,
+    this.imageGap,
+    this.brandOnTop = false,
+    required this.header,
+    required this.image,
+    required this.body,
+  });
+
+  @override
+  State<_CenteredPortrait> createState() => _CenteredPortraitState();
+}
+
+class _CenteredPortraitState extends State<_CenteredPortrait> {
+  double _width = -1;
+  double _fullHeight = 0;
+
+  List<Widget> _imageAndBody(AuthMetrics m) => [
+    // Image apne size jitni jagah leti hai; jagah kam ho to
+    // [imageMinHeight] tak shrink hoti hai.
+    Flexible(
+      child: _MinIntrinsicHeight(
+        height: widget.imageMinHeight,
+        child: widget.image,
+      ),
+    ),
+    SizedBox(height: widget.imageGap ?? m.fieldGap * 0.6),
+    widget.body,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final m = widget.m;
+
+    return LayoutBuilder(
+      builder: (context, c) {
+        // Keyboard viewport chhota karta hai — keyboard-free height yaad rakho
+        // taaki content ka size keyboard khulne pe na badle.
+        if (c.maxWidth != _width || c.maxHeight > _fullHeight) {
+          _width = c.maxWidth;
+          _fullHeight = c.maxHeight;
+        }
+        final minHeight = (_fullHeight - m.pagePadV * 2).clamp(
+          0.0,
+          double.infinity,
+        );
+
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.symmetric(
+            horizontal: m.pagePadH,
+            vertical: m.pagePadV,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: m.contentMaxWidth,
+                minHeight: minHeight,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    widget.header,
+                    SizedBox(height: widget.imageGap ?? m.fieldGap * 0.6),
+                    if (widget.brandOnTop)
+                      // Brand upar fixed; baaki content neeche bachi jagah
+                      // mein thoda upar ki taraf center. (Spacers nahi —
+                      // IntrinsicHeight flex children ki height badha deta.)
+                      Expanded(
+                        child: Align(
+                          alignment: const Alignment(0, -0.3),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: _imageAndBody(m),
+                          ),
+                        ),
+                      )
+                    else
+                      ..._imageAndBody(m),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// IntrinsicHeight ko child ki jagah fixed [height] batata hai, taaki image
+/// apne natural size se page ko scroll na karwaye. Actual layout normal hai.
+class _MinIntrinsicHeight extends SingleChildRenderObjectWidget {
+  final double height;
+
+  const _MinIntrinsicHeight({required this.height, super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderMinIntrinsicHeight(height);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderMinIntrinsicHeight renderObject,
+  ) {
+    renderObject.height = height;
+  }
+}
+
+class _RenderMinIntrinsicHeight extends RenderProxyBox {
+  _RenderMinIntrinsicHeight(this._height);
+
+  double _height;
+  set height(double value) {
+    if (value == _height) return;
+    _height = value;
+    markNeedsLayout();
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) => _height;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => _height;
 }
 
 class _FitPane extends StatelessWidget {
@@ -393,10 +604,84 @@ class _BrandRow extends StatelessWidget {
               actionLabel!,
               style: AppTextStyles.labelLarge.copyWith(
                 fontSize: m.linkText,
-                color: isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple,
+                color: isDark
+                    ? ThemeColors.primaryPurple
+                    : ThemeColors.deepPurple,
               ),
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Bada, centered "TheVaults" wordmark — "Vaults" gradient mein.
+class _StylishBrand extends StatelessWidget {
+  final AuthMetrics m;
+  final String brandFirst;
+  final String brandSecond;
+  final String tagline;
+
+  const _StylishBrand({
+    required this.m,
+    required this.brandFirst,
+    required this.brandSecond,
+    required this.tagline,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base = TextStyle(
+      fontFamily: 'Inter',
+      fontSize: m.brandTitle * 1.6,
+      height: 1.1,
+      letterSpacing: -0.5,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                brandFirst,
+                style: base.copyWith(
+                  fontWeight: FontWeight.w300,
+                  fontStyle: FontStyle.italic,
+                  color: isDark ? ThemeColors.white : ThemeColors.ink,
+                ),
+              ),
+              ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) =>
+                    ThemeColors.bottomSection.createShader(bounds),
+                child: Text(
+                  brandSecond,
+                  style: base.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: ThemeColors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: m.brandTagline * 0.6),
+        Text(
+          tagline,
+          textAlign: TextAlign.center,
+          style: AppTextStyles.labelSmall.copyWith(
+            fontSize: m.brandTagline * 1.1,
+            letterSpacing: 3,
+            color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+          ),
+        ),
       ],
     );
   }
@@ -435,15 +720,17 @@ class _HeroText extends StatelessWidget {
             color: isDark ? ThemeColors.white : ThemeColors.ink,
           ),
         ),
-        SizedBox(height: m.fieldGap * 0.5),
-        Text(
-          subtitle,
-          textAlign: center ? TextAlign.center : TextAlign.start, // ← ADD
-          style: AppTextStyles.bodyLarge.copyWith(
-            fontSize: m.heroBody,
-            color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+        if (subtitle.isNotEmpty) ...[
+          SizedBox(height: m.fieldGap * 0.5),
+          Text(
+            subtitle,
+            textAlign: center ? TextAlign.center : TextAlign.start, // ← ADD
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontSize: m.heroBody,
+              color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -453,7 +740,14 @@ class _HeroImage extends StatelessWidget {
   final double maxWidth;
   final double maxHeight;
 
-  const _HeroImage({required this.maxWidth, this.maxHeight = double.infinity});
+  /// Custom asset; null ho to theme ke hisaab se dashboard image.
+  final String? asset;
+
+  const _HeroImage({
+    required this.maxWidth,
+    this.maxHeight = double.infinity,
+    this.asset,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -461,10 +755,13 @@ class _HeroImage extends StatelessWidget {
 
     return Align(
       alignment: Alignment.center,
+      // Height image jitni (loose constraints mein extra khaali jagah nahi).
+      heightFactor: 1,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
         child: Image.asset(
-          isDark ? AppImages.dashboardDark : AppImages.dashboardLight,
+          asset ??
+              (isDark ? AppImages.dashboardDark : AppImages.dashboardLight),
           fit: BoxFit.contain,
           errorBuilder: (_, _, _) => const SizedBox.shrink(),
         ),
@@ -557,4 +854,68 @@ class _FeatureTile extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Auth screens ke neeche halki lavender wave (Stack mein content ke peeche);
+/// keyboard khulne pe fade out.
+class AuthBottomWave extends StatelessWidget {
+  const AuthBottomWave({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final keyboardOpen = View.of(context).viewInsets.bottom > 0;
+
+    return IgnorePointer(
+      child: AnimatedOpacity(
+        opacity: keyboardOpen ? 0 : 1,
+        duration: const Duration(milliseconds: 200),
+        child: CustomPaint(
+          painter: _AuthWavePainter(
+            back: isDark
+                ? ThemeColors.mediumPurple.withValues(alpha: 0.10)
+                : ThemeColors.lavenderMist.withValues(alpha: 0.6),
+            front: isDark
+                ? ThemeColors.mediumPurple.withValues(alpha: 0.18)
+                : ThemeColors.lavenderMist,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthWavePainter extends CustomPainter {
+  final Color back;
+  final Color front;
+
+  const _AuthWavePainter({required this.back, required this.front});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    final backPath = Path()
+      ..moveTo(0, h * 0.35)
+      ..cubicTo(w * 0.30, h * 0.05, w * 0.60, h * 0.65, w, h * 0.25)
+      ..lineTo(w, h)
+      ..lineTo(0, h)
+      ..close();
+
+    final frontPath = Path()
+      ..moveTo(0, h * 0.70)
+      ..cubicTo(w * 0.35, h * 0.40, w * 0.65, h * 0.95, w, h * 0.55)
+      ..lineTo(w, h)
+      ..lineTo(0, h)
+      ..close();
+
+    canvas
+      ..drawPath(backPath, Paint()..color = back)
+      ..drawPath(frontPath, Paint()..color = front);
+  }
+
+  @override
+  bool shouldRepaint(_AuthWavePainter old) =>
+      old.back != back || old.front != front;
 }

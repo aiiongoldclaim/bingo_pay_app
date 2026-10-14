@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -122,8 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SafeArea(
               child: AuthResponsiveLayout(
                 title: 'Welcome Back!',
-                subtitle:
-                'Log in to your account and\ncontinue your shopping journey.',
+                centeredHero: true,
+                heroImageAsset: AppImages.loginBag,
                 formBuilder: _buildForm,
               ),
             ),
@@ -251,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
               context.go(AppRoutes.register);
             },
           ),
+
         ],
       ),
     );

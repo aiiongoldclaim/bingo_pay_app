@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_interaction_blocker.dart';
@@ -58,9 +59,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     context.read<AuthBloc>().add(
-      ForgotPasswordRequested(
-        email: _emailController.text.trim(),
-      ),
+      ForgotPasswordRequested(email: _emailController.text.trim()),
     );
   }
 
@@ -83,19 +82,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           }
         },
         buildWhen: (prev, curr) =>
-        (prev is AuthLoading) != (curr is AuthLoading),
+            (prev is AuthLoading) != (curr is AuthLoading),
 
         builder: (context, state) {
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
-            child: SafeArea(
-              child: AuthResponsiveLayout(
-                title: 'Forgot Password',
-                subtitle:
-                "Enter your email and we'll send you\na link to reset your password.",
-                onTopAction: () => Navigator.of(context).pop(),
-                formBuilder: _buildForm,
-              ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: 140,
+                  child: AuthBottomWave(),
+                ),
+                SafeArea(
+                  child: AuthResponsiveLayout(
+                    title: AppStrings.forgotPassword,
+                    subtitle:
+                        "No worries! Enter your email address and we'll send "
+                        'you a link to reset your password.',
+                    centeredHero: true,
+                    heroImageAsset: AppImages.lock,
+                    centeredImageGap: 16,
+                    centeredBrandOnTop: true,
+                    onTopAction: () => Navigator.of(context).pop(),
+                    formBuilder: _buildForm,
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -104,8 +121,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
-    final colors = context.colors;
-
     return Form(
       key: _formKey,
       autovalidateMode: AutovalidateMode.onUserInteractionIfError,
@@ -115,25 +130,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           AppTextField(
             controller: _emailController,
             focusNode: _emailFocusNode,
-            label: 'Email',
+            label: 'Email Address',
             hint: 'Enter your email',
             isRequired: true,
-            keyboardType:
-            TextInputType.emailAddress,
-            textInputAction:
-            TextInputAction.done,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) {
               _submit();
             },
             inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(r'[a-zA-Z0-9@.\-]'),
-              ),
+              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@.\-]')),
             ],
             validator: Validators.email,
-            prefixIcon: const Icon(
-              Icons.mail_outline_rounded,
-            ),
+            prefixIcon: const Icon(Icons.mail_outline_rounded),
           ),
 
           SizedBox(height: m.blockGap),
@@ -144,42 +153,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               label: 'Send Reset Link',
               onPressed: _submit,
               isLoading: state is AuthLoading,
+              suffixIcon: Icons.arrow_forward_rounded,
+              gradient: ThemeColors.authCtaGradient,
             ),
-          ),
-
-          SizedBox(height: m.blockGap * 0.7),
-
-          /// OR DIVIDER
-          Row(
-            children: [
-              Expanded(child: Divider(color: colors.border)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
-                child: Text(
-                  'or',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: m.footerText,
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ),
-              Expanded(child: Divider(color: colors.border)),
-            ],
           ),
 
           SizedBox(height: m.blockGap),
 
-          /// BACK TO SIGN IN
-          AuthFooterLink(
-            prefix: AppStrings.secureLogin,
-            action: AppStrings.signin,
-            onTap: () {
-              context.go(AppRoutes.login);
-            },
+          /// BACK TO LOGIN
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: AuthFooterLink(
+              prefix: AppStrings.rememberPassword,
+              action: AppStrings.loginCta,
+              onTap: () {
+                context.go(AppRoutes.login);
+              },
+            ),
           ),
         ],
       ),
     );
   }
-
 }

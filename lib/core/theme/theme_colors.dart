@@ -310,6 +310,19 @@ class ThemeColors {
     end: Alignment.centerRight,
   );
 
+  // Auth CTA / illustration purples.
+  static const Color authPurpleDeep = Color(0xFF542080);
+  static const Color authPurpleBright = Color(0xFF7B3FC5);
+
+  static const LinearGradient authCtaGradient = LinearGradient(
+    colors: [authPurpleDeep, authPurpleBright],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  /// Auth screens ki halki lavender wave / backgrounds.
+  static const Color lavenderMist = Color(0xFFF1EAFB);
+
   static const LinearGradient bottomSection = LinearGradient(
     colors: [Color(0xFF7B50AB), Color(0xFFA48BC2)],
     begin: Alignment.centerLeft,

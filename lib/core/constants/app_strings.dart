@@ -19,6 +19,9 @@ class AppStrings {
   static const String alreadyAccount = 'Already have an account?';
   static const String continueButton = 'Continue';
   static const String secureLogin = 'Back to secure login?';
+  static const String rememberPassword = 'Remember your password?';
+  static const String wrongEmail = 'Wrong email?';
+  static const String backToLogin = 'Back to Login';
 
   // ── Common ───────────────────────────────────────────────────────
   static const String cancel = 'Cancel';
