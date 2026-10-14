@@ -5,6 +5,7 @@ class AppConstants {
   static const String themeModeKey = 'theme_mode';
   static const String localeKey = 'locale';
   static const String onboardingSeenKey = 'onboarding_seen';
+  static const String reviewPromptSeenKey = 'review_prompt_seen';
   static const String recentSearchesKey = 'recent_searches';
   static const String pushNotificationsEnabledKey = 'push_notifications_enabled';
   static const String notifiedNotificationIdsKey = 'notified_notification_ids';

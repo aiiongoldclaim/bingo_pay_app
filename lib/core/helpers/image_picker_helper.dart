@@ -11,6 +11,7 @@ class ImagePickerHelper {
   static Future<XFile?> pick(
     BuildContext context, {
     int imageQuality = 80,
+    double? maxWidth,
     CameraDevice preferredCameraDevice = CameraDevice.rear,
   }) async {
     final source = await _showSourceSheet(context);
@@ -33,6 +34,7 @@ class ImagePickerHelper {
     return _picker.pickImage(
       source: source,
       imageQuality: imageQuality,
+      maxWidth: maxWidth,
       preferredCameraDevice: preferredCameraDevice,
     );
   }

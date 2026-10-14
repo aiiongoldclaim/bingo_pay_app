@@ -6,9 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/app_routes.dart';
+import '../../../../core/storage/preferences_service.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/utils/pdf_file_handler.dart';
 import '../../../../core/utils/review_helper.dart';
+import '../../../../core/widgets/price_formatter.dart';
 import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
@@ -28,9 +30,13 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
   @override
   void initState() {
     super.initState();
-    // Show in-app review dialog 2 seconds after successful payment
+    // Asked once only: every time, it just covers the order confirmation.
+    final prefs = GetIt.I<PreferencesService>();
+    if (prefs.isReviewPromptSeen()) return;
+
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
+        prefs.setReviewPromptSeen();
         ReviewHelper.showReviewDialog(
           context,
           title: 'Payment Successful! 🎉',
@@ -86,7 +92,16 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
           orderId: state.orderId,
           totalAmount: state.formattedTotal,
           productName: state.productName,
-          deliveryCharge: state.deliveryCharge.toString(),
+          quantityLabel: state.isCartFlow
+              ? '${state.cartItems.length} items'
+              : 'Qty ${state.quantity}',
+          itemAmount: '\$${formatExactAmount(state.itemTotal)}',
+          tax: state.isQuoted ? '\$${formatExactAmount(state.taxes)}' : '—',
+          deliveryCharge: !state.isQuoted
+              ? '—'
+              : state.deliveryCharge > 0
+              ? '\$${formatExactAmount(state.deliveryCharge)}'
+              : 'Free',
           customerName:
           state.deliveryName.isNotEmpty ? state.deliveryName : 'Customer',
           customerAddress: state.deliveryAddress.isNotEmpty
@@ -135,6 +150,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                       onDownload:
                       _generatingPdf ? null : () => _downloadInvoice(state),
                       onHome: () => context.go(AppRoutes.home),
+                      onViewOrders: () => context.go(AppRoutes.orders),
                     ),
                   ],
                 ),

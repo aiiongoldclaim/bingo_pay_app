@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sizer/sizer.dart';
+import 'package:zxing2/qrcode.dart';
 
 import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/helpers/email_qr_code.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_colors.dart';
 
@@ -22,15 +23,38 @@ class _ScannerScreenState extends State<ScannerScreen> {
   bool _isScanned = false;
   final ImagePicker _picker = ImagePicker();
 
+  // Decoded in Dart (zxing2): mobile_scanner's analyzeImage doesn't run on
+  // the iOS Simulator.
   Future<void> _pickFromGallery() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1200, // keeps decoding fast; a QR stays readable
+    );
     if (image == null) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Selected: ${image.name}')));
+    String? token;
+    try {
+      final decoded = img.decodeImage(await image.readAsBytes())!;
+      final source = RGBLuminanceSource(
+        decoded.width,
+        decoded.height,
+        decoded
+            .convert(numChannels: 4)
+            .getBytes(order: img.ChannelOrder.abgr)
+            .buffer
+            .asInt32List(),
+      );
+      token = QRCodeReader().decode(BinaryBitmap(HybridBinarizer(source))).text;
+    } catch (_) {}
 
+    if (!mounted) return;
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No QR code found in that image')),
+      );
+      return;
+    }
+    _open(token);
   }
 
   @override
@@ -40,35 +64,20 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _onDetect(BarcodeCapture capture) {
-    if (_isScanned) return;
+    final token = capture.barcodes.first.rawValue;
+    if (token != null) _open(token);
+  }
 
-    final barcode = capture.barcodes.first;
-
-    if (barcode.rawValue == null) return;
+  void _open(String raw) {
+    final token = raw.trim();
+    if (_isScanned || token.isEmpty) return;
 
     _isScanned = true;
 
-    try {
-      final encryptedQr = barcode.rawValue!;
-
-      print("Encrypted QR : $encryptedQr");
-
-      final merchantEmail = EmailQrCodec.decrypt(encryptedQr);
-
-      print("Merchant Email : $merchantEmail");
-      print('Key Length = ${"BingoPayVendorQrEncryptionKey32!".length}');
-
-      context.push(
-        AppRoutes.reviewPayment,
-        extra: {'merchantEmail': merchantEmail},
-      );
-    } catch (e) {
-      _isScanned = false;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Invalid QR Code")));
-    }
+    // The shop's QR value is its token; the review screen asks the API who it is.
+    context
+        .push(AppRoutes.reviewPayment, extra: {'token': token})
+        .then((_) => _isScanned = false);
   }
 
   @override

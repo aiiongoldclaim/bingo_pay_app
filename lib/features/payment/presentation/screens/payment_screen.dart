@@ -81,13 +81,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
       variantUuid: widget.variantUuid,
       quantity: widget.quantity,
       cartItems: widget.cartItems,
-    )..loadWalletBalance(_userEmail);
+    )
+      ..loadWalletBalance(_userEmail)
+      ..loadPaymentMethods();
   }
 
   Future<void> _refresh() async {
     await Future.wait([
       _addressCubit.loadUserAddresses(),
       _paymentCubit.loadWalletBalance(_userEmail),
+      _paymentCubit.loadPaymentMethods(),
     ]);
   }
 
@@ -127,6 +130,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       postal: _selectedAddress!.postalCode,
       addressId: _selectedAddress!.id,
     );
+    cubit.loadQuote();
 
     context.push(
       AppRoutes.paymentReview,
@@ -168,7 +172,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           },
           child: Scaffold(
             backgroundColor: colors.background,
-            appBar: const CustomAppBar(title: 'Payment'),
+            appBar: const CustomAppBar(title: 'Checkout'),
             body: SafeArea(
               bottom: false,
               child: BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
@@ -186,7 +190,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   final continueBar = PaymentContinueBar(
                     metrics: m,
                     isEnabled: _selectedAddress != null,
-                    total: _cartTotal,
                     onPressed: () => _onContinue(
                       context,
                       context.read<PaymentMethodCubit>(),

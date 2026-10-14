@@ -9,6 +9,7 @@ class PaymentSuccessActionBar extends StatelessWidget {
   final bool generating;
   final VoidCallback? onDownload;
   final VoidCallback onHome;
+  final VoidCallback onViewOrders;
 
   const PaymentSuccessActionBar({
     super.key,
@@ -16,6 +17,7 @@ class PaymentSuccessActionBar extends StatelessWidget {
     required this.generating,
     required this.onDownload,
     required this.onHome,
+    required this.onViewOrders,
   });
 
   @override
@@ -26,9 +28,7 @@ class PaymentSuccessActionBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(m.cardRadius),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(m.cardRadius)),
         boxShadow: [
           BoxShadow(
             color: colors.brand.withValues(alpha: colors.isDark ? 0.28 : 0.10),
@@ -44,28 +44,45 @@ class PaymentSuccessActionBar extends StatelessWidget {
             horizontal: m.barHPad,
             vertical: m.barVPad,
           ),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: AppButton(
-                  label: generating ? 'Generating…' : 'Download Invoice',
-                  prefixIcon: generating
-                      ? Icons.hourglass_top_outlined
-                      : Icons.download_outlined,
-                  variant: AppButtonVariant.outlined,
-                  height: m.btnHeight,
-                  fontSize: m.btnFontSize,
-                  onPressed: onDownload,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      label: generating ? 'Generating…' : 'Download Invoice',
+                      prefixIcon: generating
+                          ? Icons.hourglass_top_outlined
+                          : Icons.download_outlined,
+                      variant: AppButtonVariant.outlined,
+                      height: m.btnHeight,
+                      fontSize: m.btnFontSize,
+                      onPressed: onDownload,
+                    ),
+                  ),
+                  SizedBox(width: m.gapSm * 1.2),
+                  Expanded(
+                    child: AppButton(
+                      label: 'Go to Home',
+                      prefixIcon: Icons.home_outlined,
+                      height: m.btnHeight,
+                      fontSize: m.btnFontSize,
+                      onPressed: onHome,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: m.gapSm * 1.2),
-              Expanded(
-                child: AppButton(
-                  label: 'Go to Home',
-                  prefixIcon: Icons.home_outlined,
-                  height: m.btnHeight,
-                  fontSize: m.btnFontSize,
-                  onPressed: onHome,
+              TextButton(
+                onPressed: onViewOrders,
+                child: Text(
+                  'View my orders',
+                  style: TextStyle(
+                    color: colors.brand,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                    fontSize: m.btnFontSize,
+                  ),
                 ),
               ),
             ],

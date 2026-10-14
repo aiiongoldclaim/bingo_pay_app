@@ -19,6 +19,12 @@ class PreferencesService {
   bool isOnboardingSeen() =>
       _prefs.getBool(AppConstants.onboardingSeenKey) ?? false;
 
+  Future<void> setReviewPromptSeen() =>
+      _prefs.setBool(AppConstants.reviewPromptSeenKey, true);
+
+  bool isReviewPromptSeen() =>
+      _prefs.getBool(AppConstants.reviewPromptSeenKey) ?? false;
+
   Future<void> setLocale(String locale) =>
       _prefs.setString(AppConstants.localeKey, locale);
 

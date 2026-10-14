@@ -29,7 +29,9 @@ import '../../features/address/domain/repositories/address_respository.dart';
 import '../../features/address/presentation/cubit/address_cubit.dart';
 import '../../features/address/presentation/screens/add_edit_address_screen.dart';
 import '../../features/address/presentation/screens/address_list_screen.dart';
+import '../../features/payment/presentation/cubit/card_payment_cubit.dart';
 import '../../features/payment/presentation/cubit/payment_cubit.dart';
+import '../../features/payment/presentation/screens/card_payment_screen.dart';
 import '../../features/payment/presentation/screens/payment_args.dart';
 import '../../features/payment/presentation/screens/payment_flow_args.dart';
 import '../../features/payment/presentation/screens/payment_screen.dart';
@@ -37,6 +39,7 @@ import '../../features/payment/presentation/screens/review_pay_screen.dart';
 import '../../features/product_details/presentation/screens/product_image_viewer_screen.dart';
 import '../../features/product_details/presentation/widgets/image_viewer_args.dart';
 import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
+import '../../features/scanner/presentation/screens/wallet_kyc_screen.dart';
 import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
 import '../../features/setting/features/screens/setting_screen.dart';
 import '../config/app_config.dart';
@@ -235,6 +238,27 @@ class AppRouter {
         ),
 
         GoRoute(
+          path: AppRoutes.paymentCard,
+          builder: (context, state) {
+            final args = state.extra as CardPaymentArgs;
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: args.cubit),
+                BlocProvider(
+                  create: (_) => CardPaymentCubit(
+                    intent: args.intent,
+                    isCrypto: args.isCrypto,
+                  ),
+                ),
+              ],
+              child: const CardPaymentScreen(),
+            );
+          },
+          redirect: (context, state) =>
+              state.extra is CardPaymentArgs ? null : AppRoutes.home,
+        ),
+
+        GoRoute(
           path: AppRoutes.addressList,
           builder: (context, state) {
             final selectedAddressId = state.extra as String?;
@@ -297,14 +321,17 @@ class AppRouter {
           builder: (context, state) {
             final data = state.extra as Map<String, dynamic>? ?? const {};
 
+            final token = data['token'] as String? ?? '';
             return BlocProvider(
-              create: (_) => getIt<PaymentCubit>(),
-              child: ReviewPaymentScreen(
-                merchantName: data['merchantName'] ?? '',
-                merchantEmail: data['merchantEmail'] ?? '',
-              ),
+              create: (_) => getIt<PaymentCubit>()..resolve(token),
+              child: const ReviewPaymentScreen(),
             );
           },
+        ),
+
+        GoRoute(
+          path: AppRoutes.walletKyc,
+          builder: (_, _) => const WalletKycScreen(),
         ),
 
         GoRoute(

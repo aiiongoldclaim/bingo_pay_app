@@ -6,16 +6,18 @@ import 'review_payment_metrics.dart';
 import 'review_payment_section_label.dart';
 
 // ── Payment method ─────────────────────────────────────────────────────────
+// TVS Coins is the only way to pay a shop QR; when the API says the customer
+// can't, the tile is shown unselected with the API's reason.
 class ReviewPaymentMethodSection extends StatelessWidget {
   final ReviewPaymentMetrics metrics;
-  final ScanPayMethod selected;
-  final ValueChanged<ScanPayMethod> onSelect;
+  final bool enabled;
+  final String subtitle;
 
   const ReviewPaymentMethodSection({
     super.key,
     required this.metrics,
-    required this.selected,
-    required this.onSelect,
+    required this.enabled,
+    required this.subtitle,
   });
 
   @override
@@ -33,21 +35,9 @@ class ReviewPaymentMethodSection extends StatelessWidget {
         _MethodTile(
           metrics: m,
           icon: Icons.account_balance_wallet_outlined,
-          title: 'BIGOD Wallet',
-          subtitle: 'Pay using your BIGOD balance',
-          isSelected: selected == ScanPayMethod.bigod,
-          onTap: () => onSelect(ScanPayMethod.bigod),
-        ),
-
-        SizedBox(height: m.gapSm),
-
-        _MethodTile(
-          metrics: m,
-          icon: Icons.payments_outlined,
-          title: 'Cash on Delivery',
-          subtitle: 'Pay with cash at the counter',
-          isSelected: selected == ScanPayMethod.cod,
-          onTap: () => onSelect(ScanPayMethod.cod),
+          title: 'Pay with TVS Coins',
+          subtitle: subtitle,
+          isSelected: enabled,
         ),
       ],
     );
@@ -60,7 +50,6 @@ class _MethodTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool isSelected;
-  final VoidCallback onTap;
 
   const _MethodTile({
     required this.metrics,
@@ -68,7 +57,6 @@ class _MethodTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.isSelected,
-    required this.onTap,
   });
 
   @override
@@ -81,7 +69,7 @@ class _MethodTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(m.cardRadius * 0.8),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: null,
         child: Container(
           height: m.methodTileHeight,
           padding: EdgeInsets.symmetric(horizontal: m.cardPad * 0.8),

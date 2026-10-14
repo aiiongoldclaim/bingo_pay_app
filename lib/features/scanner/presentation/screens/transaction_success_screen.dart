@@ -98,7 +98,8 @@ class _TransferScreenState extends State<TransferScreen>
     super.dispose();
   }
 
-  String get _amount => '${widget.data['amount'] ?? 0}';
+  String get _amount =>
+      '${widget.data['amount'] ?? 0} ${widget.data['currency'] ?? ''}'.trim();
   String get _merchant => '${widget.data['merchantName'] ?? '-'}';
   String get _reference => '${widget.data['reference'] ?? '-'}';
 
@@ -347,7 +348,7 @@ class _SuccessHero extends StatelessWidget {
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            '\$$amount',
+            amount,
             style: AppTextStyles.displayLarge.copyWith(
               color: colors.brand,
               fontFamily: 'Inter',

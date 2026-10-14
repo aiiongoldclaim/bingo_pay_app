@@ -11,27 +11,23 @@ class ReviewPaymentAmountSection extends StatelessWidget {
   final ReviewPaymentMetrics metrics;
   final TextEditingController controller;
   final String currency;
-  final bool isOverLimit;
-  final double maxAmount;
+  final String? error;
   final ValueChanged<String> onChanged;
-  final VoidCallback onToggleCurrency;
 
   const ReviewPaymentAmountSection({
     super.key,
     required this.metrics,
     required this.controller,
     required this.currency,
-    required this.isOverLimit,
-    required this.maxAmount,
+    required this.error,
     required this.onChanged,
-    required this.onToggleCurrency,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
     final m = metrics;
-    final decimals = currency == "USD" ? 2 : 8;
+    final isError = error != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,41 +43,25 @@ class ReviewPaymentAmountSection extends StatelessWidget {
             color: colors.surface,
             borderRadius: BorderRadius.circular(m.cardRadius * 0.8),
             border: Border.all(
-              color: isOverLimit ? colors.error : colors.brand,
+              color: isError ? colors.error : colors.brand,
               width: 1.5,
             ),
           ),
           clipBehavior: Clip.antiAlias,
           child: Row(
             children: [
-              Material(
+              Container(
+                width: m.amountPrefixWidth,
+                height: double.infinity,
                 color: colors.brandSoft,
-                child: InkWell(
-                  onTap: onToggleCurrency,
-                  child: Container(
-                    width: m.amountPrefixWidth,
-                    height: double.infinity,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          currency,
-                          style: AppTextStyles.titleMedium.copyWith(
-                            color: colors.brand,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: m.currencySize,
-                          ),
-                        ),
-                        SizedBox(width: m.gapXs),
-                        Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: m.currencySize + 6,
-                          color: colors.brand,
-                        ),
-                      ],
-                    ),
+                alignment: Alignment.center,
+                child: Text(
+                  currency,
+                  style: AppTextStyles.titleMedium.copyWith(
+                    color: colors.brand,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: m.currencySize,
                   ),
                 ),
               ),
@@ -97,7 +77,8 @@ class ReviewPaymentAmountSection extends StatelessWidget {
                     ),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,' '$decimals' r'}'),
+                        RegExp(r'^\d*\.?\d{0,2}'), // the API takes 2 decimals
+
                       ),
                     ],
                     style: AppTextStyles.displayLarge.copyWith(
@@ -143,7 +124,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
 
         SizedBox(height: m.gapSm),
 
-        if (isOverLimit)
+        if (isError)
           Row(
             children: [
               Icon(
@@ -154,7 +135,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
               SizedBox(width: m.gapXs),
               Expanded(
                 child: Text(
-                  'You can only send upto \$${maxAmount.toStringAsFixed(1)} at a time.',
+                  error!,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: colors.error,
                     fontFamily: 'Inter',
@@ -167,7 +148,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
           )
         else
           Text(
-            'Minimum amount \$1.00',
+            '1 TVS Coin = 1 $currency',
             style: AppTextStyles.bodySmall.copyWith(
               color: colors.textSecondary,
               fontFamily: 'Inter',

@@ -29,8 +29,14 @@ class ApiEndpoints {
   static const String setPassword = '/api/v1/auth/set-password';
   static String productDetail(String uuid) => '/api/v1/products/$uuid';
 
-  // static const String scanner = '/api/bingold/bingopay/balance/operation';
-  static const String scanner = '/api/v1/customers/bingopay/balance/operation';
+  // Shop QR payment with TVS Coins
+  static const String tvsQrResolve = '/api/v1/tvs-wallet/qr/resolve';
+  static const String tvsQrQuote = '/api/v1/tvs-wallet/qr/quote';
+  static const String tvsQrPay = '/api/v1/tvs-wallet/qr/pay';
+  static const String tvsPin = '/api/v1/tvs-wallet/pin';
+  static const String tvsKyc = '/api/v1/tvs-wallet/kyc';
+  static const String tvsKycRequirements =
+      '/api/v1/tvs-wallet/kyc/requirements';
   static const String cart = '/api/v1/cart';
   static const String cartItems = '/api/v1/cart/items';
   static const String cartClear = '/api/v1/cart/clear';
@@ -39,6 +45,20 @@ class ApiEndpoints {
   static const String bigodIntent = '/api/v1/payments/bigod/intent';
   static const String bigodConfirm = '/api/v1/payments/bigod/confirm';
   static const String bigodBalance = '/api/v1/payments/bigod/balance';
+
+  // Card payments (Stripe hosted checkout)
+  static const String paymentMethods = '/api/v1/payments/methods';
+  static const String paymentQuote = '/api/v1/payments/quote';
+  static const String stripeIntent = '/api/v1/payments/stripe/intent';
+  static String stripeStatus(String paymentUuid) =>
+      '/api/v1/payments/stripe/status/$paymentUuid';
+  static String stripeCancel(String paymentUuid) =>
+      '/api/v1/payments/stripe/cancel/$paymentUuid';
+
+  // Crypto payments (NOWPayments hosted invoice)
+  static const String nowPaymentsIntent = '/api/v1/payments/nowpayments/intent';
+  static String nowPaymentsStatus(String paymentUuid) =>
+      '/api/v1/payments/nowpayments/status/$paymentUuid';
 
   static const String membership = '/api/v1/customer/membership';
   static const String membershipPlans = '/api/v1/customer/membership/plans';
