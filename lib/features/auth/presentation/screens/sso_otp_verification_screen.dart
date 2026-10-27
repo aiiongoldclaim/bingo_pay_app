@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../../core/widgets/vault_brand.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_metrics.dart';
-import '../widgets/auth_secure_note.dart';
+import '../widgets/vault_auth_widgets.dart';
 
 class SsoOtpVerificationScreen extends StatefulWidget {
   final String email;
@@ -37,7 +36,6 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
   int _secondsLeft = _resendCooldownSeconds;
   bool _isResending = false;
   bool _isInitialLoad = true;
-
 
   @override
   void initState() {
@@ -121,11 +119,10 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveUtils.setDeviceType(context);
-    final colors = context.colors;
-
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: ThemeColors.vaultLoginCream,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           BlocListener<AuthBloc, AuthState>(
@@ -157,53 +154,80 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
                 }
               }
             },
-            child: LayoutBuilder(
-          builder: (context, constraints) {
-            final m = AuthMetrics.of(constraints);
-            final isWide = m.isTablet && m.isLandscape;
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle.dark.copyWith(
+                statusBarColor: Colors.transparent,
+                systemNavigationBarColor: ThemeColors.vaultLoginCream,
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final m = AuthMetrics.of(constraints);
+                  final w = constraints.maxWidth;
+                  final topW = (w * 0.48).clamp(150.0, 380.0);
+                  final bottomW = (w * 0.66).clamp(220.0, 520.0);
 
-            return Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      m.pagePadH,
-                      m.pagePadV,
-                      m.pagePadH,
-                      m.pagePadV,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: m.contentMaxWidth,
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        width: topW,
+                        child: const VaultCornerArt(
+                          asset: AppImages.vaultLoginCornerTop,
+                          corner: Alignment.topRight,
                         ),
-                        child: isWide
-                            ? _WideLayout(
-                                m: m,
-                                onBack: () => context.pop(),
-                                form: _form(m, alignStart: true),
-                              )
-                            : _NarrowLayout(
-                                metrics: m,
-                                onBack: () => context.pop(),
-                                form: _form(m, alignStart: false),
-                              ),
                       ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    m.pagePadH,
-                    m.fieldGap * 0.5,
-                    m.pagePadH,
-                    m.pagePadV,
-                  ),
-                  child: AuthSecureNote(metrics: m,),
-                ),
-              ],
-            );
-          },
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        width: bottomW,
+                        child: const VaultCornerArt(
+                          asset: AppImages.vaultLoginCornerBottom,
+                          corner: Alignment.bottomLeft,
+                        ),
+                      ),
+
+                      SafeArea(
+                        child: SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          padding: EdgeInsets.fromLTRB(
+                            m.pagePadH * 0.7,
+                            0,
+                            m.pagePadH * 0.7,
+                            m.blockGap,
+                          ),
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints:
+                                  const BoxConstraints(maxWidth: 480),
+                              child: _buildContent(m),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SafeArea(
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: m.pagePadH * 0.3),
+                            child: IconButton(
+                              onPressed: () => context.pop(),
+                              tooltip: 'Back',
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 20,
+                                color: ThemeColors.vaultInk,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
           // Loading Overlay for Resend
@@ -215,26 +239,31 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: colors.surface,
+                      color: ThemeColors.white,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: ThemeColors.vaultLoginFieldBorder,
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           width: 48,
                           height: 48,
                           child: CircularProgressIndicator(
                             strokeWidth: 3,
-                            valueColor: AlwaysStoppedAnimation(colors.brand),
+                            valueColor:
+                                AlwaysStoppedAnimation(ThemeColors.vaultGold),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(
+                        const Text(
                           'Sending OTP...',
-                          style: AppTextStyles.bodyMedium.copyWith(
+                          style: TextStyle(
+                            fontFamily: 'Inter',
                             fontSize: 16,
-                            color: colors.textPrimary,
+                            color: ThemeColors.vaultInk,
                           ),
                         ),
                       ],
@@ -248,266 +277,81 @@ class _SsoOtpVerificationScreenState extends State<SsoOtpVerificationScreen> {
     );
   }
 
-  Widget _form(AuthMetrics m, {required bool alignStart}) {
-    final colors = context.colors;
-    final cross = alignStart
-        ? CrossAxisAlignment.start
-        : CrossAxisAlignment.center;
-    final align = alignStart ? TextAlign.left : TextAlign.center;
-
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: m.formMaxWidth),
-      child: Column(
-        crossAxisAlignment: cross,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Verify Your Email',
-            textAlign: align,
-            style: AppTextStyles.headlineMedium.copyWith(
-              fontSize: m.heroTitle,
-              fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
-            ),
-          ),
-          SizedBox(height: m.fieldGap * 0.45),
-          Text(
-            "We've sent a $_otpLength-digit code to",
-            textAlign: align,
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: m.heroBody,
-              color: colors.textSecondary,
-            ),
-          ),
-          SizedBox(height: m.fieldGap * 0.2),
-          _EmailRow(
-            m: m,
-            email: widget.email,
-            alignStart: alignStart,
-            onEdit: () => context.pop(),
-          ),
-          SizedBox(height: m.blockGap),
-          _OtpInput(
-            controller: _otpController,
-            focusNode: _otpFocusNode,
-            length: _otpLength,
-            m: m,
-            alignStart: alignStart,
-            onCompleted: (_) => _submit(),
-          ),
-          // SizedBox(height: m.blockGap),
-          SizedBox(height: m.blockGap * 2),
-
-          _ResendRow(
-            secondsLeft: _secondsLeft,
-            alignStart: alignStart,
-            onResend: _resend,
-            metrics: m,
-            isResending: _isResending,
-          ),
-          SizedBox(height: m.blockGap),
-          BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) => SizedBox(
-              width: double.infinity,
-              child: AppButton(
-                label: 'Verify OTP',
-                onPressed: _submit,
-                isLoading: state is AuthLoading,
-                height: m.buttonHeight,
-                fontSize: m.linkText + 2,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Phone (portrait + landscape) aur tablet portrait —
-class _NarrowLayout extends StatelessWidget {
-  const _NarrowLayout({
-    required this.metrics,
-    required this.onBack,
-    required this.form,
-  });
-
-  final AuthMetrics metrics;
-  final VoidCallback onBack;
-  final Widget form;
-
-  @override
-  Widget build(BuildContext context) {
-    final showHero = metrics.isTablet || !metrics.isLandscape;
-
+  Widget _buildContent(AuthMetrics m) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _TopBar(m: metrics, onBack: onBack),
-
-        SizedBox(height: metrics.blockGap),
-
-        if (showHero) ...[
-          Center(child: _HeroArt(m: metrics)),
-          SizedBox(height: metrics.blockGap),
-        ],
-
-        Center(child: form),
-      ],
-    );
-  }
-}
-
-class _WideLayout extends StatelessWidget {
-  const _WideLayout({
-    required this.m,
-    required this.onBack,
-    required this.form,
-  });
-
-  final AuthMetrics m;
-  final VoidCallback onBack;
-  final Widget form;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _TopBar(m: m, onBack: onBack),
-        SizedBox(height: m.sectionGap),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(flex: 5, child: form),
-            SizedBox(width: m.paneGap),
-            Expanded(
-              flex: 4,
-              child: Center(
-                child: _HeroArt(m: m,),
-              ),
-            ),
-          ],
+        SizedBox(height: m.blockGap * 2.2),
+        VaultWordmark(
+          fontSize: m.brandTitle * 1.3,
+          showDiamond: false,
+          tagline: 'TIMELESS LUXURY FOR YOU',
+          taglineColor: ThemeColors.vaultInk,
         ),
-      ],
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.m, required this.onBack});
-
-  final AuthMetrics m;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        InkResponse(
-          onTap: onBack,
-          radius: 24,
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Icon(Icons.arrow_back_ios_rounded, size: 22, color: colors.textPrimary,),
+        SizedBox(height: m.blockGap * 1.2),
+        const Center(
+          child: VaultIconBadge(
+            icon: Icons.mark_email_read_outlined,
+            size: 104,
           ),
         ),
-        SizedBox(width: m.fieldGap * 0.6),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'The',
-                    style: TextStyle(color: colors.textPrimary),
-                  ),
-                  TextSpan(
-                    text: 'Vault',
-                    style: TextStyle(
-                      color: colors.brand
-                    ),
-                  ),
-                ],
-              ),
-              style: AppTextStyles.headlineMedium.copyWith(
-                fontSize: m.brandTitle,
-                fontWeight: FontWeight.w700,
-                height: 1.1,
-              ),
-            ),
-            SizedBox(height: m.brandTagline * 0.25),
-            Text(
-              'YOUR EVERYDAY STORE',
-              style: AppTextStyles.labelMedium.copyWith(
-                fontSize: m.brandTagline,
-                letterSpacing: 1.6,
-                fontWeight: FontWeight.w600,
-                color: colors.textMuted,
-              ),
-            ),
-          ],
+        SizedBox(height: m.fieldGap * 0.6),
+        Text(
+          'Verify Your Email',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: kVaultSerif,
+            fontSize: m.heroTitle * 1.1,
+            fontWeight: FontWeight.w600,
+            color: ThemeColors.vaultInk,
+          ),
         ),
-      ],
-    );
-  }
-}
-
-class _HeroArt extends StatelessWidget {
-  const _HeroArt({required this.m});
-
-  final AuthMetrics m;
-
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return AspectRatio(
-      aspectRatio: 1,
-      child: Image.asset(colors.isDark ? AppImages.onboard1Dark : AppImages.onboard1,fit: BoxFit.contain,),
-
-    );
-  }
-}
-
-class _EmailRow extends StatelessWidget {
-  const _EmailRow({
-    required this.m,
-    required this.email,
-    required this.alignStart,
-    required this.onEdit,
-  });
-
-  final AuthMetrics m;
-  final String email;
-  final bool alignStart;
-  final VoidCallback onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: alignStart
-          ? MainAxisAlignment.start
-          : MainAxisAlignment.center,
-      children: [
-        Flexible(
-          child: Text(
-            email,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: m.heroBody,
-              fontWeight: FontWeight.w700,
-              color: colors.brand,
-            ),
+        SizedBox(height: m.fieldGap * 0.4),
+        Text(
+          "We've sent a $_otpLength-digit code to",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: m.linkText,
+            color: ThemeColors.vaultBody,
+          ),
+        ),
+        SizedBox(height: m.fieldGap * 0.2),
+        Text(
+          widget.email,
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: m.linkText,
+            fontWeight: FontWeight.w700,
+            color: ThemeColors.vaultPlumSoft,
+          ),
+        ),
+        SizedBox(height: m.blockGap * 1.2),
+        _OtpInput(
+          controller: _otpController,
+          focusNode: _otpFocusNode,
+          length: _otpLength,
+          m: m,
+          onCompleted: (_) => _submit(),
+        ),
+        SizedBox(height: m.fieldGap),
+        _ResendRow(
+          secondsLeft: _secondsLeft,
+          onResend: _resend,
+          metrics: m,
+          isResending: _isResending,
+        ),
+        SizedBox(height: m.blockGap * 1.1),
+        BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) => VaultGradientButton(
+            label: 'Verify OTP',
+            height: m.buttonHeight,
+            fontSize: m.linkText + 2,
+            onPressed: _submit,
+            isLoading: state is AuthLoading,
           ),
         ),
       ],
@@ -521,8 +365,6 @@ class _OtpInput extends StatelessWidget {
     required this.focusNode,
     required this.length,
     required this.m,
-
-    required this.alignStart,
     required this.onCompleted,
   });
 
@@ -530,25 +372,22 @@ class _OtpInput extends StatelessWidget {
   final FocusNode focusNode;
   final int length;
   final AuthMetrics m;
-  final bool alignStart;
   final ValueChanged<String> onCompleted;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return LayoutBuilder(
       builder: (context, c) {
         final gap = m.fieldGap * 0.5;
         final maxBox = (c.maxWidth - gap * (length - 1)) / length;
-        final target = m.isTablet ? 64.0 : 52.0;
+        final target = m.isTablet ? 60.0 : 50.0;
         final w = maxBox < target ? maxBox : target;
         final h = w * 1.14;
 
         PinTheme themed({
           required Color fill,
           required Color border,
-          double bw = 1.2,
+          double bw = 1,
         }) {
           return PinTheme(
             width: w,
@@ -557,7 +396,7 @@ class _OtpInput extends StatelessWidget {
               fontFamily: 'Inter',
               fontSize: w * 0.44,
               fontWeight: FontWeight.w700,
-              color: colors.textPrimary,
+              color: ThemeColors.vaultInk,
             ),
             decoration: BoxDecoration(
               color: fill,
@@ -567,8 +406,7 @@ class _OtpInput extends StatelessWidget {
           );
         }
 
-        return Align(
-          alignment: alignStart ? Alignment.centerLeft : Alignment.center,
+        return Center(
           child: Pinput(
             controller: controller,
             focusNode: focusNode,
@@ -576,18 +414,24 @@ class _OtpInput extends StatelessWidget {
             autofocus: true,
             keyboardType: TextInputType.number,
             onCompleted: onCompleted,
+            cursor: Container(
+              width: 1.5,
+              height: h * 0.4,
+              color: ThemeColors.vaultPlumSoft,
+            ),
             separatorBuilder: (_) => SizedBox(width: gap),
             defaultPinTheme: themed(
-              fill: colors.surface,
-              border: colors.border,
+              fill: ThemeColors.vaultLoginFieldFill,
+              border: ThemeColors.vaultLoginFieldBorder,
             ),
             focusedPinTheme: themed(
-              fill: colors.surface,
-              border: colors.brand,
+              fill: ThemeColors.white,
+              border: ThemeColors.vaultGold,
+              bw: 1.5,
             ),
             submittedPinTheme: themed(
-              fill: colors.brandSoft,
-              border: colors.brand,
+              fill: ThemeColors.white,
+              border: ThemeColors.vaultGold,
             ),
           ),
         );
@@ -600,37 +444,36 @@ class _ResendRow extends StatelessWidget {
   const _ResendRow({
     required this.metrics,
     required this.secondsLeft,
-    required this.alignStart,
     required this.onResend,
     required this.isResending,
   });
 
   final AuthMetrics metrics;
   final int secondsLeft;
-  final bool alignStart;
   final VoidCallback onResend;
   final bool isResending;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     final canResend = secondsLeft == 0 && !isResending;
     final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
     final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
 
-    return Align(
-      alignment: alignStart ? Alignment.centerLeft : Alignment.center,
+    final mutedStyle = TextStyle(
+      fontFamily: 'Inter',
+      fontSize: metrics.linkText,
+      color: ThemeColors.vaultBody,
+    );
+    final actionStyle = mutedStyle.copyWith(
+      fontWeight: FontWeight.w700,
+      color: ThemeColors.vaultPlumSoft,
+    );
+
+    return Center(
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
-            "Didn't receive the code? ",
-            style: AppTextStyles.bodyMedium.copyWith(
-              fontSize: metrics.linkText,
-              color: colors.textMuted,
-            ),
-          ),
+          Text("Didn't receive the code? ", style: mutedStyle),
 
           if (isResending)
             Padding(
@@ -638,23 +481,16 @@ class _ResendRow extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 14,
                     height: 14,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(colors.brand),
+                      valueColor: AlwaysStoppedAnimation(ThemeColors.vaultGold),
                     ),
                   ),
-                  SizedBox(width: 6),
-                  Text(
-                    'Sending OTP...',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      fontSize: metrics.linkText,
-                      fontWeight: FontWeight.w700,
-                      color: colors.brand,
-                    ),
-                  ),
+                  const SizedBox(width: 6),
+                  Text('Sending OTP...', style: actionStyle),
                 ],
               ),
             )
@@ -666,11 +502,9 @@ class _ResendRow extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                 child: Text(
                   'Resend OTP',
-                  style: AppTextStyles.labelMedium.copyWith(
-                    fontSize: metrics.linkText,
-                    fontWeight: FontWeight.w700,
-                    color: canResend ? colors.brand : colors.textMuted,
-                  ),
+                  style: canResend
+                      ? actionStyle
+                      : actionStyle.copyWith(color: ThemeColors.vaultBody),
                 ),
               ),
             ),
@@ -678,9 +512,9 @@ class _ResendRow extends StatelessWidget {
           if (!canResend && !isResending)
             Text(
               ' ($minutes:$seconds)',
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: metrics.linkText,
-                color: colors.textMuted,
+              style: mutedStyle.copyWith(
+                fontWeight: FontWeight.w600,
+                color: ThemeColors.vaultGoldDeep,
               ),
             ),
         ],

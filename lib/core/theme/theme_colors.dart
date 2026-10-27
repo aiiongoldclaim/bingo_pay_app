@@ -1,8 +1,6 @@
-
 import 'package:flutter/cupertino.dart';
 
 class ThemeColors {
-
 
   static const primaryPurple = Color(0xFF4C1E76);
   static const deepPurple = Color(0xFF3F185F);
@@ -71,7 +69,6 @@ class ThemeColors {
   static const gold500 = Color(0xFFc3942d);
   static const gold800 = Color(0xFF5a4414);
   static const heroText1 = Color(0xFF231806);
-
 
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surface2 = Color(0xFFF1F4FB);
@@ -351,5 +348,69 @@ class ThemeColors {
         Color(0xFFF3ECF8),
         Color(0xFFE9DDF1),
       ],
+  );
+
+  static const Color vaultPlumNight = Color(0xFF160926);
+  static const Color vaultPlumDeep = Color(0xFF240C3D);
+  static const Color vaultPlum = Color(0xFF3A145E);
+  static const Color vaultPlumSoft = Color(0xFF5B2A86);
+
+  static const Color vaultCream = Color(0xFFFBF7F1);
+  static const Color vaultCreamDeep = Color(0xFFF3EADF);
+
+  static const Color vaultGold = Color(0xFFC9A04E);
+  static const Color vaultGoldLight = Color(0xFFEDCF8C);
+  static const Color vaultGoldDeep = Color(0xFFA47A2C);
+
+  static const Color vaultInk = Color(0xFF1F1530);
+  static const Color vaultBody = Color(0xFF6E6578);
+  static const Color vaultFieldBorder = Color(0xFFE7DFE6);
+  static const Color vaultDotIdle = Color(0xFFD9CDBB);
+
+  static const Color vaultDarkSurface = Color(0xFF221433);
+  static const Color vaultDarkBorder = Color(0xFF3A2950);
+  static const Color vaultDarkBody = Color(0xFFBDB1CB);
+
+  static const LinearGradient vaultGoldText = LinearGradient(
+    colors: [vaultGoldLight, vaultGold, vaultGoldDeep],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient vaultPlumButton = LinearGradient(
+    colors: [vaultPlum, vaultPlumDeep],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient vaultGoldButton = LinearGradient(
+    colors: [vaultGoldLight, vaultGold],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient vaultNightBg = LinearGradient(
+    colors: [vaultPlum, vaultPlumDeep, vaultPlumNight],
+    stops: [0.0, 0.55, 1.0],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const Color vaultLoginCream = Color(0xFFF8F5F0);
+  static const Color vaultLoginFieldFill = Color(0xFFFAF7F3);
+  static const Color vaultLoginFieldBorder = Color(0xFFE8D7BC);
+  static const Color vaultLoginDivider = Color(0xFFDCD6CF);
+
+  static const LinearGradient vaultLoginButton = LinearGradient(
+    colors: [Color(0xFF6A3A8C), Color(0xFF4A2066)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient vaultCreamBg = LinearGradient(
+    colors: [vaultCream, vaultCream, vaultCreamDeep],
+    stops: [0.0, 0.6, 1.0],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 }

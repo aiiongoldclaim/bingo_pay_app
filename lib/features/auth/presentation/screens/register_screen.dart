@@ -4,25 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../../../core/widgets/custom_footer_section.dart';
+import '../../../../core/widgets/vault_brand.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_metrics.dart';
-import '../widgets/auth_tablet_layout.dart';
 import '../widgets/auth_terms_checkbox.dart';
 import '../widgets/country_picker.dart';
 import '../widgets/password_requirements.dart';
 import '../widgets/sso_login_dialog.dart';
+import '../widgets/vault_auth_widgets.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -209,8 +207,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: c.vaultAuthBackground,
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -256,15 +256,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (context, state) {
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
-            child: SafeArea(
-              child: AuthResponsiveLayout(
-                title: 'Create Account',
-                subtitle: 'Start shopping smarter every day.',
-                centeredHero: true,
-                centeredImageMinHeight: 130,
-                // topActionLabel: 'Sign In',
-                onTopAction: () => context.go(AppRoutes.login),
-                formBuilder: _buildForm,
+            child: VaultAuthScaffold(
+              builder: (context, m) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  VaultAuthHeader(
+                    m: m,
+                    title: 'Create Account',
+                    subtitle:
+                        'Join TheVaults and unlock\na world of premium shopping.',
+                  ),
+                  SizedBox(height: m.blockGap * 1.2),
+                  _buildForm(context, m),
+                ],
               ),
             ),
           );
@@ -275,6 +279,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
     final colors = context.colors;
+    final c = context.colors;
+    final gap = m.fieldGap * 0.8;
+    final fieldStyle = vaultFieldTextStyle(m, isDark: c.isDark);
 
     return Form(
       key: _formKey,
@@ -285,29 +292,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
           AppTextField(
             controller: _fullNameController,
             focusNode: _fullNameFocus,
-            label: 'Full Name',
-            hint: 'Enter your full name',
-            isRequired: true,
+            label: '',
             validator: Validators.name,
             keyboardType: TextInputType.name,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) {
               _emailFocus.requestFocus();
             },
-            prefixIcon: const Icon(Icons.person_outline_rounded),
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'Full Name',
+              icon: Icons.person_outline_rounded,
+              isDark: c.isDark,
+            ),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s]")),
             ],
           ),
 
-          SizedBox(height: m.fieldGap),
+          SizedBox(height: gap),
 
           AppTextField(
             controller: _emailController,
             focusNode: _emailFocus,
-            label: 'Email',
-            hint: 'Enter your email',
-            isRequired: true,
+            label: '',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             onFieldSubmitted: (_) {
@@ -318,52 +328,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9@.\-]')),
             ],
-            prefixIcon: const Icon(Icons.mail_outline_rounded),
-            suffixIcon: _checkingEmail
-                ? Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(colors.brand),
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'Email address',
+              icon: Icons.mail_outline_rounded,
+              isDark: c.isDark,
+              suffix: _checkingEmail
+                  ? Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(c.vaultAuthIcon),
+                        ),
+                      ),
+                    )
+                  : _emailExists == null ||
+                        _checkedEmail != _emailController.text.trim()
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(
+                        _emailExists!
+                            ? Icons.error_outline_rounded
+                            : Icons.check_circle_outline_rounded,
+                        color: _emailExists!
+                            ? colors.error
+                            : colors.statusSuccess,
                       ),
                     ),
-                  )
-                : _emailExists == null ||
-                      _checkedEmail != _emailController.text.trim()
-                ? null
-                : Icon(
-                    _emailExists!
-                        ? Icons.error_outline_rounded
-                        : Icons.check_circle_outline_rounded,
-                    color: _emailExists!
-                        ? colors.error
-                        : colors.statusSuccess,
-                  ),
+            ),
           ),
 
           if (!_checkingEmail &&
               _emailExists == true &&
               _checkedEmail == _emailController.text.trim())
             Padding(
-              padding: EdgeInsets.only(top: 6, left: 4),
+              padding: const EdgeInsets.only(top: 6, left: 4),
               child: Text(
                 'This email is already registered',
-                style: AppTextStyles.bodySmall.copyWith(
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: m.footerText,
                   color: colors.error,
                 ),
               ),
             ),
 
-          SizedBox(height: m.fieldGap),
+          SizedBox(height: gap),
 
           AppTextField(
-            label: 'Phone Number',
-            hint: 'Enter Phone Number',
-            isRequired: true,
+            label: '',
             controller: _phoneController,
             focusNode: _phoneFocus,
             keyboardType: TextInputType.phone,
@@ -397,22 +416,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _selectedCountry?.maxLength ?? 10,
               ),
             ],
-            prefixIcon: _CountryPrefix(
-              m: m,
-              flag: _getFlagEmoji(_selectedCountry?.code ?? 'IN'),
-              dialCode: _selectedCountry?.dialCode ?? '+91',
-              onTap: _showCountryPicker,
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'Phone Number',
+              isDark: c.isDark,
+              prefix: _CountryPrefix(
+                m: m,
+                flag: _getFlagEmoji(_selectedCountry?.code ?? 'IN'),
+                dialCode: _selectedCountry?.dialCode ?? '+91',
+                onTap: _showCountryPicker,
+              ),
             ),
           ),
 
-          SizedBox(height: m.fieldGap),
+          SizedBox(height: gap),
 
           AppTextField(
             controller: _passwordController,
             focusNode: _passwordFocus,
-            label: 'Password',
-            hint: 'Create a password',
-            isRequired: true,
+            label: '',
             obscureText: _obscurePassword,
             keyboardType: TextInputType.visiblePassword,
             textInputAction: TextInputAction.next,
@@ -421,19 +445,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
             validator: Validators.password,
             onChanged: (_) => setState(() {}),
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
             inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'Password',
+              icon: Icons.lock_outline_rounded,
+              isDark: c.isDark,
+              suffix: IconButton(
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _obscurePassword = !_obscurePassword;
-                });
-              },
             ),
           ),
 
@@ -442,14 +473,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             PasswordRequirements(value: _passwordController.text, metrics: m),
           ],
 
-          SizedBox(height: m.fieldGap),
+          SizedBox(height: gap),
 
           AppTextField(
             controller: _confirmPasswordController,
             focusNode: _confirmPasswordFocus,
-            label: 'Confirm Password',
-            hint: 'Re-enter your password',
-            isRequired: true,
+            label: '',
             obscureText: _obscureConfirm,
             keyboardType: TextInputType.visiblePassword,
             textInputAction: TextInputAction.done,
@@ -457,25 +486,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
               FocusScope.of(context).unfocus();
               _submit();
             },
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
             inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'\s'))],
             validator: (v) =>
                 Validators.confirmPassword(v, _passwordController.text),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscureConfirm
-                    ? Icons.visibility_outlined
-                    : Icons.visibility_off_outlined,
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'Confirm Password',
+              icon: Icons.lock_reset_rounded,
+              isDark: c.isDark,
+              suffix: IconButton(
+                icon: Icon(
+                  _obscureConfirm
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureConfirm = !_obscureConfirm;
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _obscureConfirm = !_obscureConfirm;
-                });
-              },
             ),
           ),
 
-          SizedBox(height: m.blockGap),
+          SizedBox(height: m.blockGap * 0.9),
 
           /// TERMS AND CONDITIONS
           AuthTermsCheckbox(
@@ -490,43 +526,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
             },
           ),
 
-          SizedBox(height: m.blockGap),
+          SizedBox(height: m.blockGap * 1.1),
 
           /// CREATE ACCOUNT
           BlocBuilder<AuthBloc, AuthState>(
-            builder: (context, state) => AppButton(
+            builder: (context, state) => VaultPillButton(
               label: 'Create Account',
+              height: m.buttonHeight,
               onPressed: _submit,
               isLoading: state is AuthLoading,
             ),
           ),
 
-          SizedBox(height: m.blockGap * 0.7),
-
-          /// OR DIVIDER
-          Row(
-            children: [
-              Expanded(child: Divider(color: colors.border)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: m.fieldGap * 0.7),
-                child: Text(
-                  'or',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: m.footerText,
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ),
-              Expanded(child: Divider(color: colors.border)),
-            ],
-          ),
-
-          SizedBox(height: m.blockGap * 0.7),
+          SizedBox(height: m.blockGap),
 
           /// SIGN IN
-          AuthFooterLink(
-            prefix: AppStrings.secureLogin,
-            action: AppStrings.signin,
+          VaultFooterLink(
+            prefix: 'Already have an account?',
+            action: 'Sign In',
+            fontSize: m.footerText + 1,
             onTap: () {
               context.go(AppRoutes.login);
             },
@@ -552,38 +570,43 @@ class _CountryPrefix extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final c = context.colors;
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.only(right: 12),
-        margin: const EdgeInsets.only(right: 8),
+        padding: EdgeInsets.only(left: m.pagePadH, right: 10),
+        margin: const EdgeInsets.only(right: 10),
         decoration: BoxDecoration(
           border: Border(
-            right: BorderSide(color: colors.border, width: 1),
+            right: BorderSide(color: c.vaultAuthBorder, width: 1),
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(flag, style: TextStyle(fontSize: m.linkText + 4)),
-            const SizedBox(width: 6),
+            Icon(
+              Icons.phone_iphone_rounded,
+              size: 22,
+              color: c.isDark ? ThemeColors.vaultGoldLight : ThemeColors.vaultInk,
+            ),
+            const SizedBox(width: 8),
+            Text(flag, style: TextStyle(fontSize: m.linkText + 2)),
+            const SizedBox(width: 4),
             Text(
               dialCode,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
                 fontSize: m.linkText,
-                color: colors.textPrimary,
+                color: c.vaultAuthTitle,
               ),
             ),
-            const SizedBox(width: 2),
             Icon(
               Icons.keyboard_arrow_down_rounded,
               size: m.linkText + 4,
-              color: colors.brand,
+              color: c.vaultAuthBody,
             ),
           ],
         ),
@@ -591,3 +614,4 @@ class _CountryPrefix extends StatelessWidget {
     );
   }
 }
+

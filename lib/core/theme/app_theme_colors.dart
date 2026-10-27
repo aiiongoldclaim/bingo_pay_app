@@ -81,6 +81,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final LinearGradient onboardingNextGradient;
   final Color onboardingNextText;
 
+  // ── Vault auth ───────────────────────────────────────────
+  final Color vaultAuthBackground;
+  final Color vaultAuthSurface;
+  final Color vaultAuthTitle;
+  final Color vaultAuthBody;
+  final Color vaultAuthBorder;
+  final Color vaultAuthLink;
+  final Color vaultAuthIcon;
+
   final bool isDark;
 
   const AppThemeColors({
@@ -132,6 +141,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.onboardingBorder,
     required this.onboardingNextGradient,
     required this.onboardingNextText,
+    required this.vaultAuthBackground,
+    required this.vaultAuthSurface,
+    required this.vaultAuthTitle,
+    required this.vaultAuthBody,
+    required this.vaultAuthBorder,
+    required this.vaultAuthLink,
+    required this.vaultAuthIcon,
     required this.isDark,
   });
 
@@ -206,6 +222,14 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     onboardingBorder: ThemeColors.line,
     onboardingNextGradient: ThemeColors.bottomSection,
     onboardingNextText: ThemeColors.white,
+
+    vaultAuthBackground: ThemeColors.vaultCream,
+    vaultAuthSurface: ThemeColors.white,
+    vaultAuthTitle: ThemeColors.vaultInk,
+    vaultAuthBody: ThemeColors.vaultBody,
+    vaultAuthBorder: ThemeColors.vaultFieldBorder,
+    vaultAuthLink: ThemeColors.vaultPlum,
+    vaultAuthIcon: ThemeColors.vaultPlum,
 
     isDark: false,
   );
@@ -291,6 +315,14 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     onboardingNextGradient: ThemeColors.bottomSection,
     onboardingNextText: ThemeColors.white,
 
+    vaultAuthBackground: ThemeColors.vaultPlumNight,
+    vaultAuthSurface: ThemeColors.vaultDarkSurface,
+    vaultAuthTitle: ThemeColors.white,
+    vaultAuthBody: ThemeColors.vaultDarkBody,
+    vaultAuthBorder: ThemeColors.vaultDarkBorder,
+    vaultAuthLink: ThemeColors.vaultGoldLight,
+    vaultAuthIcon: ThemeColors.vaultGoldLight,
+
     isDark: true,
   );
 
@@ -347,6 +379,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? onboardingBorder,
     LinearGradient? onboardingNextGradient,
     Color? onboardingNextText,
+    Color? vaultAuthBackground,
+    Color? vaultAuthSurface,
+    Color? vaultAuthTitle,
+    Color? vaultAuthBody,
+    Color? vaultAuthBorder,
+    Color? vaultAuthLink,
+    Color? vaultAuthIcon,
     bool? isDark,
   }) {
     return AppThemeColors(
@@ -401,6 +440,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       onboardingNextGradient:
       onboardingNextGradient ?? this.onboardingNextGradient,
       onboardingNextText: onboardingNextText ?? this.onboardingNextText,
+      vaultAuthBackground: vaultAuthBackground ?? this.vaultAuthBackground,
+      vaultAuthSurface: vaultAuthSurface ?? this.vaultAuthSurface,
+      vaultAuthTitle: vaultAuthTitle ?? this.vaultAuthTitle,
+      vaultAuthBody: vaultAuthBody ?? this.vaultAuthBody,
+      vaultAuthBorder: vaultAuthBorder ?? this.vaultAuthBorder,
+      vaultAuthLink: vaultAuthLink ?? this.vaultAuthLink,
+      vaultAuthIcon: vaultAuthIcon ?? this.vaultAuthIcon,
       isDark: isDark ?? this.isDark,
     );
   }
@@ -491,6 +537,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       )!,
       onboardingNextText:
       Color.lerp(onboardingNextText, other.onboardingNextText, t)!,
+      vaultAuthBackground:
+      Color.lerp(vaultAuthBackground, other.vaultAuthBackground, t)!,
+      vaultAuthSurface:
+      Color.lerp(vaultAuthSurface, other.vaultAuthSurface, t)!,
+      vaultAuthTitle: Color.lerp(vaultAuthTitle, other.vaultAuthTitle, t)!,
+      vaultAuthBody: Color.lerp(vaultAuthBody, other.vaultAuthBody, t)!,
+      vaultAuthBorder: Color.lerp(vaultAuthBorder, other.vaultAuthBorder, t)!,
+      vaultAuthLink: Color.lerp(vaultAuthLink, other.vaultAuthLink, t)!,
+      vaultAuthIcon: Color.lerp(vaultAuthIcon, other.vaultAuthIcon, t)!,
       isDark: t < 0.5 ? isDark : other.isDark,
     );
   }

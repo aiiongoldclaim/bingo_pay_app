@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
-import '../../../../core/constants/app_strings.dart';
+import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_interaction_blocker.dart';
 import '../../../../core/widgets/app_snackbar.dart';
-import '../../../../core/widgets/custom_footer_section.dart';
+import '../../../../core/widgets/vault_brand.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/widgets/error_widget_builder.dart';
 import '../bloc/auth_bloc.dart';
@@ -20,7 +18,7 @@ import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../../data/services/login_form_manager.dart';
 import '../widgets/auth_metrics.dart';
-import '../widgets/auth_tablet_layout.dart';
+import '../widgets/vault_auth_widgets.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String email;
@@ -56,7 +54,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     _cooldownTimer?.cancel();
     super.dispose();
   }
-
 
   void _onOtpChanged() {
     if (_otpError != null) setState(() => _otpError = null);
@@ -123,8 +120,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: c.vaultAuthBackground,
       resizeToAvoidBottomInset: true,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -157,36 +156,25 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           return AppInteractionBlocker(
             isBlocking: state is AuthLoading,
             dismissKeyboard: false, // 👈 Pinput ke liye
-            child: SafeArea(
-              child: AuthResponsiveLayout(
-                title: 'Verify Your Email',
-                subtitle:
-                'Enter the $_otpLength-digit code we sent to\n${widget.email}',
-                centeredHero: true,
-                heroIllustration: const _OtpIllustration(),
-                centeredImageGap: 16,
-                centeredBrandOnTop: true,
-                topActionLabel: 'Sign In',
-                onTopAction: _backToLogin,
-                features: const [
-                  AuthFeature(
-                    icon: Icons.mark_email_read_rounded,
-                    title: 'Check Your Inbox',
-                    subtitle: 'The code was sent to your\nregistered email.',
+            child: VaultAuthScaffold(
+              builder: (context, m) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  VaultAuthHeader(
+                    m: m,
+                    title: 'Verify Your Email',
+                    subtitle: 'We have sent a $_otpLength-digit code to',
+                    subtitleBold: widget.email,
+                    illustration: Image.asset(
+                      AppImages.vaultOtpVerify,
+                      height: m.isTablet ? 220 : 180,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
                   ),
-                  AuthFeature(
-                    icon: Icons.schedule_rounded,
-                    title: 'Expires Soon',
-                    subtitle:
-                    'Codes are valid for a short\ntime for your security.',
-                  ),
-                  AuthFeature(
-                    icon: Icons.refresh_rounded,
-                    title: 'Resend Anytime',
-                    subtitle: "Didn't get it? Request a\nnew code after 30s.",
-                  ),
+                  SizedBox(height: m.blockGap * 1.2),
+                  _buildForm(context, m),
                 ],
-                formBuilder: _buildForm,
               ),
             ),
           );
@@ -197,63 +185,65 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Widget _buildForm(BuildContext context, AuthMetrics m) {
     final colors = context.c;
+    final c = context.colors;
+    final mm = (_secondsLeft ~/ 60).toString().padLeft(2, '0');
+    final ss = (_secondsLeft % 60).toString().padLeft(2, '0');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Enter OTP',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: m.footerText + 1,
-                  fontWeight: FontWeight.w600,
-                  color: colors.textPrimary,
-                ),
-              ),
-              TextSpan(
-                text: ' *',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: m.footerText + 1,
-                  fontWeight: FontWeight.w700,
-                  color: colors.error,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        SizedBox(height: m.fieldGap * 0.6),
-
         _buildPinput(context, m),
 
         AnimatedSize(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
-          alignment: Alignment.topLeft,
+          alignment: Alignment.topCenter,
           child: _otpError == null
               ? const SizedBox(width: double.infinity, height: 0)
               : Padding(
             padding: EdgeInsets.only(top: m.fieldGap * 0.5),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: m.fieldGap * 0.35),
-                Expanded(
-                  child: Text(
-                    _otpError!,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      fontSize: m.footerText,
-                      fontWeight: FontWeight.w500,
-                      // color: colors.statusWarning,
-                      color: colors.error,
+            child: Text(
+              _otpError!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: m.footerText,
+                fontWeight: FontWeight.w500,
+                color: colors.error,
+              ),
+            ),
+          ),
+        ),
+
+        SizedBox(height: m.blockGap),
+
+        Center(
+          child: GestureDetector(
+            onTap: _secondsLeft == 0 ? _resend : null,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text.rich(
+                TextSpan(
+                  text: _secondsLeft == 0 ? "Didn't receive the code?  " : '',
+                  style: TextStyle(color: c.vaultAuthBody),
+                  children: [
+                    TextSpan(
+                      text: _secondsLeft == 0
+                          ? 'Resend Code'
+                          : 'Resend Code in $mm:$ss',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: _secondsLeft == 0 ? c.vaultAuthLink : c.vaultAuthTitle,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: m.footerText + 1,
+                ),
+              ),
             ),
           ),
         ),
@@ -262,57 +252,22 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
         /// ✅ VERIFY
         BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) => AppButton(
-            label: 'Verify Code',
+          builder: (context, state) => VaultPillButton(
+            label: 'Verify',
+            height: m.buttonHeight,
             onPressed: _submit,
             isLoading: state is AuthLoading,
-            suffixIcon: Icons.arrow_forward_rounded,
-            gradient: ThemeColors.authCtaGradient,
           ),
         ),
 
-        SizedBox(height: m.blockGap * 0.7),
-
-        /// 🔁 RESEND
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Didn't receive the code?",
-              style: AppTextStyles.bodyMedium.copyWith(
-                fontSize: m.footerText,
-                color: colors.textSecondary,
-              ),
-            ),
-            SizedBox(width: m.fieldGap * 0.4),
-            GestureDetector(
-              onTap: _secondsLeft == 0 ? _resend : null,
-              behavior: HitTestBehavior.opaque,
-              child: Text(
-                _secondsLeft == 0 ? 'Resend' : 'Resend in ${_secondsLeft}s',
-                style: AppTextStyles.labelLarge.copyWith(
-                  fontSize: m.footerText,
-                  fontWeight: FontWeight.w700,
-                  color: _secondsLeft == 0 ? colors.brand : colors.textMuted,
-                ),
-              ),
-            ),
-          ],
-        ),
-        ),
-
-        SizedBox(height: m.blockGap * 0.5),
+        SizedBox(height: m.blockGap),
 
         /// BACK TO LOGIN
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          child: AuthFooterLink(
-            prefix: AppStrings.wrongEmail,
-            action: AppStrings.backToLogin,
-            onTap: _backToLogin,
-          ),
+        VaultFooterLink(
+          prefix: 'Wrong email?',
+          action: 'Back to Login',
+          fontSize: m.footerText + 1,
+          onTap: _backToLogin,
         ),
       ],
     );
@@ -320,6 +275,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Widget _buildPinput(BuildContext context, AuthMetrics m) {
     final colors = context.c;
+    final c = context.colors;
     final hasError = _otpError != null;
 
     final boxW = m.isTablet ? (m.isLandscape ? 50.0 : 56.0) : 48.0;
@@ -329,13 +285,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       fontFamily: 'Inter',
       fontSize: m.isTablet ? 22 : 20,
       fontWeight: FontWeight.w700,
-      color: colors.textPrimary,
+      color: c.vaultAuthTitle,
     );
 
     BoxDecoration deco(Color fill, Color borderColor, {double width = 1}) =>
         BoxDecoration(
           color: fill,
-          borderRadius: BorderRadius.circular(m.buttonRadius),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: borderColor, width: width),
         );
 
@@ -354,11 +310,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         width: boxW,
         height: boxH,
         textStyle: pinTextStyle,
-        decoration: deco(
-          colors.surface,
-          //hasError ? colors.statusWarning : colors.border
-          hasError ? colors.error : colors.border, // CHANGE HERE
-           ),
+        decoration: deco(c.vaultAuthSurface, hasError ? colors.error : c.vaultAuthBorder),
       ),
 
       focusedPinTheme: PinTheme(
@@ -366,9 +318,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         height: boxH,
         textStyle: pinTextStyle,
         decoration: deco(
-          colors.surface,
-          // hasError ? colors.statusWarning : colors.brand,
-          hasError ? colors.error : colors.brand, // CHANGE HERE
+          c.vaultAuthSurface,
+          hasError ? colors.error : ThemeColors.vaultGold,
           width: 1.8,
         ),
       ),
@@ -378,69 +329,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         height: boxH,
         textStyle: pinTextStyle,
         decoration: deco(
-          hasError ? colors.surface : colors.brandSoft,
-          // hasError ? colors.statusWarning : colors.brand,
-          hasError ? colors.error : colors.brand, // CHANGE HERE
+          c.vaultAuthSurface,
+          hasError ? colors.error : ThemeColors.vaultGold,
         ),
       ),
 
       errorPinTheme: PinTheme(
         width: boxW,
         height: boxH,
-        textStyle: pinTextStyle.copyWith(
-          // color: colors.statusWarning
-          color: colors.error, // CHANGE HERE
-          ),
-        decoration: deco(colors.surface, 
-        // colors.statusWarning,
-        colors.error, // CHANGE HERE
-         width: 1.5),
+        textStyle: pinTextStyle.copyWith(color: colors.error),
+        decoration: deco(c.vaultAuthSurface, colors.error, width: 1.5),
       ),
     );
   }
 }
 
-class _OtpIllustration extends StatelessWidget {
-  const _OtpIllustration();
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final halo = isDark
-        ? ThemeColors.mediumPurple.withValues(alpha: 0.18)
-        : ThemeColors.lavenderMist;
-
-    return Center(
-      heightFactor: 1,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Container(
-          width: 128,
-          height: 128,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: halo, shape: BoxShape.circle),
-          child: Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(
-              gradient: ThemeColors.authCtaGradient,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: ThemeColors.authPurpleDeep.withValues(alpha: 0.30),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.mark_email_unread_rounded,
-              size: 40,
-              color: ThemeColors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

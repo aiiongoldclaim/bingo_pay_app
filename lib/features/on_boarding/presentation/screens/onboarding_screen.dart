@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
+import '../../../../core/widgets/vault_brand.dart';
 import '../../data/model/on_boarding_feature.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
-import '../widgets/onboarding_background.dart';
-import '../widgets/onboarding_bottom_bar.dart';
 import '../widgets/onboarding_metrics.dart';
-import '../widgets/onboarding_page_content.dart';
-import '../widgets/onboarding_top_bar.dart';
+import '../widgets/vault_onboarding_page.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key, required this.onFinish});
@@ -87,59 +86,119 @@ class _OnboardingViewState extends State<_OnboardingView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          const OnboardingBackground(),
+    return BlocBuilder<OnboardingCubit, OnboardingState>(
+      builder: (context, state) {
+        final page = OnBoardingContent.contents[state.currentPage];
+        final tone = VaultOnboardingTone(page.darkPage);
 
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final metrics = OnboardingMetrics.of(context, constraints);
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: (page.darkPage
+                  ? SystemUiOverlayStyle.light
+                  : SystemUiOverlayStyle.dark)
+              .copyWith(statusBarColor: Colors.transparent),
+          child: Scaffold(
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                final metrics = OnboardingMetrics.of(context, constraints);
+                final padding = MediaQuery.paddingOf(context);
+                final buttonHeight = metrics.isRow ? 46.0 : 54.0;
+                const topBarHeight = 52.0;
+                final controlsHeight = buttonHeight + metrics.gapImage * 0.6;
 
-              return SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: metrics.hPad),
-                  child: Column(
-                    children: [
-                      OnboardingTopBar(
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    PageView.builder(
+                      controller: _pageController,
+                      itemCount: OnBoardingContent.contents.length,
+                      onPageChanged:
+                      context.read<OnboardingCubit>().onPageChanged,
+                      itemBuilder: (context, index) => VaultOnboardingPage(
+                        content: OnBoardingContent.contents[index],
                         metrics: metrics,
-                        onSkip: widget.onFinish,
+                        topInset: padding.top + topBarHeight,
+                        bottomInset: padding.bottom +
+                            controlsHeight +
+                            metrics.bottomGap * 1.5,
                       ),
+                    ),
 
-                      Expanded(
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: OnBoardingContent.contents.length,
-                          onPageChanged:
-                          context.read<OnboardingCubit>().onPageChanged,
-                          itemBuilder: (context, index) =>
-                              OnboardingPageContent(
-                                content: OnBoardingContent.contents[index],
-                                metrics: metrics,
+                    SafeArea(
+                      child: Padding(
+                        padding:
+                        EdgeInsets.symmetric(horizontal: metrics.hPad * 0.6),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: topBarHeight,
+                              child: Row(
+                                children: [
+                                  const Spacer(),
+                                  Semantics(
+                                    button: true,
+                                    label: 'Skip onboarding',
+                                    child: TextButton(
+                                      onPressed: widget.onFinish,
+                                      child: Text(
+                                        'Skip',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: metrics.skipFont,
+                                          fontWeight: FontWeight.w600,
+                                          color: tone.title,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+
+                            const Spacer(),
+
+                            VaultOnboardingDots(
+                              count: state.totalPages,
+                              currentPage: state.currentPage,
+                              tone: tone,
+                              dotSize: metrics.dotSize,
+                            ),
+
+                            SizedBox(height: metrics.gapImage),
+
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: metrics.hPad * 0.4,
+                              ),
+                              child: ConstrainedBox(
+                                constraints:
+                                const BoxConstraints(maxWidth: 480),
+                                child: VaultPillButton(
+                                  label: page.cta,
+                                  height: buttonHeight,
+                                  style: !page.darkPage
+                                      ? VaultPillStyle.plum
+                                      : state.isLastPage
+                                      ? VaultPillStyle.gold
+                                      : VaultPillStyle.outlineGold,
+                                  showArrow: true,
+                                  onPressed: _handleNext,
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: metrics.bottomGap * 1.5),
+                          ],
                         ),
                       ),
-
-                      BlocBuilder<OnboardingCubit, OnboardingState>(
-                        builder: (context, state) => OnboardingBottomBar(
-                          metrics: metrics,
-                          currentPage: state.currentPage,
-                          total: state.totalPages,
-                          onBack: _handleBack,
-                          onNext: _handleNext,
-                        ),
-                      ),
-
-                      SizedBox(height: metrics.bottomGap),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
+

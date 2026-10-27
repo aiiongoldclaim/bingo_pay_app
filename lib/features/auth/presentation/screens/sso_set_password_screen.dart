@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/image_constants.dart';
 import '../../../../core/router/app_routes.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/theme_colors.dart';
 import '../../../../core/utils/responsive_utils.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/vault_brand.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../widgets/auth_metrics.dart';
-import '../widgets/auth_secure_note.dart';
 import '../widgets/leave_without_password_dialog.dart';
 import '../widgets/password_requirements.dart';
+import '../widgets/vault_auth_widgets.dart';
 
 class SsoSetPasswordScreen extends StatefulWidget {
   final String email;
@@ -65,7 +65,6 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
 
   void _submit() {
     if (_isSubmitting) return;
-    // if (context.read<AuthBloc>().state is AuthLoading) return;
     _isSubmitting = true;
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
@@ -75,41 +74,6 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
       _isSubmitting = false;
     }
   }
-
-  // Future<void> _confirmAbandon() async {
-  //   final leaveAnyway = await showDialog<bool>(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (dialogContext) => AlertDialog(
-  //       title: const Text('Set a password to continue'),
-  //       content: const Text(
-  //         'Your TheVault account is verified but has no local password yet. '
-  //         "If you leave now without setting one, you won't be able to sign "
-  //         'in or access your account until you restart this SSO login and '
-  //         'set a password.',
-  //       ),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.of(dialogContext).pop(false),
-  //           child: const Text('Stay'),
-  //         ),
-  //         TextButton(
-  //           onPressed: () => Navigator.of(dialogContext).pop(true),
-  //           style: TextButton.styleFrom(foregroundColor: AppColors.error),
-  //           child: const Text('Leave Anyway'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  //
-  //   if (leaveAnyway == true && mounted) {
-  //     // Tokens were already saved when the SSO OTP was verified, so leaving
-  //     // half-authenticated would strand the user in a broken state. Log
-  //     // them out and send them back to a clean login screen instead.
-  //     context.read<AuthBloc>().add(const LogoutRequested());
-  //     context.go(AppRoutes.login);
-  //   }
-  // }
 
   // ------------------------------------ UI ------------------------------------
   Future<void> _confirmAbandon() async {
@@ -129,7 +93,6 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     ResponsiveUtils.setDeviceType(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
@@ -138,7 +101,7 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
         _confirmAbandon();
       },
       child: Scaffold(
-        backgroundColor: isDark ? ThemeColors.ink : ThemeColors.background,
+        backgroundColor: ThemeColors.vaultLoginCream,
         body: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is! AuthLoading) {
@@ -150,77 +113,74 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
               context.go(AppRoutes.home);
             }
           },
-          child: SafeArea(
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: ThemeColors.vaultLoginCream,
+            ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final matrics = AuthMetrics.of(constraints);
-                final wide = matrics.isTablet && matrics.isLandscape;
+                final m = AuthMetrics.of(constraints);
+                final w = constraints.maxWidth;
+                final topW = (w * 0.48).clamp(150.0, 380.0);
+                final bottomW = (w * 0.66).clamp(220.0, 520.0);
 
-                if (!wide) {
-                  // Phone (and tablet portrait): stays fixed (no visible
-                  // scroll) while everything fits, but scrolls up once the
-                  // keyboard opens or the password checklist pushes content
-                  // past the viewport, instead of overflowing.
-                  return SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: matrics.pagePadH,
-                      vertical: matrics.pagePadV * 0.5,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - matrics.pagePadV,
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      width: topW,
+                      child: const VaultCornerArt(
+                        asset: AppImages.vaultLoginCornerTop,
+                        corner: Alignment.topRight,
                       ),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: matrics.contentMaxWidth,
-                          ),
-                          child: _NarrowLayout(
-                            m: matrics,
-                            isDark: isDark,
-                            screen: this,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      width: bottomW,
+                      child: const VaultCornerArt(
+                        asset: AppImages.vaultLoginCornerBottom,
+                        corner: Alignment.bottomLeft,
+                      ),
+                    ),
+
+                    SafeArea(
+                      child: SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(
+                          m.pagePadH * 0.7,
+                          0,
+                          m.pagePadH * 0.7,
+                          m.blockGap,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                SizedBox(height: m.blockGap * 2.2),
+                                VaultWordmark(
+                                  fontSize: m.brandTitle * 1.3,
+                                  showDiamond: false,
+                                  tagline: 'TIMELESS LUXURY FOR YOU',
+                                  taglineColor: ThemeColors.vaultInk,
+                                ),
+                                SizedBox(height: m.blockGap * 1.4),
+                                _buildHeadline(m),
+                                SizedBox(height: m.blockGap),
+                                _buildForm(m),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    matrics.pagePadH,
-                    matrics.pagePadV,
-                    matrics.pagePadH,
-                    matrics.pagePadV,
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - (matrics.pagePadV * 2),
-                    ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: matrics.contentMaxWidth,
-                              ),
-                              child: _WideLayout(
-                                m: matrics,
-                                isDark: isDark,
-                                screen: this,
-                              ),
-                            ),
-                          ),
-
-                          const Spacer(),
-                          SizedBox(height: matrics.blockGap),
-                          AuthSecureNote(metrics: matrics),
-                        ],
-                      ),
-                    ),
-                  ),
+                  ],
                 );
               },
             ),
@@ -230,399 +190,119 @@ class _SsoSetPasswordScreenState extends State<SsoSetPasswordScreen> {
     );
   }
 
-  Widget buildTopBar(AuthMetrics m, bool isDark) {
-    final ink = isDark ? ThemeColors.white : ThemeColors.ink;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'The',
-                    style: TextStyle(color: ink),
-                  ),
-                  TextSpan(
-                    text: 'Vaults',
-                    style: TextStyle(
-                      color: isDark
-                          ? ThemeColors.primaryPurple
-                          : ThemeColors.deepPurple,
-                    ),
-                  ),
-                ],
-              ),
-              style: AppTextStyles.headlineMedium.copyWith(
-                fontSize: m.brandTitle,
-                fontWeight: FontWeight.w700,
-                height: 1.1,
-              ),
-            ),
-            SizedBox(height: m.brandTagline * 0.25),
-            Text(
-              'YOUR EVERYDAY STORE',
-              style: AppTextStyles.labelMedium.copyWith(
-                fontSize: m.brandTagline,
-                letterSpacing: 1.6,
-                fontWeight: FontWeight.w600,
-                color: isDark ? ThemeColors.textGrey : ThemeColors.inkDim,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildHeadline(AuthMetrics m, bool isDark, {required bool alignStart}) {
-    final align = alignStart ? TextAlign.left : TextAlign.center;
-    final cross = alignStart
-        ? CrossAxisAlignment.start
-        : CrossAxisAlignment.center;
-
+  Widget _buildHeadline(AuthMetrics m) {
     return Column(
-      crossAxisAlignment: cross,
-      mainAxisSize: MainAxisSize.min,
       children: [
+        Image.asset(
+          AppImages.vaultPadlock,
+          height: m.isTablet ? 170 : 140,
+          fit: BoxFit.contain,
+          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        ),
+        SizedBox(height: m.fieldGap * 0.6),
         Text(
           'Set Your Password',
-          textAlign: align,
-          style: AppTextStyles.headlineMedium.copyWith(
-            fontSize: m.heroTitle,
-            fontWeight: FontWeight.w700,
-            height: 1.15,
-            color: isDark ? ThemeColors.white : ThemeColors.ink,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: kVaultSerif,
+            fontSize: m.heroTitle * 1.05,
+            fontWeight: FontWeight.w600,
+            height: 1.1,
+            color: ThemeColors.vaultInk,
           ),
         ),
-        SizedBox(height: m.fieldGap * 0.45),
+        SizedBox(height: m.fieldGap * 0.4),
+        Container(width: 40, height: 1.5, color: ThemeColors.vaultGold),
+        SizedBox(height: m.fieldGap * 0.5),
         Text(
           'Create a secure password to complete your account setup',
-          textAlign: align,
-          style: AppTextStyles.bodyMedium.copyWith(
-            fontSize: m.heroBody,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: m.linkText,
             height: 1.45,
-            color: isDark ? ThemeColors.inkDim : ThemeColors.inkMid,
+            color: ThemeColors.vaultBody,
           ),
         ),
       ],
     );
   }
 
-  Widget buildForm(AuthMetrics m, bool isDark) {
-    final iconColor = isDark ? ThemeColors.textGrey : ThemeColors.inkDim;
-    final warningBg = isDark
-        ? ThemeColors.deepPurple.withValues(alpha: 0.12)
-        : ThemeColors.deepPurple.withValues(alpha: 0.08);
-    final warningBorder = isDark
-        ? ThemeColors.primaryPurple.withValues(alpha: 0.4)
-        : ThemeColors.deepPurple.withValues(alpha: 0.3);
+  Widget _buildForm(AuthMetrics m) {
+    final fieldStyle = vaultFieldTextStyle(m);
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: m.formMaxWidth),
-      child: Form(
-        key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteractionIfError,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField(
-              controller: _passwordController,
-              label: 'New Password',
-              isRequired: true,
-              hint: 'Enter new password',
-              obscureText: _obscurePassword,
-              validator: Validators.password,
-              onChanged: (_) => setState(() {}),
-              prefixIcon: Icon(Icons.lock_outline_rounded, color: iconColor),
-              suffixIcon: IconButton(
+    return Form(
+      key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteractionIfError,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppTextField(
+            controller: _passwordController,
+            label: '',
+            obscureText: _obscurePassword,
+            validator: Validators.password,
+            onChanged: (_) => setState(() {}),
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'New Password',
+              icon: Icons.lock_outline_rounded,
+              suffix: IconButton(
                 icon: Icon(
                   _obscurePassword
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: iconColor,
                 ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
               ),
             ),
+          ),
 
-            // ---- checklist ab New Password ke theek neeche ----
-            if (_passwordController.text.isNotEmpty) ...[
-              SizedBox(height: m.fieldGap * 0.6),
-              PasswordRequirements(metrics: m, value: _passwordController.text),
-            ],
+          if (_passwordController.text.isNotEmpty) ...[
+            SizedBox(height: m.fieldGap * 0.6),
+            PasswordRequirements(metrics: m, value: _passwordController.text),
+          ],
 
-            SizedBox(height: m.fieldGap),
-            AppTextField(
-              controller: _confirmPasswordController,
-              label: 'Confirm Password',
-              isRequired: true,
-              hint: 'Confirm new password',
-              obscureText: _obscureConfirm,
-              validator: (v) =>
-                  Validators.confirmPassword(v, _passwordController.text),
-              prefixIcon: Icon(Icons.lock_outline_rounded, color: iconColor),
-              suffixIcon: IconButton(
+          SizedBox(height: m.fieldGap * 0.8),
+          AppTextField(
+            controller: _confirmPasswordController,
+            label: '',
+            obscureText: _obscureConfirm,
+            validator: (v) =>
+                Validators.confirmPassword(v, _passwordController.text),
+            cursorColor: ThemeColors.vaultPlumSoft,
+            style: fieldStyle,
+            decoration: vaultFieldDecoration(
+              m,
+              hint: 'Confirm Password',
+              icon: Icons.lock_outline_rounded,
+              suffix: IconButton(
                 icon: Icon(
                   _obscureConfirm
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: iconColor,
                 ),
                 onPressed: () =>
                     setState(() => _obscureConfirm = !_obscureConfirm),
               ),
             ),
-
-            SizedBox(height: m.blockGap),
-
-            // ---- WARNING BANNER (At Bottom) ----
-            Container(
-              padding: EdgeInsets.all(m.fieldGap),
-              decoration: BoxDecoration(
-                color: warningBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: warningBorder, width: 1.2),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.info_rounded,
-                    size: 20,
-                    color: isDark
-                        ? ThemeColors.primaryPurple
-                        : ThemeColors.deepPurple,
-                  ),
-                  SizedBox(width: m.fieldGap * 0.6),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Important',
-                          style: AppTextStyles.labelMedium.copyWith(
-                            fontSize: m.linkText - 1,
-                            fontWeight: FontWeight.w700,
-                            color: isDark
-                                ? ThemeColors.primaryPurple
-                                : ThemeColors.deepPurple,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'You must set a password now to access your account. If you skip this step, you won\'t be able to sign in or recover your account without completing this process again.',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            fontSize: m.footerText,
-                            height: 1.45,
-                            color: isDark
-                                ? ThemeColors.inkDim
-                                : ThemeColors.inkMid,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: m.blockGap * 2),
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) => AppButton(
-                label: 'Continue',
-                onPressed: _submit,
-                isLoading: state is AuthLoading,
-                height: m.buttonHeight,
-                fontSize: m.linkText + 2,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NarrowLayout extends StatelessWidget {
-  const _NarrowLayout({
-    required this.m,
-    required this.isDark,
-    required this.screen,
-  });
-
-  final AuthMetrics m;
-  final bool isDark;
-  final _SsoSetPasswordScreenState screen;
-
-  @override
-  Widget build(BuildContext context) {
-    final showHero = m.isTablet || !m.isLandscape;
-
-    final screenH = MediaQuery.of(context).size.height;
-    final heroCap = (screenH * 0.22).clamp(120.0, 260.0).toDouble();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        screen.buildTopBar(m, isDark),
-        SizedBox(height: m.blockGap),
-
-        // 1) IMAGE
-        if (showHero) ...[
-          Center(
-            child: _HeroArt(m: m, isDark: isDark, maxHeight: heroCap),
           ),
-          SizedBox(height: m.blockGap * 0.7),
+
+          SizedBox(height: m.blockGap * 1.1),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) => VaultGradientButton(
+              label: 'Continue',
+              height: m.buttonHeight,
+              fontSize: m.linkText + 2,
+              onPressed: _submit,
+              isLoading: state is AuthLoading,
+            ),
+          ),
         ],
-
-        screen.buildForm(m, isDark),
-      ],
-    );
-  }
-}
-
-/// Tablet landscape — LEFT art | divider | RIGHT headline + form
-class _WideLayout extends StatelessWidget {
-  const _WideLayout({
-    required this.m,
-    required this.isDark,
-    required this.screen,
-  });
-
-  final AuthMetrics m;
-  final bool isDark;
-  final _SsoSetPasswordScreenState screen;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        screen.buildTopBar(m, isDark),
-        SizedBox(height: m.blockGap),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              /// LEFT — sirf image
-              Expanded(
-                flex: 5,
-                child: Center(
-                  child: _HeroArt(m: m, isDark: isDark),
-                ),
-              ),
-
-              /// MIDDLE DIVIDER
-              _PaneDivider(m: m),
-
-              /// RIGHT — Set Password + subtitle + form
-              Expanded(
-                flex: 6,
-                child: _FitPane(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      screen.buildHeadline(m, isDark, alignStart: true),
-                      SizedBox(height: m.blockGap),
-                      screen.buildForm(m, isDark),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _FitPane extends StatelessWidget {
-  const _FitPane({required this.child}) : minScale = 0.85;
-
-  final Widget child;
-  final double minScale;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, c) {
-        if (!c.hasBoundedHeight) return child;
-        return ClipRect(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.center,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: c.maxHeight / minScale),
-              child: SizedBox(width: c.maxWidth, child: child),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Panes ke beech thin fading divider.
-class _PaneDivider extends StatelessWidget {
-  const _PaneDivider({required this.m});
-
-  final AuthMetrics m;
-
-  @override
-  Widget build(BuildContext context) {
-    final line = Theme.of(context).dividerColor;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: m.paneGap),
-      child: SizedBox(
-        width: 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                line.withValues(alpha: 0),
-                line.withValues(alpha: 0.55),
-                line.withValues(alpha: 0),
-              ],
-              stops: const [0.0, 0.5, 1.0],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HeroArt extends StatelessWidget {
-  const _HeroArt({required this.m, required this.isDark, this.maxHeight});
-
-  final AuthMetrics m;
-  final bool isDark;
-  final double? maxHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: m.heroImageMax * 1.6,
-        maxHeight: maxHeight ?? double.infinity,
-      ),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Image.asset(AppImages.onboard1Dark, fit: BoxFit.contain),
       ),
     );
   }
@@ -639,17 +319,6 @@ class _InitialPasswordWarningDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark
-        ? Color.alphaBlend(
-            ThemeColors.white.withValues(alpha: 0.06),
-            ThemeColors.ink,
-          )
-        : ThemeColors.white;
-    final titleColor = isDark ? ThemeColors.white : ThemeColors.ink;
-    final bodyColor = isDark ? ThemeColors.inkDim : ThemeColors.inkMid;
-    final accent = isDark ? ThemeColors.primaryPurple : ThemeColors.deepPurple;
-
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -659,16 +328,12 @@ class _InitialPasswordWarningDialog extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
             decoration: BoxDecoration(
-              color: cardBg,
+              color: ThemeColors.vaultLoginCream,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: accent.withValues(alpha: isDark ? 0.28 : 0.16),
-              ),
+              border: Border.all(color: ThemeColors.vaultLoginFieldBorder),
               boxShadow: [
                 BoxShadow(
-                  color: isDark
-                      ? ThemeColors.black.withValues(alpha: 0.55)
-                      : ThemeColors.blueDeep.withValues(alpha: 0.22),
+                  color: ThemeColors.vaultPlumDeep.withValues(alpha: 0.25),
                   blurRadius: 30,
                   offset: const Offset(0, 16),
                 ),
@@ -678,65 +343,34 @@ class _InitialPasswordWarningDialog extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // ---- Warning Badge ----
-                Container(
-                  width: 92,
-                  height: 92,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: accent.withValues(alpha: 0.45),
-                      width: 1.4,
-                    ),
-                    color: isDark
-                        ? accent.withValues(alpha: 0.06)
-                        : accent.withValues(alpha: 0.04),
-                  ),
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 92 * 0.62,
-                    height: 92 * 0.62,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: ThemeColors.bottomSection,
-                      boxShadow: [
-                        BoxShadow(
-                          color: accent.withValues(alpha: 0.35),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: const Icon(
-                      Icons.lock_outline_rounded,
-                      size: 31,
-                      color: ThemeColors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const VaultIconBadge(icon: Icons.lock_outline_rounded, size: 96),
+                const SizedBox(height: 12),
 
                 // ---- Title ----
-                Text(
+                const Text(
                   'Set Your Password Now',
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.headlineMedium.copyWith(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    height: 1.25,
-                    color: titleColor,
+                  style: TextStyle(
+                    fontFamily: kVaultSerif,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
+                    color: ThemeColors.vaultInk,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Container(width: 40, height: 1.5, color: ThemeColors.vaultGold),
                 const SizedBox(height: 12),
 
                 // ---- Body ----
-                Text(
+                const Text(
                   'Your account has been verified via email, but you need to set a password to complete setup. This password will be required to sign in and access your account.',
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 14,
                     height: 1.5,
-                    color: bodyColor,
+                    color: ThemeColors.vaultBody,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -745,18 +379,13 @@ class _InitialPasswordWarningDialog extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? ThemeColors.red.withValues(alpha: 0.08)
-                        : ThemeColors.red.withValues(alpha: 0.06),
+                    color: ThemeColors.red.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: ThemeColors.red.withValues(
-                        alpha: isDark ? 0.3 : 0.2,
-                      ),
-                      width: 1,
+                      color: ThemeColors.red.withValues(alpha: 0.2),
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
@@ -764,11 +393,12 @@ class _InitialPasswordWarningDialog extends StatelessWidget {
                         size: 18,
                         color: ThemeColors.red,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'If you skip this step, you won\'t be able to sign in or access your account until you complete this process again.',
-                          style: AppTextStyles.labelMedium.copyWith(
+                          style: TextStyle(
+                            fontFamily: 'Inter',
                             fontSize: 12,
                             height: 1.4,
                             color: ThemeColors.red,
@@ -783,24 +413,12 @@ class _InitialPasswordWarningDialog extends StatelessWidget {
                 // ---- Action Button ----
                 SizedBox(
                   width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accent,
-                      foregroundColor: ThemeColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                  child: VaultGradientButton(
+                    label: 'I Understand',
+                    height: 50,
+                    fontSize: 15,
                     onPressed: onDismiss,
-                    child: Text(
-                      'I Understand',
-                      style: AppTextStyles.buttonText.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: ThemeColors.white,
-                      ),
-                    ),
+                    isLoading: false,
                   ),
                 ),
               ],
