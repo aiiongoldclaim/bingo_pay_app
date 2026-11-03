@@ -2,7 +2,6 @@ import 'package:injectable/injectable.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_envelope.dart';
 import '../../../core/api/api_endpoints.dart';
-import 'models/bigod_intent_response.dart';
 import 'models/stripe_intent_response.dart';
 import 'models/stripe_status_response.dart';
 
@@ -23,32 +22,6 @@ class StripePaymentDataSource {
       for (final m in methods)
         if (m is Map && m['available'] == true) '${m['code']}',
     };
-  }
-
-  // What the server would charge for this basket. Tax and delivery are the
-  // server's to decide; the app never works them out itself.
-  Future<BigodIntentBreakdown> getQuote({
-    required String addressId,
-    String? variantUuid,
-    int? quantity,
-    String? offeringUuid,
-    String? slotUuid,
-    int? participants,
-  }) async {
-    final response = await _client.dio.post(
-      ApiEndpoints.paymentQuote,
-      data: {
-        'addressId': addressId,
-        'variantUuid': ?variantUuid,
-        'quantity': ?quantity,
-        'offeringUuid': ?offeringUuid,
-        'slotUuid': ?slotUuid,
-        'participants': ?participants,
-      },
-    );
-    return BigodIntentBreakdown.fromJson(
-      unwrapEnvelope(response.data)['breakdown'] as Map<String, dynamic>,
-    );
   }
 
   // Same body as the BIGOD intent: no amount or currency leaves the app, the

@@ -3,6 +3,7 @@ class BigodIntentBreakdown {
   final double discount;
   final double tax;
   final double shipping;
+  final double fee;
   final double total;
 
   const BigodIntentBreakdown({
@@ -10,8 +11,12 @@ class BigodIntentBreakdown {
     required this.discount,
     required this.tax,
     required this.shipping,
+    this.fee = 0,
     required this.total,
   });
+
+  // The summary's "Taxes & Fees" line, so the lines add up to the total.
+  double get taxesAndFees => tax + fee;
 
   factory BigodIntentBreakdown.fromJson(Map<String, dynamic> json) {
     return BigodIntentBreakdown(
@@ -19,6 +24,7 @@ class BigodIntentBreakdown {
       discount: (json['discount'] as num).toDouble(),
       tax: (json['tax'] as num).toDouble(),
       shipping: (json['shipping'] as num).toDouble(),
+      fee: (json['fee'] as num?)?.toDouble() ?? 0,
       total: (json['total'] as num).toDouble(),
     );
   }

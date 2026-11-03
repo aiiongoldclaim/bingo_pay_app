@@ -29,50 +29,62 @@ class OrdersScreen extends StatelessWidget {
 class _OrdersView extends StatelessWidget {
   const _OrdersView();
 
+  // Opened with go() (e.g. "View my orders" after paying) there is nothing
+  // behind this screen to pop back to: go home instead.
+  void _back(BuildContext context) =>
+      context.canPop() ? context.pop() : context.go(AppRoutes.home);
+
   @override
   Widget build(BuildContext context) {
     final m = OrdersMetrics.of(context);
     final colors = context.c;
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      body: SafeArea(
-        bottom: false,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
-            child: Column(
-              children: [
-                OrdersHeader(
-                  metrics: m,
-                  title: 'My Orders',
-                  subtitle: 'Track and manage all your orders',
-                  onBack: () => context.pop(),
-                  onSearch: () => context.push(AppRoutes.search),
-                ),
-                SizedBox(height: m.sectionGap * 0.9),
-                Expanded(
-                  child: BlocBuilder<OrdersCubit, OrdersState>(
-                    builder: (context, state) {
-                      // if (state is OrdersLoading || state is OrdersInitial) {
-                      //   return Center(
-                      //     child: CircularProgressIndicator(color: colors.brand),
-                      //   );
-                      // }
-                      if (state is OrdersLoading || state is OrdersInitial) {
-                        return OrdersShimmer(metrics: m);
-                      }
-                      if (state is OrdersError) {
-                        return _ErrorView(metrics: m, message: state.message);
-                      }
-                      if (state is OrdersLoaded) {
-                        return _LoadedView(metrics: m, state: state);
-                      }
-                      return const SizedBox.shrink();
-                    },
+    return PopScope(
+      // The system back button too, which would otherwise close the app.
+      canPop: context.canPop(),
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) context.go(AppRoutes.home);
+      },
+      child: Scaffold(
+        backgroundColor: colors.background,
+        body: SafeArea(
+          bottom: false,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: m.contentMaxWidth),
+              child: Column(
+                children: [
+                  OrdersHeader(
+                    metrics: m,
+                    title: 'My Orders',
+                    subtitle: 'Track and manage all your orders',
+                    onBack: () => _back(context),
+                    onSearch: () => context.push(AppRoutes.search),
                   ),
-                ),
-              ],
+                  SizedBox(height: m.sectionGap * 0.9),
+                  Expanded(
+                    child: BlocBuilder<OrdersCubit, OrdersState>(
+                      builder: (context, state) {
+                        // if (state is OrdersLoading || state is OrdersInitial) {
+                        //   return Center(
+                        //     child: CircularProgressIndicator(color: colors.brand),
+                        //   );
+                        // }
+                        if (state is OrdersLoading || state is OrdersInitial) {
+                          return OrdersShimmer(metrics: m);
+                        }
+                        if (state is OrdersError) {
+                          return _ErrorView(metrics: m, message: state.message);
+                        }
+                        if (state is OrdersLoaded) {
+                          return _LoadedView(metrics: m, state: state);
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

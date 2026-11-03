@@ -2,6 +2,7 @@ import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/core/api/api_endpoints.dart';
 import 'package:bingo_pay/core/error/error_handler.dart';
 import 'package:bingo_pay/core/error/failures.dart';
+import 'package:bingo_pay/core/utils/idempotency_key_generator.dart';
 import 'package:bingo_pay/features/profile/data/profile_model/profile_response.dart';
 import 'package:bingo_pay/features/cart/domain/entities/cart_item_entity.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
@@ -9,8 +10,12 @@ import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/models/stripe_intent_response.dart';
 import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
+import 'package:bingo_pay/features/payment/domain/checkout_charges.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
+import 'package:bingo_pay/features/scanner/data/tvs_qr_datasource.dart';
+import 'package:bingo_pay/features/setting/data/datasources/settings_remote_datasource.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -29,11 +34,15 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     BigodPaymentDataSource? bigodPaymentDataSource,
     StripePaymentDataSource? stripePaymentDataSource,
     NowPaymentsDataSource? nowPaymentsDataSource,
+    TvsQrDataSource? tvsDataSource,
+    SettingsRemoteDataSource? settingsDataSource,
     ClearCartUseCase? clearCartUseCase,
   }) : _bigodPaymentDataSource =
            bigodPaymentDataSource ?? GetIt.I<BigodPaymentDataSource>(),
        _stripePaymentDataSourceOverride = stripePaymentDataSource,
        _nowPaymentsDataSourceOverride = nowPaymentsDataSource,
+       _tvsOverride = tvsDataSource,
+       _settingsOverride = settingsDataSource,
        _clearCartUseCase = clearCartUseCase ?? GetIt.I<ClearCartUseCase>(),
        super(
          PaymentMethodState.initial(
@@ -54,6 +63,8 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   final BigodPaymentDataSource _bigodPaymentDataSource;
   final StripePaymentDataSource? _stripePaymentDataSourceOverride;
   final NowPaymentsDataSource? _nowPaymentsDataSourceOverride;
+  final TvsQrDataSource? _tvsOverride;
+  final SettingsRemoteDataSource? _settingsOverride;
   final ClearCartUseCase _clearCartUseCase;
 
   // Looked up on first use: only the card rail needs it.
@@ -63,6 +74,17 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   // Likewise, for the crypto rail.
   late final NowPaymentsDataSource _nowPaymentsDataSource =
       _nowPaymentsDataSourceOverride ?? GetIt.I<NowPaymentsDataSource>();
+
+  // …and for TVS Wallet.
+  late final TvsQrDataSource _tvs = _tvsOverride ?? GetIt.I<TvsQrDataSource>();
+
+  // …and for the checkout charge rules (tax, delivery, fees), fetched once.
+  late final SettingsRemoteDataSource _settings =
+      _settingsOverride ?? GetIt.I<SettingsRemoteDataSource>();
+  List<Map<String, dynamic>>? _chargeRules;
+
+  // One per TVS payment; reused on retry so the order is paid once.
+  String? _tvsKey;
 
   Future<void> _clearCartIfNeeded() async {
     if (!state.isCartFlow) return;
@@ -109,7 +131,10 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   }
 
   void selectPaymentMethod(PaymentMethod method) {
+    if (method == state.selectedMethod) return;
     emit(state.copyWith(selectedMethod: method));
+    // Charges can differ by method: price it again once there is an address.
+    if (state.deliveryAddressId.isNotEmpty) loadQuote();
   }
 
   Future<void> loadWalletBalance(String email) async {
@@ -147,29 +172,152 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     }
   }
 
-  Future<void> loadQuote() async {
-    try {
-      final quote = await _stripePaymentDataSource.getQuote(
-        addressId: state.deliveryAddressId,
-        variantUuid: state.isCartFlow ? null : state.variantUuid,
-        quantity: state.isCartFlow ? null : state.quantity,
+  // Bumped per quote request, so an answer for an earlier method is dropped.
+  int _quoteSeq = 0;
 
-        offeringUuid: state.isServiceBooking ? state.offeringUuid : null,
-        slotUuid: state.isServiceBooking ? state.slotUuid : null,
-        participants: state.isServiceBooking ? state.participants : null,
+  // Tax, delivery and the total for the basket and the selected payment
+  // method (charges can differ by method), from the server's charge rules.
+  Future<void> loadQuote() async {
+    final seq = ++_quoteSeq;
+    // A COD order is charged its item total: no tax or delivery is added.
+    if (state.selectedMethod == PaymentMethod.cashOnDelivery) {
+      emit(
+        state.copyWith(
+          taxes: 0,
+          deliveryCharge: 0,
+          totalAmount: state.itemTotal,
+          isQuoted: true,
+        ),
+      );
+      return;
+    }
+    try {
+      final rules = _chargeRules ??= await _settings.getCharges();
+      if (isClosed || seq != _quoteSeq) return;
+      final c = computeCharges(
+        rules,
+        _chargeLines(),
+        method: switch (state.selectedMethod) {
+          PaymentMethod.card => 'STRIPE',
+          PaymentMethod.crypto => 'NOWPAYMENTS',
+          PaymentMethod.tvsWallet => 'TVS_WALLET',
+          _ => 'BIGOD',
+        },
       );
       emit(
         state.copyWith(
-          itemTotal: quote.subtotal,
-          savings: quote.discount,
-          taxes: quote.tax,
-          deliveryCharge: quote.shipping,
-          totalAmount: quote.total,
+          taxes: c.tax + c.fee, // the summary's "Taxes & Fees"
+          deliveryCharge: c.shipping,
+          totalAmount:
+              ((state.itemTotal + c.tax + c.shipping + c.fee) * 100).round() /
+              100,
           isQuoted: true,
         ),
       );
     } catch (_) {
       // stays unquoted — the server's figures are then shown at payment
+    }
+  }
+
+  // The basket as the charge rules see it: one line per cart item, or the
+  // buy-now line / booking.
+  List<ChargeLine> _chargeLines() => state.isCartFlow
+      ? [
+          for (final i in state.cartItems)
+            ChargeLine(
+              subtotal: i.totalPrice,
+              quantity: i.quantity,
+              vendor: i.vendor.uuid,
+            ),
+        ]
+      : [
+          ChargeLine(
+            subtotal: state.itemTotal,
+            quantity: state.quantity,
+            isService: state.isServiceBooking,
+          ),
+        ];
+
+  // What TVS Wallet prices: the buy-now line or booking (the cart when none),
+  // for the chosen address.
+  Map<String, dynamic> _tvsBasket() => {
+    if (!state.isCartFlow && state.variantUuid != null) ...{
+      'variantUuid': state.variantUuid,
+      'quantity': state.quantity,
+    },
+    if (state.isServiceBooking) ...{
+      'offeringUuid': state.offeringUuid,
+      'slotUuid': state.slotUuid,
+      'participants': ?state.participants,
+    },
+    if (state.deliveryAddressId.isNotEmpty)
+      'addressId': state.deliveryAddressId,
+    'method': 'TVS_WALLET',
+  };
+
+  // The order in TVS Coins: price, best offer, whether the customer can pay.
+  // The option is hidden only when TVS Wallet is switched off for this
+  // account; any other failure shows it with the reason, as the web does.
+  Future<void> loadTvsQuote() async {
+    emit(state.copyWith(clearTvsQuote: true, tvsAvailable: true));
+    try {
+      final quote = await _tvs.checkoutQuote(_tvsBasket());
+      if (!isClosed) emit(state.copyWith(tvsQuote: quote));
+    } catch (e) {
+      debugPrint('TVS checkout quote failed: $e');
+      if (isClosed) return;
+      if (e is TvsQrException && e.code == 'FEATURE_DISABLED') {
+        emit(
+          state.copyWith(
+            tvsAvailable: false,
+            selectedMethod: state.selectedMethod == PaymentMethod.tvsWallet
+                ? PaymentMethod.wallet
+                : null,
+          ),
+        );
+        return;
+      }
+      emit(
+        state.copyWith(
+          tvsQuote: {
+            'canPay': false,
+            'reason': ErrorHandler.mapObjectToFailure(e).message,
+          },
+        ),
+      );
+    }
+  }
+
+  // Pays exactly the quoted coins (the server refuses with QUOTE_CHANGED if
+  // the price moved). Throws TvsQrException for the screen to handle (MPIN,
+  // changed price…); the server closes the cart itself.
+  Future<Map<String, dynamic>> payWithTvs({String? pin}) async {
+    final coins = state.tvsQuote?['coins'] as Map?;
+    _tvsKey ??= IdempotencyKeyGenerator.generate().substring(0, 64);
+    emit(state.copyWith(status: PaymentStatus.loading, isProcessing: true));
+    try {
+      final paid = await _tvs.checkoutPay({
+        ..._tvsBasket(),
+        'addressId': state.deliveryAddressId,
+        'idempotencyKey': _tvsKey,
+        'expectedCoins': '${coins?['total']}',
+        'pin': ?pin,
+      });
+      final order = paid['order'] as Map?;
+      emit(
+        state.copyWith(
+          status: PaymentStatus.success,
+          isProcessing: false,
+          orderId: '${order?['orderNumber'] ?? ''}',
+          orderUuid: '${order?['uuid'] ?? ''}',
+        ),
+      );
+      return paid;
+    } catch (e) {
+      // A new price is a new payment.
+      if (e is TvsQrException && e.code == 'QUOTE_CHANGED') _tvsKey = null;
+      emit(state.copyWith(status: PaymentStatus.initial, isProcessing: false));
+      rethrow;
     }
   }
 
@@ -255,7 +403,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
           orderUuid: confirmation.order.uuid,
           itemTotal: intent.breakdown.subtotal,
           savings: intent.breakdown.discount,
-          taxes: intent.breakdown.tax,
+          taxes: intent.breakdown.taxesAndFees,
           deliveryCharge: intent.breakdown.shipping,
           totalAmount: intent.breakdown.total,
           isQuoted: true,
@@ -333,7 +481,7 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
           totalAmount: intent.amount,
           itemTotal: breakdown?.subtotal,
           savings: breakdown?.discount,
-          taxes: breakdown?.tax,
+          taxes: breakdown?.taxesAndFees,
           deliveryCharge: breakdown?.shipping,
           isQuoted: breakdown != null,
         ),

@@ -31,4 +31,12 @@ class SettingsRemoteDataSource {
 
     return PublicSettingsModel.fromJson(settingsJson);
   }
+
+  // Active checkout charge rules (tax, delivery, fees), in the order the
+  // server applies them. See computeCharges.
+  Future<List<Map<String, dynamic>>> getCharges() async {
+    final response = await _client.dio.get(ApiEndpoints.publicCharges);
+    final list = (response.data as Map<String, dynamic>)['data'] as List;
+    return list.cast<Map<String, dynamic>>();
+  }
 }

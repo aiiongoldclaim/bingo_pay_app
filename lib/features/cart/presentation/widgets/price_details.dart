@@ -5,14 +5,24 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'cart_metrics.dart';
 
+/// Tax, delivery and fees for the cart, from the same rules checkout uses.
+typedef CartCharges = ({double tax, double shipping, double fee});
+
+/// What the customer will pay: items plus charges (just the items until priced).
+double cartPayTotal(double subtotal, CartCharges? c) => c == null
+    ? subtotal
+    : ((subtotal + c.tax + c.shipping + c.fee) * 100).round() / 100;
+
 class PriceDetailsCard extends StatelessWidget {
   final double subtotal;
   final int itemCount;
+  final CartCharges? charges; // null until the charge rules have loaded
 
   const PriceDetailsCard({
     super.key,
     required this.subtotal,
     required this.itemCount,
+    this.charges,
   });
 
   String _fmt(double v) {
@@ -70,11 +80,21 @@ class PriceDetailsCard extends StatelessWidget {
           ),
           _Row(
             label: AppStrings.shippingFee,
-            value: AppStrings.free,
-            valueColor: colors.statusSuccess,
+            value: charges == null
+                ? AppStrings.atCheckout
+                : charges!.shipping == 0
+                ? AppStrings.free
+                : '\$${_fmt(charges!.shipping)}',
+            valueColor: charges?.shipping == 0 ? colors.statusSuccess : null,
             metrics: m,
             trailingInfo: true,
           ),
+          if (charges != null && charges!.tax + charges!.fee > 0)
+            _Row(
+              label: AppStrings.taxesAndFees,
+              value: '\$${_fmt(charges!.tax + charges!.fee)}',
+              metrics: m,
+            ),
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapSm * 0.6),
@@ -96,7 +116,7 @@ class PriceDetailsCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '\$${_fmt(subtotal)}',
+                '\$${_fmt(cartPayTotal(subtotal, charges))}',
                 textAlign: TextAlign.right,
                 style: AppTextStyles.titleLarge.copyWith(
                   color: colors.brand,

@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import 'review_payment_metrics.dart';
-import 'review_payment_section_label.dart';
 
-// ── Note ───────────────────────────────────────────────────────────────────
-class ReviewPaymentNoteSection extends StatelessWidget {
+// ── Optional field ─────────────────────────────────────────────────────────
+// A note or coupon: a quiet link until tapped, then a plain field.
+class ReviewPaymentNoteSection extends StatefulWidget {
   final ReviewPaymentMetrics metrics;
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
-  final String label;
+  final String label; // the link
   final String hint;
   final IconData icon;
   final int maxLength;
@@ -21,86 +21,77 @@ class ReviewPaymentNoteSection extends StatelessWidget {
     required this.metrics,
     required this.controller,
     required this.onChanged,
-    this.label = 'ADD NOTE (OPTIONAL)',
+    this.label = 'Add a note',
     this.hint = 'What is this payment for?',
-    this.icon = Icons.sticky_note_2_outlined,
+    this.icon = Icons.edit_note_rounded,
     this.maxLength = 50,
     this.capitalization = TextCapitalization.sentences,
   });
 
   @override
+  State<ReviewPaymentNoteSection> createState() =>
+      _ReviewPaymentNoteSectionState();
+}
+
+class _ReviewPaymentNoteSectionState extends State<ReviewPaymentNoteSection> {
+  late bool _open = widget.controller.text.isNotEmpty;
+
+  @override
   Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = metrics;
+    final colors = context.colors;
+    final w = widget;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReviewPaymentSectionLabel(metrics: m, label: label),
-
-        SizedBox(height: m.gapSm),
-
-        Container(
-          height: m.noteBoxHeight,
-          padding: EdgeInsets.symmetric(horizontal: m.cardPad * 0.7),
-          decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: BorderRadius.circular(m.cardRadius * 0.8),
-            border: Border.all(color: colors.border, width: 1),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                icon,
-                size: m.methodIconSize * 0.85,
-                color: colors.textSecondary,
-              ),
-
-              SizedBox(width: m.gapSm),
-
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  onChanged: onChanged,
-                  maxLength: maxLength,
-                  textCapitalization: capitalization,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: colors.textPrimary,
-                    fontFamily: 'Inter',
-                    fontSize: m.methodTitleSize,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hint,
-                    hintStyle: AppTextStyles.bodyMedium.copyWith(
-                      color: colors.textMuted,
-                      fontFamily: 'Inter',
-                      fontSize: m.methodTitleSize,
-                    ),
-                    counterText: '',
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-
-              SizedBox(width: m.gapSm),
-
-              Text(
-                '${controller.text.length}/$maxLength',
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: colors.textMuted,
-                  fontFamily: 'Inter',
-                  fontSize: m.helperSize,
-                ),
-              ),
-            ],
+    if (!_open) {
+      return TextButton.icon(
+        onPressed: () => setState(() => _open = true),
+        icon: Icon(w.icon, size: 18),
+        label: Text(w.label),
+        style: TextButton.styleFrom(
+          foregroundColor: colors.textSecondary,
+          textStyle: AppTextStyles.bodyMedium.copyWith(
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w500,
+            fontSize: w.metrics.helperSize + 3,
           ),
         ),
-      ],
+      );
+    }
+
+    final none = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide.none,
+    );
+    // Full width, also inside the Wrap that holds the closed links.
+    return SizedBox(
+      width: double.infinity,
+      child: TextField(
+        controller: w.controller,
+        onChanged: w.onChanged,
+        autofocus: true,
+        maxLength: w.maxLength,
+        textCapitalization: w.capitalization,
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: colors.textPrimary,
+          fontFamily: 'Inter',
+          fontSize: w.metrics.methodTitleSize,
+        ),
+        decoration: InputDecoration(
+          hintText: w.hint,
+          hintStyle: AppTextStyles.bodyMedium.copyWith(
+            color: colors.textMuted,
+            fontFamily: 'Inter',
+            fontSize: w.metrics.methodTitleSize,
+          ),
+          prefixIcon: Icon(w.icon, size: 20, color: colors.textSecondary),
+          counterText: '',
+          filled: true,
+          fillColor: colors.surfaceAlt,
+          isDense: true,
+          border: none,
+          enabledBorder: none,
+          focusedBorder: none,
+        ),
+      ),
     );
   }
 }

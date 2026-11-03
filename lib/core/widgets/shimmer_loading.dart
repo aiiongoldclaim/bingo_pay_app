@@ -3,9 +3,17 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme_colors.dart';
 
 class ShimmerLoading extends StatefulWidget {
-  const ShimmerLoading({super.key, required this.child});
+  const ShimmerLoading({
+    super.key,
+    required this.child,
+    this.baseColor,
+    this.highlightColor,
+  });
 
   final Widget child;
+  // Unset: the grey skeleton shimmer.
+  final Color? baseColor;
+  final Color? highlightColor;
 
   @override
   State<ShimmerLoading> createState() => _ShimmerLoadingState();
@@ -27,13 +35,11 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final baseColor = colors.surfaceAlt;
+    final baseColor = widget.baseColor ?? colors.surfaceAlt;
 
-    final highlightColor = Color.lerp(
-      baseColor,
-      Colors.white,
-      colors.isDark ? 0.08 : 0.9,
-    )!;
+    final highlightColor =
+        widget.highlightColor ??
+        Color.lerp(baseColor, Colors.white, colors.isDark ? 0.08 : 0.9)!;
 
     return AnimatedBuilder(
       animation: _controller,

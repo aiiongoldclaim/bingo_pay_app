@@ -1,8 +1,7 @@
-import 'package:bingo_pay/features/payment/presentation/widgets/payment_metrics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -14,15 +13,14 @@ import '../../../address/presentation/cubit/address_state.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../cart/domain/entities/cart_item_entity.dart';
-
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
-
+import '../widgets/checkout_address_list.dart';
+import '../widgets/checkout_ui.dart';
 import 'payment_flow_args.dart';
-import '../widgets/payment_body.dart';
-import '../widgets/payment_continue_bar.dart';
-import '../widgets/payment_order_summary_card.dart';
 
+// Checkout, step 1: where to deliver, and what is being bought. Payment is
+// chosen on the next step (Review & Pay), where delivery and tax are added.
 class PaymentScreen extends StatefulWidget {
   final String? vendorEmail;
   final String productName;
@@ -48,14 +46,10 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String? _selectedAddressId;
   AddressEntity? _selectedAddress;
-
-  bool _submitted = false;
 
   late final AddressCubit _addressCubit;
   late final PaymentMethodCubit _paymentCubit;
-  late final bool _isCart;
   late final double _cartTotal;
   late final String _userEmail;
 
@@ -65,25 +59,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
     _addressCubit = AddressCubit(getIt<AddressRepository>())
       ..loadUserAddresses();
 
-    _isCart = widget.cartItems.isNotEmpty;
-    _cartTotal = _isCart
+    final isCart = widget.cartItems.isNotEmpty;
+    _cartTotal = isCart
         ? widget.cartItems.fold<double>(0.0, (s, i) => s + i.totalPrice)
         : widget.productPrice * widget.quantity;
 
     final authState = context.read<AuthBloc>().state;
     _userEmail = authState is AuthAuthenticated ? authState.user.email : '';
 
-    _paymentCubit = PaymentMethodCubit(
-      productPrice: _cartTotal,
-      productName: widget.productName,
-      userEmail: _userEmail,
-      vendorEmail: widget.vendorEmail ?? '',
-      variantUuid: widget.variantUuid,
-      quantity: widget.quantity,
-      cartItems: widget.cartItems,
-    )
-      ..loadWalletBalance(_userEmail)
-      ..loadPaymentMethods();
+    _paymentCubit =
+        PaymentMethodCubit(
+            productPrice: _cartTotal,
+            productName: widget.productName,
+            userEmail: _userEmail,
+            vendorEmail: widget.vendorEmail ?? '',
+            variantUuid: widget.variantUuid,
+            quantity: widget.quantity,
+            cartItems: widget.cartItems,
+          )
+          ..loadWalletBalance(_userEmail)
+          ..loadPaymentMethods();
   }
 
   Future<void> _refresh() async {
@@ -101,161 +96,115 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.dispose();
   }
 
-  void _selectAddress(AddressEntity addr) {
-    setState(() {
-      _selectedAddressId = addr.id;
-      _selectedAddress = addr;
-    });
-  }
+  void _selectAddress(AddressEntity addr) =>
+      setState(() => _selectedAddress = addr);
 
   void _onAddressDeleted(AddressEntity addr) {
-    if (_selectedAddressId != addr.id) return;
-
-    setState(() {
-      _selectedAddressId = null;
-      _selectedAddress = null;
-    });
+    if (_selectedAddress?.id == addr.id) {
+      setState(() => _selectedAddress = null);
+    }
   }
 
-  void _onContinue(BuildContext context, PaymentMethodCubit cubit) {
-    setState(() => _submitted = true);
-
-    if (_selectedAddress == null) return;
-
-    cubit.updateDeliveryAddress(
-      name: _selectedAddress!.fullName,
-      phone: _selectedAddress!.phoneNumber,
-      address: _selectedAddress!.addressLine1,
-      city: _selectedAddress!.city,
-      postal: _selectedAddress!.postalCode,
-      addressId: _selectedAddress!.id,
-    );
-    cubit.loadQuote();
+  void _onContinue() {
+    final a = _selectedAddress;
+    if (a == null) return;
+    _paymentCubit
+      ..updateDeliveryAddress(
+        name: a.fullName,
+        phone: a.phoneNumber,
+        address: a.addressLine1,
+        city: a.city,
+        postal: a.postalCode,
+        addressId: a.id,
+      )
+      ..loadQuote()
+      ..loadTvsQuote();
 
     context.push(
       AppRoutes.paymentReview,
-      extra: ReviewPayArgs(cubit: cubit, isCart: widget.isCart),
+      extra: ReviewPayArgs(cubit: _paymentCubit, isCart: widget.isCart),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.c;
-    final m = PaymentMetrics.of(context);
+    final colors = context.colors;
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<AddressCubit>.value(value: _addressCubit),
         BlocProvider<PaymentMethodCubit>.value(value: _paymentCubit),
       ],
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: colors.isDark
-              ? Brightness.light
-              : Brightness.dark,
-          statusBarBrightness: colors.isDark
-              ? Brightness.dark
-              : Brightness.light,
-        ),
-        child: BlocListener<AddressCubit, AddressState>(
-          listener: (context, addrState) {
-            if (addrState is AddressListLoaded &&
-                addrState.addresses.isNotEmpty &&
-                _selectedAddressId == null) {
-              final defaultAddr = addrState.addresses.firstWhere(
+      // Starts on the default address (or the first) once they load.
+      child: BlocListener<AddressCubit, AddressState>(
+        listener: (context, s) {
+          if (s is AddressListLoaded &&
+              s.addresses.isNotEmpty &&
+              _selectedAddress == null) {
+            _selectAddress(
+              s.addresses.firstWhere(
                 (a) => a.isDefaultAddress,
-                orElse: () => addrState.addresses.first,
-              );
-              _selectAddress(defaultAddr);
-            }
-          },
-          child: Scaffold(
-            backgroundColor: colors.background,
-            appBar: const CustomAppBar(title: 'Checkout'),
-            body: SafeArea(
-              bottom: false,
-              child: BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
-                builder: (context, state) {
-                  final summary = PaymentOrderSummaryCard(
-                    metrics: m,
-                    isCart: _isCart,
-                    items: widget.cartItems,
-                    productName: widget.quantity > 1
-                        ? '${widget.productName} × ${widget.quantity}'
-                        : widget.productName,
-                    total: _cartTotal,
-                  );
-
-                  final continueBar = PaymentContinueBar(
-                    metrics: m,
-                    isEnabled: _selectedAddress != null,
-                    onPressed: () => _onContinue(
-                      context,
-                      context.read<PaymentMethodCubit>(),
-                    ),
-                  );
-
-                  return Column(
+                orElse: () => s.addresses.first,
+              ),
+            );
+          }
+        },
+        child: Scaffold(
+          backgroundColor: colors.background,
+          appBar: const CustomAppBar(title: 'Checkout'),
+          body: Column(
+            children: [
+              Expanded(
+                child: RefreshIndicator(
+                  color: colors.brand,
+                  backgroundColor: colors.surface,
+                  onRefresh: _refresh,
+                  child: CheckoutBody(
                     children: [
-                      Expanded(
-                        child: RefreshIndicator(
-                          color: colors.brand,
-                          backgroundColor: colors.surface,
-                          onRefresh: _refresh,
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: m.maxContentWidth,
-                              ),
-                              child: m.isLandscape
-                                  ? PaymentLandscapeBody(
-                                      metrics: m,
-                                      state: state,
-                                      submitted: _submitted,
-                                      selectedAddressId: _selectedAddressId,
-                                      selectedAddress: _selectedAddress,
-                                      onSelect: _selectAddress,
-                                      onDeleted: _onAddressDeleted,
-                                      summary: summary,
-                                      continueBar: continueBar,
-                                    )
-                                  : PaymentPortraitBody(
-                                      metrics: m,
-                                      state: state,
-                                      submitted: _submitted,
-                                      selectedAddressId: _selectedAddressId,
-                                      selectedAddress: _selectedAddress,
-                                      onSelect: _selectAddress,
-                                      onDeleted: _onAddressDeleted,
-                                      summary: summary,
-                                    ),
-                            ),
+                      CheckoutSection(
+                        title: 'Deliver to',
+                        child: CheckoutAddressList(
+                          selectedId: _selectedAddress?.id,
+                          onSelect: _selectAddress,
+                          onDeleted: _onAddressDeleted,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      BlocBuilder<PaymentMethodCubit, PaymentMethodState>(
+                        builder: (context, state) => CheckoutSection(
+                          title: 'Your order',
+                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                          child: Column(
+                            children: [
+                              CheckoutItems(state: state),
+                              if (widget.cartItems.length > 1) ...[
+                                Divider(height: 20, color: colors.border),
+                                CheckoutLine(
+                                  'Item total',
+                                  money(_cartTotal),
+                                  total: true,
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),
-
-                      if (!m.isLandscape)
-                        Container(
-                          padding: EdgeInsets.fromLTRB(
-                            m.pageHPad,
-                            m.gapSm,
-                            m.pageHPad,
-                            m.gapSm * 0.5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.background,
-                            border: Border(
-                              top: BorderSide(color: colors.border, width: 1),
-                            ),
-                          ),
-                          child: SafeArea(top: false, child: continueBar),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 10, 4, 0),
+                        child: Text(
+                          'Delivery and taxes, if any, are added on the next step.',
+                          style: checkoutText(colors.textMuted, size: 12),
                         ),
+                      ),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
+              CheckoutBar(
+                label: 'Continue',
+                onPressed: _selectedAddress == null ? null : _onContinue,
+              ),
+            ],
           ),
         ),
       ),

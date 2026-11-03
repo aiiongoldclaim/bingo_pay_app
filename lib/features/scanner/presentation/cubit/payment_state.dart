@@ -17,10 +17,7 @@ class PaymentState {
   bool get canPay => shop?['canPay'] == true;
 
   bool get canSubmit =>
-      canPay &&
-      quote?['sufficient'] == true &&
-      !quoting &&
-      !paying;
+      canPay && quote?['sufficient'] == true && !quoting && !paying;
 
   static const _keep = Object();
 
@@ -33,8 +30,9 @@ class PaymentState {
   }) {
     return PaymentState(
       shop: identical(shop, _keep) ? this.shop : shop as Map<String, dynamic>?,
-      quote:
-          identical(quote, _keep) ? this.quote : quote as Map<String, dynamic>?,
+      quote: identical(quote, _keep)
+          ? this.quote
+          : quote as Map<String, dynamic>?,
       error: identical(error, _keep) ? this.error : error as String?,
       quoting: quoting ?? this.quoting,
       paying: paying ?? this.paying,

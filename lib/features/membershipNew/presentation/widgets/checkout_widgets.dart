@@ -378,6 +378,88 @@ class CheckoutSummaryRow extends StatelessWidget {
 // PAYMENT METHOD — sirf BIGOD wallet
 // ---------------------------------------------------------------------------
 
+// TVS Wallet as a way to pay for membership: not available yet (the server
+// has no TVS payment for memberships), so shown greyed out and not tappable.
+class TvsWalletComingSoonCard extends StatelessWidget {
+  const TvsWalletComingSoonCard({super.key, required this.metrics});
+
+  final MembershipMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.c;
+    final m = metrics;
+
+    return Semantics(
+      label: 'TVS Wallet, coming soon',
+      enabled: false,
+      excludeSemantics: true,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(m.cardPad),
+        decoration: BoxDecoration(
+          color: colors.surfaceAlt,
+          borderRadius: BorderRadius.circular(m.radiusMd),
+          border: Border.all(color: colors.border),
+        ),
+        child: Row(
+          children: [
+            Opacity(
+              opacity: 0.5,
+              child: MembershipIconCircle(
+                icon: Icons.toll_rounded,
+                metrics: m,
+                size: m.iconCircle * 0.66,
+              ),
+            ),
+            SizedBox(width: m.cardPad * 0.55),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'TVS Wallet',
+                    style: TextStyle(
+                      fontSize: m.bodySize + 2,
+                      fontWeight: FontWeight.w700,
+                      color: colors.textMuted,
+                    ),
+                  ),
+                  SizedBox(height: m.rowGap * 0.15),
+                  Text(
+                    'Pay for membership with TVS Coins',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: m.captionSize + 2,
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: colors.brandSoft,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Coming soon',
+                style: TextStyle(
+                  fontSize: m.captionSize + 1,
+                  fontWeight: FontWeight.w700,
+                  color: colors.brand,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class BigodPaymentCard extends StatelessWidget {
   const BigodPaymentCard({
     super.key,

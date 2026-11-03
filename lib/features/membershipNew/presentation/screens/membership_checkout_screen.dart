@@ -671,6 +671,10 @@ class _CheckoutViewState
           expired:
           _expired,
         ),
+
+        SizedBox(height: metrics.rowGap),
+
+        TvsWalletComingSoonCard(metrics: metrics),
       ],
     );
   }

@@ -85,41 +85,6 @@ void main() {
     expect(captured, {'addressId': '12', 'variantUuid': 'v1', 'quantity': 2});
   });
 
-  test('getQuote posts the basket to ApiEndpoints.paymentQuote and parses the breakdown', () async {
-    when(() => mockDio.post(
-          ApiEndpoints.paymentQuote,
-          data: any(named: 'data'),
-        )).thenAnswer(
-      (_) async => _reply(ApiEndpoints.paymentQuote, {
-        'currency': 'USD',
-        'breakdown': {
-          'subtotal': 23,
-          'discount': 0,
-          'tax': 4.14,
-          'shipping': 50,
-          'total': 77.14,
-        },
-      }),
-    );
-
-    final result = await dataSource.getQuote(
-      addressId: '12',
-      variantUuid: 'v1',
-      quantity: 1,
-    );
-
-    expect(result.subtotal, 23);
-    expect(result.tax, 4.14);
-    expect(result.shipping, 50);
-    expect(result.total, 77.14);
-
-    final captured = verify(() => mockDio.post(
-          ApiEndpoints.paymentQuote,
-          data: captureAny(named: 'data'),
-        )).captured.single;
-    expect(captured, {'addressId': '12', 'variantUuid': 'v1', 'quantity': 1});
-  });
-
   test('getStatus parses a pending payment, whose amount arrives as a string', () async {
     when(() => mockDio.get(ApiEndpoints.stripeStatus('p-1'))).thenAnswer(
       (_) async => _reply(ApiEndpoints.stripeStatus('p-1'), {

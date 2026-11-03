@@ -69,6 +69,8 @@ class AppStrings {
   static const String orderSummary = 'Order Summary';
   static const String shippingFee = 'Shipping Fee';
   static const String free = 'FREE';
+  static const String taxesAndFees = 'Taxes & fees';
+  static const String atCheckout = 'At checkout';
   static const String totalAmount = 'Total Amount';
   static const String freeDeliveryUnlockedTitle =
       'Yay! You are getting free delivery';

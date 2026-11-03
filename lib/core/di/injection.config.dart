@@ -233,6 +233,8 @@ import 'package:bingo_pay/features/transactions/cubit/transactions_cubit.dart'
     as _i729;
 import 'package:bingo_pay/features/transactions/data/datasources/transactions_remote_datasource.dart'
     as _i97;
+import 'package:bingo_pay/features/tvs_wallet/presentation/cubit/tvs_wallet_cubit.dart'
+    as _i715;
 import 'package:bingo_pay/features/wishlist/data/repositories/wishlist_repository.dart'
     as _i971;
 import 'package:bingo_pay/features/wishlist/domain/repositories/wishlist_repository_impl.dart'
@@ -478,6 +480,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i631.PaymentCubit>(
       () => _i631.PaymentCubit(gh<_i780.TvsQrDataSource>()),
+    );
+    gh.factory<_i715.TvsWalletCubit>(
+      () => _i715.TvsWalletCubit(gh<_i780.TvsQrDataSource>()),
     );
     gh.factory<_i834.ProfileRepository>(
       () => _i207.ProfileRepositoryImpl(gh<_i461.ProfileRemoteDataSource>()),

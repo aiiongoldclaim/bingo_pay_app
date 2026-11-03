@@ -12,6 +12,7 @@ enum PaymentMethod {
   card,
   wallet,
   crypto,
+  tvsWallet,
 }
 
 class PaymentMethodState {
@@ -60,18 +61,24 @@ class PaymentMethodState {
   final String orderUuid; // real order id, required for GET .../invoice
   final int coinsEarned;
 
-  final String? offeringUuid;   // NEW
-  final String? slotUuid;       // NEW
-  final int? participants;      // NEW
+  final String? offeringUuid; // NEW
+  final String? slotUuid; // NEW
+  final int? participants; // NEW
 
   // Whether the server is offering card payments (GET /payments/methods)
   final bool cardAvailable;
   // …and crypto payments, from the same call.
   final bool cryptoAvailable;
 
-  // Whether tax, delivery and the total are the server's figures. Until they
-  // are, the app only knows the item total and must not show the rest.
+  // Whether tax, delivery and the total are known: worked out from the
+  // server's charge rules, or the server's own figures once an intent exists.
+  // Until then the app only knows the item total and must not show the rest.
   final bool isQuoted;
+
+  // TVS Wallet: the order priced in TVS Coins (null while it loads), and
+  // whether to offer TVS Wallet at all (not when the quote call fails).
+  final Map<String, dynamic>? tvsQuote;
+  final bool tvsAvailable;
 
   PaymentMethodState({
     this.selectedMethod,
@@ -111,6 +118,8 @@ class PaymentMethodState {
     this.cardAvailable = false,
     this.cryptoAvailable = false,
     this.isQuoted = false,
+    this.tvsQuote,
+    this.tvsAvailable = true,
   }) : itemTotal = itemTotal ?? productPriceValue,
        totalAmount = totalAmount ?? productPriceValue;
 
@@ -123,7 +132,7 @@ class PaymentMethodState {
     int quantity = 1,
     List<CartItemEntity> cartItems = const [],
 
-     String? offeringUuid,
+    String? offeringUuid,
     String? slotUuid,
     int? participants,
   }) => PaymentMethodState(
@@ -184,6 +193,9 @@ class PaymentMethodState {
     bool? cardAvailable,
     bool? cryptoAvailable,
     bool? isQuoted,
+    Map<String, dynamic>? tvsQuote,
+    bool clearTvsQuote = false,
+    bool? tvsAvailable,
   }) {
     return PaymentMethodState(
       selectedMethod: clearSelectedMethod
@@ -218,13 +230,15 @@ class PaymentMethodState {
       orderId: orderId ?? this.orderId,
       orderUuid: orderUuid ?? this.orderUuid,
       coinsEarned: coinsEarned ?? this.coinsEarned,
-      
+
       offeringUuid: offeringUuid ?? this.offeringUuid,
       slotUuid: slotUuid ?? this.slotUuid,
       participants: participants ?? this.participants,
       cardAvailable: cardAvailable ?? this.cardAvailable,
       cryptoAvailable: cryptoAvailable ?? this.cryptoAvailable,
       isQuoted: isQuoted ?? this.isQuoted,
+      tvsQuote: clearTvsQuote ? null : (tvsQuote ?? this.tvsQuote),
+      tvsAvailable: tvsAvailable ?? this.tvsAvailable,
     );
   }
 

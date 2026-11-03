@@ -145,12 +145,17 @@ class LoggingInterceptor extends Interceptor {
   }
 
   bool _isSensitiveKey(String key) {
+    // Matched against the lower-cased key, so every entry must be lower case.
     const sensitiveKeys = {
       'password',
-      'currentPassword',
-      'newPassword',
-      'confirmPassword',
-      'oldPassword',
+      'currentpassword',
+      'newpassword',
+      'confirmpassword',
+      'oldpassword',
+      'pin',
+      'currentpin',
+      'otp',
+      'refreshtoken',
     };
 
     return sensitiveKeys.contains(

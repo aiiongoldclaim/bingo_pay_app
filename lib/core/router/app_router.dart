@@ -38,8 +38,13 @@ import '../../features/payment/presentation/screens/payment_screen.dart';
 import '../../features/payment/presentation/screens/review_pay_screen.dart';
 import '../../features/product_details/presentation/screens/product_image_viewer_screen.dart';
 import '../../features/product_details/presentation/widgets/image_viewer_args.dart';
+import '../../features/scanner/presentation/screens/bigod_scan_pay_screen.dart';
 import '../../features/scanner/presentation/screens/scanner_review_pay_screen.dart';
 import '../../features/scanner/presentation/screens/wallet_kyc_screen.dart';
+import '../../features/scanner/presentation/screens/wallet_mpin_screen.dart';
+import '../../features/tvs_wallet/presentation/screens/tvs_send_screen.dart';
+import '../../features/tvs_wallet/presentation/screens/tvs_topup_screen.dart';
+import '../../features/tvs_wallet/presentation/screens/tvs_wallet_screen.dart';
 import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
 import '../../features/setting/features/screens/setting_screen.dart';
 import '../config/app_config.dart';
@@ -329,9 +334,47 @@ class AppRouter {
           },
         ),
 
+        // extra: the payment token from a scanned BIGOD checkout QR.
+        GoRoute(
+          path: AppRoutes.bigodScanPay,
+          builder: (_, state) =>
+              BigodScanPayScreen(token: state.extra as String? ?? ''),
+        ),
+
+        GoRoute(
+          path: AppRoutes.tvsWallet,
+          builder: (_, _) => const TvsWalletScreen(),
+        ),
+
+        // extra: the home wallet map.
+        GoRoute(
+          path: AppRoutes.tvsTopup,
+          builder: (_, state) =>
+              TvsTopupScreen(wallet: state.extra as Map<String, dynamic>?),
+        ),
+
+        // extra: who to send to, e.g. a scanned member QR.
+        GoRoute(
+          path: AppRoutes.tvsSend,
+          builder: (_, state) => TvsSendScreen(to: state.extra as String?),
+        ),
+
         GoRoute(
           path: AppRoutes.walletKyc,
           builder: (_, _) => const WalletKycScreen(),
+        ),
+
+        // No extra: manage the MPIN (profile). MpinArgs: ask for it to pay.
+        GoRoute(
+          path: AppRoutes.walletMpin,
+          builder: (_, state) =>
+              WalletMpinScreen(args: state.extra as MpinArgs?),
+        ),
+
+        GoRoute(
+          path: AppRoutes.walletMpinReset,
+          builder: (_, _) =>
+              const WalletMpinScreen(args: MpinArgs(mode: MpinMode.reset)),
         ),
 
         GoRoute(
@@ -528,7 +571,6 @@ class AppRouter {
               path: AppRoutes.splitViewNavigation,
               builder: (_, _) => const SplitViewScreen(),
             ),
-
 
             // GoRoute(
             //   path: AppRoutes.buyerCatalog,

@@ -1,4 +1,4 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -76,7 +76,7 @@ class _ProfileScreenBody extends StatelessWidget {
                       child: const ProfileShimmerContent(),
                     );
                   }
-        
+
                   if (accountState is ProfileRefreshing) {
                     return Stack(
                       children: [
@@ -92,7 +92,7 @@ class _ProfileScreenBody extends StatelessWidget {
                       ],
                     );
                   }
-        
+
                   if (accountState is ProfileError) {
                     return ProfileErrorView(
                       message: accountState.message,
@@ -102,13 +102,11 @@ class _ProfileScreenBody extends StatelessWidget {
                       },
                     );
                   }
-        
+
                   if (accountState is ProfileLoaded) {
-                    return _ProfileLoadedContent(
-                      profile: accountState.profile,
-                    );
+                    return _ProfileLoadedContent(profile: accountState.profile);
                   }
-        
+
                   return const SizedBox.shrink();
                 },
               ),
@@ -172,7 +170,7 @@ class _ProfileTopBar extends StatelessWidget {
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: colors.textSecondary,
                         fontFamily: 'Inter',
-                        fontSize: m.emailSize, 
+                        fontSize: m.emailSize,
                         fontWeight: FontWeight.w500,
                         height: 1.2,
                       ),
@@ -287,10 +285,9 @@ class _ProfileLoadedContent extends StatelessWidget {
                         }
 
                         return ProfileMembershipCard(
-                          maxWidth: m.maxContentWidth,
-                          onTap: () {
-                            context.push(AppRoutes.membership);
-                          },
+                          metrics: m,
+                          membership: membershipState.membership,
+                          onTap: () => context.push(AppRoutes.membership),
                         );
                       },
                     ),
@@ -305,51 +302,23 @@ class _ProfileLoadedContent extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            ProfileSectionHeading(
-                              metrics: m,
-                              label: 'My Orders & Shopping',
-                            ),
-
-                            SizedBox(height: m.sectionHeadingGap),
-
-                            ProfileMenuList(
-                              items: ProfileMenuItem.primaryItems,
-                              onTap: (item) {
-                                if (item.route.isNotEmpty) {
-                                  context.push(item.route);
-                                }
-                              },
-                            ),
-
-                            SizedBox(height: m.gapLg),
-
-                            ProfileSectionHeading(
-                              metrics: m,
-                              label: 'My Auctions',
-                            ),
-
-                            SizedBox(height: m.sectionHeadingGap),
-
-                            ProfileMenuList(
-                              items: ProfileMenuItem.auctionItems,
-                              onTap: (item) => context.push(item.route),
-                            ),
-
-                            SizedBox(height: m.gapLg),
-
-                            ProfileSectionHeading(
-                              metrics: m,
-                              label: 'Sell with Us',
-                            ),
-
-                            SizedBox(height: m.sectionHeadingGap),
-
-                            ProfileMenuList(
-                              items: ProfileMenuItem.vendorItems,
-                              onTap: (item) => context.push(item.route),
-                            ),
-
-                            SizedBox(height: m.gapLg),
+                            for (final (label, items) in const [
+                              (
+                                'Orders & Payments',
+                                ProfileMenuItem.activityItems,
+                              ),
+                              ('Shopping', ProfileMenuItem.shoppingItems),
+                              ('Wallet Security', ProfileMenuItem.mpinItems),
+                              ('Sell with Us', ProfileMenuItem.vendorItems),
+                            ]) ...[
+                              ProfileSectionHeading(metrics: m, label: label),
+                              SizedBox(height: m.sectionHeadingGap),
+                              ProfileMenuList(
+                                items: items,
+                                onTap: (item) => context.push(item.route),
+                              ),
+                              SizedBox(height: m.gapLg),
+                            ],
 
                             ProfileSectionHeading(
                               metrics: m,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_strings.dart';
@@ -16,8 +17,11 @@ import '../widgets/cart_empty_view.dart';
 import '../widgets/cart_metrics.dart';
 import '../widgets/cart_shimmer.dart';
 import '../widgets/cart_wishlist_bridge.dart';
+import '../widgets/price_details.dart';
 
 import '../../domain/entities/cart_item_entity.dart';
+import '../../../payment/domain/checkout_charges.dart';
+import '../../../setting/data/datasources/settings_remote_datasource.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -28,11 +32,22 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   final Set<int> _deselected = {};
+  List<Map<String, dynamic>>? _chargeRules;
 
   @override
   void initState() {
     super.initState();
     context.read<CartCubit>().loadCart();
+    _loadChargeRules();
+  }
+
+  Future<void> _loadChargeRules() async {
+    try {
+      final rules = await GetIt.I<SettingsRemoteDataSource>().getCharges();
+      if (mounted) setState(() => _chargeRules = rules);
+    } catch (_) {
+      // stays unpriced: the summary then shows delivery as "At checkout"
+    }
   }
 
   void _toggleSelect(CartItemEntity item) {
@@ -127,6 +142,18 @@ class _CartPageState extends State<CartPage> {
             0,
             (sum, e) => sum + e.quantity,
           );
+          // Priced like checkout's first quote (default method BIGOD), so the
+          // cart and checkout agree; checkout re-prices for another method.
+          final CartCharges? charges = _chargeRules == null
+              ? null
+              : computeCharges(_chargeRules!, [
+                  for (final i in selectedItems)
+                    ChargeLine(
+                      subtotal: i.totalPrice,
+                      quantity: i.quantity,
+                      vendor: i.vendor.uuid,
+                    ),
+                ], method: 'BIGOD');
 
           return Scaffold(
             backgroundColor: colors.background,
@@ -174,6 +201,7 @@ class _CartPageState extends State<CartPage> {
                                         selectedTotal: selectedTotal,
                                         selectedCount: selectedCount,
                                         selectedItems: selectedItems,
+                                        charges: charges,
                                         onToggleSelect: _toggleSelect,
                                         onMoveToWishlist: _moveToWishlist,
                                         onMoveAll: () =>
@@ -186,6 +214,7 @@ class _CartPageState extends State<CartPage> {
                                         deselected: _deselected,
                                         selectedTotal: selectedTotal,
                                         selectedCount: selectedCount,
+                                        charges: charges,
                                         onToggleSelect: _toggleSelect,
                                         onMoveToWishlist: _moveToWishlist,
                                         onMoveAll: () =>
@@ -199,7 +228,7 @@ class _CartPageState extends State<CartPage> {
                   if (state.items.isNotEmpty && !m.isLandscape)
                     CartBottomBar(
                       items: selectedItems,
-                      total: selectedTotal,
+                      total: cartPayTotal(selectedTotal, charges),
                       itemCount: selectedCount,
                     ),
                 ],

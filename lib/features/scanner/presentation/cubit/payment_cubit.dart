@@ -87,10 +87,6 @@ class PaymentCubit extends Cubit<PaymentState> {
     }
   }
 
-  Future<bool> pinIsSet() => _api.pinIsSet();
-
-  Future<void> setPin(String pin) => _api.setPin(pin);
-
   // TvsQrException's toString is its message, so this covers it too.
   String _message(Object e) => ErrorHandler.mapObjectToFailure(e).message;
 

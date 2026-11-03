@@ -47,7 +47,13 @@ class AppRoutes {
   static const String transferSuccess = "/transferSuccess";
   static const String paymentSuccess = '/payment-Success';
   static const String reviewPayment = '/review-Payment';
+  static const String bigodScanPay = '/scan/bigod';
+  static const String tvsWallet = '/tvs-wallet';
+  static const String tvsTopup = '/tvs-wallet/topup';
+  static const String tvsSend = '/tvs-wallet/send';
   static const String walletKyc = '/tvs-wallet/verify';
+  static const String walletMpin = '/tvs-wallet/mpin';
+  static const String walletMpinReset = '/tvs-wallet/mpin/reset';
   static const String productDetails = '/productDetails';
   static const String productListing = '/product-listing/:categoryName';
   static const String buyerSearch = '/buyer/search';
@@ -75,7 +81,7 @@ class AppRoutes {
 
   //  Auctions
   static const auctionScreen = '/auctions';
-  static const String myBids = '/my-bids'; 
+  static const String myBids = '/my-bids';
 
   static const String vendorApplication = '/vendor-application';
 
@@ -90,7 +96,6 @@ class AppRoutes {
   static const String vendorInvoiceDetail = '/vendor/invoices/:id';
 
   // static const String productListingPath = '/product-listing/:uuid';
-
 
   //My bookings
   static const String myBookings = '/my-bookings';
@@ -141,11 +146,8 @@ class AppRoutes {
   static String subCategoriesPath(String uuid) =>
       subCategories.replaceFirst(':uuid', uuid);
 
-  static String productListingPath(String categoryName) =>
-      productListing.replaceFirst(
-        ':categoryName',
-        Uri.encodeComponent(categoryName),
-      );
+  static String productListingPath(String categoryName) => productListing
+      .replaceFirst(':categoryName', Uri.encodeComponent(categoryName));
 
   /// Same product-listing route, flagged for the ProductListingCubit to
   /// filter by brand (via loadBrand) instead of by category.
@@ -157,5 +159,4 @@ class AppRoutes {
   /// list to look for descendants.
   static String leafCategoryListingPath(String categoryName) =>
       '${productListingPath(categoryName)}?leaf=true';
-
 }

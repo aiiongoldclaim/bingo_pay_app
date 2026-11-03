@@ -19,6 +19,7 @@ class CartPortraitBody extends StatelessWidget {
   final Set<int> deselected;
   final double selectedTotal;
   final int selectedCount;
+  final CartCharges? charges;
   final void Function(CartItemEntity) onToggleSelect;
   final void Function(CartItemEntity) onMoveToWishlist;
   final VoidCallback onMoveAll;
@@ -31,6 +32,7 @@ class CartPortraitBody extends StatelessWidget {
     required this.deselected,
     required this.selectedTotal,
     required this.selectedCount,
+    this.charges,
     required this.onToggleSelect,
     required this.onMoveToWishlist,
     required this.onMoveAll,
@@ -52,8 +54,10 @@ class CartPortraitBody extends StatelessWidget {
             onMoveAll: onMoveAll,
           ),
           SizedBox(height: m.gapMd),
-          const FreeDeliveryBanner(),
-          SizedBox(height: m.gapMd),
+          if (charges?.shipping == 0) ...[
+            const FreeDeliveryBanner(),
+            SizedBox(height: m.gapMd),
+          ],
           CartItemsCard(
             items: state.items,
             deselectedIds: deselected,
@@ -67,7 +71,11 @@ class CartPortraitBody extends StatelessWidget {
           SizedBox(height: m.gapMd),
           const CartCouponCard(),
           SizedBox(height: m.gapMd),
-          PriceDetailsCard(subtotal: selectedTotal, itemCount: selectedCount),
+          PriceDetailsCard(
+            subtotal: selectedTotal,
+            itemCount: selectedCount,
+            charges: charges,
+          ),
         ],
       ),
     );
@@ -83,6 +91,7 @@ class CartLandscapeBody extends StatelessWidget {
   final double selectedTotal;
   final int selectedCount;
   final List<CartItemEntity> selectedItems;
+  final CartCharges? charges;
   final void Function(CartItemEntity) onToggleSelect;
   final void Function(CartItemEntity) onMoveToWishlist;
   final VoidCallback onMoveAll;
@@ -96,6 +105,7 @@ class CartLandscapeBody extends StatelessWidget {
     required this.selectedTotal,
     required this.selectedCount,
     required this.selectedItems,
+    this.charges,
     required this.onToggleSelect,
     required this.onMoveToWishlist,
     required this.onMoveAll,
@@ -123,8 +133,10 @@ class CartLandscapeBody extends StatelessWidget {
                     onMoveAll: onMoveAll,
                   ),
                   SizedBox(height: m.gapMd),
-                  const FreeDeliveryBanner(),
-                  SizedBox(height: m.gapMd),
+                  if (charges?.shipping == 0) ...[
+                    const FreeDeliveryBanner(),
+                    SizedBox(height: m.gapMd),
+                  ],
                   CartItemsCard(
                     items: state.items,
                     deselectedIds: deselected,
@@ -154,11 +166,12 @@ class CartLandscapeBody extends StatelessWidget {
                   PriceDetailsCard(
                     subtotal: selectedTotal,
                     itemCount: selectedCount,
+                    charges: charges,
                   ),
                   SizedBox(height: m.gapMd),
                   CartPayButton(
                     items: selectedItems,
-                    total: selectedTotal,
+                    total: cartPayTotal(selectedTotal, charges),
                     itemCount: selectedCount,
                   ),
                 ],

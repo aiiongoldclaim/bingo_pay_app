@@ -1,7 +1,7 @@
 name: bingo_pay
 description: "Bingo Pay — Multi-vendor marketplace app"
 publish_to: 'none'
-version: 1.0.0+19
+version: 1.0.0+21
 
 environment:
   sdk: ^3.10.8
@@ -45,6 +45,7 @@ dependencies:
   printing: ^5.15.0
   path_provider: ^2.1.5
   mobile_scanner: ^7.2.0
+  qr: ^3.0.2 # already resolved (via printing); draws the TVS Wallet QR codes
   flutter_svg: ^2.3.0
   lottie: ^3.3.1
   # Pure-Dart QR decoding fallback for gallery images — mobile_scanner's

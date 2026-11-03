@@ -29,11 +29,31 @@ class ApiEndpoints {
   static const String setPassword = '/api/v1/auth/set-password';
   static String productDetail(String uuid) => '/api/v1/products/$uuid';
 
-  // Shop QR payment with TVS Coins
+  // TVS Wallet: balances, shop QR payment with TVS Coins
+  static const String tvsWallet = '/api/v1/tvs-wallet';
+  static const String tvsStatement = '/api/v1/tvs-wallet/statement';
+  static const String tvsBonus = '/api/v1/tvs-wallet/bonus';
+  static const String tvsTopups = '/api/v1/tvs-wallet/topups';
+  static String tvsTopup(String uuid) => '/api/v1/tvs-wallet/topups/$uuid';
+  static String tvsTopupCancel(String uuid) =>
+      '/api/v1/tvs-wallet/topups/$uuid/cancel';
+  static const String tvsTransferResolve =
+      '/api/v1/tvs-wallet/transfers/resolve';
+  static const String tvsTransfers = '/api/v1/tvs-wallet/transfers';
+  static const String tvsOffers = '/api/v1/tvs-wallet/offers';
+  static const String tvsOffersHistory = '/api/v1/tvs-wallet/offers/history';
+  static const String tvsReferrals = '/api/v1/tvs-wallet/referrals';
+  static const String tvsReferralApply = '/api/v1/tvs-wallet/referrals/apply';
+  static const String tvsCheckoutQuote = '/api/v1/tvs-wallet/checkout/quote';
+  static const String tvsCheckoutPay = '/api/v1/tvs-wallet/checkout/pay';
   static const String tvsQrResolve = '/api/v1/tvs-wallet/qr/resolve';
   static const String tvsQrQuote = '/api/v1/tvs-wallet/qr/quote';
   static const String tvsQrPay = '/api/v1/tvs-wallet/qr/pay';
   static const String tvsPin = '/api/v1/tvs-wallet/pin';
+  static const String tvsPinResetRequest =
+      '/api/v1/tvs-wallet/pin/reset/request';
+  static const String tvsPinResetConfirm =
+      '/api/v1/tvs-wallet/pin/reset/confirm';
   static const String tvsKyc = '/api/v1/tvs-wallet/kyc';
   static const String tvsKycRequirements =
       '/api/v1/tvs-wallet/kyc/requirements';
@@ -45,10 +65,11 @@ class ApiEndpoints {
   static const String bigodIntent = '/api/v1/payments/bigod/intent';
   static const String bigodConfirm = '/api/v1/payments/bigod/confirm';
   static const String bigodBalance = '/api/v1/payments/bigod/balance';
+  static const String bigodResolveToken =
+      '/api/v1/payments/bigod/resolve-token';
 
   // Card payments (Stripe hosted checkout)
   static const String paymentMethods = '/api/v1/payments/methods';
-  static const String paymentQuote = '/api/v1/payments/quote';
   static const String stripeIntent = '/api/v1/payments/stripe/intent';
   static String stripeStatus(String paymentUuid) =>
       '/api/v1/payments/stripe/status/$paymentUuid';
@@ -62,9 +83,12 @@ class ApiEndpoints {
 
   static const String membership = '/api/v1/customer/membership';
   static const String membershipPlans = '/api/v1/customer/membership/plans';
-  static const String membershipSubscribe = '/api/v1/customer/membership/subscribe';
-  static String membershipCancel(String uuid) => '/api/v1/customer/membership/$uuid/cancel';
-  static String membershipResume(String subscriptionUuid) => '/api/v1/customer/membership/$subscriptionUuid/resume';
+  static const String membershipSubscribe =
+      '/api/v1/customer/membership/subscribe';
+  static String membershipCancel(String uuid) =>
+      '/api/v1/customer/membership/$uuid/cancel';
+  static String membershipResume(String subscriptionUuid) =>
+      '/api/v1/customer/membership/$subscriptionUuid/resume';
 
   static const String services = '/api/v1/services';
   static const String brands = '/api/v1/brands';
@@ -78,7 +102,8 @@ class ApiEndpoints {
       '/api/v1/auctions/allotments/$uuid/pay';
   static String addressDetail(String id) => '/api/v1/addresses/$id';
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
-  static String serviceAvailability(String uuid) => '/api/v1/services/$uuid/availability';
+  static String serviceAvailability(String uuid) =>
+      '/api/v1/services/$uuid/availability';
 
   //health
   static const String health = '/api/v1/health';
@@ -86,6 +111,7 @@ class ApiEndpoints {
 
   //settings
   static const String publicSettings = '/api/v1/settings/public';
+  static const String publicCharges = '/api/v1/settings/charges';
 
   //notifications
   static const String myNotifications = '/api/v1/notifications/me';
@@ -111,6 +137,6 @@ class ApiEndpoints {
   static const String myBookings = '/api/v1/bookings';
   static String bookingDetail(String uuid) => '/api/v1/bookings/$uuid';
   static String cancelBooking(String uuid) => '/api/v1/bookings/$uuid/cancel';
-  static String rescheduleBooking(String uuid) => '/api/v1/bookings/$uuid/reschedule';
-
+  static String rescheduleBooking(String uuid) =>
+      '/api/v1/bookings/$uuid/reschedule';
 }

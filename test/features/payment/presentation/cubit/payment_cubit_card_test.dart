@@ -7,6 +7,7 @@ import 'package:bingo_pay/features/payment/data/nowpayments_payment_datasource.d
 import 'package:bingo_pay/features/payment/data/stripe_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_cubit.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_state.dart';
+import 'package:bingo_pay/features/setting/data/datasources/settings_remote_datasource.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -20,6 +21,8 @@ class MockStripePaymentDataSource extends Mock
 class MockNowPaymentsDataSource extends Mock implements NowPaymentsDataSource {}
 
 class MockClearCartUseCase extends Mock implements ClearCartUseCase {}
+
+class MockSettingsDataSource extends Mock implements SettingsRemoteDataSource {}
 
 const _intent = StripeIntentResponse(
   paymentUuid: 'p-1',
@@ -39,12 +42,14 @@ void main() {
   late MockStripePaymentDataSource mockStripe;
   late MockNowPaymentsDataSource mockNowPayments;
   late MockClearCartUseCase mockClearCart;
+  late MockSettingsDataSource mockSettings;
 
   setUp(() {
     mockBigod = MockBigodPaymentDataSource();
     mockStripe = MockStripePaymentDataSource();
     mockNowPayments = MockNowPaymentsDataSource();
     mockClearCart = MockClearCartUseCase();
+    mockSettings = MockSettingsDataSource();
     when(() => mockClearCart()).thenAnswer((_) async => const Right('cleared'));
   });
 
@@ -58,6 +63,7 @@ void main() {
       bigodPaymentDataSource: mockBigod,
       stripePaymentDataSource: mockStripe,
       nowPaymentsDataSource: mockNowPayments,
+      settingsDataSource: mockSettings,
       clearCartUseCase: mockClearCart,
     )
       ..selectPaymentMethod(PaymentMethod.card)
@@ -91,20 +97,13 @@ void main() {
   });
 
   blocTest<PaymentMethodCubit, PaymentMethodState>(
-    'loadQuote takes tax, delivery and the total from the server',
+    'loadQuote works out tax, delivery and the total from the charge rules',
     build: () {
-      when(() => mockStripe.getQuote(
-            addressId: '12',
-            variantUuid: 'variant-1',
-            quantity: 1,
-          )).thenAnswer(
-        (_) async => const BigodIntentBreakdown(
-          subtotal: 100,
-          discount: 0,
-          tax: 7.5,
-          shipping: 12,
-          total: 119.5,
-        ),
+      when(() => mockSettings.getCharges()).thenAnswer(
+        (_) async => [
+          {'bucket': 'TAX', 'calcType': 'PERCENTAGE', 'value': 7.5, 'appliesTo': 'ALL'},
+          {'bucket': 'SHIPPING', 'calcType': 'FLAT', 'value': 12, 'appliesTo': 'ALL'},
+        ],
       );
       return buildCubit();
     },
@@ -119,13 +118,9 @@ void main() {
   );
 
   blocTest<PaymentMethodCubit, PaymentMethodState>(
-    'loadQuote leaves the basket unpriced when the server cannot be asked',
+    'loadQuote leaves the basket unpriced when the rules cannot be fetched',
     build: () {
-      when(() => mockStripe.getQuote(
-            addressId: '12',
-            variantUuid: 'variant-1',
-            quantity: 1,
-          )).thenThrow(Exception('offline'));
+      when(() => mockSettings.getCharges()).thenThrow(Exception('offline'));
       return buildCubit();
     },
     act: (cubit) => cubit.loadQuote(),

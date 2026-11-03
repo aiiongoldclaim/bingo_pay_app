@@ -43,7 +43,7 @@ class ProfileShimmerContent extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: ShimmerBox(
               width: double.infinity,
-              height: 155,
+              height: 76,
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
           ),

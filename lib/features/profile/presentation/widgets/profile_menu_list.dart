@@ -225,6 +225,10 @@ class ProfileMenuItem {
         return Icons.card_membership_outlined;
       case 'payments':
         return Icons.credit_card_outlined;
+      case 'mpin':
+        return Icons.pin_outlined;
+      case 'mpinReset':
+        return Icons.lock_reset_rounded;
       case 'help':
         return Icons.support_agent_outlined;
       case 'logout':
@@ -238,14 +242,11 @@ class ProfileMenuItem {
     }
   }
 
-  /// Group 1 — shopping
-  static const List<ProfileMenuItem> primaryItems = [
-    ProfileMenuItem(
-      title: 'My Cart',
-      subtitle: 'View and manage your cart',
-      iconAsset: 'cart',
-      route: AppRoutes.cart,
-    ),
+  // Sections run from what people open most to what they open once. The
+  // membership card above them leads to the user's own plan.
+
+  /// Things with a status to track.
+  static const List<ProfileMenuItem> activityItems = [
     ProfileMenuItem(
       title: 'My Orders',
       subtitle: 'Track and manage your orders',
@@ -253,10 +254,32 @@ class ProfileMenuItem {
       route: AppRoutes.orders,
     ),
     ProfileMenuItem(
+      title: 'My Bookings',
+      subtitle: 'Manage your bookings',
+      iconAsset: 'bookings',
+      route: AppRoutes.myBookings,
+    ),
+    ProfileMenuItem(
       title: 'Transactions',
-      subtitle: 'View your order history',
+      subtitle: 'Payments for your orders',
       iconAsset: 'transactions',
       route: AppRoutes.buyerTransactions,
+    ),
+    ProfileMenuItem(
+      title: 'My Bids',
+      subtitle: 'Track your bids, wins & payments',
+      iconAsset: 'myBids',
+      route: AppRoutes.myBids,
+    ),
+  ];
+
+  /// Things saved to buy.
+  static const List<ProfileMenuItem> shoppingItems = [
+    ProfileMenuItem(
+      title: 'My Cart',
+      subtitle: 'View and manage your cart',
+      iconAsset: 'cart',
+      route: AppRoutes.cart,
     ),
     ProfileMenuItem(
       title: 'Wishlist',
@@ -264,22 +287,35 @@ class ProfileMenuItem {
       iconAsset: 'wishlist',
       route: AppRoutes.buyerWishlist,
     ),
+  ];
+
+  static const List<ProfileMenuItem> mpinItems = [
     ProfileMenuItem(
-      title: 'My Bookings',
-      subtitle: 'Manage your bookings',
-      iconAsset: 'bookings',
-      route: AppRoutes.myBookings,
+      title: 'Set / Change MPIN',
+      subtitle: 'Create or change your 4-digit payment PIN',
+      iconAsset: 'mpin',
+      route: AppRoutes.walletMpin,
+    ),
+    ProfileMenuItem(
+      title: 'Reset MPIN',
+      subtitle: 'Forgot it? Reset with a code sent to your email',
+      iconAsset: 'mpinReset',
+      route: AppRoutes.walletMpinReset,
     ),
   ];
 
-  /// Group 2 — profile
-  static const List<ProfileMenuItem> secondaryItems = [
+  /// Done once, if ever.
+  static const List<ProfileMenuItem> vendorItems = [
     ProfileMenuItem(
-      title: 'Help & Support',
-      subtitle: 'Get help, track orders & more',
-      iconAsset: 'help',
-      route: AppRoutes.help,
+      title: 'Become a Vendor',
+      subtitle: 'Apply to sell on TheVaults',
+      iconAsset: 'vendor',
+      route: AppRoutes.vendorApplication,
     ),
+  ];
+
+  /// Followed by Logout.
+  static const List<ProfileMenuItem> secondaryItems = [
     ProfileMenuItem(
       title: 'Edit Profile',
       subtitle: 'Update your personal details',
@@ -293,37 +329,10 @@ class ProfileMenuItem {
       route: AppRoutes.membershipPlans,
     ),
     ProfileMenuItem(
-      title: 'My Membership',
-      subtitle: 'View your active plan',
-      iconAsset: 'myMembership',
-      route: AppRoutes.membership,
+      title: 'Help & Support',
+      subtitle: 'Get help, track orders & more',
+      iconAsset: 'help',
+      route: AppRoutes.help,
     ),
-  ];
-
-  /// Group 3 — selling
-  static const List<ProfileMenuItem> vendorItems = [
-    ProfileMenuItem(
-      title: 'Become a Vendor',
-      subtitle: 'Apply to sell on TheVaults',
-      iconAsset: 'vendor',
-      route: AppRoutes.vendorApplication,
-    ),
-  ];
-
-  /// Group 4 — auctions
-  static const List<ProfileMenuItem> auctionItems = [
-    ProfileMenuItem(
-      title: 'My Bids',
-      subtitle: 'Track your bids, wins & payments',
-      iconAsset: 'myBids',
-      route: AppRoutes.myBids,
-    ),
-  ];
-
-  static const List<ProfileMenuItem> items = [
-    ...primaryItems,
-    ...auctionItems,
-    ...secondaryItems,
-    ...vendorItems,
   ];
 }

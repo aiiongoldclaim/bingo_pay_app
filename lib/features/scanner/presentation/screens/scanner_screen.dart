@@ -74,10 +74,19 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _isScanned = true;
 
-    // The shop's QR value is its token; the review screen asks the API who it is.
-    context
-        .push(AppRoutes.reviewPayment, extra: {'token': token})
-        .then((_) => _isScanned = false);
+    // A website checkout QR is a link carrying a BIGOD payment token
+    // (<pay-url>?token=<hex>). A member's QR (tvs:u:<uuid>) is for sending
+    // them TVS Coins. Anything else is a shop's token; the review screen asks
+    // the API who it is.
+    final payToken = Uri.tryParse(token)?.queryParameters['token'] ?? '';
+    final member = token.startsWith('tvs:u:');
+    final opened = payToken.isNotEmpty
+        ? context.push(AppRoutes.bigodScanPay, extra: payToken)
+        : context.push(
+            member ? AppRoutes.tvsSend : AppRoutes.reviewPayment,
+            extra: member ? token : {'token': token},
+          );
+    opened.then((_) => _isScanned = false);
   }
 
   @override
@@ -115,7 +124,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   height: 35.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(AppSizes.radiusLg),
-                    border: Border.all(color: ThemeColors.primaryPurple, width: 3),
+                    border: Border.all(
+                      color: ThemeColors.primaryPurple,
+                      width: 3,
+                    ),
                   ),
                 ),
 

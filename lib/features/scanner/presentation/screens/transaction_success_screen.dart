@@ -70,7 +70,6 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../widgets/transfer_success_metrics.dart';
 
-
 class TransferScreen extends StatefulWidget {
   final Map<String, dynamic> data;
 
@@ -102,12 +101,24 @@ class _TransferScreenState extends State<TransferScreen>
       '${widget.data['amount'] ?? 0} ${widget.data['currency'] ?? ''}'.trim();
   String get _merchant => '${widget.data['merchantName'] ?? '-'}';
   String get _reference => '${widget.data['reference'] ?? '-'}';
+  String get _paidFrom =>
+      widget.data['method'] == 'BIGOD' ? 'BIGOD wallet' : 'TVS Wallet';
 
   String get _dateLabel {
     final now = DateTime.now();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     final h = now.hour % 12 == 0 ? 12 : now.hour % 12;
     final min = now.minute.toString().padLeft(2, '0');
@@ -137,17 +148,24 @@ class _TransferScreenState extends State<TransferScreen>
                 metrics: m,
                 scale: _scale,
                 amount: _amount,
+                caption: widget.data['caption'] as String? ?? 'Amount paid',
               );
 
               final details = _DetailsCard(
                 metrics: m,
                 merchant: _merchant,
+                paidFrom: _paidFrom,
                 reference: _reference,
                 date: _dateLabel,
                 onCopy: _copyReference,
               );
 
-              final actions = _Actions(metrics: m);
+              // The app has no BIGOD history screen yet, so a BIGOD receipt
+              // offers only DONE.
+              final actions = _Actions(
+                metrics: m,
+                showTransactions: widget.data['method'] != 'BIGOD',
+              );
 
               return Column(
                 children: [
@@ -161,52 +179,51 @@ class _TransferScreenState extends State<TransferScreen>
                         ),
                         child: m.isLandscape
                             ? Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            m.pageHPad,
-                            m.gapMd,
-                            m.pageHPad,
-                            m.gapLg,
-                          ),
-                          child: Row(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.center,
-                            children: [
-                              Expanded(child: hero),
-                              SizedBox(width: m.gapLg),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.stretch,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      details,
-                                      SizedBox(height: m.gapLg),
-                                      actions,
-                                    ],
-                                  ),
+                                padding: EdgeInsets.fromLTRB(
+                                  m.pageHPad,
+                                  m.gapMd,
+                                  m.pageHPad,
+                                  m.gapLg,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: hero),
+                                    SizedBox(width: m.gapLg),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            details,
+                                            SizedBox(height: m.gapLg),
+                                            actions,
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SingleChildScrollView(
+                                padding: EdgeInsets.fromLTRB(
+                                  m.pageHPad,
+                                  m.gapLg,
+                                  m.pageHPad,
+                                  m.gapLg,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    hero,
+                                    SizedBox(height: m.gapLg),
+                                    details,
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        )
-                            : SingleChildScrollView(
-                          padding: EdgeInsets.fromLTRB(
-                            m.pageHPad,
-                            m.gapLg,
-                            m.pageHPad,
-                            m.gapLg,
-                          ),
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.stretch,
-                            children: [
-                              hero,
-                              SizedBox(height: m.gapLg),
-                              details,
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -274,11 +291,13 @@ class _SuccessHero extends StatelessWidget {
   final TransferSuccessMetrics metrics;
   final Animation<double> scale;
   final String amount;
+  final String caption; // under the amount, e.g. what it was paid in
 
   const _SuccessHero({
     required this.metrics,
     required this.scale,
     required this.amount,
+    required this.caption,
   });
 
   @override
@@ -362,7 +381,7 @@ class _SuccessHero extends StatelessWidget {
         SizedBox(height: m.gapXs),
 
         Text(
-          'Amount paid',
+          caption,
           style: AppTextStyles.bodySmall.copyWith(
             color: colors.textSecondary,
             fontFamily: 'Inter',
@@ -378,6 +397,7 @@ class _SuccessHero extends StatelessWidget {
 class _DetailsCard extends StatelessWidget {
   final TransferSuccessMetrics metrics;
   final String merchant;
+  final String paidFrom;
   final String reference;
   final String date;
   final VoidCallback onCopy;
@@ -385,6 +405,7 @@ class _DetailsCard extends StatelessWidget {
   const _DetailsCard({
     required this.metrics,
     required this.merchant,
+    required this.paidFrom,
     required this.reference,
     required this.date,
     required this.onCopy,
@@ -407,6 +428,13 @@ class _DetailsCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _Row(metrics: m, label: 'Paid to', value: merchant),
+
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: m.gapMd * 0.7),
+            child: Divider(height: 1, thickness: 1, color: colors.border),
+          ),
+
+          _Row(metrics: m, label: 'Paid from', value: paidFrom),
 
           Padding(
             padding: EdgeInsets.symmetric(vertical: m.gapMd * 0.7),
@@ -534,8 +562,9 @@ class _Row extends StatelessWidget {
 // ── Actions ────────────────────────────────────────────────────────────────
 class _Actions extends StatelessWidget {
   final TransferSuccessMetrics metrics;
+  final bool showTransactions;
 
-  const _Actions({required this.metrics});
+  const _Actions({required this.metrics, this.showTransactions = true});
 
   @override
   Widget build(BuildContext context) {
@@ -570,50 +599,53 @@ class _Actions extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: m.gapSm),
+        if (showTransactions) ...[
+          SizedBox(height: m.gapSm),
 
-        SizedBox(
-          height: m.btnHeight,
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => context.go(AppRoutes.buyerTransactions),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: colors.brand.withValues(alpha: 0.45),
-                    width: 1.2,
+          SizedBox(
+            height: m.btnHeight,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                // A TVS payment is listed in the wallet's activity, not in order payments.
+                onTap: () => context.go(AppRoutes.tvsWallet),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colors.brand.withValues(alpha: 0.45),
+                      width: 1.2,
+                    ),
                   ),
-                ),
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.receipt_long_outlined,
-                      size: m.btnFontSize + 4,
-                      color: colors.brand,
-                    ),
-                    SizedBox(width: m.gapSm * 0.8),
-                    Text(
-                      'VIEW TRANSACTIONS',
-                      style: AppTextStyles.buttonText.copyWith(
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: m.btnFontSize + 4,
                         color: colors.brand,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: m.btnFontSize,
-                        letterSpacing: 0.4,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: m.gapSm * 0.8),
+                      Text(
+                        'VIEW TRANSACTIONS',
+                        style: AppTextStyles.buttonText.copyWith(
+                          color: colors.brand,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: m.btnFontSize,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ],
     );
   }
