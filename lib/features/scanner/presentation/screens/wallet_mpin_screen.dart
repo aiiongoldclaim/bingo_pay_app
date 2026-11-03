@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +13,7 @@ import '../../../../core/widgets/app_shimmer.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
+import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 import '../../data/tvs_qr_datasource.dart';
 
 enum MpinMode { create, verify, change, reset }
@@ -56,9 +59,10 @@ Future<({Map<String, dynamic>? result, Object? failure})?> runWithMpin(
         try {
           result = await attempt(pin);
         } on TvsQrException catch (e) {
-          if (e.code == 'PIN_INVALID' || e.code == 'PIN_LOCKED') {
-            return e.message;
+          if (e.code == 'PIN_LOCKED') {
+            return _lockedMessage(getIt<TvsQrDataSource>(), e.message);
           }
+          if (e.code == 'PIN_INVALID') return e.message;
           failure = e;
         } catch (e) {
           failure = e;
@@ -70,6 +74,19 @@ Future<({Map<String, dynamic>? result, Object? failure})?> runWithMpin(
   if (done != true) return null;
   return (result: result, failure: failure);
 }
+
+// A locked MPIN, until when: the refusal doesn't say, the MPIN status does.
+Future<String> _lockedMessage(TvsQrDataSource api, String fallback) async {
+  try {
+    final until = (await api.pinStatus())['lockedUntil'];
+    if (until != null) return _lockedUntil(until);
+  } catch (_) {}
+  return fallback;
+}
+
+String _lockedUntil(Object until) =>
+    'Locked after wrong tries until ${tvsTime(until)}. '
+    'Forgot MPIN? unlocks it now.';
 
 enum _Step { current, otp, enter, fresh, confirm }
 
@@ -85,6 +102,7 @@ class WalletMpinScreen extends StatefulWidget {
 class _WalletMpinScreenState extends State<WalletMpinScreen> {
   static const _newLength = 4;
   static const _otpLength = 6;
+  static const _resendWait = 30; // seconds between reset codes, as on the web
 
   final _api = getIt<TvsQrDataSource>();
 
@@ -98,6 +116,8 @@ class _WalletMpinScreenState extends State<WalletMpinScreen> {
   String? _error;
   String? _codeSentTo;
   bool _busy = false;
+  int _wait = 0; // seconds until another code can be sent
+  Timer? _ticker;
 
   _Step get _step => _steps[_at];
 
@@ -118,18 +138,26 @@ class _WalletMpinScreenState extends State<WalletMpinScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
   Future<void> _loadStatus() async {
     try {
       final status = await _api.pinStatus();
       if (!mounted) return;
-      setState(
-        () => _start(
+      setState(() {
+        _start(
           MpinArgs(
             mode: status['isSet'] == true ? MpinMode.change : MpinMode.create,
             length: status['length'] as int? ?? _newLength,
           ),
-        ),
-      );
+        );
+        final until = status['lockedUntil'];
+        if (until != null) _error = _lockedUntil(until);
+      });
     } catch (e) {
       if (mounted) setState(() => _error = _message(e));
     }
@@ -160,6 +188,12 @@ class _WalletMpinScreenState extends State<WalletMpinScreen> {
     try {
       final sent = await _api.requestPinReset();
       _codeSentTo = '${sent['sentTo']}';
+      _wait = _resendWait;
+      _ticker?.cancel();
+      _ticker = Timer.periodic(const Duration(seconds: 1), (t) {
+        if (!mounted || _wait <= 1) t.cancel();
+        if (mounted) setState(() => _wait--);
+      });
     } catch (e) {
       final args = _args!;
       // Nothing to reset yet: create an MPIN instead.
@@ -260,12 +294,17 @@ class _WalletMpinScreenState extends State<WalletMpinScreen> {
       }
     } catch (e) {
       // Back to whichever entry was wrong.
-      final back = switch (e is TvsQrException ? e.code : null) {
+      final code = e is TvsQrException ? e.code : null;
+      final back = switch (code) {
         'PIN_INVALID' || 'PIN_LOCKED' => _Step.current,
         'OTP_INVALID' => _Step.otp,
         _ => _Step.fresh,
       };
-      return _goTo(_steps.contains(back) ? back : _Step.fresh, _message(e));
+      final message = code == 'PIN_LOCKED'
+          ? await _lockedMessage(_api, _message(e))
+          : _message(e);
+      if (!mounted) return;
+      return _goTo(_steps.contains(back) ? back : _Step.fresh, message);
     }
     if (!mounted) return;
 
@@ -477,8 +516,10 @@ class _WalletMpinScreenState extends State<WalletMpinScreen> {
             ),
           if (_step == _Step.otp)
             TextButton(
-              onPressed: _busy ? null : _sendCode,
-              child: const Text('Resend code'),
+              onPressed: _busy || _wait > 0 ? null : _sendCode,
+              child: Text(
+                _wait > 0 ? 'Send a new code in ${_wait}s' : 'Resend code',
+              ),
             ),
         ],
       ),

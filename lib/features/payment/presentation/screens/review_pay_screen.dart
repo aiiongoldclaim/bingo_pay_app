@@ -15,6 +15,7 @@ import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 import '../widgets/checkout_ui.dart';
+import '../widgets/tvs_checkout_offers.dart';
 import 'payment_flow_args.dart';
 
 // Checkout, step 2: where it goes, how to pay, and what it comes to.
@@ -112,10 +113,14 @@ class ReviewPayScreen extends StatelessWidget {
           if (state.isQuoted && state.taxes > 0)
             CheckoutLine('Taxes & fees', money(state.taxes)),
         ];
-        // TVS Wallet can't pay until its quote says so.
+        // TVS Wallet can't pay until its quote says so, nor while the MPIN
+        // it needs is locked.
+        final tvsPin = state.tvsQuote?['pin'] as Map?;
         final blocked =
             selected == PaymentMethod.tvsWallet &&
-            state.tvsQuote?['canPay'] != true;
+            (state.tvsQuote?['canPay'] != true ||
+                (tvsPin?['required'] == true &&
+                    tvsPin?['lockedUntil'] != null));
 
         return Scaffold(
           backgroundColor: colors.background,
@@ -201,8 +206,14 @@ class ReviewPayScreen extends StatelessWidget {
                               onTap: () => cubit.selectPaymentMethod(method),
                             ),
                             if (method == PaymentMethod.tvsWallet &&
-                                selected == method)
-                              _TvsFix(quote: state.tvsQuote),
+                                selected == method) ...[
+                              TvsQuoteFix(
+                                quote: state.tvsQuote,
+                                onBack: cubit.loadTvsQuote,
+                              ),
+                              if (state.tvsQuote?['coins'] != null)
+                                TvsCheckoutOffers(quote: state.tvsQuote!),
+                            ],
                           ],
                         ],
                       ),
@@ -371,38 +382,6 @@ class ReviewPayScreen extends StatelessWidget {
   }
 }
 
-// What the TVS Wallet option needs before it can pay, and the way there:
-// verify (KYC) or add money. Shown under the options while it is selected.
-class _TvsFix extends StatelessWidget {
-  final Map<String, dynamic>? quote;
-
-  const _TvsFix({required this.quote});
-
-  @override
-  Widget build(BuildContext context) {
-    final q = quote;
-    final (label, route, extra) = switch (q?['reasonCode']) {
-      'KYC_REQUIRED' => ('Verify now', AppRoutes.walletKyc, null),
-      'INSUFFICIENT_FUNDS' => ('Add money', AppRoutes.tvsTopup, q?['wallet']),
-      _ => (null, null, null),
-    };
-    if (q == null || q['canPay'] == true || label == null) {
-      return const SizedBox.shrink();
-    }
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton.icon(
-        onPressed: () {
-          final cubit = context.read<PaymentMethodCubit>();
-          context.push(route!, extra: extra).then((_) => cubit.loadTvsQuote());
-        },
-        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-        label: Text(label),
-      ),
-    );
-  }
-}
-
 // The TVS Wallet option's line: the price in coins (and the offer saved), the
 // balance, or why it can't pay.
 String _tvsSubtitle(Map<String, dynamic>? q) {
@@ -415,9 +394,8 @@ String _tvsSubtitle(Map<String, dynamic>? q) {
   final saved = (num.tryParse('${c['discount']}') ?? 0) > 0
       ? ' (${tvsCoins(c['discount'], cur)} off)'
       : '';
-  final pin = (q['pin'] as Map?)?['required'] == true ? ' · MPIN needed' : '';
   return '${tvsCoins(c['total'], cur)}$saved · '
-      'Balance ${tvsCoins((q['wallet'] as Map?)?['spendable'], cur)}$pin';
+      'Balance ${tvsCoins((q['wallet'] as Map?)?['spendable'], cur)}';
 }
 
 // One payment option: icon, name, a line about it, and a radio.

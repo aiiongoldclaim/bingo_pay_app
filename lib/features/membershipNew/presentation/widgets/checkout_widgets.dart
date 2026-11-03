@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bingo_pay/core/theme/app_theme_colors.dart';
 import 'package:bingo_pay/core/theme/theme_colors.dart';
+import '../../../payment/presentation/widgets/tvs_checkout_offers.dart';
+import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 import '../../data/models/membership_plan_model.dart';
 import '../../data/models/membership_subscribe_model.dart';
 import 'landing_widgets.dart';
@@ -378,82 +380,133 @@ class CheckoutSummaryRow extends StatelessWidget {
 // PAYMENT METHOD — sirf BIGOD wallet
 // ---------------------------------------------------------------------------
 
-// TVS Wallet as a way to pay for membership: not available yet (the server
-// has no TVS payment for memberships), so shown greyed out and not tappable.
-class TvsWalletComingSoonCard extends StatelessWidget {
-  const TvsWalletComingSoonCard({super.key, required this.metrics});
+// TVS Wallet as a way to pay for membership: the price in coins and the
+// balance, or why it can't pay; while selected, the MPIN rule and the way to
+// verify or add money (`onBack` quotes again on return).
+class TvsWalletPaymentCard extends StatelessWidget {
+  const TvsWalletPaymentCard({
+    super.key,
+    required this.metrics,
+    required this.quote,
+    required this.selected,
+    required this.onTap,
+    required this.onBack,
+  });
 
   final MembershipMetrics metrics;
+  final Map<String, dynamic>? quote;
+  final bool selected;
+  final VoidCallback onTap;
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.c;
     final m = metrics;
+    final q = quote;
+    final c = q?['coins'] as Map?;
+    final canPay = q?['canPay'] == true;
+    final pin = canPay ? (q?['pin'] as Map?) : null;
+    final rate = c != null && c['currency'] != (q?['price'] as Map?)?['currency']
+        ? '${c['rateText'] ?? ''}'
+        : '';
 
     return Semantics(
-      label: 'TVS Wallet, coming soon',
-      enabled: false,
-      excludeSemantics: true,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(m.cardPad),
-        decoration: BoxDecoration(
-          color: colors.surfaceAlt,
-          borderRadius: BorderRadius.circular(m.radiusMd),
-          border: Border.all(color: colors.border),
-        ),
-        child: Row(
-          children: [
-            Opacity(
-              opacity: 0.5,
-              child: MembershipIconCircle(
-                icon: Icons.toll_rounded,
-                metrics: m,
-                size: m.iconCircle * 0.66,
-              ),
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(m.radiusMd),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(m.cardPad),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(m.radiusMd),
+            border: Border.all(
+              color: selected ? colors.brand : colors.border,
+              width: selected ? 1.4 : 1,
             ),
-            SizedBox(width: m.cardPad * 0.55),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Text(
-                    'TVS Wallet',
-                    style: TextStyle(
-                      fontSize: m.bodySize + 2,
-                      fontWeight: FontWeight.w700,
-                      color: colors.textMuted,
+                  MembershipIconCircle(
+                    icon: Icons.toll_rounded,
+                    metrics: m,
+                    size: m.iconCircle * 0.66,
+                  ),
+                  SizedBox(width: m.cardPad * 0.55),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'TVS Wallet',
+                          style: TextStyle(
+                            fontSize: m.bodySize + 2,
+                            fontWeight: FontWeight.w700,
+                            color: colors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: m.rowGap * 0.15),
+                        Text(
+                          q == null
+                              ? 'Checking your TVS Coins…'
+                              : c == null
+                              ? '${q['reason'] ?? 'Not available right now'}'
+                              : '${tvsCoins(c['total'], c['currency'])} · '
+                                    'Balance ${tvsCoins(c['available'], c['currency'])}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: m.captionSize + 2,
+                            color: c == null && q != null
+                                ? colors.error
+                                : colors.textSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: m.rowGap * 0.15),
-                  Text(
-                    'Pay for membership with TVS Coins',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: m.captionSize + 2,
-                      color: colors.textMuted,
-                    ),
+                  Icon(
+                    selected
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    size: m.smallIcon * 1.1,
+                    color: selected ? colors.brand : colors.textMuted,
                   ),
                 ],
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: colors.brandSoft,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                'Coming soon',
-                style: TextStyle(
-                  fontSize: m.captionSize + 1,
-                  fontWeight: FontWeight.w700,
-                  color: colors.brand,
-                ),
-              ),
-            ),
-          ],
+              if (selected && q != null) ...[
+                if (rate.isNotEmpty || pin?['limit'] != null || !canPay)
+                  SizedBox(height: m.rowGap * 0.7),
+                if (rate.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Text(
+                      rate,
+                      style: TextStyle(
+                        fontSize: m.captionSize + 1,
+                        color: colors.textMuted,
+                      ),
+                    ),
+                  ),
+                if (pin?['limit'] != null) TvsPinNote(pin: pin!),
+                if (!canPay && c != null)
+                  Text(
+                    '${q['reason'] ?? ''}',
+                    style: TextStyle(
+                      fontSize: m.captionSize + 2,
+                      color: colors.error,
+                    ),
+                  ),
+                TvsQuoteFix(quote: q, onBack: onBack),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -467,6 +520,8 @@ class BigodPaymentCard extends StatelessWidget {
     this.payment,
     this.timerLabel,
     this.expired = false,
+    this.selected = true,
+    this.onTap,
   });
 
   final MembershipMetrics metrics;
@@ -474,6 +529,8 @@ class BigodPaymentCard extends StatelessWidget {
   final CheckoutPayment? payment;
   final String? timerLabel;
   final bool expired;
+  final bool selected; // one of the ways to pay; its price shows when chosen
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -481,13 +538,16 @@ class BigodPaymentCard extends StatelessWidget {
     final m = metrics;
     final p = payment;
 
-    return Container(
+    final card = Container(
       width: double.infinity,
       padding: EdgeInsets.all(m.cardPad),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(m.radiusMd),
-        border: Border.all(color: colors.brand, width: 1.4),
+        border: Border.all(
+          color: selected ? colors.brand : colors.border,
+          width: selected ? 1.4 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -527,14 +587,16 @@ class BigodPaymentCard extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.check_circle_rounded,
+                selected
+                    ? Icons.check_circle_rounded
+                    : Icons.radio_button_unchecked_rounded,
                 size: m.smallIcon * 1.1,
-                color: colors.brand,
+                color: selected ? colors.brand : colors.textMuted,
               ),
             ],
           ),
 
-          if (p != null) ...[
+          if (p != null && selected) ...[
             SizedBox(height: m.rowGap * 0.9),
             Divider(height: 1, color: colors.border),
             SizedBox(height: m.rowGap * 0.7),
@@ -581,6 +643,16 @@ class BigodPaymentCard extends StatelessWidget {
             ],
           ],
         ],
+      ),
+    );
+    if (onTap == null) return card;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(m.radiusMd),
+        child: card,
       ),
     );
   }

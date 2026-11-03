@@ -130,6 +130,17 @@ class TvsQrDataSource {
   Future<Map<String, dynamic>> checkoutPay(Map<String, dynamic> body) =>
       _post(ApiEndpoints.tvsCheckoutPay, body);
 
+  // A membership plan priced in TVS Coins, paid from own coins only:
+  // {canPay, reasonCode, reason, price, coins: {total, currency, available,
+  // rateText…}, pin: {required, isSet, length, lockedUntil…}}
+  Future<Map<String, dynamic>> membershipQuote(String planUuid) =>
+      _post(ApiEndpoints.tvsMembershipQuote, {'planUuid': planUuid});
+
+  // Pays `expectedCoins` and switches the plan on; QUOTE_CHANGED if the price
+  // moved. {transactionUuid, coins, subscription: {uuid, reference, status}}
+  Future<Map<String, dynamic>> membershipPay(Map<String, dynamic> body) =>
+      _post(ApiEndpoints.tvsMembershipPay, body);
+
   // channel: CODE (typed), LINK or QR (an invite link or its QR).
   Future<Map<String, dynamic>> applyReferralCode(
     String code, {

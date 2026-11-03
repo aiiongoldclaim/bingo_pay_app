@@ -86,6 +86,11 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
   // One per TVS payment; reused on retry so the order is paid once.
   String? _tvsKey;
 
+  // The TVS coupon typed and the offer picked ('' = the best one, NONE = no
+  // offer, else an offer uuid), sent with every quote and the payment.
+  String _tvsCode = '';
+  String _tvsOffer = '';
+
   Future<void> _clearCartIfNeeded() async {
     if (!state.isCartFlow) return;
     await _clearCartUseCase(); // best-effort — a clear failure shouldn't block a completed purchase
@@ -252,14 +257,17 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     },
     if (state.deliveryAddressId.isNotEmpty)
       'addressId': state.deliveryAddressId,
+    if (_tvsCode.isNotEmpty) 'code': _tvsCode,
+    if (_tvsOffer.isNotEmpty) 'offer': _tvsOffer,
     'method': 'TVS_WALLET',
   };
 
   // The order in TVS Coins: price, best offer, whether the customer can pay.
   // The option is hidden only when TVS Wallet is switched off for this
   // account; any other failure shows it with the reason, as the web does.
-  Future<void> loadTvsQuote() async {
-    emit(state.copyWith(clearTvsQuote: true, tvsAvailable: true));
+  // `keep` leaves the current quote on screen while the new one loads.
+  Future<void> loadTvsQuote({bool keep = false}) async {
+    emit(state.copyWith(clearTvsQuote: !keep, tvsAvailable: true));
     try {
       final quote = await _tvs.checkoutQuote(_tvsBasket());
       if (!isClosed) emit(state.copyWith(tvsQuote: quote));
@@ -286,6 +294,20 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         ),
       );
     }
+  }
+
+  // A coupon code from "Apply coupon": the quote says whether it applies, and
+  // the best offer is picked again with it.
+  Future<void> applyTvsCode(String code) {
+    _tvsCode = code.trim();
+    _tvsOffer = '';
+    return loadTvsQuote(keep: true);
+  }
+
+  // One of the quote's offers (uuid), '' for the best one, NONE for none.
+  Future<void> chooseTvsOffer(String offer) {
+    _tvsOffer = offer;
+    return loadTvsQuote(keep: true);
   }
 
   // Pays exactly the quoted coins (the server refuses with QUOTE_CHANGED if

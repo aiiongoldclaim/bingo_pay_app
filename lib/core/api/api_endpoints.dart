@@ -57,6 +57,10 @@ class ApiEndpoints {
   static const String tvsKyc = '/api/v1/tvs-wallet/kyc';
   static const String tvsKycRequirements =
       '/api/v1/tvs-wallet/kyc/requirements';
+  // TVS Wallet: a membership paid with TVS Coins.
+  static const String tvsMembershipQuote =
+      '/api/v1/tvs-wallet/membership/quote';
+  static const String tvsMembershipPay = '/api/v1/tvs-wallet/membership/pay';
   static const String cart = '/api/v1/cart';
   static const String cartItems = '/api/v1/cart/items';
   static const String cartClear = '/api/v1/cart/clear';

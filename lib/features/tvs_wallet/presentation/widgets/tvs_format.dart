@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:intl/number_symbols_data.dart' show currencyFractionDigits;
 
 // Display only: amounts arrive as 2-decimal strings and are never added up
 // here, just grouped and given their currency symbol.
@@ -17,6 +18,23 @@ String tvsCoins(Object? amount, [Object? currency]) {
   final text = NumberFormat('#,##0.00').format(n);
   final cur = '${currency ?? ''}';
   return cur.isEmpty ? text : '${_symbols[cur] ?? '$cur '}$text';
+}
+
+// Currencies without decimals (VND, JPY, KRW…) take whole amounts only.
+bool tvsWholeCurrency(String currency) =>
+    (currencyFractionDigits[currency.toUpperCase()] ?? 2) == 0;
+
+// A typed amount: up to 16 whole digits as the server allows (room for VND,
+// IDR…), 2 decimals unless `whole`. The server says when it is over a limit.
+bool tvsAmountValid(String amount, {bool whole = false}) =>
+    RegExp(whole ? r'^\d{1,16}$' : r'^\d{1,16}(\.\d{1,2})?$').hasMatch(amount) &&
+    RegExp(r'[1-9]').hasMatch(amount);
+
+// "200000000" → "200,000,000", on the string so long amounts keep every digit.
+String tvsGroupDigits(String amount) {
+  final parts = amount.split('.');
+  final whole = parts[0].replaceAll(RegExp(r'\B(?=(\d{3})+(?!\d))'), ',');
+  return parts.length > 1 ? '$whole.${parts[1]}' : whole;
 }
 
 DateTime? _parse(Object? iso) => DateTime.tryParse('${iso ?? ''}')?.toLocal();

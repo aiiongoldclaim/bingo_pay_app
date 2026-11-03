@@ -2,6 +2,7 @@ import 'package:bingo_pay/core/di/injection.dart';
 import 'package:bingo_pay/core/router/app_routes.dart';
 import 'package:bingo_pay/features/scanner/data/tvs_qr_datasource.dart';
 import 'package:bingo_pay/features/scanner/presentation/screens/wallet_mpin_screen.dart';
+import 'package:bingo_pay/features/tvs_wallet/presentation/widgets/tvs_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -172,5 +173,85 @@ void main() {
     await type(tester, '6173');
     verify(() => api.setPin('6173', currentPin: '4829')).called(1);
     expect(closed(), isTrue);
+  });
+
+  testWidgets('a new reset code can be sent only after 30 seconds', (
+    tester,
+  ) async {
+    when(
+      () => api.requestPinReset(),
+    ).thenAnswer((_) async => {'sentTo': 'as•••@example.com'});
+    await open(tester, const MpinArgs(mode: MpinMode.reset));
+    expect(find.textContaining('Send a new code in'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 31));
+    await tester.tap(find.text('Resend code'));
+    await tester.pumpAndSettle();
+    verify(() => api.requestPinReset()).called(2);
+    expect(find.textContaining('Send a new code in'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 31)); // no timer left running
+  });
+
+  testWidgets('a locked MPIN says until when', (tester) async {
+    final until = DateTime.now().add(const Duration(minutes: 15));
+    when(() => api.pinStatus()).thenAnswer(
+      (_) async => {
+        'isSet': true,
+        'length': 4,
+        'lockedUntil': until.toUtc().toIso8601String(),
+      },
+    );
+    await open(tester, null);
+    expect(
+      find.text(
+        'Locked after wrong tries until ${tvsTime(until.toUtc().toIso8601String())}. '
+        'Forgot MPIN? unlocks it now.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('paying with a locked MPIN says until when', (tester) async {
+    final until = DateTime.now().add(const Duration(minutes: 15));
+    when(() => api.pinStatus()).thenAnswer(
+      (_) async => {'isSet': true, 'lockedUntil': until.toIso8601String()},
+    );
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, _) => TextButton(
+            onPressed: () => runWithMpin(
+              context,
+              isSet: true,
+              attempt: (_) => throw const TvsQrException(
+                'PIN_LOCKED',
+                'Too many wrong PINs. Locked for 15 minutes.',
+              ),
+            ),
+            child: const Text('open'),
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.walletMpin,
+          builder: (_, state) =>
+              WalletMpinScreen(args: state.extra as MpinArgs?),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      Sizer(builder: (_, _, _) => MaterialApp.router(routerConfig: router)),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    await type(tester, '4829');
+    expect(
+      find.textContaining('until ${tvsTime(until.toIso8601String())}'),
+      findsOneWidget,
+    );
   });
 }

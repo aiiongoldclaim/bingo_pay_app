@@ -19,6 +19,7 @@ import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../address/data/datasources/address_remote_datasources.dart';
 import '../../../address/data/models/address_model.dart';
 import '../../data/tvs_qr_datasource.dart';
+import '../widgets/kyc_number.dart';
 import '../widgets/review_payment_metrics.dart';
 import '../widgets/review_payment_section_label.dart';
 
@@ -71,6 +72,8 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
   String _country = '';
   final Set<String> _picked = {};
   final Map<String, TextEditingController> _numbers = {};
+  // Number fields the user has left: a problem shows only after that, as on the web.
+  final Set<String> _touched = {};
   final _name = TextEditingController();
   List<AddressModel> _addresses = const [];
   String _addressId = _typedAddress;
@@ -185,6 +188,19 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
   TextEditingController _numberFor(String code) =>
       _numbers.putIfAbsent(code, TextEditingController.new);
 
+  // A document's number against the rule its country's admin set, which the
+  // requirements send as the document's `number`.
+  String? _numberProblem(Map<String, dynamic> doc) => numberProblem(
+    doc['number'] as Map?,
+    _numberFor('${doc['code']}').text,
+    '${doc['label']}',
+    {
+      for (final d in _chosen)
+        '${d['code']}': normaliseNumber(_numberFor('${d['code']}').text),
+    },
+    {for (final d in _docs) '${d['code']}': '${d['label']}'},
+  );
+
   bool get _addressMissing =>
       _addressId == _typedAddress &&
       (_line1.text.trim().isEmpty ||
@@ -197,8 +213,14 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
     return [
       if (toPick > 0) 'choose $toPick more document${toPick > 1 ? 's' : ''}',
       if (_name.text.trim().length < 2) 'enter your full name',
-      if (_chosen.any((d) => _numberFor('${d['code']}').text.trim().length < 4))
+      if (_chosen.any((d) => _numberFor('${d['code']}').text.trim().isEmpty))
         'enter the document number',
+      if (_chosen.any(
+        (d) =>
+            _numberFor('${d['code']}').text.trim().isNotEmpty &&
+            _numberProblem(d) != null,
+      ))
+        'enter a valid document number',
       if (_slots.any((s) => _files[s.$1] == null)) 'upload the photos',
       if (_addressMissing) 'enter your home address',
     ];
@@ -624,15 +646,7 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
       ),
       for (final d in chosen) ...[
         SizedBox(height: m.gapSm),
-        _input(
-          icon: _docIcons[d['code']] ?? Icons.badge_outlined,
-          hint: '${d['label']} number',
-          controller: _numberFor('${d['code']}'),
-          onChanged: refresh,
-          caps: TextCapitalization.characters,
-          m: m,
-          colors: colors,
-        ),
+        _numberField(d, refresh, m, colors),
       ],
 
       _section(
@@ -883,6 +897,58 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
     );
   }
 
+  // The number field, with the format example below it, or the problem once
+  // the user has left the field.
+  Widget _numberField(
+    Map<String, dynamic> d,
+    ValueChanged<String> onChanged,
+    ReviewPaymentMetrics m,
+    AppThemeColors colors,
+  ) {
+    final code = '${d['code']}';
+    final controller = _numberFor(code);
+    final problem = _touched.contains(code) && controller.text.trim().isNotEmpty
+        ? _numberProblem(d)
+        : null;
+    final example = (d['number'] as Map?)?['example'];
+    final note = problem ?? (example is String ? 'e.g. $example' : null);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Focus(
+          skipTraversal: true,
+          onFocusChange: (focused) {
+            if (!focused) setState(() => _touched.add(code));
+          },
+          child: _input(
+            icon: _docIcons[code] ?? Icons.badge_outlined,
+            hint: '${d['label']} number',
+            controller: controller,
+            onChanged: onChanged,
+            caps: TextCapitalization.characters,
+            invalid: problem != null,
+            m: m,
+            colors: colors,
+          ),
+        ),
+        if (note != null)
+          Padding(
+            padding: EdgeInsets.fromLTRB(m.cardPad * 0.7, m.gapXs, 0, 0),
+            child: Semantics(
+              liveRegion: problem != null,
+              child: Text(
+                note,
+                style: _text(
+                  problem != null ? colors.error : colors.textMuted,
+                  m.helperSize + 1,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _input({
     required IconData icon,
     required String hint,
@@ -891,6 +957,7 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
     required ReviewPaymentMetrics m,
     required AppThemeColors colors,
     TextCapitalization caps = TextCapitalization.sentences,
+    bool invalid = false,
   }) {
     final style = _text(colors.textPrimary, m.methodTitleSize + 1);
     return Container(
@@ -899,7 +966,7 @@ class _WalletKycScreenState extends State<WalletKycScreen> {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(m.cardRadius * 0.8),
-        border: Border.all(color: colors.border),
+        border: Border.all(color: invalid ? colors.error : colors.border),
       ),
       child: Row(
         children: [
