@@ -26,6 +26,9 @@ class OrderModel {
   // list endpoint (GET /orders) returns order summaries with no line items.
   final List<OrderItemModel> items;
   final OrderTrackingModel? tracking;
+  // Tax and fee lines as the server priced them (GST, platform fee…); empty
+  // for orders priced before charges existed.
+  final List<({String name, String bucket, double amount})> charges;
 
   const OrderModel({
     required this.id,
@@ -49,6 +52,7 @@ class OrderModel {
     this.cancelledAt,
     this.items = const [],
     this.tracking,
+    this.charges = const [],
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -87,6 +91,14 @@ class OrderModel {
                 .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
                 .toList(),
       tracking: trackingData != null ? OrderTrackingModel.fromJson(trackingData) : null,
+      charges: [
+        for (final c in (json['charges'] as List? ?? const []).whereType<Map>())
+          (
+            name: '${c['name'] ?? ''}',
+            bucket: '${c['bucket'] ?? ''}',
+            amount: _asDouble(c['amount']),
+          ),
+      ],
     );
   }
 
@@ -164,6 +176,7 @@ class OrderModel {
       cancelledAt: cancelledAt ?? this.cancelledAt,
       items: items ?? this.items,
       tracking: tracking ?? this.tracking,
+      charges: charges,
     );
   }
 

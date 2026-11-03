@@ -40,7 +40,17 @@ class OdPriceDetails extends StatelessWidget {
                 highlight: colors.statusSuccess,
               ),
             ],
-            if (order.taxAmount > 0) ...[
+            // Each tax and fee line by name, as the website shows them.
+            if (order.charges.isNotEmpty)
+              for (final c in order.charges) ...[
+                SizedBox(height: m.priceRowGap),
+                _Row(
+                  metrics: m,
+                  label: c.name,
+                  value: formatAmount(c.amount),
+                ),
+              ]
+            else if (order.taxAmount > 0) ...[
               SizedBox(height: m.priceRowGap),
               _Row(
                 metrics: m,
@@ -48,15 +58,18 @@ class OdPriceDetails extends StatelessWidget {
                 value: formatAmount(order.taxAmount),
               ),
             ],
-            SizedBox(height: m.priceRowGap),
-            _Row(
-              metrics: m,
-              label: 'Shipping Fee',
-              value: order.shippingAmount > 0
-                  ? formatAmount(order.shippingAmount)
-                  : 'Free',
-              highlight: order.shippingAmount > 0 ? null : colors.statusSuccess,
-            ),
+            if (!order.charges.any((c) => c.bucket == 'SHIPPING')) ...[
+              SizedBox(height: m.priceRowGap),
+              _Row(
+                metrics: m,
+                label: 'Shipping Fee',
+                value: order.shippingAmount > 0
+                    ? formatAmount(order.shippingAmount)
+                    : 'Free',
+                highlight:
+                    order.shippingAmount > 0 ? null : colors.statusSuccess,
+              ),
+            ],
             SizedBox(height: m.priceRowGap * 1.3),
             _DashedDivider(color: colors.border),
             SizedBox(height: m.priceRowGap * 1.3),
