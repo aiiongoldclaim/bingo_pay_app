@@ -219,6 +219,12 @@ import 'package:bingo_pay/features/refund_requests/presentation/cubit/refund_for
     as _i6;
 import 'package:bingo_pay/features/refund_requests/presentation/cubit/refund_requests_cubit.dart'
     as _i84;
+import 'package:bingo_pay/features/reviews/data/datasource/reviews_remote_datasource.dart'
+    as _i608;
+import 'package:bingo_pay/features/reviews/presentation/cubit/review_form_cubit.dart'
+    as _i524;
+import 'package:bingo_pay/features/reviews/presentation/cubit/reviews_cubits.dart'
+    as _i554;
 import 'package:bingo_pay/features/scanner/data/tvs_qr_datasource.dart'
     as _i780;
 import 'package:bingo_pay/features/scanner/presentation/cubit/payment_cubit.dart'
@@ -381,6 +387,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i1056.RefundRequestsRemoteDataSource>(
       () => _i1056.RefundRequestsRemoteDataSource(gh<_i541.ApiClient>()),
     );
+    gh.factory<_i608.ReviewsRemoteDataSource>(
+      () => _i608.ReviewsRemoteDataSource(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i917.SettingsRemoteDataSource>(
       () => _i917.SettingsRemoteDataSource(gh<_i541.ApiClient>()),
     );
@@ -415,6 +424,18 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i995.NotificationRepositoryImpl(
         gh<_i652.NotificationRemoteDataSource>(),
       ),
+    );
+    gh.factory<_i524.ReviewFormCubit>(
+      () => _i524.ReviewFormCubit(gh<_i608.ReviewsRemoteDataSource>()),
+    );
+    gh.factory<_i554.OrderReviewsCubit>(
+      () => _i554.OrderReviewsCubit(gh<_i608.ReviewsRemoteDataSource>()),
+    );
+    gh.factory<_i554.MyReviewsCubit>(
+      () => _i554.MyReviewsCubit(gh<_i608.ReviewsRemoteDataSource>()),
+    );
+    gh.factory<_i554.ProductReviewsCubit>(
+      () => _i554.ProductReviewsCubit(gh<_i608.ReviewsRemoteDataSource>()),
     );
     gh.factory<_i153.ChatRepository>(
       () => _i818.ChatRepositoryImpl(gh<_i952.ChatRemoteDataSource>()),

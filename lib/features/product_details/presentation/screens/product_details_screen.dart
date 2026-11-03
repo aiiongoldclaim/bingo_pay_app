@@ -318,6 +318,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 metrics: m,
                 rating: product.rating,
                 reviewCount: product.reviewCount,
+                productUuid: product.uuid,
               ),
             ],
           );

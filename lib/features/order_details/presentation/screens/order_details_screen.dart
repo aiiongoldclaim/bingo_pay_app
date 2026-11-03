@@ -23,6 +23,7 @@ import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../../../orders/data/models/order_model.dart';
 import '../../../orders/presentation/widgets/order_status_style.dart';
 import '../../../refund_requests/data/datasource/refund_requests_remote_datasource.dart';
+import '../../../reviews/presentation/widgets/order_reviews_section.dart';
 import '../widgets/order_detail_shimmer.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -363,6 +364,8 @@ class _Body extends StatelessWidget {
         ),
         SizedBox(height: m.sectionGap),
       ],
+
+      if (isDelivered) OrderReviewsSection(metrics: m, orderUuid: order.uuid),
 
       OdSectionLabel(metrics: m, label: 'Price Details'),
       SizedBox(height: m.sectionGap * 0.5),

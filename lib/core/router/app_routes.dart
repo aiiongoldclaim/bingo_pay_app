@@ -106,6 +106,8 @@ class AppRoutes {
   static const String myRefunds = '/refunds';
   static const String refundDetail = '/refunds/:uuid';
   static const String orderRefund = '/order-refund';
+  static const String myReviews = '/my-reviews';
+  static const String reviewForm = '/review';
 
   static String refundDetailPath(String uuid) =>
       refundDetail.replaceFirst(':uuid', uuid);
