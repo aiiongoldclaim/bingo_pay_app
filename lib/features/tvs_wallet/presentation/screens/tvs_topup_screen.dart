@@ -49,6 +49,9 @@ class _TvsTopupScreenState extends State<TvsTopupScreen> {
   Timer? _timer;
   DateTime? _since;
   bool _gaveUp = false; // stopped asking: offer "Check again"
+  // Stripe's "expired" webhook can beat the server's own cancel and leave
+  // the code EXPIRED; the customer still pressed Cancel.
+  bool _userCancelled = false;
 
   String get _currency => '${widget.wallet?['currency'] ?? ''}';
 
@@ -122,7 +125,12 @@ class _TvsTopupScreenState extends State<TvsTopupScreen> {
     setState(() => _busy = true);
     try {
       final t = await _api.cancelTopup('${_topup!['uuid']}');
-      if (mounted) setState(() => _topup = t);
+      if (mounted) {
+        setState(() {
+          _topup = t;
+          _userCancelled = true;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() => _error = _message(e));
     } finally {
@@ -160,6 +168,7 @@ class _TvsTopupScreenState extends State<TvsTopupScreen> {
       _key = null;
       _error = null;
       _cameBack = false;
+      _userCancelled = false;
     });
   }
 
@@ -182,7 +191,11 @@ class _TvsTopupScreenState extends State<TvsTopupScreen> {
       },
       child: Scaffold(
         backgroundColor: colors.background,
-        appBar: const CustomAppBar(title: 'Add money'),
+        // maybePop, so the back arrow goes through the PopScope above.
+        appBar: CustomAppBar(
+          title: 'Add money',
+          onBack: () => Navigator.maybePop(context),
+        ),
         body: SafeArea(
           child: switch (_phase) {
             _Phase.entry => _entry(colors),
@@ -296,7 +309,7 @@ class _TvsTopupScreenState extends State<TvsTopupScreen> {
         colors.error,
         refunded
             ? 'Payment refunded'
-            : switch (t['failureCode']) {
+            : switch (_userCancelled ? 'CANCELLED' : t['failureCode']) {
                 'EXPIRED' => 'This payment window closed',
                 'CANCELLED' => 'Top-up cancelled',
                 _ => 'Top-up not completed',
