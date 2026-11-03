@@ -82,4 +82,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('100 VND'), findsOneWidget);
   });
+
+  testWidgets('the amount stops at 16 whole digits, as the server allows', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      Sizer(
+        builder: (_, _, _) => const MaterialApp(
+          home: TvsTopupScreen(wallet: {'uuid': 'w1', 'currency': 'INR'}),
+        ),
+      ),
+    );
+    await tester.enterText(find.byType(TextField), '12345678901234567');
+    await tester.pumpAndSettle();
+    expect(find.text('1,234,567,890,123,456 INR'), findsOneWidget);
+  });
 }

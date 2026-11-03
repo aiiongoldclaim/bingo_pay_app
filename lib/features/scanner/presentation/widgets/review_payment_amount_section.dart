@@ -70,9 +70,9 @@ class ReviewPaymentAmountSection extends StatelessWidget {
                     inputFormatters: [
                       // A pasted "1,000" is 1000.
                       FilteringTextInputFormatter.deny(RegExp(r'[\s,]')),
-                      // The API takes 2 decimals.
+                      // The API takes up to 16 digits and 2 decimals.
                       FilteringTextInputFormatter.allow(
-                        RegExp(wholeNumbers ? r'^\d*' : r'^\d*\.?\d{0,2}'),
+                        RegExp(wholeNumbers ? r'^\d{0,16}' : r'^\d{0,16}(\.\d{0,2})?'),
                       ),
                     ],
                     style: big,
