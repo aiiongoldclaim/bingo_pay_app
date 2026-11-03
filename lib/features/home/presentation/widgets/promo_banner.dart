@@ -50,8 +50,8 @@ class PromoBanner extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.asset(
-                banner.imageAsset,
+              Image(
+                image: banner.image,
                 fit: BoxFit.fill,
                 width: double.infinity,
                 height: double.infinity,
@@ -80,12 +80,12 @@ class PromoBanner extends StatelessWidget {
 class ImageRatioBuilder extends StatefulWidget {
   const ImageRatioBuilder({
     super.key,
-    required this.assetPath,
+    required this.image,
     required this.builder,
     this.fallbackRatio = 2.0,
   });
 
-  final String assetPath;
+  final ImageProvider image;
   final double fallbackRatio;
   final Widget Function(BuildContext context, double aspectRatio) builder;
 
@@ -107,7 +107,7 @@ class _ImageRatioBuilderState extends State<ImageRatioBuilder> {
   @override
   void didUpdateWidget(covariant ImageRatioBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.assetPath != widget.assetPath) {
+    if (oldWidget.image != widget.image) {
       _ratio = null;
       _resolve();
     }
@@ -115,8 +115,7 @@ class _ImageRatioBuilderState extends State<ImageRatioBuilder> {
 
   void _resolve() {
     _detach();
-    final provider = AssetImage(widget.assetPath);
-    final stream = provider.resolve(createLocalImageConfiguration(context));
+    final stream = widget.image.resolve(createLocalImageConfiguration(context));
     final listener = ImageStreamListener(
       (ImageInfo info, bool _) {
         final ui.Image img = info.image;

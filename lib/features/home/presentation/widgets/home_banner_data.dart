@@ -52,17 +52,49 @@
 //     ),
 //   ];
 // }
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../../../core/constants/image_constants.dart';
+import '../../../../core/router/app_routes.dart';
+import '../../data/models/home_banner_model.dart';
 
-@immutable
-class HomeBannerData {
-  final String imageAsset;
+export '../../data/models/home_banner_model.dart';
 
-  final String id;
+extension HomeBannerImage on HomeBannerData {
+  ImageProvider get image {
+    final url = imageUrl;
+    return url != null ? NetworkImage(url) : AssetImage(imageAsset);
+  }
+}
 
-  const HomeBannerData({required this.id, required this.imageAsset});
+/// Where a banner link opens inside the app, using the website's paths: a
+/// go_router location and its `extra`. Null when it is a full URL or a page
+/// the app doesn't have.
+({String location, Object? extra})? bannerRoute(String link) {
+  final uri = Uri.tryParse(link);
+  if (uri == null || uri.hasScheme) return null;
+  final q = uri.queryParameters;
+  return switch (uri.pathSegments.where((s) => s.isNotEmpty).toList()) {
+    ['products'] when q['category'] != null && q['categoryName'] != null => (
+      location: AppRoutes.productListingPath(q['categoryName']!),
+      extra: q['category'],
+    ),
+    ['products'] => (location: AppRoutes.allProducts, extra: null),
+    ['products', final uuid] => (
+      location: AppRoutes.productDetails,
+      extra: uuid,
+    ),
+    ['services'] => (location: AppRoutes.services, extra: null),
+    ['services', final uuid] => (
+      location: AppRoutes.serviceDetailPath(uuid),
+      extra: null,
+    ),
+    // shortcut: no auction detail page in the app, so /auctions/:uuid opens the list; deep-link once one exists.
+    ['auctions', ...] => (location: AppRoutes.auctionScreen, extra: null),
+    ['membership'] => (location: AppRoutes.membership, extra: null),
+    ['cart'] => (location: AppRoutes.cart, extra: null),
+    _ => null,
+  };
 }
 
 class HomeBanners {

@@ -155,12 +155,16 @@ import 'package:bingo_pay/features/help_support/domain/repositories/support_tick
     as _i535;
 import 'package:bingo_pay/features/help_support/presentation/cubit/support_ticket_cubit.dart'
     as _i204;
+import 'package:bingo_pay/features/home/data/datasource/banner_remote_data_source.dart'
+    as _i649;
 import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart'
     as _i666;
 import 'package:bingo_pay/features/home/domain/repositories/product_repository_impl.dart'
     as _i297;
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart'
     as _i817;
+import 'package:bingo_pay/features/home/presentation/cubit/home_banners_cubit.dart'
+    as _i981;
 import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
     as _i578;
 import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository_impl.dart'
@@ -380,6 +384,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i917.SettingsRemoteDataSource>(
       () => _i917.SettingsRemoteDataSource(gh<_i541.ApiClient>()),
     );
+    gh.lazySingleton<_i649.BannerRemoteDataSource>(
+      () => _i649.BannerRemoteDataSource(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
     );
@@ -527,6 +534,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i204.SupportTicketCubit>(
       () => _i204.SupportTicketCubit(gh<_i535.SupportTicketRepository>()),
+    );
+    gh.factory<_i981.HomeBannersCubit>(
+      () => _i981.HomeBannersCubit(gh<_i649.BannerRemoteDataSource>()),
     );
     gh.factory<_i58.NotificationCubit>(
       () => _i58.NotificationCubit(gh<_i979.NotificationRepository>()),

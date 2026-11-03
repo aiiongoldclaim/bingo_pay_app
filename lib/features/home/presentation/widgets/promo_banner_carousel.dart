@@ -12,6 +12,7 @@ class PromoBannerCarousel extends StatefulWidget {
     required this.metrics,
     required this.banners,
     this.onBannerTap,
+    this.onBannerShown,
     this.overlayGradient,
     this.borderColor,
     this.activeDotColor,
@@ -23,6 +24,10 @@ class PromoBannerCarousel extends StatefulWidget {
   final HomeMetrics metrics;
   final List<HomeBannerData> banners;
   final ValueChanged<HomeBannerData>? onBannerTap;
+
+  /// Called when a slide comes into view (the first one, then each page
+  /// change); may repeat for the same banner.
+  final ValueChanged<HomeBannerData>? onBannerShown;
   final Gradient? overlayGradient;
 
   final Color? borderColor;
@@ -39,12 +44,33 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
   int _current = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _shown(0);
+  }
+
+  @override
+  void didUpdateWidget(covariant PromoBannerCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.banners != widget.banners) {
+      _current = 0;
+      _shown(0);
+    }
+  }
+
+  void _shown(int index) {
+    if (index < widget.banners.length) {
+      widget.onBannerShown?.call(widget.banners[index]);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.banners.isEmpty) return const SizedBox.shrink();
 
     final m = widget.metrics;
     return ImageRatioBuilder(
-      assetPath: widget.banners.first.imageAsset,
+      image: widget.banners.first.image,
       fallbackRatio: m.heroAspectRatio,
       builder: (context, ratio) {
         return Column(
@@ -72,7 +98,10 @@ class _PromoBannerCarouselState extends State<PromoBannerCarousel> {
                   autoPlayCurve: Curves.easeInOutCubic,
                   enableInfiniteScroll: widget.banners.length > 1,
                   padEnds: false,
-                  onPageChanged: (index, _) => setState(() => _current = index),
+                  onPageChanged: (index, _) {
+                    setState(() => _current = index);
+                    _shown(index);
+                  },
                 ),
               ),
             ),
