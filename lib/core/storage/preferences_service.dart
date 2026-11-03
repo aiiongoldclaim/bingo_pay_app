@@ -54,5 +54,16 @@ class PreferencesService {
   Future<void> clearNotifiedNotificationIds() =>
       _prefs.remove(AppConstants.notifiedNotificationIdsKey);
 
+  // An invite code from a link or QR, kept until it can be added: [code,
+  // channel].
+  List<String>? getPendingInvite() =>
+      _prefs.getStringList(AppConstants.pendingInviteKey);
+
+  Future<void> setPendingInvite(String code, String channel) =>
+      _prefs.setStringList(AppConstants.pendingInviteKey, [code, channel]);
+
+  Future<void> clearPendingInvite() =>
+      _prefs.remove(AppConstants.pendingInviteKey);
+
   Future<void> clear() => _prefs.clear();
 }

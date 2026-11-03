@@ -29,6 +29,7 @@ import '../features/help_support/presentation/cubit/support_ticket_cubit.dart';
 import '../features/services/presentation/cubit/services_cubit.dart';
 import '../features/setting/features/cubit/settings_cubit.dart';
 import '../features/wishlist/presentation/cubit/wishlist_cubit.dart';
+import '../features/tvs_wallet/data/pending_invite.dart';
 import '../core/cubit/in_app_review_cubit.dart';
 
 class App extends StatefulWidget {
@@ -122,6 +123,8 @@ class _AppState extends State<App> {
       );
       _cartCubit.loadCart();
       unawaited(_localNotifications.onSignedIn());
+      // An invite link or QR opened before signing up / logging in.
+      unawaited(PendingInvite().add());
     } else if (state is SsoSetPasswordRequired) {
       _authDetermined = true;
       unawaited(

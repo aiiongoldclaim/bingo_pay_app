@@ -9,6 +9,7 @@ import 'package:zxing2/qrcode.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/theme_colors.dart';
+import '../../../tvs_wallet/data/pending_invite.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -74,13 +75,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _isScanned = true;
 
-    // A website checkout QR is a link carrying a BIGOD payment token
-    // (<pay-url>?token=<hex>). A member's QR (tvs:u:<uuid>) is for sending
-    // them TVS Coins. Anything else is a shop's token; the review screen asks
-    // the API who it is.
-    final payToken = Uri.tryParse(token)?.queryParameters['token'] ?? '';
+    // An invite QR is the invite link (<site>/join?ref=CODE): it joins with
+    // channel QR. A website checkout QR is a link carrying a BIGOD payment
+    // token (<pay-url>?token=<hex>). A member's QR (tvs:u:<uuid>) is for
+    // sending them TVS Coins. Anything else is a shop's token; the review
+    // screen asks the API who it is.
+    final uri = Uri.tryParse(token);
+    final invite = uri == null ? null : PendingInvite.parse(uri);
+    final payToken = uri?.queryParameters['token'] ?? '';
     final member = token.startsWith('tvs:u:');
-    final opened = payToken.isNotEmpty
+    final opened = invite != null
+        ? context.push(
+            Uri(
+              path: AppRoutes.join,
+              queryParameters: {'ref': invite.code, 'ch': 'QR'},
+            ).toString(),
+          )
+        : payToken.isNotEmpty
         ? context.push(AppRoutes.bigodScanPay, extra: payToken)
         : context.push(
             member ? AppRoutes.tvsSend : AppRoutes.reviewPayment,

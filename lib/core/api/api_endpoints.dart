@@ -116,6 +116,8 @@ class ApiEndpoints {
       '/api/v1/tvs-wallet/auction/$allotmentUuid/quote';
   static String tvsAuctionPay(String allotmentUuid) =>
       '/api/v1/tvs-wallet/auction/$allotmentUuid/pay';
+  static String tvsInvite(String code) =>
+      '/api/v1/tvs-wallet/invite/${Uri.encodeComponent(code)}';
   // ── end Lane A ──
   static String addressDetail(String id) => '/api/v1/addresses/$id';
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';

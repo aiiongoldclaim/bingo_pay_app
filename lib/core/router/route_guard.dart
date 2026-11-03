@@ -36,6 +36,10 @@ class RouteGuard {
     required String location,
     required RouteAuthState authState,
   }) {
+    // Invite links: open to everyone, at any time, so a link that cold-starts
+    // the app is not lost behind the splash.
+    if (location == AppRoutes.join) return null;
+
     // Stay on splash while auth is being determined; block all other routes.
     if (authState.isLoading) {
       return location == AppRoutes.splash ? null : AppRoutes.splash;

@@ -9,6 +9,7 @@ class AppConstants {
   static const String recentSearchesKey = 'recent_searches';
   static const String pushNotificationsEnabledKey = 'push_notifications_enabled';
   static const String notifiedNotificationIdsKey = 'notified_notification_ids';
+  static const String pendingInviteKey = 'pending_invite';
 
   static const String next = 'NEXT';
 

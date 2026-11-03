@@ -49,6 +49,8 @@ class AppRoutes {
   static const String reviewPayment = '/review-Payment';
   static const String bigodScanPay = '/scan/bigod';
   static const String tvsWallet = '/tvs-wallet';
+  // Lane A: invite links and QR codes land here (public).
+  static const String join = '/join';
   static const String tvsTopup = '/tvs-wallet/topup';
   static const String tvsSend = '/tvs-wallet/send';
   static const String walletKyc = '/tvs-wallet/verify';

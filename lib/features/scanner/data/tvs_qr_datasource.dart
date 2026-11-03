@@ -130,8 +130,20 @@ class TvsQrDataSource {
   Future<Map<String, dynamic>> checkoutPay(Map<String, dynamic> body) =>
       _post(ApiEndpoints.tvsCheckoutPay, body);
 
-  Future<Map<String, dynamic>> applyReferralCode(String code) =>
-      _post(ApiEndpoints.tvsReferralApply, {'code': code, 'channel': 'CODE'});
+  // channel: CODE (typed), LINK or QR (an invite link or its QR).
+  Future<Map<String, dynamic>> applyReferralCode(
+    String code, {
+    String channel = 'CODE',
+  }) => _post(ApiEndpoints.tvsReferralApply, {
+    'code': code,
+    'channel': channel,
+  });
+
+  // Who an invite code is from, before login: {valid, code, type, name}.
+  Future<Map<String, dynamic>> describeInvite(String code) async {
+    final response = await _client.dio.get(ApiEndpoints.tvsInvite(code));
+    return unwrapEnvelope(response.data);
+  }
 
   Future<Map<String, dynamic>> resolve(String token) =>
       _post(ApiEndpoints.tvsQrResolve, {'token': token});

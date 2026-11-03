@@ -45,6 +45,7 @@ import '../../features/scanner/presentation/screens/wallet_mpin_screen.dart';
 import '../../features/tvs_wallet/presentation/screens/tvs_send_screen.dart';
 import '../../features/tvs_wallet/presentation/screens/tvs_topup_screen.dart';
 import '../../features/tvs_wallet/presentation/screens/tvs_wallet_screen.dart';
+import '../../features/tvs_wallet/presentation/screens/tvs_join_screen.dart'; // Lane A
 import '../../features/scanner/presentation/screens/transaction_success_screen.dart';
 import '../../features/setting/features/screens/setting_screen.dart';
 import '../config/app_config.dart';
@@ -344,6 +345,12 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.tvsWallet,
           builder: (_, _) => const TvsWalletScreen(),
+        ),
+
+        // ── Lane A: invite links / QR codes, /join?ref=CODE (&ch=QR) ──
+        GoRoute(
+          path: AppRoutes.join,
+          builder: (_, state) => TvsJoinScreen(uri: state.uri),
         ),
 
         // extra: the home wallet map.
