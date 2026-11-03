@@ -155,12 +155,16 @@ import 'package:bingo_pay/features/help_support/domain/repositories/support_tick
     as _i535;
 import 'package:bingo_pay/features/help_support/presentation/cubit/support_ticket_cubit.dart'
     as _i204;
+import 'package:bingo_pay/features/home/data/datasource/banner_remote_data_source.dart'
+    as _i649;
 import 'package:bingo_pay/features/home/data/repositories/all_products_repo.dart'
     as _i666;
 import 'package:bingo_pay/features/home/domain/repositories/product_repository_impl.dart'
     as _i297;
 import 'package:bingo_pay/features/home/presentation/cubit/dashboard_cubit.dart'
     as _i817;
+import 'package:bingo_pay/features/home/presentation/cubit/home_banners_cubit.dart'
+    as _i981;
 import 'package:bingo_pay/features/membershipNew/data/datasource/membership_remote_data_source.dart'
     as _i578;
 import 'package:bingo_pay/features/membershipNew/data/repositories/membership_repository_impl.dart'
@@ -209,6 +213,18 @@ import 'package:bingo_pay/features/profile/domain/usecase/get_profile_usecase.da
     as _i1070;
 import 'package:bingo_pay/features/profile/presentation/cubit/profile_cubit.dart'
     as _i996;
+import 'package:bingo_pay/features/refund_requests/data/datasource/refund_requests_remote_datasource.dart'
+    as _i1056;
+import 'package:bingo_pay/features/refund_requests/presentation/cubit/refund_form_cubit.dart'
+    as _i6;
+import 'package:bingo_pay/features/refund_requests/presentation/cubit/refund_requests_cubit.dart'
+    as _i84;
+import 'package:bingo_pay/features/reviews/data/datasource/reviews_remote_datasource.dart'
+    as _i608;
+import 'package:bingo_pay/features/reviews/presentation/cubit/review_form_cubit.dart'
+    as _i524;
+import 'package:bingo_pay/features/reviews/presentation/cubit/reviews_cubits.dart'
+    as _i554;
 import 'package:bingo_pay/features/scanner/data/tvs_qr_datasource.dart'
     as _i780;
 import 'package:bingo_pay/features/scanner/presentation/cubit/payment_cubit.dart'
@@ -368,8 +384,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i652.NotificationRemoteDataSource>(
       () => _i652.NotificationRemoteDataSource(gh<_i541.ApiClient>()),
     );
+    gh.factory<_i1056.RefundRequestsRemoteDataSource>(
+      () => _i1056.RefundRequestsRemoteDataSource(gh<_i541.ApiClient>()),
+    );
+    gh.factory<_i608.ReviewsRemoteDataSource>(
+      () => _i608.ReviewsRemoteDataSource(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i917.SettingsRemoteDataSource>(
       () => _i917.SettingsRemoteDataSource(gh<_i541.ApiClient>()),
+    );
+    gh.lazySingleton<_i649.BannerRemoteDataSource>(
+      () => _i649.BannerRemoteDataSource(gh<_i541.ApiClient>()),
     );
     gh.factory<_i495.AuthRemoteDataSource>(
       () => _i495.AuthRemoteDataSourceImpl(gh<_i541.ApiClient>()),
@@ -399,6 +424,18 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i995.NotificationRepositoryImpl(
         gh<_i652.NotificationRemoteDataSource>(),
       ),
+    );
+    gh.factory<_i524.ReviewFormCubit>(
+      () => _i524.ReviewFormCubit(gh<_i608.ReviewsRemoteDataSource>()),
+    );
+    gh.factory<_i554.OrderReviewsCubit>(
+      () => _i554.OrderReviewsCubit(gh<_i608.ReviewsRemoteDataSource>()),
+    );
+    gh.factory<_i554.MyReviewsCubit>(
+      () => _i554.MyReviewsCubit(gh<_i608.ReviewsRemoteDataSource>()),
+    );
+    gh.factory<_i554.ProductReviewsCubit>(
+      () => _i554.ProductReviewsCubit(gh<_i608.ReviewsRemoteDataSource>()),
     );
     gh.factory<_i153.ChatRepository>(
       () => _i818.ChatRepositoryImpl(gh<_i952.ChatRemoteDataSource>()),
@@ -441,6 +478,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i876.UpdateCartItemQuantityUseCase>(
       () => _i876.UpdateCartItemQuantityUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i6.RefundFormCubit>(
+      () => _i6.RefundFormCubit(gh<_i1056.RefundRequestsRemoteDataSource>()),
+    );
+    gh.factory<_i84.RefundRequestsCubit>(
+      () =>
+          _i84.RefundRequestsCubit(gh<_i1056.RefundRequestsRemoteDataSource>()),
     );
     gh.factory<_i728.CartCubit>(
       () => _i728.CartCubit(
@@ -511,6 +555,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i204.SupportTicketCubit>(
       () => _i204.SupportTicketCubit(gh<_i535.SupportTicketRepository>()),
+    );
+    gh.factory<_i981.HomeBannersCubit>(
+      () => _i981.HomeBannersCubit(gh<_i649.BannerRemoteDataSource>()),
     );
     gh.factory<_i58.NotificationCubit>(
       () => _i58.NotificationCubit(gh<_i979.NotificationRepository>()),

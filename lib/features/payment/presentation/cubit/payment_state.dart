@@ -38,6 +38,8 @@ class PaymentMethodState {
   final double walletBalance; // kept for remaining-amount calc (usdtBalance)
   final double usdtBalance;
   final double bigoldBalance;
+  // "≈ $12.34 · ≈ ₹1,025.10" for the BIGOD balance; null when unknown.
+  final String? bigodValueLine;
   final double itemTotal;
   final double savings;
   final double deliveryCharge;
@@ -95,6 +97,7 @@ class PaymentMethodState {
     this.walletBalance = 0.0,
     this.usdtBalance = 0.0,
     this.bigoldBalance = 0.0,
+    this.bigodValueLine,
     double? itemTotal,
     this.savings = 0.0,
     this.deliveryCharge = 0.0,
@@ -171,6 +174,7 @@ class PaymentMethodState {
     double? walletBalance,
     double? usdtBalance,
     double? bigoldBalance,
+    String? bigodValueLine,
     double? itemTotal,
     double? savings,
     double? deliveryCharge,
@@ -214,6 +218,7 @@ class PaymentMethodState {
       walletBalance: walletBalance ?? this.walletBalance,
       usdtBalance: usdtBalance ?? this.usdtBalance,
       bigoldBalance: bigoldBalance ?? this.bigoldBalance,
+      bigodValueLine: bigodValueLine ?? this.bigodValueLine,
       itemTotal: itemTotal ?? this.itemTotal,
       savings: savings ?? this.savings,
       deliveryCharge: deliveryCharge ?? this.deliveryCharge,

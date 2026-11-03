@@ -237,6 +237,10 @@ class ProfileMenuItem {
         return Icons.storefront_outlined;
       case 'myBids':
         return Icons.gavel_rounded;
+      case 'refunds':
+        return Icons.undo_rounded;
+      case 'reviews':
+        return Icons.rate_review_outlined;
       default:
         return Icons.chevron_right_rounded;
     }
@@ -270,6 +274,18 @@ class ProfileMenuItem {
       subtitle: 'Track your bids, wins & payments',
       iconAsset: 'myBids',
       route: AppRoutes.myBids,
+    ),
+    ProfileMenuItem(
+      title: 'My Refunds',
+      subtitle: 'Track your refund requests',
+      iconAsset: 'refunds',
+      route: AppRoutes.myRefunds,
+    ),
+    ProfileMenuItem(
+      title: 'My Reviews',
+      subtitle: 'Edit or delete your reviews',
+      iconAsset: 'reviews',
+      route: AppRoutes.myReviews,
     ),
   ];
 

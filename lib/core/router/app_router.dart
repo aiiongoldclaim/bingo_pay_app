@@ -88,6 +88,13 @@ import '../../features/help_support/presentation/cubit/support_ticket_cubit.dart
 import '../../features/help_support/presentation/screens/help_support_screen.dart';
 import '../../features/help_support/presentation/screens/my_tickets_screen.dart';
 import '../../features/help_support/presentation/screens/ticket_detail_screen.dart';
+// Lane C: refunds, reviews
+import '../../features/refund_requests/presentation/screens/my_refunds_screen.dart';
+import '../../features/refund_requests/presentation/screens/refund_detail_screen.dart';
+import '../../features/refund_requests/presentation/screens/refund_request_screen.dart';
+import '../../features/reviews/presentation/cubit/review_form_cubit.dart';
+import '../../features/reviews/presentation/screens/my_reviews_screen.dart';
+import '../../features/reviews/presentation/screens/review_form_screen.dart';
 import '../di/injection.dart';
 import '../../features/profile/domain/usecase/get_profile_usecase.dart';
 import '../storage/preferences_service.dart';
@@ -463,6 +470,37 @@ class AppRouter {
               child: TicketDetailScreen(ticketId: uuid),
             );
           },
+        ),
+
+        // ── Lane C: refunds, reviews ─────────────────────────────────────
+        GoRoute(
+          path: AppRoutes.myRefunds,
+          builder: (_, _) => const MyRefundsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.refundDetail,
+          builder: (_, state) =>
+              RefundDetailScreen(uuid: state.pathParameters['uuid'] ?? ''),
+        ),
+        // extra: the order uuid.
+        GoRoute(
+          path: AppRoutes.orderRefund,
+          builder: (_, state) =>
+              RefundRequestScreen(orderUuid: state.extra as String),
+          redirect: (_, state) =>
+              state.extra is String ? null : AppRoutes.orders,
+        ),
+        GoRoute(
+          path: AppRoutes.myReviews,
+          builder: (_, _) => const MyReviewsScreen(),
+        ),
+        // extra: ReviewFormArgs (what to review, or the review to edit).
+        GoRoute(
+          path: AppRoutes.reviewForm,
+          builder: (_, state) =>
+              ReviewFormScreen(args: state.extra as ReviewFormArgs),
+          redirect: (_, state) =>
+              state.extra is ReviewFormArgs ? null : AppRoutes.myReviews,
         ),
 
         // ---------------- membership (ShellRoute ke BAHAR) ----------------

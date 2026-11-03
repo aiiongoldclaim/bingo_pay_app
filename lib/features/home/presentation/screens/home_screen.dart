@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intro/intro.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../auctions/presentation/screens/auction_detail_screen.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
@@ -17,6 +19,7 @@ import '../../../wishlist/presentation/cubit/wishlist_cubit.dart';
 import '../../data/models/product_model.dart';
 import '../cubit/dashboard_cubit.dart';
 import '../cubit/dashboard_state.dart';
+import '../cubit/home_banners_cubit.dart';
 import '../models/vault_section.dart';
 import '../models/vault_theme_colors.dart';
 import '../widgets/home_banner_data.dart';
@@ -98,8 +101,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final m = HomeMetrics.of(context);
     final colors = context.c;
 
-    return BlocProvider(
-      create: (_) => getIt<ServicesCubit>()..loadServices(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => getIt<ServicesCubit>()..loadServices()),
+        BlocProvider(create: (_) => getIt<HomeBannersCubit>()..load()),
+      ],
 
       child: Scaffold(
         backgroundColor: colors.background,
@@ -294,17 +300,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             // ── Hero banner ─────────────────────────
                             SliverToBoxAdapter(
                               child: _buildStep2(
-                                PromoBannerCarousel(
-                                  metrics: m,
-                                  banners: HomeBanners.defaults,
-                                  onBannerTap: (banner) {},
-                                  borderColor: vaultTheme.border,
-                                  activeDotColor: vaultTheme.primary,
-                                  inactiveDotColor: vaultTheme.secondary
-                                      .withValues(alpha: 0.35),
-                                  fallbackIconColor: vaultTheme.secondaryText,
-                                  fallbackBackgroundColor:
-                                      vaultTheme.sectionBackground,
+                                BlocBuilder<
+                                  HomeBannersCubit,
+                                  List<HomeBannerData>
+                                >(
+                                  builder: (context, banners) =>
+                                      PromoBannerCarousel(
+                                        metrics: m,
+                                        banners: banners,
+                                        onBannerShown: context
+                                            .read<HomeBannersCubit>()
+                                            .viewed,
+                                        onBannerTap: (banner) =>
+                                            _openBanner(context, banner),
+                                        borderColor: vaultTheme.border,
+                                        activeDotColor: vaultTheme.primary,
+                                        inactiveDotColor: vaultTheme.secondary
+                                            .withValues(alpha: 0.35),
+                                        fallbackIconColor:
+                                            vaultTheme.secondaryText,
+                                        fallbackBackgroundColor:
+                                            vaultTheme.sectionBackground,
+                                      ),
                                 ),
                               ),
                             ),
@@ -475,6 +492,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  void _openBanner(BuildContext context, HomeBannerData banner) {
+    context.read<HomeBannersCubit>().tapped(banner);
+    final link = banner.link;
+    if (link == null) return;
+    final auctionId = bannerAuctionId(link);
+    if (auctionId != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AuctionDetailScreen(auctionId: auctionId),
+        ),
+      );
+      return;
+    }
+    final route = bannerRoute(link);
+    if (route != null) {
+      context.push(route.location, extra: route.extra);
+      return;
+    }
+    final uri = Uri.tryParse(link);
+    if (uri != null && (uri.isScheme('https') || uri.isScheme('http'))) {
+      launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      ).catchError((_) => false);
+    }
   }
 
   // ─────────── Intro steps: ALL UNCHANGED ───────────

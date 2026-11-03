@@ -161,6 +161,12 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
     } catch (_) {
       // balance stays at 0 — display will show '—'
     }
+    try {
+      final bigod = await _bigodPaymentDataSource.balance();
+      if (!isClosed) emit(state.copyWith(bigodValueLine: bigod.valueLine));
+    } catch (_) {
+      // Display only: without it the balance shows on its own.
+    }
   }
 
   Future<void> loadPaymentMethods() async {
