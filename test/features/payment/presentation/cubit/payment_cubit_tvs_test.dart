@@ -111,4 +111,35 @@ void main() {
     expect(cubit.state.orderId, 'ORD-1');
     expect(cubit.state.orderUuid, 'o-1');
   });
+
+  test('the coupon and the offer picked go with the quote and the payment', () async {
+    await cubit.loadTvsQuote();
+    when(() => tvs.checkoutPay(any())).thenAnswer((inv) async {
+      bodies.add(Map.of(inv.positionalArguments.first as Map<String, dynamic>));
+      return {
+        'order': {'uuid': 'o-1', 'orderNumber': 'ORD-1'},
+      };
+    });
+    final states = <PaymentMethodState>[];
+    final sub = cubit.stream.listen(states.add);
+
+    await cubit.chooseTvsOffer('offer-2');
+    await cubit.applyTvsCode(' SAVE10 '); // a code picks the best again
+    await cubit.chooseTvsOffer('NONE');
+    await cubit.payWithTvs();
+    await sub.cancel();
+
+    final quotes = verify(
+      () => tvs.checkoutQuote(captureAny()),
+    ).captured.cast<Map>();
+    expect(quotes[1]['offer'], 'offer-2');
+    expect(quotes[1].containsKey('code'), isFalse);
+    expect(quotes[2]['code'], 'SAVE10');
+    expect(quotes[2].containsKey('offer'), isFalse);
+    expect(quotes[3], containsPair('offer', 'NONE'));
+    expect(bodies.single, containsPair('code', 'SAVE10'));
+    expect(bodies.single, containsPair('offer', 'NONE'));
+    // A re-quote keeps the old one on screen until the new one arrives.
+    expect(states.where((s) => s.tvsQuote == null), isEmpty);
+  });
 }

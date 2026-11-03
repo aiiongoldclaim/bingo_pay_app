@@ -15,6 +15,7 @@ import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 import '../cubit/payment_cubit.dart';
 import '../cubit/payment_state.dart';
 import '../widgets/checkout_ui.dart';
+import '../widgets/tvs_checkout_offers.dart';
 import 'payment_flow_args.dart';
 
 // Checkout, step 2: where it goes, how to pay, and what it comes to.
@@ -112,10 +113,14 @@ class ReviewPayScreen extends StatelessWidget {
           if (state.isQuoted && state.taxes > 0)
             CheckoutLine('Taxes & fees', money(state.taxes)),
         ];
-        // TVS Wallet can't pay until its quote says so.
+        // TVS Wallet can't pay until its quote says so, nor while the MPIN
+        // it needs is locked.
+        final tvsPin = state.tvsQuote?['pin'] as Map?;
         final blocked =
             selected == PaymentMethod.tvsWallet &&
-            state.tvsQuote?['canPay'] != true;
+            (state.tvsQuote?['canPay'] != true ||
+                (tvsPin?['required'] == true &&
+                    tvsPin?['lockedUntil'] != null));
 
         return Scaffold(
           backgroundColor: colors.background,
@@ -201,8 +206,11 @@ class ReviewPayScreen extends StatelessWidget {
                               onTap: () => cubit.selectPaymentMethod(method),
                             ),
                             if (method == PaymentMethod.tvsWallet &&
-                                selected == method)
+                                selected == method) ...[
                               _TvsFix(quote: state.tvsQuote),
+                              if (state.tvsQuote?['coins'] != null)
+                                TvsCheckoutOffers(quote: state.tvsQuote!),
+                            ],
                           ],
                         ],
                       ),
@@ -415,9 +423,8 @@ String _tvsSubtitle(Map<String, dynamic>? q) {
   final saved = (num.tryParse('${c['discount']}') ?? 0) > 0
       ? ' (${tvsCoins(c['discount'], cur)} off)'
       : '';
-  final pin = (q['pin'] as Map?)?['required'] == true ? ' · MPIN needed' : '';
   return '${tvsCoins(c['total'], cur)}$saved · '
-      'Balance ${tvsCoins((q['wallet'] as Map?)?['spendable'], cur)}$pin';
+      'Balance ${tvsCoins((q['wallet'] as Map?)?['spendable'], cur)}';
 }
 
 // One payment option: icon, name, a line about it, and a radio.
