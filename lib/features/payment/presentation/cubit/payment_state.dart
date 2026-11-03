@@ -37,7 +37,7 @@ class PaymentMethodState {
   // Wallet & financials (from profile API)
   final double walletBalance; // kept for remaining-amount calc (usdtBalance)
   final double usdtBalance;
-  final double bigoldBalance;
+  final double? bigoldBalance; // null until BinGold answers
   // "≈ $12.34 · ≈ ₹1,025.10" for the BIGOD balance; null when unknown.
   final String? bigodValueLine;
   final double itemTotal;
@@ -96,7 +96,7 @@ class PaymentMethodState {
     this.cartItems = const [],
     this.walletBalance = 0.0,
     this.usdtBalance = 0.0,
-    this.bigoldBalance = 0.0,
+    this.bigoldBalance,
     this.bigodValueLine,
     double? itemTotal,
     this.savings = 0.0,
@@ -262,8 +262,10 @@ class PaymentMethodState {
       usdtBalance > 0 ? usdtBalance.toStringAsFixed(2) : '—';
 
   String get formattedBigoldBalance {
-    if (bigoldBalance <= 0) return '0 Bigod';
-    String s = bigoldBalance.toStringAsFixed(8);
+    final balance = bigoldBalance;
+    if (balance == null) return '—';
+    if (balance <= 0) return '0 Bigod';
+    String s = balance.toStringAsFixed(8);
     s = s.replaceAll(RegExp(r'0+$'), '');
     s = s.replaceAll(RegExp(r'\.$'), '');
     return '$s Bigod';

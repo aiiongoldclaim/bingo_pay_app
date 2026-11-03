@@ -1,13 +1,38 @@
+import 'package:bingo_pay/core/api/api_client.dart';
 import 'package:bingo_pay/features/cart/domain/usecases/clear_cart_usecase.dart';
 import 'package:bingo_pay/features/membershipNew/data/models/membership_balance_model.dart';
 import 'package:bingo_pay/features/payment/data/bigod_payment_datasource.dart';
 import 'package:bingo_pay/features/payment/presentation/cubit/payment_cubit.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockBigod extends Mock implements BigodPaymentDataSource {}
 
 class _MockClearCart extends Mock implements ClearCartUseCase {}
+
+class _MockApiClient extends Mock implements ApiClient {}
+
+class _MockDio extends Mock implements Dio {}
+
+// The profile endpoint answers with the BinGold block, or `bingold: null` and
+// an error when BinGold is down.
+void _profile(Map<String, dynamic> inner) {
+  final client = _MockApiClient();
+  final dio = _MockDio();
+  when(() => client.dio).thenReturn(dio);
+  when(() => dio.get(any())).thenAnswer(
+    (_) async => Response(
+      requestOptions: RequestOptions(),
+      data: {
+        'success': true,
+        'data': {'data': inner},
+      },
+    ),
+  );
+  GetIt.I.registerSingleton<ApiClient>(client);
+}
 
 void main() {
   late _MockBigod bigod;
@@ -38,6 +63,34 @@ void main() {
     await cubit.loadWalletBalance('a@b.c');
 
     expect(cubit.state.bigodValueLine, '≈ \$410.50 · ≈ ₹34,122.11');
+  });
+
+  group('BIGOD balance at checkout', () {
+    setUp(() => when(() => bigod.balance()).thenThrow(Exception('offline')));
+    tearDown(() => GetIt.I.reset());
+
+    test('BinGold down: unknown, shown as a dash, not 0', () async {
+      _profile({'bingold': null, 'bingoldError': 'BinGold is unavailable'});
+
+      await cubit.loadWalletBalance('a@b.c');
+
+      expect(cubit.state.bigoldBalance, isNull);
+      expect(cubit.state.formattedBigoldBalance, '—');
+    });
+
+    test('BinGold answered: its token balance is shown', () async {
+      _profile({
+        'bingold': {
+          'balances': [
+            {'coin': 'token', 'balance': 2.5},
+          ],
+        },
+      });
+
+      await cubit.loadWalletBalance('a@b.c');
+
+      expect(cubit.state.formattedBigoldBalance, '2.5 Bigod');
+    });
   });
 
   test('a failed balance call shows nothing extra', () async {

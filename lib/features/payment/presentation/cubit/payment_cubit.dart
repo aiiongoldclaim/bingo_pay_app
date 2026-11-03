@@ -150,11 +150,16 @@ class PaymentMethodCubit extends Cubit<PaymentMethodState> {
         response.data as Map<String, dynamic>,
       );
       final usdt = profileResponse.profile.usdtBalance;
+      // No "bingold" block means BinGold did not answer: the balance is
+      // unknown (shown as —), not zero.
+      final data = (response.data as Map)['data'];
+      final profile = data is Map ? data['data'] : null;
+      final known = profile is Map && profile['bingold'] != null;
 
       emit(
         state.copyWith(
           usdtBalance: usdt,
-          bigoldBalance: profileResponse.profile.bigoldBalance,
+          bigoldBalance: known ? profileResponse.profile.bigoldBalance : null,
           walletBalance: usdt,
         ),
       );
