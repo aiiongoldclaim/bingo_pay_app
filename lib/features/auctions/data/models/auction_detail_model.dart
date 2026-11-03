@@ -450,20 +450,40 @@ class AuctionBidFeeModel {
   final bool applies;
   final double percent;
   final String source;
+  final String? amount;
+  final String? baseAmount;
+  final String currency;
+  final bool paid;
+  final Map<String, dynamic>? deposit;
 
   AuctionBidFeeModel({
     required this.applies,
     required this.percent,
     required this.source,
+    this.amount,
+    this.baseAmount,
+    this.currency = '',
+    this.paid = false,
+    this.deposit,
   });
 
+  // API shape (auction detail `bidFee`, or `details.deposit` of an
+  // AUCTION_DEPOSIT_REQUIRED refusal): { applies, percent, source, baseAmount,
+  // amount, currency, paid, deposit: { uuid, status, amount, currency,
+  // provider, paidAt } | null }
   factory AuctionBidFeeModel.fromJson(
     Map<String, dynamic> json,
   ) {
+    final deposit = json['deposit'];
     return AuctionBidFeeModel(
       applies: json['applies'] ?? false,
-      percent: (json['percent'] as num?)?.toDouble() ?? 0.0,
+      percent: num.tryParse('${json['percent']}')?.toDouble() ?? 0.0,
       source: json['source']?.toString() ?? '',
+      amount: json['amount']?.toString(),
+      baseAmount: json['baseAmount']?.toString(),
+      currency: json['currency']?.toString() ?? '',
+      paid: json['paid'] == true,
+      deposit: deposit is Map<String, dynamic> ? deposit : null,
     );
   }
 
@@ -472,24 +492,59 @@ class AuctionBidFeeModel {
       "applies": applies,
       "percent": percent,
       "source": source,
+      "amount": amount,
+      "baseAmount": baseAmount,
+      "currency": currency,
+      "paid": paid,
+      "deposit": deposit,
     };
   }
 
   AuctionBidFeeEntity toEntity() {
+    final d = deposit;
     return AuctionBidFeeEntity(
       applies: applies,
       percent: percent,
       source: source,
+      amount: amount,
+      baseAmount: baseAmount,
+      currency: currency,
+      paid: paid,
+      deposit: d == null
+          ? null
+          : AuctionDepositEntity(
+              uuid: d['uuid']?.toString() ?? '',
+              status: d['status']?.toString() ?? '',
+              amount: d['amount']?.toString() ?? '',
+              currency: d['currency']?.toString() ?? '',
+              provider: d['provider']?.toString(),
+              paidAt: d['paidAt']?.toString(),
+            ),
     );
   }
 
   factory AuctionBidFeeModel.fromEntity(
     AuctionBidFeeEntity entity,
   ) {
+    final d = entity.deposit;
     return AuctionBidFeeModel(
       applies: entity.applies,
       percent: entity.percent,
       source: entity.source,
+      amount: entity.amount,
+      baseAmount: entity.baseAmount,
+      currency: entity.currency,
+      paid: entity.paid,
+      deposit: d == null
+          ? null
+          : {
+              'uuid': d.uuid,
+              'status': d.status,
+              'amount': d.amount,
+              'currency': d.currency,
+              'provider': d.provider,
+              'paidAt': d.paidAt,
+            },
     );
   }
 }

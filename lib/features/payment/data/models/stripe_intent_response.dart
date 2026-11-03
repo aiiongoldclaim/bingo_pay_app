@@ -25,7 +25,8 @@ class StripeIntentResponse {
     return StripeIntentResponse(
       paymentUuid: inner['paymentUuid'] as String,
       checkoutUrl: (inner['checkoutUrl'] ?? inner['invoiceUrl']) as String,
-      amount: (inner['amount'] as num).toDouble(),
+      // A number for an order, a 2-decimal string for an auction deposit.
+      amount: num.tryParse('${inner['amount']}')?.toDouble() ?? 0,
       breakdown: breakdown is Map<String, dynamic>
           ? BigodIntentBreakdown.fromJson(breakdown)
           : null,

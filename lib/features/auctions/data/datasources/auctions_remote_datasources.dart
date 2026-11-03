@@ -1,8 +1,13 @@
 import 'package:bingo_pay/features/auctions/data/models/auction_model.dart';
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/api/api_client.dart';
 import '../../../../core/api/api_endpoints.dart';
+import '../../../../core/api/api_envelope.dart';
+import '../../../payment/data/models/stripe_intent_response.dart';
+import '../../../scanner/data/tvs_qr_datasource.dart';
+import '../../domain/entities/auction_detail_entity.dart';
 import '../../../membershipNew/data/models/membership_balance_model.dart';
 import '../models/allotment_payment_model.dart';
 import '../models/auction_detail_model.dart';
@@ -81,13 +86,33 @@ class AuctionsRemoteDatasources {
   required String amount,
   required String idempotencyKey,
 }) async {
-  final response = await _client.dio.post(
-    ApiEndpoints.auctionBids(auctionUuid),
-    data: {
-      'amount': amount,
-      'idempotencyKey': idempotencyKey,
-    },
-  );
+  final Response<dynamic> response;
+  try {
+    response = await _client.dio.post(
+      ApiEndpoints.auctionBids(auctionUuid),
+      data: {
+        'amount': amount,
+        'idempotencyKey': idempotencyKey,
+      },
+    );
+  } on DioException catch (e) {
+    // The lot has a bidding fee this bidder has not paid: `details.deposit`
+    // is the amount to ask for.
+    final body = e.response?.data;
+    if (body is Map && body['code'] == 'AUCTION_DEPOSIT_REQUIRED') {
+      final details = body['details'];
+      final deposit = details is Map ? details['deposit'] : null;
+      throw AuctionDepositRequired(
+        AuctionBidFeeModel.fromJson({
+          if (deposit is Map) ...deposit.cast<String, dynamic>(),
+          'applies': true,
+          'paid': false,
+        }).toEntity(),
+        '${body['message'] ?? 'Pay the token money to bid on this lot.'}',
+      );
+    }
+    rethrow;
+  }
 
   final data = response.data;
 
@@ -169,6 +194,75 @@ Future<void> confirmBigodPayment(String token) async {
     ApiEndpoints.bigodConfirm,
     data: {'token': token},
   );
+}
+
+// ============================================================
+// BIDDING FEE (DEPOSIT) AND TVS COINS
+// ============================================================
+
+/// A BIGOD quote for a lot's bidding fee, settled with confirmBigodPayment.
+/// Its `payment` block is the allotment quote's, so it is read the same way.
+Future<AllotmentPaymentModel> depositBigodQuote(String auctionUuid) async {
+  final response = await _client.dio.post(
+    ApiEndpoints.auctionDepositBigod(auctionUuid),
+  );
+  final data = response.data;
+  return AllotmentPaymentModel.fromJson(
+    data is Map<String, dynamic> && data['data'] is Map<String, dynamic>
+        ? data['data'] as Map<String, dynamic>
+        : const {},
+  );
+}
+
+/// The bidding fee by card (Stripe) or crypto (NOWPayments): a hosted page
+/// that returns to `/auctions/:uuid?deposit=…&from=success|cancelled`.
+Future<StripeIntentResponse> depositGatewayIntent(
+  String auctionUuid, {
+  required bool crypto,
+}) async {
+  final response = await _client.dio.post(
+    crypto
+        ? ApiEndpoints.nowPaymentsAuctionDeposit(auctionUuid)
+        : ApiEndpoints.stripeAuctionDeposit(auctionUuid),
+  );
+  return StripeIntentResponse.fromJson(response.data as Map<String, dynamic>);
+}
+
+// TVS Coins, for a lot's bidding fee or a won lot (allotment). The quote
+// moves nothing and has the checkout quote's shape ({canPay, reason, coins,
+// wallet, pin}); pay takes {idempotencyKey, expectedCoins, pin?}.
+Future<Map<String, dynamic>> tvsDepositQuote(String auctionUuid) =>
+    _tvsPost(ApiEndpoints.tvsAuctionDepositQuote(auctionUuid));
+
+Future<Map<String, dynamic>> tvsDepositPay(
+  String auctionUuid,
+  Map<String, dynamic> body,
+) => _tvsPost(ApiEndpoints.tvsAuctionDepositPay(auctionUuid), body);
+
+Future<Map<String, dynamic>> tvsAllotmentQuote(String allotmentUuid) =>
+    _tvsPost(ApiEndpoints.tvsAuctionQuote(allotmentUuid));
+
+Future<Map<String, dynamic>> tvsAllotmentPay(
+  String allotmentUuid,
+  Map<String, dynamic> body,
+) => _tvsPost(ApiEndpoints.tvsAuctionPay(allotmentUuid), body);
+
+// Coded refusals (PIN_REQUIRED, QUOTE_CHANGED…) become TvsQrException, as on
+// every other TVS Wallet call, so the MPIN flow handles them the same way.
+Future<Map<String, dynamic>> _tvsPost(
+  String path, [
+  Map<String, dynamic>? body,
+]) async {
+  try {
+    final response = await _client.dio.post(path, data: body);
+    return unwrapEnvelope(response.data);
+  } on DioException catch (e) {
+    final data = e.response?.data;
+    if (data is Map && data['code'] is String) {
+      throw TvsQrException(data['code'] as String, '${data['message']}');
+    }
+    rethrow;
+  }
 }
 
 }

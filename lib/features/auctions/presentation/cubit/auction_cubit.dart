@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:bingo_pay/features/auctions/domain/entities/allotment_payment_entity.dart';
+import 'package:bingo_pay/features/auctions/domain/entities/auction_detail_entity.dart';
 import 'package:bingo_pay/features/auctions/domain/entities/bid_entity.dart';
 import 'package:bingo_pay/features/auctions/domain/repositories/auction_repository.dart';
 
@@ -253,6 +254,31 @@ class AuctionCubit extends Cubit<AuctionState> {
     }
 
     // ----------------------------------------------------------
+    // A lot with a bidding fee: pay it first. The server enforces
+    // this too (AUCTION_DEPOSIT_REQUIRED), so this is the fast path.
+    // ----------------------------------------------------------
+
+    final fee = currentState.auction.bidFee;
+
+    if (fee != null && fee.applies && !fee.paid) {
+      emit(
+        currentState.copyWith(
+          depositDue: fee,
+          pendingBidAmount: amount.trim(),
+        ),
+      );
+      return;
+    }
+
+    await _submitBid(auctionId, amount.trim());
+  }
+
+  Future<void> _submitBid(String auctionId, String amount) async {
+    final currentState = state;
+
+    if (currentState is! AuctionDetailLoaded) return;
+
+    // ----------------------------------------------------------
     // Generate 128-character idempotency key
     // ----------------------------------------------------------
 
@@ -283,7 +309,7 @@ class AuctionCubit extends Cubit<AuctionState> {
 
       final placedBid = await repository.placeBid(
         auctionUuid: auctionId,
-        amount: amount.trim(),
+        amount: amount,
         idempotencyKey: idempotencyKey,
       );
 
@@ -328,6 +354,22 @@ class AuctionCubit extends Cubit<AuctionState> {
       // --------------------------------------------------------
 
       await getBidsHistory(auctionId);
+    } on AuctionDepositRequired catch (e) {
+      // The page thought the fee was paid (or did not know about it): ask
+      // for the server's figure, and bring the lot's terms up to date.
+      final latestState = state;
+
+      if (latestState is AuctionDetailLoaded) {
+        emit(
+          latestState.copyWith(
+            isPlacingBid: false,
+            depositDue: e.fee,
+            pendingBidAmount: amount,
+          ),
+        );
+      }
+
+      await _reloadDetail(auctionId);
     } catch (e) {
       final message = _describe(
         e,
@@ -353,6 +395,48 @@ class AuctionCubit extends Cubit<AuctionState> {
           ),
         );
       }
+    }
+  }
+
+  // ==========================================================
+  // BIDDING FEE (DEPOSIT)
+  // ==========================================================
+
+  /// The deposit sheet closed. Paid: the bid the bidder was making goes
+  /// straight in, then the lot is reloaded so the fee shows as paid.
+  Future<void> onDepositClosed({required bool paid}) async {
+    final currentState = state;
+
+    if (currentState is! AuctionDetailLoaded) return;
+
+    final amount = currentState.pendingBidAmount;
+
+    emit(currentState.copyWith(clearDeposit: true));
+
+    if (!paid) return;
+
+    final auctionId = currentState.auction.uuid;
+
+    if (amount != null && amount.isNotEmpty) {
+      await _submitBid(auctionId, amount);
+    }
+
+    await _reloadDetail(auctionId);
+  }
+
+  /// Reloads the lot without the loading shimmer; on failure the page keeps
+  /// what it shows.
+  Future<void> _reloadDetail(String auctionId) async {
+    try {
+      final auction = await repository.fetchAuctionById(auctionId);
+      final latestState = state;
+
+      if (latestState is AuctionDetailLoaded &&
+          latestState.auction.uuid == auctionId) {
+        emit(latestState.copyWith(auction: auction));
+      }
+    } catch (e) {
+      debugPrint('reload auction detail error: $e');
     }
   }
 

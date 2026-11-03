@@ -15,6 +15,7 @@ import 'package:bingo_pay/features/auctions/presentation/cubit/auction_cubit.dar
 import 'package:bingo_pay/features/auctions/presentation/cubit/auction_state.dart';
 
 import '../widgets/auction_detail_shimmer.dart';
+import '../widgets/deposit_payment_sheet.dart';
 
 class AuctionDetailScreen extends StatefulWidget {
   final String auctionId;
@@ -483,6 +484,7 @@ class _BidPanelState extends State<_BidPanel> {
   String? _lastHandledBidUuid;
   String? _lastHandledBidError;
   bool _hasBidError = false;
+  bool _depositSheetOpen = false;
 
   @override
   void initState() {
@@ -527,11 +529,18 @@ class _BidPanelState extends State<_BidPanel> {
         final previousState = previous is AuctionDetailLoaded ? previous : null;
 
         return previousState?.placedBid != current.placedBid ||
-            previousState?.placeBidError != current.placeBidError;
+            previousState?.placeBidError != current.placeBidError ||
+            previousState?.depositDue != current.depositDue;
       },
       listener: (context, state) {
         if (state is! AuctionDetailLoaded) {
           return;
+        }
+
+        final depositDue = state.depositDue;
+
+        if (depositDue != null && !_depositSheetOpen) {
+          _openDepositSheet(context, depositDue);
         }
 
         final error = state.placeBidError;
@@ -712,6 +721,11 @@ class _BidPanelState extends State<_BidPanel> {
               ),
 
               SizedBox(height: 2.37.h),
+
+              if (auction.bidFee?.applies == true) ...[
+                _BidFeeNote(fee: auction.bidFee!),
+                SizedBox(height: 1.42.h),
+              ],
 
               Container(
                 padding: EdgeInsets.symmetric(
@@ -946,12 +960,77 @@ class _BidPanelState extends State<_BidPanel> {
     );
   }
 
+  Future<void> _openDepositSheet(
+    BuildContext context,
+    AuctionBidFeeEntity fee,
+  ) async {
+    _depositSheetOpen = true;
+    final cubit = context.read<AuctionCubit>();
+    final paid = await DepositPaymentSheet.show(
+      context,
+      auctionUuid: widget.auction.uuid,
+      fee: fee,
+    );
+    _depositSheetOpen = false;
+    await cubit.onDepositClosed(paid: paid);
+  }
+
   void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(content: Text(message), backgroundColor: context.colors.error),
       );
+  }
+}
+
+/// The lot's bidding fee ("token money"): what it is, or that it is paid.
+class _BidFeeNote extends StatelessWidget {
+  final AuctionBidFeeEntity fee;
+
+  const _BidFeeNote({required this.fee});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final amount = '${fee.currency} ${fee.amount ?? ''}';
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 3.85.w, vertical: 1.18.h),
+      decoration: BoxDecoration(
+        color: colors.brandSoft,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            fee.paid ? Icons.check_circle_outline_rounded : Icons.info_outline,
+            size: 15.sp,
+            color: colors.brand,
+          ),
+          SizedBox(width: 2.05.w),
+          Expanded(
+            child: Text(
+              fee.paid
+                  ? 'Token money of $amount paid. If you win, it is deducted '
+                        'from your final price; if you don\'t win, it will be '
+                        'refunded.'
+                  : 'This lot requires ${fee.percentText}% token money on the '
+                        '${fee.currency} ${fee.baseAmount ?? ''} base price — '
+                        '$amount, paid once in advance to take part. If you '
+                        'win, it is deducted from your final price; if you '
+                        'don\'t win, it will be refunded.',
+              style: TextStyle(
+                color: colors.textSecondary,
+                fontSize: 11.sp,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -1577,6 +1656,16 @@ class _ModernAuctionDetailsSection extends StatelessWidget {
         title: 'Payment',
         value: '${auction.paymentWindowHours} hrs',
       ),
+      if (auction.bidFee?.applies == true)
+        _AuctionDetailItem(
+          icon: Icons.verified_user_outlined,
+          title: 'Token money',
+          value: auction.bidFee!.paid && auction.bidFee!.deposit != null
+              ? '${auction.bidFee!.deposit!.currency} '
+                    '${auction.bidFee!.deposit!.amount} paid'
+              : '${auction.bidFee!.currency} ${auction.bidFee!.amount ?? ''} '
+                    '(${auction.bidFee!.percentText}%)',
+        ),
       _AuctionDetailItem(
         icon: Icons.layers_outlined,
         title: 'Listing',

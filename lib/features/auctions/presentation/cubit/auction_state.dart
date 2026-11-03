@@ -273,6 +273,16 @@ class AuctionDetailLoaded extends AuctionState {
 
   final PlaceBidEntity? placedBid;
 
+  // ----------------------------------------------------------
+  // BIDDING FEE
+  // ----------------------------------------------------------
+
+  /// The fee to pay before [pendingBidAmount] can go in; while set, the
+  /// screen shows the deposit sheet.
+  final AuctionBidFeeEntity? depositDue;
+
+  final String? pendingBidAmount;
+
   const AuctionDetailLoaded({
     required this.auction,
 
@@ -285,6 +295,10 @@ class AuctionDetailLoaded extends AuctionState {
     this.isPlacingBid = false,
     this.placeBidError,
     this.placedBid,
+
+    // Bidding fee
+    this.depositDue,
+    this.pendingBidAmount,
   });
 
   AuctionDetailLoaded copyWith({
@@ -302,6 +316,11 @@ class AuctionDetailLoaded extends AuctionState {
     bool clearPlaceBidError = false,
     PlaceBidEntity? placedBid,
     bool clearPlacedBid = false,
+
+    // Bidding fee
+    AuctionBidFeeEntity? depositDue,
+    String? pendingBidAmount,
+    bool clearDeposit = false,
   }) {
     return AuctionDetailLoaded(
       auction: auction ?? this.auction,
@@ -321,6 +340,12 @@ class AuctionDetailLoaded extends AuctionState {
       placedBid: clearPlacedBid
           ? null
           : placedBid ?? this.placedBid,
+
+      // Bidding fee
+      depositDue: clearDeposit ? null : depositDue ?? this.depositDue,
+      pendingBidAmount: clearDeposit
+          ? null
+          : pendingBidAmount ?? this.pendingBidAmount,
     );
   }
 
@@ -333,6 +358,8 @@ class AuctionDetailLoaded extends AuctionState {
         isPlacingBid,
         placeBidError,
         placedBid,
+        depositDue,
+        pendingBidAmount,
       ];
 }
 

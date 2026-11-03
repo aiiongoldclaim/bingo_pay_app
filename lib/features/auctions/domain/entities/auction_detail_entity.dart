@@ -134,16 +134,65 @@ class AuctionDetailVendorEntity {
 // BID FEE
 // ============================================================
 
+// The advance bidding fee ("token money"): `percent` of `baseAmount` (the
+// starting price), paid once before a bidder's first bid. Amounts are the
+// API's 2-decimal strings.
 class AuctionBidFeeEntity {
   final bool applies;
   final double percent;
   final String source;
+  final String? amount;
+  final String? baseAmount;
+  final String currency;
+  // This viewer has paid it (always false when signed out).
+  final bool paid;
+  final AuctionDepositEntity? deposit;
 
   AuctionBidFeeEntity({
     required this.applies,
     required this.percent,
     required this.source,
+    this.amount,
+    this.baseAmount,
+    this.currency = '',
+    this.paid = false,
+    this.deposit,
   });
+
+  // "5" rather than "5.0".
+  String get percentText =>
+      percent % 1 == 0 ? percent.toStringAsFixed(0) : '$percent';
+}
+
+// The viewer's own deposit on this lot.
+class AuctionDepositEntity {
+  final String uuid;
+  final String status;
+  final String amount;
+  final String currency;
+  final String? provider;
+  final String? paidAt;
+
+  AuctionDepositEntity({
+    required this.uuid,
+    required this.status,
+    required this.amount,
+    required this.currency,
+    this.provider,
+    this.paidAt,
+  });
+}
+
+// A bid refused with AUCTION_DEPOSIT_REQUIRED: `fee` is the server's figure
+// for the deposit to pay first.
+class AuctionDepositRequired implements Exception {
+  final AuctionBidFeeEntity fee;
+  final String message;
+
+  AuctionDepositRequired(this.fee, this.message);
+
+  @override
+  String toString() => message;
 }
 
 

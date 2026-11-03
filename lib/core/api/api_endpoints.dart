@@ -100,6 +100,23 @@ class ApiEndpoints {
   static String auctionBids(String uuid) => '/api/v1/auctions/$uuid/bids';
   static String auctionAllotmentPay(String uuid) =>
       '/api/v1/auctions/allotments/$uuid/pay';
+
+  // ── Lane A: auction bidding fee, won-lot TVS pay, invite links ──
+  static String auctionDepositBigod(String auctionUuid) =>
+      '/api/v1/auctions/$auctionUuid/deposit/bigod';
+  static String stripeAuctionDeposit(String auctionUuid) =>
+      '/api/v1/payments/stripe/auction-deposit/$auctionUuid';
+  static String nowPaymentsAuctionDeposit(String auctionUuid) =>
+      '/api/v1/payments/nowpayments/auction-deposit/$auctionUuid';
+  static String tvsAuctionDepositQuote(String auctionUuid) =>
+      '/api/v1/tvs-wallet/auction/deposit/$auctionUuid/quote';
+  static String tvsAuctionDepositPay(String auctionUuid) =>
+      '/api/v1/tvs-wallet/auction/deposit/$auctionUuid/pay';
+  static String tvsAuctionQuote(String allotmentUuid) =>
+      '/api/v1/tvs-wallet/auction/$allotmentUuid/quote';
+  static String tvsAuctionPay(String allotmentUuid) =>
+      '/api/v1/tvs-wallet/auction/$allotmentUuid/pay';
+  // ── end Lane A ──
   static String addressDetail(String id) => '/api/v1/addresses/$id';
   static String serviceDetail(String uuid) => '/api/v1/services/$uuid';
   static String serviceAvailability(String uuid) =>
