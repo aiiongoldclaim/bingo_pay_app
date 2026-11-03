@@ -13,6 +13,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
   final String currency;
   final String? error;
   final bool autofocus;
+  final bool wholeNumbers; // a currency without decimals (VND, JPY…)
   final ValueChanged<String> onChanged;
 
   const ReviewPaymentAmountSection({
@@ -23,6 +24,7 @@ class ReviewPaymentAmountSection extends StatelessWidget {
     required this.error,
     required this.onChanged,
     this.autofocus = false,
+    this.wholeNumbers = false,
   });
 
   @override
@@ -62,13 +64,15 @@ class ReviewPaymentAmountSection extends StatelessWidget {
                     controller: controller,
                     onChanged: onChanged,
                     autofocus: autofocus,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: !wholeNumbers,
                     ),
                     inputFormatters: [
+                      // A pasted "1,000" is 1000.
+                      FilteringTextInputFormatter.deny(RegExp(r'[\s,]')),
                       // The API takes 2 decimals.
                       FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d*\.?\d{0,2}'),
+                        RegExp(wholeNumbers ? r'^\d*' : r'^\d*\.?\d{0,2}'),
                       ),
                     ],
                     style: big,

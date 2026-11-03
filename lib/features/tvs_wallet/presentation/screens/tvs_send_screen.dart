@@ -40,11 +40,7 @@ class _TvsSendScreenState extends State<TvsSendScreen> {
 
   String get _currency => '${_found?['recipient']?['currency'] ?? ''}';
 
-  bool get _valid {
-    final a = _amount.text;
-    return RegExp(r'^\d{1,10}(\.\d{1,2})?$').hasMatch(a) &&
-        (num.tryParse(a) ?? 0) > 0;
-  }
+  bool get _valid => tvsAmountValid(_amount.text);
 
   @override
   void initState() {
