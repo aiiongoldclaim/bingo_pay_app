@@ -209,6 +209,12 @@ import 'package:bingo_pay/features/profile/domain/usecase/get_profile_usecase.da
     as _i1070;
 import 'package:bingo_pay/features/profile/presentation/cubit/profile_cubit.dart'
     as _i996;
+import 'package:bingo_pay/features/refund_requests/data/datasource/refund_requests_remote_datasource.dart'
+    as _i1056;
+import 'package:bingo_pay/features/refund_requests/presentation/cubit/refund_form_cubit.dart'
+    as _i6;
+import 'package:bingo_pay/features/refund_requests/presentation/cubit/refund_requests_cubit.dart'
+    as _i84;
 import 'package:bingo_pay/features/scanner/data/tvs_qr_datasource.dart'
     as _i780;
 import 'package:bingo_pay/features/scanner/presentation/cubit/payment_cubit.dart'
@@ -368,6 +374,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i652.NotificationRemoteDataSource>(
       () => _i652.NotificationRemoteDataSource(gh<_i541.ApiClient>()),
     );
+    gh.factory<_i1056.RefundRequestsRemoteDataSource>(
+      () => _i1056.RefundRequestsRemoteDataSource(gh<_i541.ApiClient>()),
+    );
     gh.factory<_i917.SettingsRemoteDataSource>(
       () => _i917.SettingsRemoteDataSource(gh<_i541.ApiClient>()),
     );
@@ -441,6 +450,13 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i876.UpdateCartItemQuantityUseCase>(
       () => _i876.UpdateCartItemQuantityUseCase(gh<_i939.CartRepository>()),
+    );
+    gh.factory<_i6.RefundFormCubit>(
+      () => _i6.RefundFormCubit(gh<_i1056.RefundRequestsRemoteDataSource>()),
+    );
+    gh.factory<_i84.RefundRequestsCubit>(
+      () =>
+          _i84.RefundRequestsCubit(gh<_i1056.RefundRequestsRemoteDataSource>()),
     );
     gh.factory<_i728.CartCubit>(
       () => _i728.CartCubit(

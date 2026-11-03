@@ -102,6 +102,14 @@ class AppRoutes {
   static const String bookingDetails = '/booking-details/:uuid';
   static const String bookingDetailName = 'booking-details';
 
+  // ── Lane C: refunds, reviews ───────────────────────────────────────────
+  static const String myRefunds = '/refunds';
+  static const String refundDetail = '/refunds/:uuid';
+  static const String orderRefund = '/order-refund';
+
+  static String refundDetailPath(String uuid) =>
+      refundDetail.replaceFirst(':uuid', uuid);
+
   static const List<String> publicRoutes = [
     splash,
     login,

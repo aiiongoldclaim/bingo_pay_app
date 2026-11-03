@@ -22,6 +22,7 @@ import '../../../orders/presentation/cubit/orders_state.dart';
 import '../../../orders/data/datasource/orders_remote_datasource.dart';
 import '../../../orders/data/models/order_model.dart';
 import '../../../orders/presentation/widgets/order_status_style.dart';
+import '../../../refund_requests/data/datasource/refund_requests_remote_datasource.dart';
 import '../widgets/order_detail_shimmer.dart';
 
 class OrderDetailScreen extends StatelessWidget {
@@ -47,8 +48,34 @@ class _OrderDetailView extends StatefulWidget {
 
 class _OrderDetailViewState extends State<_OrderDetailView> {
   bool _isGeneratingInvoice = false;
+  bool _canRequestRefund = false;
 
   OrderModel get order => widget.order;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRefund();
+  }
+
+  /// The refund policy decides; the button stays hidden if the check fails.
+  Future<void> _checkRefund() async {
+    try {
+      final eligibility = await getIt<RefundRequestsRemoteDataSource>()
+          .eligibility(order.uuid);
+      if (mounted) setState(() => _canRequestRefund = eligibility.available);
+    } catch (e) {
+      debugPrint('[Refund] Eligibility check failed: $e');
+    }
+  }
+
+  Future<void> _requestRefund(BuildContext context) async {
+    final sent = await context.push<bool>(
+      AppRoutes.orderRefund,
+      extra: order.uuid,
+    );
+    if (sent == true) _checkRefund();
+  }
 
   Future<void> _downloadInvoice(BuildContext context, OrderModel o) async {
     setState(() => _isGeneratingInvoice = true);
@@ -185,9 +212,15 @@ class _OrderDetailViewState extends State<_OrderDetailView> {
           final m = OrderDetailMetrics.of(context);
 
           return AppBottomActionBar(
-            primaryLabel: canCancel ? 'Cancel Order' : 'Need Help',
+            primaryLabel: canCancel
+                ? 'Cancel Order'
+                : _canRequestRefund
+                ? 'Request Refund'
+                : 'Need Help',
             onPrimaryPressed: canCancel
                 ? () => _showCancelConfirmation(context, currentOrder)
+                : _canRequestRefund
+                ? () => _requestRefund(context)
                 : () => AppSnackbar.showSuccess(
                     context,
                     'Our support team will reach out to you shortly.',

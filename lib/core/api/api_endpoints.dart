@@ -139,4 +139,32 @@ class ApiEndpoints {
   static String cancelBooking(String uuid) => '/api/v1/bookings/$uuid/cancel';
   static String rescheduleBooking(String uuid) =>
       '/api/v1/bookings/$uuid/reschedule';
+
+  // ── Lane C: refunds, reviews, banners ──────────────────────────────────
+  static const String uploads = '/api/v1/uploads';
+  static const String refundRequests = '/api/v1/refund-requests';
+  static String refundRequest(String uuid) => '/api/v1/refund-requests/$uuid';
+  static String refundRequestCancel(String uuid) =>
+      '/api/v1/refund-requests/$uuid/cancel';
+  static String refundOrder(String orderUuid) =>
+      '/api/v1/refund-requests/orders/$orderUuid';
+  static String refundEligibility(String orderUuid) =>
+      '/api/v1/refund-requests/orders/$orderUuid/eligibility';
+
+  static const String reviewImages = '/api/v1/reviews/images';
+  static const String reviewProducts = '/api/v1/reviews/products';
+  static const String myProductReviews = '/api/v1/reviews/mine/products';
+  static const String myAgentReviews = '/api/v1/reviews/mine/agents';
+  static String reviewEligibility(String orderUuid) =>
+      '/api/v1/reviews/orders/$orderUuid/eligibility';
+  // GET with a product uuid lists its reviews; PATCH/DELETE with a review uuid.
+  static String productReview(String uuid) => '/api/v1/reviews/products/$uuid';
+  static String agentReview(String uuid) => '/api/v1/reviews/agents/$uuid';
+  static String productReviewSummary(String productUuid) =>
+      '/api/v1/reviews/products/$productUuid/summary';
+
+  static const String banners = '/api/v1/banners';
+  static String bannerImpression(String uuid) =>
+      '/api/v1/banners/$uuid/impression';
+  static String bannerClick(String uuid) => '/api/v1/banners/$uuid/click';
 }
