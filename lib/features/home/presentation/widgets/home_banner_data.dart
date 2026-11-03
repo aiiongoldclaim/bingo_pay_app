@@ -89,10 +89,20 @@ extension HomeBannerImage on HomeBannerData {
       location: AppRoutes.serviceDetailPath(uuid),
       extra: null,
     ),
-    // shortcut: no auction detail page in the app, so /auctions/:uuid opens the list; deep-link once one exists.
-    ['auctions', ...] => (location: AppRoutes.auctionScreen, extra: null),
+    ['auctions'] => (location: AppRoutes.auctionScreen, extra: null),
     ['membership'] => (location: AppRoutes.membership, extra: null),
     ['cart'] => (location: AppRoutes.cart, extra: null),
+    _ => null,
+  };
+}
+
+/// The auction of an `/auctions/:uuid` link. Its detail screen is pushed with
+/// Navigator (it has no go_router route), so [bannerRoute] leaves it out.
+String? bannerAuctionId(String link) {
+  final uri = Uri.tryParse(link);
+  if (uri == null || uri.hasScheme) return null;
+  return switch (uri.pathSegments.where((s) => s.isNotEmpty).toList()) {
+    ['auctions', final uuid] => uuid,
     _ => null,
   };
 }

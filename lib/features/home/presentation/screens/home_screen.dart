@@ -10,6 +10,7 @@ import '../../../../core/di/injection.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_snackbar.dart';
+import '../../../auctions/presentation/screens/auction_detail_screen.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../services/presentation/cubit/services_cubit.dart';
@@ -497,6 +498,15 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<HomeBannersCubit>().tapped(banner);
     final link = banner.link;
     if (link == null) return;
+    final auctionId = bannerAuctionId(link);
+    if (auctionId != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AuctionDetailScreen(auctionId: auctionId),
+        ),
+      );
+      return;
+    }
     final route = bannerRoute(link);
     if (route != null) {
       context.push(route.location, extra: route.extra);

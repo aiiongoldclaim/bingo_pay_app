@@ -29,7 +29,7 @@ void main() {
       location: AppRoutes.serviceDetailPath('s-1'),
       extra: null,
     ));
-    expect(bannerRoute('/auctions/a-1'), (
+    expect(bannerRoute('/auctions'), (
       location: AppRoutes.auctionScreen,
       extra: null,
     ));
@@ -38,6 +38,14 @@ void main() {
       extra: null,
     ));
     expect(bannerRoute('/cart'), (location: AppRoutes.cart, extra: null));
+  });
+
+  test('an auction link opens that auction, not the list', () {
+    expect(bannerAuctionId('/auctions/a-1'), 'a-1');
+    expect(bannerRoute('/auctions/a-1'), isNull);
+    expect(bannerAuctionId('/auctions'), isNull);
+    expect(bannerAuctionId('/products/p-1'), isNull);
+    expect(bannerAuctionId('https://example.com/auctions/a-1'), isNull);
   });
 
   test('full URLs and unknown pages are not in-app', () {
