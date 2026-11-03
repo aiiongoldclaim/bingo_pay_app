@@ -207,7 +207,10 @@ class ReviewPayScreen extends StatelessWidget {
                             ),
                             if (method == PaymentMethod.tvsWallet &&
                                 selected == method) ...[
-                              _TvsFix(quote: state.tvsQuote),
+                              TvsQuoteFix(
+                                quote: state.tvsQuote,
+                                onBack: cubit.loadTvsQuote,
+                              ),
                               if (state.tvsQuote?['coins'] != null)
                                 TvsCheckoutOffers(quote: state.tvsQuote!),
                             ],
@@ -375,38 +378,6 @@ class ReviewPayScreen extends StatelessWidget {
       e is TvsQrException
           ? e.message
           : 'The payment didn’t go through. You were not charged.',
-    );
-  }
-}
-
-// What the TVS Wallet option needs before it can pay, and the way there:
-// verify (KYC) or add money. Shown under the options while it is selected.
-class _TvsFix extends StatelessWidget {
-  final Map<String, dynamic>? quote;
-
-  const _TvsFix({required this.quote});
-
-  @override
-  Widget build(BuildContext context) {
-    final q = quote;
-    final (label, route, extra) = switch (q?['reasonCode']) {
-      'KYC_REQUIRED' => ('Verify now', AppRoutes.walletKyc, null),
-      'INSUFFICIENT_FUNDS' => ('Add money', AppRoutes.tvsTopup, q?['wallet']),
-      _ => (null, null, null),
-    };
-    if (q == null || q['canPay'] == true || label == null) {
-      return const SizedBox.shrink();
-    }
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton.icon(
-        onPressed: () {
-          final cubit = context.read<PaymentMethodCubit>();
-          context.push(route!, extra: extra).then((_) => cubit.loadTvsQuote());
-        },
-        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-        label: Text(label),
-      ),
     );
   }
 }

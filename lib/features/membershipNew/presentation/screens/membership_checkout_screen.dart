@@ -12,8 +12,12 @@ import 'package:bingo_pay/core/theme/theme_colors.dart';
 import '../../data/models/membership_plan_model.dart';
 import '../../data/models/membership_subscribe_model.dart';
 
+import '../../../scanner/data/tvs_qr_datasource.dart';
+import '../../../scanner/presentation/screens/wallet_mpin_screen.dart';
+import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 import '../cubit/membership_cubit.dart';
 import '../cubit/membership_state.dart';
+import '../cubit/tvs_membership_cubit.dart';
 
 import '../widgets/checkout_widgets.dart';
 import '../widgets/feature_strip.dart';
@@ -63,6 +67,11 @@ class _CheckoutViewState
   bool _paying = false;
 
   bool _cancelling = false;
+
+  // The other way to pay: TVS Coins, priced by the server for this plan.
+  late final _tvs = TvsMembershipCubit(getIt<TvsQrDataSource>(), plan.uuid)
+    ..load();
+  bool _useTvs = false;
 
   MembershipPlanOption get plan =>
       widget.args.plan;
@@ -140,7 +149,7 @@ class _CheckoutViewState
       case MembershipPaymentConfirmed(
           :final result,
       ):
-        _handlePaymentSuccess(result);
+        _handlePaymentSuccess(result.subscriptionStatus);
 
       case MembershipMessage(
           :final text,
@@ -163,19 +172,21 @@ class _CheckoutViewState
   }
 
 
+  // `args` when the plan was bought on another rail (TVS) than the quote's.
   void _handlePaymentSuccess(
-      dynamic result,
-      ) {
+      String subscriptionStatus, [
+      MembershipCheckoutArgs? args,
+      ]) {
     if (!mounted) return;
 
     final status =
-    result.subscriptionStatus
+    subscriptionStatus
         .toUpperCase();
 
     if (status == 'ACTIVE') {
       context.go(
         AppRoutes.membershipActivated,
-        extra: widget.args,
+        extra: args ?? widget.args,
       );
 
       return;
@@ -361,12 +372,79 @@ class _CheckoutViewState
     }
   }
 
+  // TVS Coins: pays the quoted coins, through the MPIN screen when over the
+  // PIN-free limit (creating an MPIN if there is none).
+  Future<void> _payWithTvs({bool? needsPin, bool? isSet}) async {
+    final pin = _tvs.state?['pin'] as Map?;
+    final coins = _tvs.state?['coins'] as Map?;
+    if (needsPin ?? pin?['required'] == true) {
+      final outcome = await runWithMpin(
+        context,
+        isSet: isSet ?? pin?['isSet'] != false,
+        length: pin?['length'] as int? ?? 4,
+        subtitle:
+            'Pay ${tvsCoins(coins?['total'], coins?['currency'])} for ${plan.name}',
+        attempt: (p) => _tvs.pay(pin: p),
+      );
+      if (!mounted || outcome == null) return;
+      if (outcome.result != null) return _tvsPaid(outcome.result!);
+      return _tvsFailed(outcome.failure!);
+    }
+    setState(() => _paying = true);
+    try {
+      final paid = await _tvs.pay();
+      if (mounted) _tvsPaid(paid);
+    } catch (e) {
+      if (mounted) _tvsFailed(e);
+    } finally {
+      if (mounted) setState(() => _paying = false);
+    }
+  }
+
+  // The server opened its own subscription (closing the BIGOD quote), so the
+  // success screen gets that one.
+  void _tvsPaid(Map<String, dynamic> paid) {
+    final sub = Map<String, dynamic>.from(
+      paid['subscription'] as Map? ?? const {},
+    );
+    _handlePaymentSuccess(
+      '${sub['status'] ?? ''}',
+      MembershipCheckoutArgs(
+        plan: plan,
+        quote: MembershipQuote(
+          subscription: CheckoutSubscriptionRef.fromJson(sub),
+          payment: payment,
+        ),
+      ),
+    );
+  }
+
+  void _tvsFailed(Object e) {
+    if (e is TvsQrException) {
+      switch (e.code) {
+        // The PIN limit changed since the quote: ask for the MPIN now.
+        case 'PIN_REQUIRED' || 'PIN_NOT_SET':
+          _payWithTvs(needsPin: true, isSet: e.code == 'PIN_REQUIRED');
+          return;
+        case 'QUOTE_CHANGED':
+          _tvs.load(); // shows the new price to confirm
+      }
+    }
+    _showMessage(
+      e is TvsQrException
+          ? e.message
+          : 'The payment didn’t go through. You were not charged.',
+      isError: true,
+    );
+  }
+
   // ===========================================================================
   // DISPOSE
   // ===========================================================================
 
   @override
   void dispose() {
+    _tvs.close();
     _ticker?.cancel();
     _eventSubscription?.cancel();
 
@@ -379,7 +457,9 @@ class _CheckoutViewState
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
+    return BlocBuilder<TvsMembershipCubit, Map<String, dynamic>?>(
+      bloc: _tvs,
+      builder: (context, _) => LayoutBuilder(
       builder: (context, _) {
         final metrics =
         MembershipMetrics.of(context);
@@ -436,6 +516,7 @@ class _CheckoutViewState
           ),
         );
       },
+      ),
     );
   }
 
@@ -670,11 +751,21 @@ class _CheckoutViewState
           _timerLabel,
           expired:
           _expired,
+          selected: !_useTvs,
+          onTap: () => setState(() => _useTvs = false),
         ),
 
-        SizedBox(height: metrics.rowGap),
-
-        TvsWalletComingSoonCard(metrics: metrics),
+        // Hidden only when TVS Wallet is switched off for this account.
+        if (_tvs.state?['reasonCode'] != 'FEATURE_DISABLED') ...[
+          SizedBox(height: metrics.rowGap),
+          TvsWalletPaymentCard(
+            metrics: metrics,
+            quote: _tvs.state,
+            selected: _useTvs,
+            onTap: () => setState(() => _useTvs = true),
+            onBack: _tvs.load,
+          ),
+        ],
       ],
     );
   }
@@ -832,6 +923,8 @@ class _CheckoutViewState
                     _paying ||
                         _cancelling
                         ? null
+                        : _useTvs
+                        ? (_tvsReady ? _payWithTvs : null)
                         : (_expired
                         ? _cancelNow
                         : _payNow),
@@ -949,11 +1042,21 @@ class _CheckoutViewState
   // NORMAL BUTTON
   // ===========================================================================
 
+  // TVS can pay once its quote says so, and not while the MPIN it needs is
+  // locked. (The BIGOD price timer doesn't apply to it.)
+  bool get _tvsReady {
+    final q = _tvs.state;
+    final pin = q?['pin'] as Map?;
+    return q?['canPay'] == true &&
+        !(pin?['required'] == true && pin?['lockedUntil'] != null);
+  }
+
   Widget _normalButton(
       MembershipMetrics metrics,
       ) {
     final isCancel =
-        _expired;
+        _expired && !_useTvs;
+    final coins = _tvs.state?['coins'] as Map?;
 
     return Row(
       mainAxisAlignment:
@@ -976,6 +1079,10 @@ class _CheckoutViewState
           child: Text(
             isCancel
                 ? 'Cancel Now'
+                : _useTvs
+                ? (coins == null
+                ? 'Pay with TVS Coins'
+                : 'Pay ${tvsCoins(coins['total'], coins['currency'])} with TVS Coins')
                 : 'Pay ${plan.version?.priceLabel ?? ''} Now',
             maxLines: 1,
             overflow:

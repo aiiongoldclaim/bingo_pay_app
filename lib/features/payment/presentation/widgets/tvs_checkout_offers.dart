@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/router/app_routes.dart';
 
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -66,7 +69,7 @@ class _TvsCheckoutOffersState extends State<TvsCheckoutOffers> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (pin?['limit'] != null) _PinNote(pin: pin!),
+          if (pin?['limit'] != null) TvsPinNote(pin: pin!),
           _Line(
             icon: applied != null
                 ? Icons.check_circle_rounded
@@ -139,10 +142,10 @@ class _TvsCheckoutOffersState extends State<TvsCheckoutOffers> {
 
 // The MPIN-free limit and whether this payment needs the MPIN; locked after
 // wrong tries, until when.
-class _PinNote extends StatelessWidget {
+class TvsPinNote extends StatelessWidget {
   final Map pin;
 
-  const _PinNote({required this.pin});
+  const TvsPinNote({super.key, required this.pin});
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +179,37 @@ class _PinNote extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(child: Text(text, style: checkoutText(color, size: 12))),
         ],
+      ),
+    );
+  }
+}
+
+// What a TVS quote needs before it can pay, and the way there: verify (KYC)
+// or add money. `onBack` quotes again on return.
+class TvsQuoteFix extends StatelessWidget {
+  final Map<String, dynamic>? quote;
+  final VoidCallback onBack;
+
+  const TvsQuoteFix({super.key, required this.quote, required this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    final q = quote;
+    final (label, route, extra) = switch (q?['reasonCode']) {
+      'KYC_REQUIRED' => ('Verify now', AppRoutes.walletKyc, null),
+      'INSUFFICIENT_FUNDS' => ('Add money', AppRoutes.tvsTopup, q?['wallet']),
+      _ => (null, null, null),
+    };
+    if (q == null || q['canPay'] == true || label == null) {
+      return const SizedBox.shrink();
+    }
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton.icon(
+        onPressed: () =>
+            context.push(route!, extra: extra).then((_) => onBack()),
+        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+        label: Text(label),
       ),
     );
   }
