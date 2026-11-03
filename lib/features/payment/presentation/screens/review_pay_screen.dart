@@ -56,7 +56,10 @@ class ReviewPayScreen extends StatelessWidget {
             PaymentMethod.wallet,
             Icons.account_balance_wallet_outlined,
             'Bingold Wallet',
-            'Balance: ${state.formattedBigoldBalance}',
+            [
+              'Balance: ${state.formattedBigoldBalance}',
+              ?state.bigodValueLine,
+            ].join(' · '),
           ),
           if (state.tvsAvailable)
             (
