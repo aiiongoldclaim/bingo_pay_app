@@ -6,7 +6,6 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../payment/data/stripe_payment_datasource.dart';
-import '../../../scanner/data/tvs_qr_datasource.dart';
 import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 import '../../../tvs_wallet/presentation/widgets/tvs_ui.dart';
 import '../../data/datasources/auctions_remote_datasources.dart';
@@ -84,25 +83,15 @@ class _DepositPaymentSheetState extends State<DepositPaymentSheet> {
   // after a top-up).
   Future<void> _loadTvsQuote() async {
     setState(() => _tvsQuote = null);
-    try {
-      final q = await _api.tvsDepositQuote(widget.auctionUuid);
-      if (mounted) setState(() => _tvsQuote = q);
-    } catch (e) {
-      if (!mounted) return;
-      if (e is TvsQrException && e.code == 'FEATURE_DISABLED') {
-        setState(() {
-          _tvsOk = false;
-          if (_method == _Method.tvs) _method = null;
-        });
-        return;
-      }
-      setState(
-        () => _tvsQuote = {
-          'canPay': false,
-          'reason': ErrorHandler.mapObjectToFailure(e).message,
-        },
-      );
-    }
+    final q = await loadTvsQuote(
+      () => _api.tvsDepositQuote(widget.auctionUuid),
+    );
+    if (!mounted) return;
+    setState(() {
+      _tvsQuote = q;
+      _tvsOk = q != null;
+      if (!_tvsOk && _method == _Method.tvs) _method = null;
+    });
   }
 
   // Each BIGOD quote mints a single-use token and cancels the last, so it is

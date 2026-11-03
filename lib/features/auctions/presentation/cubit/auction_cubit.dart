@@ -610,15 +610,19 @@ Future<String?> confirmAllotmentPayment(AllotmentPaymentEntity quote) async {
     return message;
   }
 
-  // Silent refresh so the paid item updates without the shimmer.
+  await refreshMyBids();
+
+  return null;
+}
+
+/// Silent refresh so a paid item updates without the shimmer.
+Future<void> refreshMyBids() async {
   try {
     final myBids = await repository.getMyBids();
     emit(MyBidsLoaded(myBids: myBids));
   } catch (_) {
     _clearPayingAllotment();
   }
-
-  return null;
 }
 
 void _clearPayingAllotment() {

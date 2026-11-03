@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/error/error_handler.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/utils/idempotency_key_generator.dart';
 import '../../../../core/widgets/app_snackbar.dart';
@@ -11,6 +12,23 @@ import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
 // "Pay with TVS Coins" for an auction: a lot's bidding fee or a won lot. The
 // quote has the checkout quote's shape ({canPay, reason, reasonCode, coins,
 // wallet, pin}); `pay` sends {idempotencyKey, expectedCoins, pin?}.
+
+// The quote, `{canPay: false, reason}` when there is none to be had, or null
+// when TVS Wallet is switched off for this account — the option is then
+// hidden, as at checkout.
+Future<Map<String, dynamic>?> loadTvsQuote(
+  Future<Map<String, dynamic>> Function() quote,
+) async {
+  try {
+    return await quote();
+  } catch (e) {
+    if (e is TvsQrException && e.code == 'FEATURE_DISABLED') return null;
+    return {
+      'canPay': false,
+      'reason': ErrorHandler.mapObjectToFailure(e).message,
+    };
+  }
+}
 
 // The option's line: the coins and the balance, or why it can't pay.
 String tvsQuoteLine(Map<String, dynamic>? q) {

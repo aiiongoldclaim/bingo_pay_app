@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/widgets/app_bottom_sheets.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../tvs_wallet/presentation/widgets/tvs_format.dart';
+import '../../data/datasources/auctions_remote_datasources.dart';
 import '../cubit/auction_cubit.dart';
 import '../cubit/auction_state.dart';
 import '../../domain/entities/my_bids_entity.dart';
+import '../widgets/auction_tvs_pay.dart';
 import '../widgets/hero_wishlist_button.dart';
 import '../widgets/my_bids_shimmer.dart';
 
@@ -22,6 +26,7 @@ class MyBidsScreen extends StatefulWidget {
 
 class _MyBidsScreenState extends State<MyBidsScreen> {
   String _selectedFilter = 'All';
+  bool _tvsBusy = false;
 
   @override
   void initState() {
@@ -322,6 +327,70 @@ class _MyBidsScreenState extends State<MyBidsScreen> {
     }
 
     final cubit = context.read<AuctionCubit>();
+
+    // TVS Coins next to BIGOD, unless TVS Wallet is off for this account.
+    // Its quote moves nothing, so it is asked for up front.
+    if (_tvsBusy) return;
+    _tvsBusy = true;
+    try {
+      final api = getIt<AuctionsRemoteDatasources>();
+      final tvsQuote = await loadTvsQuote(
+        () => api.tvsAllotmentQuote(allotment.uuid),
+      );
+      if (!mounted) return;
+      if (tvsQuote != null) {
+        final method = await showAppSelectSheet<String>(
+          context: context,
+          title: 'How do you want to pay?',
+          confirmLabel: 'Continue',
+          options: [
+            const SheetOption(
+              value: 'BIGOD',
+              label: 'BIGOD',
+              subtitle: 'From your BinGold wallet — paid instantly.',
+            ),
+            SheetOption(
+              value: 'TVS',
+              label: 'TVS Coins',
+              subtitle: tvsQuoteLine(tvsQuote),
+            ),
+          ],
+        );
+        if (method == null || !mounted) return;
+        if (method == 'TVS') {
+          final coins = tvsQuote['coins'] as Map?;
+          final amount = tvsCoins(coins?['total'], coins?['currency']);
+          // The MPIN screen is the confirmation when one is needed.
+          if (tvsQuote['canPay'] == true &&
+              (tvsQuote['pin'] as Map?)?['required'] != true) {
+            final confirmed = await showAppConfirmDialog(
+              context: context,
+              title: 'Confirm payment',
+              message: 'Pay $amount in TVS Coins for "${item.title}"?',
+              confirmLabel: 'Pay now',
+              icon: Icons.payments_outlined,
+            );
+            if (!confirmed || !mounted) return;
+          }
+          final paid = await payAuctionWithTvs(
+            context,
+            quote: tvsQuote,
+            pay: (body) => api.tvsAllotmentPay(allotment.uuid, body),
+            // Pay now again shows the new price.
+            onQuoteChanged: () {},
+            subtitle: 'Pay $amount for ${item.title}',
+          );
+          if (!paid || !mounted) return;
+          messenger.showSnackBar(
+            SnackBar(content: Text('Payment successful for ${item.title}')),
+          );
+          await cubit.refreshMyBids();
+          return;
+        }
+      }
+    } finally {
+      _tvsBusy = false;
+    }
 
     final (:quote, :error) = await cubit.createAllotmentQuote(allotment.uuid);
 
