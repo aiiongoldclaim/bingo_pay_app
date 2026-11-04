@@ -186,7 +186,7 @@ Future<void> _waitForRefresh() async {
    ```bash
    adb shell
    # Navigate to app data
-   cd /data/data/com.thevaults.customer.dev/
+   cd /data/data/com.thevaults.customer/
    rm -f access_token  # Remove the token file
    ```
    
