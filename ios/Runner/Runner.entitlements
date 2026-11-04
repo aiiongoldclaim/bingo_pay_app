@@ -4,8 +4,8 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:thevaults.org</string>
-		<string>applinks:dev.thevaults.org</string>
+		<string>applinks:thevaults.to</string>
+		<string>applinks:dev.thevaults.to</string>
 	</array>
 </dict>
 </plist>

@@ -49,8 +49,8 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="https"/>
-                <data android:host="thevaults.org"/>
-                <data android:host="dev.thevaults.org"/>
+                <data android:host="thevaults.to"/>
+                <data android:host="dev.thevaults.to"/>
                 <data android:path="/join"/>
             </intent-filter>
             <!-- App-specific deep links -->
